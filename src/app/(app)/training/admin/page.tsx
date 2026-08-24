@@ -20,6 +20,7 @@ import {
   CheckIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 export default function TrainingAdminPage() {
   const { hasPermission } = useAuth();
@@ -391,7 +392,7 @@ export default function TrainingAdminPage() {
                                 <p className="text-xs text-muted-foreground mt-0.5">{course.code}</p>
                               </td>
                               <td className="px-4 py-3 text-[0.8125rem] text-foreground">
-                                {course.deliveryMethod?.replace('_', ' ')}
+                                {course.deliveryMethod ? formatEnumValue(course.deliveryMethod) : ''}
                               </td>
                               <td className="px-4 py-3 text-[0.8125rem]">
                                 {course.category ? (
@@ -629,7 +630,7 @@ export default function TrainingAdminPage() {
                                       session.status === 'CANCELLED' ? 'bg-destructive' :
                                       'bg-muted-foreground'
                                     }`} />
-                                    {session.status?.replace('_', ' ')}
+                                    {session.status ? formatEnumValue(session.status) : ''}
                                   </span>
                                 </td>
                                 <td className="px-4 py-3 text-[0.8125rem]">

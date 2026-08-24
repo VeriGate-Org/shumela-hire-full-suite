@@ -14,8 +14,15 @@ public class JobBoardConnectorRegistry {
 
     @Autowired
     public JobBoardConnectorRegistry(List<JobBoardConnector> connectorBeans) {
+        // Two connectors can claim the same board — a live one whose API key is
+        // absent, and a sandbox one for the same board. Keeping whichever
+        // happened to be constructed first made the winner depend on bean
+        // ordering; prefer the one that reports itself enabled.
         this.connectors = connectorBeans.stream()
-            .collect(Collectors.toMap(JobBoardConnector::getSupportedType, c -> c, (a, b) -> a));
+            .collect(Collectors.toMap(
+                JobBoardConnector::getSupportedType,
+                c -> c,
+                (a, b) -> a.isEnabled() ? a : b));
     }
 
     public JobBoardConnector getConnector(JobBoardType type) {

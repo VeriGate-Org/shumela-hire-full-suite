@@ -45,6 +45,10 @@ export default function ApplicantsPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  // Counts by application status, straight from the API. The three tiles beside "Total Applicants"
+  // used to be arithmetic on the total — "Shortlisted" was literally Math.ceil(total * 0.4) — so
+  // they moved when the total moved and were never anybody's data.
+  const [statusCounts, setStatusCounts] = useState<Record<string, number> | null>(null);
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -87,6 +91,16 @@ export default function ApplicantsPage() {
       setTotalElements(0);
     } finally {
       setLoading(false);
+    }
+
+    try {
+      const statsResponse = await apiFetch('/api/applications/manage/statistics');
+      if (statsResponse.ok) {
+        const stats = await statsResponse.json();
+        setStatusCounts(stats?.statusDistribution ?? null);
+      }
+    } catch {
+      // Leave the tiles showing "--" rather than a number nobody can account for.
     }
   }, []);
 
@@ -201,10 +215,10 @@ export default function ApplicantsPage() {
                 </div>
                 <div>
                   <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
-                    {loading ? '--' : Math.max(0, totalElements - 2)}
+                    {statusCounts === null ? '--' : (statusCounts.SCREENING ?? 0)}
                   </div>
                   <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">
-                    Active Profiles
+                    In Screening
                   </div>
                 </div>
               </div>
@@ -217,10 +231,12 @@ export default function ApplicantsPage() {
                 </div>
                 <div>
                   <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
-                    {loading ? '--' : Math.ceil(totalElements * 0.4)}
+                    {statusCounts === null
+                      ? '--'
+                      : (statusCounts.INTERVIEW_SCHEDULED ?? 0) + (statusCounts.INTERVIEW_COMPLETED ?? 0)}
                   </div>
                   <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">
-                    Shortlisted
+                    At Interview
                   </div>
                 </div>
               </div>
@@ -236,10 +252,10 @@ export default function ApplicantsPage() {
                 </div>
                 <div>
                   <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
-                    {loading ? '--' : Math.min(totalElements, 3)}
+                    {statusCounts === null ? '--' : (statusCounts.HIRED ?? 0)}
                   </div>
                   <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">
-                    New This Week
+                    Hired
                   </div>
                 </div>
               </div>

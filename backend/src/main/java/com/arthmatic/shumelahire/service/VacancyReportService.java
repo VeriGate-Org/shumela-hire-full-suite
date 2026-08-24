@@ -41,6 +41,19 @@ public class VacancyReportService {
         this.auditLogRepository = auditLogRepository;
     }
 
+    /**
+     * ApplicationStatus already carries a display name; the grouping key is its {@code name()}.
+     * An unrecognised value degrades to a de-underscored form rather than throwing, because a
+     * report that fails entirely over one unexpected status is worse than one imperfect line.
+     */
+    private static String statusLabel(String statusName) {
+        try {
+            return ApplicationStatus.valueOf(statusName).getDisplayName();
+        } catch (IllegalArgumentException e) {
+            return statusName == null ? "Unknown" : statusName.replace('_', ' ');
+        }
+    }
+
     public Map<String, Object> getVacancySummaryData(String jobId) {
         List<Application> applications = applicationRepository.findByJobId(jobId);
 
@@ -150,7 +163,9 @@ public class VacancyReportService {
                         cs.beginText();
                         cs.setFont(fontRegular, 10);
                         cs.newLineAtOffset(margin + 10, y);
-                        cs.showText(entry.getKey() + ": " + entry.getValue());
+                        // The grouping key is ApplicationStatus.name(), so this printed
+                        // "INTERVIEW_SCHEDULED: 4" in a document that goes to a client.
+                        cs.showText(statusLabel(entry.getKey()) + ": " + entry.getValue());
                         cs.endText();
                         y -= 15;
                     }

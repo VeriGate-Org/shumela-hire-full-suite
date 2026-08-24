@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
@@ -30,11 +30,15 @@ import {
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { pipelineApplicationStatusConfig, getStatusConfig } from '@/utils/statusIcons';
 import { formatEnumValue } from '@/utils/enumLabels';
+import { isOpaqueId } from '@/utils/identity';
 import AiCandidatePanel from '@/components/ai/AiCandidatePanel';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiCandidateRanking from '@/components/ai/AiCandidateRanking';
 import AiOfferPrediction from '@/components/ai/AiOfferPrediction';
 import BackgroundCheckPanel from '@/components/BackgroundCheckPanel';
+import VerificationReportDownload from '@/components/VerificationReportDownload';
+import ScreeningNotesPanel, { ScreeningNotesHandle } from '@/components/ScreeningNotesPanel';
+import ShortlistButton from '@/components/ShortlistButton';
 import VerificationStatusSummary, { VerificationSummary } from '@/components/VerificationStatusSummary';
 import OfferSummaryPanel from '@/components/OfferSummaryPanel';
 import InterviewSummaryPanel from '@/components/InterviewSummaryPanel';
@@ -246,6 +250,15 @@ export default function PipelinePage() {
   const [screeningNotesOpen, setScreeningNotesOpen] = useState(false);
   const [interviewPreviews, setInterviewPreviews] = useState<Record<string, { nextDate?: string; nextType?: string; status?: string; feedbackCount?: number; totalInterviewers?: number; latestRecommendation?: string }>>({});
   const [schedulerApplicationId, setSchedulerApplicationId] = useState<string | null>(null);
+  // Lets the AI notes drafter hand its text to the notes box instead of into the void.
+  const notesPanelRef = useRef<ScreeningNotesHandle>(null);
+  // Keyed by job id: the vacancy's required skills, which AI CV screening compares the candidate
+  // against. It was never passed, so screening ran against an empty requirement list and could
+  // only ever produce a generic reading.
+  const [jobRequirements, setJobRequirements] = useState<Record<string, string[]>>({});
+  // Loaded once for the whole board rather than per card — a shortlist control on every candidate
+  // reading its own state would be a request per card on the busiest screen in the product.
+  const [shortlistStates, setShortlistStates] = useState<Record<string, boolean>>({});
 
   // --- Status mapping covering all 12 ApplicationStatus enum values ---
   const statusMap: Record<string, Application['status']> = {
@@ -281,6 +294,20 @@ export default function PipelinePage() {
       }
     } catch {
       // Gracefully ignore — feature may not be enabled
+    }
+  }, []);
+
+  const loadShortlistStates = useCallback(async (apps: Application[]) => {
+    if (apps.length === 0) {
+      setShortlistStates({});
+      return;
+    }
+    try {
+      const ids = apps.map(a => a.id).join(',');
+      const response = await apiFetch(`/api/shortlisting/applications/shortlist-states?applicationIds=${ids}`);
+      if (response.ok) setShortlistStates((await response.json()) || {});
+    } catch {
+      // Shortlisting may not be enabled. The action still works; only the initial label is unknown.
     }
   }, []);
 
@@ -356,6 +383,7 @@ export default function PipelinePage() {
       });
       setApplications(mapped);
       loadVerificationSummaries(mapped);
+      loadShortlistStates(mapped);
       // Preload offers for offer/accepted stage cards (for status badges)
       const offerApps = mapped.filter(a =>
         ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION', 'OFFER_ACCEPTED'].includes(a.backendStage)
@@ -403,7 +431,7 @@ export default function PipelinePage() {
     } finally {
       setLoading(false);
     }
-  }, [loadVerificationSummaries]);
+  }, [loadVerificationSummaries, loadShortlistStates]);
 
   // P5: Fetch backend analytics
   // Note: the backend /api/pipeline/analytics returns { funnel, averageStageDurations, conversions, ... }
@@ -457,7 +485,9 @@ export default function PipelinePage() {
           createdAt: t.createdAt || t.transitionDate || '',
           reason: t.reason || t.notes || '',
           notes: t.notes || '',
-          performedBy: t.performedBy || t.performedByName || '',
+          // Prefer the name: performedBy holds a user id, performedByName the
+          // person. Taking performedBy first put a UUID on the timeline.
+          performedBy: t.performedByName || t.performedBy || '',
         }));
         setTimelineEntries(entries);
       })
@@ -485,6 +515,22 @@ export default function PipelinePage() {
       .then(data => { if (!cancelled) setDocuments(Array.isArray(data) ? data : []); })
       .catch(() => { if (!cancelled) setDocuments([]); })
       .finally(() => { if (!cancelled) setDocumentsLoading(false); });
+
+    // Load the vacancy's required skills so AI CV screening has something to screen against.
+    const jobId = selectedApplication.job.id;
+    if (jobId && !jobRequirements[jobId]) {
+      apiFetch(`/api/job-postings/${jobId}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (cancelled || !data) return;
+          const skills = [
+            ...(Array.isArray(data.requiredSkills) ? data.requiredSkills : []),
+            ...(Array.isArray(data.preferredSkills) ? data.preferredSkills : []),
+          ].filter(Boolean);
+          if (skills.length > 0) setJobRequirements(prev => ({ ...prev, [jobId]: skills }));
+        })
+        .catch(() => {});
+    }
 
     // Load offer for offer/accepted/hired stages
     const offerStages = ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION', 'OFFER_ACCEPTED', 'HIRED'];
@@ -1095,9 +1141,24 @@ export default function PipelinePage() {
                               <ClockIcon className="w-3 h-3" />
                               {application.daysInStage === 0 ? 'Today' : `${application.daysInStage}d in stage`}
                             </span>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-button text-[0.6875rem] font-bold ${scoreClass}`}>
-                              {progressScore}%
-                            </span>
+                            <div className="flex items-center gap-1">
+                              {/* Revealed on hover so the card stays readable at rest, but the
+                                  action is one click away in the view people actually work in. */}
+                              {application.status === 'active' && (
+                                <span className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                                  <ShortlistButton
+                                    applicationId={application.id}
+                                    candidateName={`${application.candidate.firstName} ${application.candidate.lastName}`}
+                                    shortlisted={shortlistStates[application.id] ?? false}
+                                    variant="icon"
+                                    className="!w-6 !h-6"
+                                  />
+                                </span>
+                              )}
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-button text-[0.6875rem] font-bold ${scoreClass}`}>
+                                {progressScore}%
+                              </span>
+                            </div>
                           </div>
                         </div>
                       );
@@ -1148,7 +1209,7 @@ export default function PipelinePage() {
                     <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] cursor-pointer hover:text-primary whitespace-nowrap">Stage</th>
                     <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] cursor-pointer hover:text-primary whitespace-nowrap">Days in Stage</th>
                     <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] cursor-pointer hover:text-primary whitespace-nowrap">Score</th>
-                    <th className="py-3 px-4 w-[50px] text-left text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] whitespace-nowrap">Actions</th>
+                    <th className="py-3 px-4 w-[90px] text-left text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1205,13 +1266,25 @@ export default function PipelinePage() {
                           </span>
                         </td>
                         <td className="py-3 px-4 align-middle">
-                          <button
-                            onClick={() => setSelectedApplication(application)}
-                            className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-primary transition-all"
-                            title="View details"
-                          >
-                            <EyeIcon className="w-[18px] h-[18px]" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => setSelectedApplication(application)}
+                              className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-primary transition-all"
+                              title="View details"
+                            >
+                              <EyeIcon className="w-[18px] h-[18px]" />
+                            </button>
+                            {/* Shortlisting from the row is the quickest form of the action:
+                                triaging a list is exactly when you want it. */}
+                            {application.status === 'active' && (
+                              <ShortlistButton
+                                applicationId={application.id}
+                                candidateName={`${application.candidate.firstName} ${application.candidate.lastName}`}
+                                shortlisted={shortlistStates[application.id] ?? false}
+                                variant="icon"
+                              />
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -1275,6 +1348,11 @@ export default function PipelinePage() {
           const isOfferRelated = ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION', 'OFFER_ACCEPTED', 'HIRED'].includes(selectedApplication.backendStage);
           const isInterviewStage = ['FIRST_INTERVIEW', 'TECHNICAL_ASSESSMENT', 'SECOND_INTERVIEW', 'PANEL_INTERVIEW', 'MANAGER_INTERVIEW', 'FINAL_INTERVIEW'].includes(selectedApplication.backendStage);
           const showAiPanels = !isChecksStage && !isHiredStage;
+          // Applied and Screening are where a recruiter forms a view, so they get the two things
+          // that were missing there: somewhere to record it, and sight of any verification already
+          // on file. The full BackgroundCheckPanel stays with Checks — commissioning a paid check
+          // is a different act from reading one.
+          const isEarlyStage = ['applied', 'screening'].includes(currentGroupId);
 
           return (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -1296,6 +1374,14 @@ export default function PipelinePage() {
                   <p className="text-muted-foreground">{selectedApplication.job.title} - {selectedApplication.job.department}</p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {selectedApplication.status === 'active' && (
+                    <ShortlistButton
+                      applicationId={selectedApplication.id}
+                      candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
+                      shortlisted={shortlistStates[selectedApplication.id] ?? false}
+                      onDone={(next) => setShortlistStates(prev => ({ ...prev, [selectedApplication.id]: next }))}
+                    />
+                  )}
                   {selectedApplication.status === 'active' && nextGroupStage && (
                     <button
                       onClick={() => { handleStageTransition(selectedApplication.id, nextGroupStage); setSelectedApplication(null); }}
@@ -1356,8 +1442,9 @@ export default function PipelinePage() {
                       <p><strong>Days in Stage:</strong> {selectedApplication.daysInStage}</p>
                     </div>
 
-                    {/* Screening Notes */}
-                    {selectedApplication.screeningNotes && (
+                    {/* Screening Notes — read-only summary. The early stages get the full
+                        read-and-write panel lower down instead, so this would only duplicate it. */}
+                    {!isEarlyStage && selectedApplication.screeningNotes && (
                       <div>
                         <button
                           onClick={() => setScreeningNotesOpen(!screeningNotesOpen)}
@@ -1439,7 +1526,9 @@ export default function PipelinePage() {
                             <div className="flex-1 min-w-0">
                               <div className="text-sm text-foreground">
                                 <strong>{event.fromStage ? `${BACKEND_STAGE_DISPLAY[event.fromStage] || formatEnumValue(event.fromStage)} → ${BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage)}` : (BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage))}</strong>
-                                {event.performedBy && <span className="text-muted-foreground"> by {event.performedBy}</span>}
+                                {!isOpaqueId(event.performedBy) && event.performedBy && (
+                                  <span className="text-muted-foreground"> by {event.performedBy}</span>
+                                )}
                               </div>
                               {event.reason && (
                                 <div className="text-xs text-muted-foreground mt-0.5">{event.reason}</div>
@@ -1512,6 +1601,33 @@ export default function PipelinePage() {
                   </div>
                 )}
 
+                {/* Screening notes and verification for the early stages. Interviews, Offer and
+                    Checks each already have a panel for the work done there; Applied and Screening
+                    had nothing, so a recruiter could form a view of a candidate and had nowhere to
+                    put it. */}
+                {isEarlyStage && (
+                  <div className="pt-6 border-t border-border space-y-6">
+                    <ScreeningNotesPanel
+                      ref={notesPanelRef}
+                      applicationId={selectedApplication.id}
+                      notes={selectedApplication.screeningNotes}
+                      onSaved={(allNotes) => {
+                        setApplications(prev => prev.map(a =>
+                          a.id === selectedApplication.id ? { ...a, screeningNotes: allNotes } : a));
+                        setSelectedApplication(prev =>
+                          prev ? { ...prev, screeningNotes: allNotes } : prev);
+                      }}
+                    />
+
+                    {/* Verification already on file, readable from the stage where the screening
+                        decision is made rather than only from Checks. */}
+                    <VerificationReportDownload
+                      applicationId={selectedApplication.id}
+                      hideWhenEmpty={currentGroupId === 'applied'}
+                    />
+                  </div>
+                )}
+
                 {/* AI Candidate Assist — hidden for Checks and Hired stages */}
                 {showAiPanels && (
                   <div className="pt-6 border-t border-border space-y-4">
@@ -1519,6 +1635,15 @@ export default function PipelinePage() {
                       applicationId={selectedApplication.id}
                       candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
                       jobTitle={selectedApplication.job.title}
+                      jobRequirements={jobRequirements[selectedApplication.job.id] || []}
+                      // Without this the Notes tab drafted screening notes and then hid its own
+                      // Apply button, because AiScreeningNotesDrafter only renders it when a
+                      // handler exists. The AI wrote text that had nowhere to go — which is what
+                      // made the panel look decorative in exactly the two stages it is most useful.
+                      onApplyNotes={(text) => {
+                        notesPanelRef.current?.setDraft(text);
+                        toast('Draft moved to Screening Notes — review it, then save', 'info');
+                      }}
                     />
 
                     {selectedApplication.backendStage.includes('OFFER') && (

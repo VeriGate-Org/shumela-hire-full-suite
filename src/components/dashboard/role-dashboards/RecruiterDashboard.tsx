@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
+import { getEnumLabel } from '@/utils/enumLabels';
+import { JobBoardType } from '@/types/jobBoard';
+import BoardLogo from '@/components/BoardLogo';
 import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics, DataExplorer } from '../../dashboard';
 
@@ -37,9 +40,32 @@ interface CandidateRow {
 
 const mockCandidateColumns: any[] = [];
 
+/** One channel's share of applications received. */
+interface SourceChannel {
+  source: string;
+  label: string;
+  applications: number;
+  share: number;
+}
+
+// Colour is assigned by position, so the largest channel always reads the same
+// way regardless of which channel it happens to be for a given tenant.
+const CHANNEL_COLORS = ['bg-cta', 'bg-primary', 'bg-green-500', 'bg-accent-teal', 'bg-gray-500'];
+
+// Sources that name a board this product publishes to. The value and the board
+// are the same brand seen from two directions — an advert we posted, and the
+// applications it returned — so the same mark identifies both.
+const SOURCE_TO_BOARD: Record<string, JobBoardType | undefined> = {
+  PNET: JobBoardType.PNET,
+  CAREER_JUNCTION: JobBoardType.CAREER_JUNCTION,
+  LINKEDIN: JobBoardType.LINKEDIN,
+  INDEED: JobBoardType.INDEED,
+};
+
 export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashboardProps) {
   const [metrics, setMetrics] = useState<MetricItem[]>([]);
   const [candidateData, setCandidateData] = useState<CandidateRow[]>([]);
+  const [sourceChannels, setSourceChannels] = useState<SourceChannel[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,10 +74,11 @@ export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashb
     async function fetchData() {
       setLoading(true);
 
-      // Fetch metrics and candidates in parallel
-      const [metricsResult, candidatesResult] = await Promise.allSettled([
+      // Fetch metrics, candidates and the source breakdown in parallel
+      const [metricsResult, candidatesResult, statisticsResult] = await Promise.allSettled([
         apiFetch('/api/analytics/dashboard?role=RECRUITER'),
         apiFetch('/api/applications/manage/search?size=10&sortBy=submittedAt&sortDirection=desc'),
+        apiFetch('/api/applications/manage/statistics'),
       ]);
 
       if (cancelled) return;
@@ -102,6 +129,31 @@ export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashb
           setCandidateData(mapped);
         } catch {
           // Keep empty candidates on parse error
+        }
+      }
+
+      // Process the sourcing breakdown
+      if (statisticsResult.status === 'fulfilled' && statisticsResult.value.ok) {
+        try {
+          const data = await statisticsResult.value.json();
+          const distribution: Record<string, number> = data?.sourceDistribution ?? {};
+          const total = Object.values(distribution).reduce((sum, n) => sum + Number(n || 0), 0);
+
+          setSourceChannels(
+            Object.entries(distribution)
+              .map(([source, count]) => ({
+                source,
+                label: getEnumLabel('applicationSource', source),
+                applications: Number(count) || 0,
+                share: total > 0 ? Math.round((Number(count) || 0) / total * 100) : 0,
+              }))
+              .filter((channel) => channel.applications > 0)
+              .sort((a, b) => b.applications - a.applications)
+              .slice(0, 5),
+          );
+        } catch {
+          // Leave the widget in its empty state rather than showing a number
+          // nobody can trace back to an application.
         }
       }
 
@@ -226,27 +278,41 @@ export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashb
             <DashboardWidget
               id="sourcing-channels"
               title="Top Sourcing Channels"
-              subtitle="Performance by source"
+              subtitle="Applications received by channel"
               size="small"
             >
-              <div className="space-y-3">
-                {[
-                  { source: 'LinkedIn', candidates: 45, quality: 8.2, color: 'bg-cta' },
-                  { source: 'Referrals', candidates: 23, quality: 9.1, color: 'bg-green-500' },
-                  { source: 'Job Boards', candidates: 34, quality: 6.8, color: 'bg-primary' },
-                  { source: 'GitHub', candidates: 18, quality: 8.7, color: 'bg-gray-600' },
-                ].map((channel) => (
-                  <div key={channel.source} className="flex items-center justify-between p-3 bg-muted rounded-card">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${channel.color}`}></div>
-                      <span className="font-medium text-foreground">{channel.source}</span>
+              {sourceChannels.length === 0 ? (
+                <p className="text-sm text-muted-foreground p-3">
+                  No application sources recorded yet.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {sourceChannels.map((channel, index) => (
+                    <div
+                      key={channel.source}
+                      className="flex items-center justify-between p-3 bg-muted rounded-card"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* A channel that IS a board carries its mark; the rest
+                            keep the colour dot, so the two read as one list. */}
+                        {SOURCE_TO_BOARD[channel.source] ? (
+                          <BoardLogo boardType={SOURCE_TO_BOARD[channel.source]!} size="sm" />
+                        ) : (
+                          <div
+                            className={`w-3 h-3 mx-1 rounded-full flex-shrink-0 ${
+                              CHANNEL_COLORS[index % CHANNEL_COLORS.length]
+                            }`}
+                          />
+                        )}
+                        <span className="font-medium text-foreground truncate">{channel.label}</span>
+                      </div>
+                      <div className="text-sm text-muted-foreground flex-shrink-0 ml-3">
+                        {channel.applications} &middot; {channel.share}%
+                      </div>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      {channel.candidates} • {channel.quality}/10
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </DashboardWidget>
           </div>
 

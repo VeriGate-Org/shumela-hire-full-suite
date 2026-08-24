@@ -56,6 +56,9 @@ public class BackgroundCheckController {
     @Autowired
     private com.arthmatic.shumelahire.service.ApplicationJobPostingResolver jobPostingResolver;
 
+    @Autowired
+    private com.arthmatic.shumelahire.service.VerificationReportService verificationReportService;
+
     /**
      * Initiate a background check for an application.
      */
@@ -110,11 +113,46 @@ public class BackgroundCheckController {
 
     /**
      * Download the verification report PDF.
+     *
+     * <p>Provider first, own render second. The provider's own PDF is preferred when it can be
+     * had, but it requires an {@code externalScreeningId} and a reachable provider account —
+     * neither of which holds for a check recorded via webhook, seeded into a tenant, or completed
+     * before the provider integration went live. Previously each of those threw, so the button
+     * returned a 500 while the results it summarises were on screen directly above it.
+     *
+     * <p>The fallback renders from the stored record, so a report is always available for a check
+     * this system holds results for. It never fabricates: an unrecorded per-check result prints as
+     * "Not recorded", not as a pass.
      */
     @GetMapping("/{referenceId}/report")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<byte[]> downloadReport(@PathVariable String referenceId) {
-        byte[] report = backgroundCheckService.downloadReport(referenceId);
+        BackgroundCheck check = backgroundCheckRepository.findByReferenceId(referenceId).orElse(null);
+        if (check == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        byte[] report = null;
+
+        if (check.getExternalScreeningId() != null && !check.getExternalScreeningId().isBlank()) {
+            try {
+                report = backgroundCheckService.downloadReport(referenceId);
+            } catch (Exception e) {
+                // A provider outage must not deny the user the findings we already hold.
+                logger.warn("Provider report unavailable for {} ({}), rendering from stored results",
+                        referenceId, e.getMessage());
+            }
+        }
+
+        if (report == null || report.length == 0) {
+            try {
+                report = verificationReportService.generateReport(
+                        check, backgroundCheckService.getAvailableCheckTypes());
+            } catch (Exception e) {
+                logger.error("Failed to render verification report for {}: {}", referenceId, e.getMessage(), e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);

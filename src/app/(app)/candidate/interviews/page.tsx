@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
+import { getEnumLabel } from '@/utils/enumLabels';
 import { useAuth } from '@/contexts/AuthContext';
 import { getApplicantId, getApplications, getInterviewsForApplication } from '@/services/candidateService';
 import {
@@ -546,7 +547,7 @@ export default function InterviewSchedulePage() {
                         </div>
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wide whitespace-nowrap ${getInterviewTypeColor(interview.interviewType)}`}>
                           {getInterviewTypeIcon(interview.interviewType)}
-                          <span className="capitalize">{interview.interviewType.replace('_', ' ')}</span>
+                          <span>{getEnumLabel('interviewType', interview.interviewType)}</span>
                         </span>
                       </div>
 
@@ -722,7 +723,7 @@ export default function InterviewSchedulePage() {
                     <div className="min-w-0">
                       <h3 className="text-[0.9375rem] font-semibold text-gray-900 truncate">{interview.jobTitle}</h3>
                       <p className="text-[0.8125rem] text-gray-500">
-                        <span className="capitalize">{interview.interviewType.replace('_', ' ')}</span>
+                        <span>{getEnumLabel('interviewType', interview.interviewType)}</span>
                         {' - '}
                         {new Date(interview.scheduledDate).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}
                       </p>
@@ -784,11 +785,11 @@ export default function InterviewSchedulePage() {
                       </span>
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${getInterviewTypeColor(selectedInterview.interviewType)}`}>
                         {getInterviewTypeIcon(selectedInterview.interviewType)}
-                        <span className="capitalize">{selectedInterview.interviewType.replace('_', ' ')}</span>
+                        <span>{getEnumLabel('interviewType', selectedInterview.interviewType)}</span>
                       </span>
                       <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(selectedInterview.status)}`}>
                         {getStatusIcon(selectedInterview.status)}
-                        <span className="capitalize">{selectedInterview.status}</span>
+                        <span>{getEnumLabel('interviewStatus', selectedInterview.status)}</span>
                       </span>
                     </div>
                   </div>

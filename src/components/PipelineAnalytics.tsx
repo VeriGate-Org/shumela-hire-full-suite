@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface PipelineAnalyticsData {
   funnel: Record<string, number>;
@@ -182,7 +183,7 @@ export default function PipelineAnalytics({ analytics, onRefresh }: PipelineAnal
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-green-900">Best Performing Stage</p>
-                        <p className="text-lg font-bold text-green-600">{performance.best.stage}</p>
+                        <p className="text-lg font-bold text-green-600">{getEnumLabel('pipelineStage', performance.best.stage)}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-2xl font-bold text-green-600">{performance.best.rate.toFixed(1)}%</p>
@@ -195,7 +196,7 @@ export default function PipelineAnalytics({ analytics, onRefresh }: PipelineAnal
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-red-900">Needs Attention</p>
-                        <p className="text-lg font-bold text-red-600">{performance.worst.stage}</p>
+                        <p className="text-lg font-bold text-red-600">{getEnumLabel('pipelineStage', performance.worst.stage)}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-2xl font-bold text-red-600">{performance.worst.rate.toFixed(1)}%</p>
@@ -268,7 +269,7 @@ export default function PipelineAnalytics({ analytics, onRefresh }: PipelineAnal
                       {index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{duration.stage}</p>
+                      <p className="font-medium text-gray-900">{getEnumLabel('pipelineStage', duration.stage)}</p>
                       <p className="text-sm text-gray-600">Stage duration</p>
                     </div>
                   </div>

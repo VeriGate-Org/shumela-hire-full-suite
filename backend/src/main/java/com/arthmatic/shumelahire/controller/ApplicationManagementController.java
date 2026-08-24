@@ -3,6 +3,8 @@ package com.arthmatic.shumelahire.controller;
 import com.arthmatic.shumelahire.dto.ErrorResponse;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.PipelineStage;
+import com.arthmatic.shumelahire.entity.User;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import com.arthmatic.shumelahire.service.ApplicationManagementService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -25,9 +29,12 @@ import java.util.Map;
 public class ApplicationManagementController {
 
     private final ApplicationManagementService applicationManagementService;
+    private final UserDataRepository userRepository;
 
-    public ApplicationManagementController(ApplicationManagementService applicationManagementService) {
+    public ApplicationManagementController(ApplicationManagementService applicationManagementService,
+                                           UserDataRepository userRepository) {
         this.applicationManagementService = applicationManagementService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -183,6 +190,70 @@ public class ApplicationManagementController {
             return ResponseEntity.badRequest()
                 .body(new ErrorResponse("Bulk screening notes update failed: " + e.getMessage()));
         }
+    }
+
+    /**
+     * Append a screening note to one application.
+     * POST /api/applications/manage/{applicationId}/screening-notes
+     *
+     * <p>Until now the only way to write a note was the bulk endpoint, which meant the recruiter
+     * screens where a view is actually formed — Applied and Screening — had nowhere to record one.
+     * A single-application route also lets the note carry its author, which the bulk path cannot:
+     * it takes no actor, so every note it wrote was anonymous. On a screen whose purpose is to
+     * evidence a hiring decision, an unattributed comment is close to worthless.
+     *
+     * <p>HIRING_MANAGER is admitted here deliberately, unlike on the bulk route. Commenting on a
+     * candidate you are hiring is the hiring manager's core act; editing hundreds of records at
+     * once is not.
+     */
+    @PostMapping("/{applicationId}/screening-notes")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    public ResponseEntity<?> addScreeningNote(
+            @PathVariable String applicationId,
+            @RequestBody Map<String, Object> request,
+            Authentication authentication) {
+        String note = request.get("notes") == null ? null : request.get("notes").toString();
+
+        if (note == null || note.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("A note cannot be empty"));
+        }
+        if (note.length() > 2000) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse("A note must not exceed 2000 characters"));
+        }
+
+        try {
+            return ResponseEntity.ok(applicationManagementService.addScreeningNote(
+                    applicationId, note.trim(), resolveAuthorName(authentication)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    /**
+     * The note's author comes from the token, never the body — a client-supplied name would let a
+     * caller attribute their opinion of a candidate to a colleague.
+     */
+    private String resolveAuthorName(Authentication authentication) {
+        if (authentication == null) return "Unknown user";
+
+        if (authentication.getPrincipal() instanceof Jwt jwt) {
+            String email = jwt.getClaimAsString("email");
+            if (email != null) {
+                return userRepository.findByEmail(email)
+                        .map(ApplicationManagementController::displayName)
+                        .orElse(email);
+            }
+        } else if (authentication.getPrincipal() instanceof User user) {
+            return displayName(user);
+        }
+        return authentication.getName() == null ? "Unknown user" : authentication.getName();
+    }
+
+    private static String displayName(User user) {
+        String name = ((user.getFirstName() == null ? "" : user.getFirstName()) + " "
+                + (user.getLastName() == null ? "" : user.getLastName())).trim();
+        return name.isEmpty() ? user.getEmail() : name;
     }
 
     /**

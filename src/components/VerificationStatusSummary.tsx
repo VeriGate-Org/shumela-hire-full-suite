@@ -92,7 +92,7 @@ export default function VerificationStatusSummary({
               <span
                 key={ct}
                 className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-card border border-border ${cfg.color}`}
-                title={`${formatEnumValue(ct)}: ${status.toLowerCase().replace('_', ' ')}`}
+                title={`${formatEnumValue(ct)}: ${formatEnumValue(status)}`}
               >
                 <span className="text-xs">{cfg.icon}</span>
                 {formatEnumValue(ct).split(' ').map(w => w[0]).join('')}

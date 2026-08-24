@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { apiFetch } from '@/lib/api-fetch';
+import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import { formatEnumValue } from '@/utils/enumLabels';
 
 interface CheckType {
@@ -79,6 +79,7 @@ export default function BackgroundCheckPanel({
   const [requiredCheckTypes, setRequiredCheckTypes] = useState<string[]>([]);
   const [uploadedReports, setUploadedReports] = useState<Record<string, { name: string; url: string }>>({});
   const [uploading, setUploading] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState<string | null>(null);
 
   const loadChecks = useCallback(async () => {
     try {
@@ -184,19 +185,39 @@ export default function BackgroundCheckPanel({
   };
 
   const handleDownloadReport = async (referenceId: string) => {
+    setDownloading(referenceId);
+    setError(null);
     try {
-      const response = await fetch(`/api/background-checks/${referenceId}/report`, {
-        headers: { 'Accept': 'application/pdf' },
+      // apiFetch, not fetch: the API lives on a different origin to this app and needs the bearer
+      // token and tenant header. A bare relative fetch reached the Next.js server instead, whose
+      // 404 page was then saved — with no ok check — as a .pdf. The download appeared to succeed
+      // and produced a file that would not open.
+      const response = await apiFetch(`/api/background-checks/${referenceId}/report`, {
+        headers: { Accept: 'application/pdf' },
       });
+      if (!response.ok) {
+        throw new Error(await refusalMessage(response));
+      }
+
       const blob = await response.blob();
+      if (blob.size === 0) {
+        throw new Error('The verification report came back empty.');
+      }
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `verification-report-${referenceId}.pdf`;
+      document.body.appendChild(a);
       a.click();
+      a.remove();
       URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to download the verification report';
       console.error('Failed to download report:', err);
+      setError(message);
+    } finally {
+      setDownloading(null);
     }
   };
 
@@ -418,6 +439,13 @@ export default function BackgroundCheckPanel({
 
       {/* Checks List */}
       <div className="px-6 py-4">
+        {/* A failure outside the initiate form had nowhere to surface, so a refused or broken
+            download failed silently. */}
+        {error && !showInitForm && (
+          <div role="alert" className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+            {error}
+          </div>
+        )}
         {checks.length === 0 ? (
           <div className="text-center py-8">
             <svg className="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -455,9 +483,10 @@ export default function BackgroundCheckPanel({
                       {check.status === 'COMPLETED' && (
                         <button
                           onClick={() => handleDownloadReport(check.referenceId)}
-                          className="text-xs px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 transition-colors"
+                          disabled={downloading === check.referenceId}
+                          className="text-xs px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Download Report
+                          {downloading === check.referenceId ? 'Preparing...' : 'Download Report'}
                         </button>
                       )}
                       {!readOnly && ['INITIATED', 'PENDING_CONSENT', 'IN_PROGRESS'].includes(check.status) && (

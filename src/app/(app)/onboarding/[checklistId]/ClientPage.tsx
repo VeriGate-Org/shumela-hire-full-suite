@@ -19,6 +19,7 @@ import {
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as CheckCircleSolidIcon } from '@heroicons/react/24/solid';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 type ItemCategory = 'DOCUMENTS' | 'IT_SETUP' | 'ORIENTATION' | 'COMPLIANCE' | 'BENEFITS';
 
@@ -158,7 +159,7 @@ export default function ChecklistDetailPage() {
                         statusColors[checklist.status] || 'bg-gray-100 text-gray-700'
                       }`}
                     >
-                      {checklist.status?.replace('_', ' ')}
+                      {checklist.status ? formatEnumValue(checklist.status) : ''}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
@@ -293,7 +294,7 @@ export default function ChecklistDetailPage() {
                                       : statusColors[item.status] || 'bg-gray-100 text-gray-700'
                                   }`}
                                 >
-                                  {overdue && !isCompleted ? 'OVERDUE' : item.status?.replace('_', ' ')}
+                                  {overdue && !isCompleted ? 'Overdue' : (item.status ? formatEnumValue(item.status) : '')}
                                 </span>
                               </div>
                               {item.description && (

@@ -7,7 +7,9 @@ import ApplicationStatusTracker from '@/components/ApplicationStatusTracker';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import { TableSkeleton } from '@/components/LoadingComponents';
-import { apiFetch } from '@/lib/api-fetch';
+import { apiFetch, refusalMessage } from '@/lib/api-fetch';
+import { useToast } from '@/components/Toast';
+import ShortlistButton from '@/components/ShortlistButton';
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -27,6 +29,7 @@ import {
 import AiCandidatePanel from '@/components/ai/AiCandidatePanel';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiSmartSearch from '@/components/ai/AiSmartSearch';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface Application {
   id: number;
@@ -155,6 +158,8 @@ function getScoreBadge(rating: number | undefined) {
 const PAGE_SIZE = 20;
 
 export default function ApplicationsPage() {
+  const { toast } = useToast();
+  const [advancing, setAdvancing] = useState(false);
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -279,6 +284,32 @@ export default function ApplicationsPage() {
     acc[app.status] = (acc[app.status] || 0) + 1;
     return acc;
   }, {});
+
+  /**
+   * Advance a candidate one pipeline stage.
+   *
+   * The footer button that says this rendered with no onClick at all, so it did nothing — which
+   * reads as a broken product rather than a missing feature. The pipeline endpoint owns stage
+   * order and the verification gate, so this defers to it rather than reimplementing either, and
+   * surfaces a refusal in the API's own words.
+   */
+  const handleAdvanceStage = async (applicationId: number) => {
+    setAdvancing(true);
+    try {
+      const response = await apiFetch(
+        `/api/pipeline/applications/${applicationId}/progress?performedBy=1`,
+        { method: 'POST' },
+      );
+      if (!response.ok) throw new Error(await refusalMessage(response));
+      toast('Candidate advanced to the next stage', 'success');
+      loadApplications(currentPage, searchTerm, statusFilter, sortBy, sortDir);
+      setSelectedApplication(null);
+    } catch (error: unknown) {
+      toast(error instanceof Error ? error.message : 'Could not advance this candidate', 'error');
+    } finally {
+      setAdvancing(false);
+    }
+  };
 
   const handleWithdraw = async (applicationId: number, reason: string) => {
     try {
@@ -823,7 +854,11 @@ export default function ApplicationsPage() {
                         </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-[0.6875rem] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Source</span>
-                          <span className="text-sm font-semibold text-foreground">{selectedApplication.applicationSource || 'Unknown'}</span>
+                          <span className="text-sm font-semibold text-foreground">
+                            {selectedApplication.applicationSource
+                              ? getEnumLabel('applicationSource', selectedApplication.applicationSource)
+                              : 'Not recorded'}
+                          </span>
                         </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-[0.6875rem] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Submitted</span>
@@ -939,17 +974,18 @@ export default function ApplicationsPage() {
                     Close
                   </button>
                   <button
-                    className="inline-flex items-center gap-2 px-5 py-2.5 text-[0.8125rem] font-semibold border border-border rounded-full text-foreground bg-card hover:bg-surface-navy hover:border-primary hover:text-primary transition-colors"
+                    onClick={() => handleAdvanceStage(selectedApplication.id)}
+                    disabled={advancing}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 text-[0.8125rem] font-semibold border border-border rounded-full text-foreground bg-card hover:bg-surface-navy hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronRightIcon className="w-3.5 h-3.5" />
-                    Advance Stage
+                    {advancing ? 'Advancing...' : 'Advance Stage'}
                   </button>
-                  <button
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta text-foreground text-[0.8125rem] font-semibold uppercase tracking-wider rounded-full shadow-sm hover:bg-cta-hover hover:shadow-md hover:-translate-y-px transition-all"
-                  >
-                    <CheckCircleIcon className="w-4 h-4" />
-                    Shortlist
-                  </button>
+                  <ShortlistButton
+                    applicationId={selectedApplication.id}
+                    candidateName={selectedApplication.applicantName}
+                    variant="primary"
+                  />
                 </div>
               </div>
             </div>

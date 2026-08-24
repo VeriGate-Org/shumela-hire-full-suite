@@ -288,6 +288,15 @@ jobs:
           WILDCARD_CERTIFICATE_ARN: ${{ secrets.WILDCARD_CERTIFICATE_ARN }}
           LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
           LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          # Job-board sandbox mode. Set these as environment VARIABLES (not
+          # secrets) on the GitHub environment that needs them, so which boards
+          # simulate and for which tenants is visible without reading a diff.
+          # Unset means live everywhere, which is the safe default.
+          PNET_MODE: ${{ vars.PNET_MODE || 'live' }}
+          CAREER_JUNCTION_MODE: ${{ vars.CAREER_JUNCTION_MODE || 'live' }}
+          INDEED_MODE: ${{ vars.INDEED_MODE || 'live' }}
+          LINKEDIN_JOB_BOARD_MODE: ${{ vars.LINKEDIN_JOB_BOARD_MODE || 'live' }}
+          JOB_BOARD_SIMULATED_TENANTS: ${{ vars.JOB_BOARD_SIMULATED_TENANTS || '' }}
         run: |
           cdk deploy --all --require-approval never --concurrency 1 \
             -c env=${{ inputs.environment }} \
@@ -298,6 +307,11 @@ jobs:
             -c wildcardCertificateArn="${WILDCARD_CERTIFICATE_ARN}" \
             -c linkedInClientId="${LINKEDIN_CLIENT_ID}" \
             -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}" \
+            -c pnetMode="${PNET_MODE}" \
+            -c careerJunctionMode="${CAREER_JUNCTION_MODE}" \
+            -c indeedMode="${INDEED_MODE}" \
+            -c linkedinJobBoardMode="${LINKEDIN_JOB_BOARD_MODE}" \
+            -c jobBoardSimulatedTenants="${JOB_BOARD_SIMULATED_TENANTS}" \
             -c aiEnabled=true \
             -c aiProvider=bedrock
 

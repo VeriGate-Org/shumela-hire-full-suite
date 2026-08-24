@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/Toast';
 import { jobBoardService } from '@/services/jobBoardService';
 import StatusPill from '@/components/StatusPill';
+import BoardLogo from '@/components/BoardLogo';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import {
   JobBoardPosting,
@@ -149,6 +150,7 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
           {postings.map(posting => (
             <div key={posting.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-control border border-gray-200">
               <div className="flex items-center gap-3">
+                <BoardLogo boardType={posting.boardType} size="md" />
                 <span className="font-medium text-sm text-gray-900">
                   {getBoardDisplayName(posting.boardType)}
                 </span>

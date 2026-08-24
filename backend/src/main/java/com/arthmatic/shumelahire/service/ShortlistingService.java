@@ -371,6 +371,82 @@ public class ShortlistingService {
         return shortlistScoreRepository.save(score);
     }
 
+    /**
+     * The stored shortlist state for one application, so a control can show what is true rather
+     * than what was last clicked.
+     *
+     * <p>Deliberately does not score on a read. A GET that creates a row would mean merely opening
+     * a candidate's record wrote a scoring decision against them; {@code scored: false} is the
+     * honest answer for a vacancy nobody has scored yet.
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getShortlistStateForApplication(String applicationId) {
+        return shortlistScoreRepository.findByApplicationId(applicationId)
+            .map(score -> {
+                Map<String, Object> state = new LinkedHashMap<>();
+                state.put("scored", true);
+                state.put("shortlisted", Boolean.TRUE.equals(score.getIsShortlisted()));
+                state.put("manuallyOverridden", Boolean.TRUE.equals(score.getManuallyOverridden()));
+                state.put("totalScore", score.getTotalScore() == null ? 0.0 : score.getTotalScore());
+                return state;
+            })
+            .orElseGet(() -> {
+                Map<String, Object> state = new LinkedHashMap<>();
+                state.put("scored", false);
+                state.put("shortlisted", false);
+                return state;
+            });
+    }
+
+    /**
+     * Shortlist state for many applications, keyed by application id.
+     *
+     * <p>An application with no score row is simply absent from the result rather than reported as
+     * {@code false}: "nobody has scored this vacancy" and "this candidate was considered and left
+     * off" are different facts, and the caller should be able to tell them apart.
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Boolean> getShortlistStatesForApplications(List<String> applicationIds) {
+        Map<String, Boolean> states = new LinkedHashMap<>();
+        if (applicationIds == null) return states;
+
+        for (String applicationId : applicationIds) {
+            shortlistScoreRepository.findByApplicationId(applicationId).ifPresent(score ->
+                states.put(applicationId, Boolean.TRUE.equals(score.getIsShortlisted())));
+        }
+        return states;
+    }
+
+    /**
+     * Include or exclude one application from the shortlist, identified by the application itself.
+     *
+     * <p>{@link #overrideShortlistDecision} keys on a score id, which only exists once someone has
+     * run scoring for the whole vacancy. That made a per-candidate shortlist action impossible to
+     * offer anywhere a candidate appears — the caller would have to know whether a score row
+     * happened to exist, and do something else if it did not. Here the score is computed on demand
+     * when it is missing, so the decision is always recorded against a real assessment rather than
+     * an empty row, and every surface can offer a single unconditional action.
+     *
+     * <p>Scoring runs without the AI pass: this is a person making the call, and a deterministic
+     * score computed in milliseconds is the right thing to attach to their decision. Waiting
+     * twenty seconds for a model to also have an opinion would make a quick action not one.
+     */
+    @Transactional
+    public ShortlistScore setShortlistedForApplication(String applicationId, boolean include,
+                                                       String reason, String userId) {
+        ShortlistScore score = shortlistScoreRepository.findByApplicationId(applicationId).orElse(null);
+
+        if (score == null) {
+            Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
+            JobPosting posting = application.getJobPostingId() == null ? null
+                : jobPostingRepository.findById(application.getJobPostingId()).orElse(null);
+            score = calculateScore(application, posting, false);
+        }
+
+        return overrideShortlistDecision(score.getId(), include, reason, userId);
+    }
+
     public Map<String, Object> getShortlistingSummary(String jobPostingId) {
         List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(jobPostingId);
         JobPosting posting = jobPostingRepository.findById(jobPostingId).orElse(null);

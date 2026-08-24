@@ -89,6 +89,35 @@ export const ENUM_LABELS: Record<string, Record<string, string>> = {
     SECOND_OPINION: 'Needs Second Opinion',
   },
 
+  // The channel an application arrived through. Mirrors the backend enum
+  // entity/ApplicationSource.java, which is the single definition — the DTO
+  // validates against it rather than repeating its values.
+  //
+  // Several of these are third-party brands, so the spelling is theirs, not
+  // ours. getEnumLabel's fallback only strips underscores, so an unregistered
+  // value reaches the screen shouting ("CAREERS PAGE"), and title-casing would
+  // give "Pnet" and "Career Junction" — both wrong on screens making a point
+  // about which boards this product integrates with. Kept in step with
+  // FALLBACK_LOOKUPS.applicationSources and getBoardDisplayName by test.
+  applicationSource: {
+    EXTERNAL: 'Job Board / Website',
+    INTERNAL: 'Internal Posting',
+    REFERRAL: 'Employee Referral',
+    RECRUITER: 'Recruiter Contact',
+    SOCIAL_MEDIA: 'Social Media',
+    LINKEDIN: 'LinkedIn',
+    INDEED: 'Indeed',
+    PNET: 'PNet',
+    CAREER_JUNCTION: 'CareerJunction',
+    CAREER_FAIR: 'Career Fair',
+    COMPANY_WEBSITE: 'Company Website',
+    DIRECT_APPLICATION: 'Direct Application',
+    OTHER: 'Other',
+    AGENCY: 'Recruitment Agency',
+    JOB_BOARD: 'Job Board',
+    CAREERS_PAGE: 'Careers Page',
+  },
+
   // Employment
   employmentType: {
     FULL_TIME: 'Full-time',

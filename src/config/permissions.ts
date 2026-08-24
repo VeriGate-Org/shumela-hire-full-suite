@@ -57,6 +57,13 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'view_dashboard', 'manage_jobs', 'view_applications',
     'manage_pipeline', 'view_interviews', 'manage_offers', 'view_internal_jobs',
     'view_analytics', 'manage_requisitions',
+    // Reports: a hiring manager runs and reads recruitment reports on their own
+    // vacancies. Granted alongside ReportingController, which class-level
+    // restricted /api/reports to ADMIN/HR_MANAGER/EXECUTIVE — without that
+    // change this permission would only have produced a nav entry that 403s.
+    // Report EXPORT is deliberately not granted: ReportExportController remains
+    // ADMIN/HR_MANAGER, and the 'report-export' nav entry is pinned to match.
+    'view_reports',
     // Applicants and Application Management were ADMIN/HR_MANAGER/RECRUITER
     // only — Hiring Managers could already reach every backend endpoint
     // these pages need to view the pipeline (search/statistics/attention/

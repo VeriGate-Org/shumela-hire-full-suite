@@ -111,14 +111,19 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'salary-recommendations', label: 'Salary Recommendations', href: '/salary-recommendations', icon: CurrencyDollarIcon, section: 'recruitment', requiredPermissions: ['view_salary_data'], requiredFeature: 'RECRUITMENT' },
 
   // HR Core — leave, time & attendance, employee self-service
-  { id: 'employee-directory', label: 'Employee Directory', href: '/employee', icon: UsersIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'] },
-  { id: 'add-employee', label: 'Add Employee', href: '/employee/add', icon: UserPlusIcon, section: 'hr_core', requiredPermissions: ['manage_documents'] },
+  // Every entry in this section must carry a requiredFeature from the HR_CORE
+  // module. An untagged entry can never lock, so it survives module gating and
+  // renders an HR item inside a recruitment-only tenant — which is exactly how
+  // Employee Directory, Add Employee, Payslips and Expense Submission were
+  // showing on the IDC tenant (modules = RECRUITMENT,AI,ANALYTICS,ADMINISTRATION).
+  { id: 'employee-directory', label: 'Employee Directory', href: '/employee', icon: UsersIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'add-employee', label: 'Add Employee', href: '/employee/add', icon: UserPlusIcon, section: 'hr_core', requiredPermissions: ['manage_documents'], requiredFeature: 'EMPLOYEE_DOCUMENTS' },
   { id: 'leave', label: 'Leave Management', href: '/leave', icon: CalendarIcon, section: 'hr_core', requiredPermissions: ['manage_leave'], requiredFeature: 'LEAVE_MANAGEMENT' },
-  { id: 'payslips', label: 'Payslips', href: '/payroll/payslips', icon: BanknotesIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'] },
+  { id: 'payslips', label: 'Payslips', href: '/payroll/payslips', icon: BanknotesIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
   { id: 'time-attendance', label: 'Time & Attendance', href: '/time-attendance', icon: ClockIcon, section: 'hr_core', requiredPermissions: ['view_attendance'], requiredFeature: 'TIME_ATTENDANCE' },
   { id: 'overtime-log', label: 'Overtime Log', href: '/time-attendance/overtime', icon: ClockIcon, section: 'hr_core', requiredPermissions: ['view_attendance'], requiredFeature: 'TIME_ATTENDANCE' },
   { id: 'shift-scheduling', label: 'Shift Scheduling', href: '/shift-scheduling', icon: ArrowPathIcon, section: 'hr_core', requiredPermissions: ['manage_attendance'], requiredFeature: 'SHIFT_SCHEDULING' },
-  { id: 'expense-submission', label: 'Expense Submission', href: '/expenses', icon: CurrencyDollarIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'] },
+  { id: 'expense-submission', label: 'Expense Submission', href: '/expenses', icon: CurrencyDollarIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
   { id: 'employee-self-service', label: 'My HR Portal', href: '/employee/portal', icon: UserIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
   { id: 'employee-documents', label: 'Documents', href: '/employee/documents', icon: FolderIcon, section: 'hr_core', requiredPermissions: ['manage_documents'], requiredFeature: 'EMPLOYEE_DOCUMENTS' },
   { id: 'company-documents', label: 'Company Docs', href: '/employee/company-documents', icon: DocumentDuplicateIcon, section: 'hr_core', requiredPermissions: ['view_company_documents'], requiredFeature: 'COMPANY_DOCUMENTS' },
@@ -147,13 +152,23 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'ai-tools', label: 'AI Tools', href: '/ai-tools', icon: CpuChipIcon, section: 'workflow', requiredPermissions: ['manage_jobs'], requiredFeature: 'AI_ENABLED' },
 
   // Analytics
+  // An analytics entry must be gated on the module that owns the DATA, not on
+  // ADVANCED_ANALYTICS — that only says the tenant bought analytics, not which
+  // subject areas it has. HR Analytics and Employee Reports report on
+  // employees (HR_CORE); Performance Analytics reports on performance (TALENT,
+  // the same feature /performance itself uses). Gating all three on
+  // ADVANCED_ANALYTICS put HR reporting in the sidebar of a recruitment-only
+  // tenant that had legitimately licensed the Analytics module.
   { id: 'analytics', label: 'Analytics', href: '/analytics', icon: ChartBarIcon, iconSolid: ChartBarIconSolid, section: 'analytics', requiredPermissions: ['view_analytics'] },
-  { id: 'hr-analytics', label: 'HR Analytics', href: '/analytics/hr-overview', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'ADVANCED_ANALYTICS' },
-  { id: 'performance-analytics', label: 'Performance Analytics', href: '/performance-analytics', icon: ChartBarIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'ADVANCED_ANALYTICS' },
+  { id: 'hr-analytics', label: 'HR Analytics', href: '/analytics/hr-overview', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'performance-analytics', label: 'Performance Analytics', href: '/performance-analytics', icon: ChartBarIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'recruiter-dashboard', label: 'Recruiter Analytics', href: '/recruiter-dashboard', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_recruiter_analytics'], requiredFeature: 'RECRUITMENT' },
   { id: 'reports', label: 'Reports', href: '/reports', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'] },
-  { id: 'report-export', label: 'Report Export', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT' },
-  { id: 'employee-reports', label: 'Employee Reports', href: '/reports/employees', icon: IdentificationIcon, section: 'analytics', requiredPermissions: ['view_reports'] },
+  // Pinned to the roles ReportExportController actually admits. HIRING_MANAGER
+  // holds view_reports (to read reports) but not export rights, and an entry
+  // that appears and then 403s is worse than no entry.
+  { id: 'report-export', label: 'Report Export', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT', allowedRoles: ['ADMIN', 'HR_MANAGER'] },
+  { id: 'employee-reports', label: 'Employee Reports', href: '/reports/employees', icon: IdentificationIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
 
   // Administration
   { id: 'permissions', label: 'Role Permissions', href: '/admin/permissions', icon: ShieldCheckIcon, section: 'administration', requiredPermissions: ['manage_permissions'] },
@@ -177,17 +192,25 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'candidate-portal', label: 'Candidate Portal', href: '/candidate', icon: IdentificationIcon, section: 'candidate_portal', requiredPermissions: ['browse_jobs'] },
   { id: 'candidate-interviews', label: 'Interviews & Offers', href: '/candidate/interviews', icon: CalendarIcon, section: 'candidate_portal', requiredPermissions: ['view_own_interviews'] },
 
-  // Communication
-  { id: 'announcements', label: 'Announcements', href: '/announcements', icon: MegaphoneIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
-  { id: 'messaging', label: 'Messaging', href: '/messages', icon: ChatBubbleLeftRightIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
-  { id: 'notifications-search', label: 'Notifications & Search', href: '/notifications', icon: BellIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
-  { id: 'it-support', label: 'IT Support', href: '/support', icon: WrenchIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
+  // Communication — staff-portal features, not ATS ones. Gated on the HR_CORE
+  // module for the same reason the HR section is: they were untagged, so they
+  // could never lock, and an ATS-only tenant was getting an internal-comms
+  // section it had not licensed. Hiding the /notifications PAGE does not touch
+  // the header notification bell, which is NotificationsPanel, not this entry.
+  { id: 'announcements', label: 'Announcements', href: '/announcements', icon: MegaphoneIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'messaging', label: 'Messaging', href: '/messages', icon: ChatBubbleLeftRightIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'notifications-search', label: 'Notifications & Search', href: '/notifications', icon: BellIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'it-support', label: 'IT Support', href: '/support', icon: WrenchIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
 
   // Personal (Applicant-facing; Employees share this section too — see
   // ROLE_HIDDEN_SECTIONS.EMPLOYEE and rolePermissions.EMPLOYEE)
   { id: 'browse-jobs', label: 'Browse Jobs', href: '/candidate/jobs', icon: MagnifyingGlassIcon, section: 'personal', requiredPermissions: ['browse_jobs'] },
   { id: 'my-applications', label: 'My Applications', href: '/candidate/applications', icon: DocumentTextIcon, section: 'personal', requiredPermissions: ['manage_own_applications'] },
-  { id: 'my-profile', label: 'My Profile', href: '/candidate/profile', icon: UsersIcon, section: 'personal', requiredPermissions: ['view_own_profile'] },
+  // Points at the CANDIDATE profile, so it belongs to people who have one.
+  // Every staff role also holds view_own_profile, which put a lone "My Profile"
+  // under Personal in an administrator's sidebar, linking to the wrong page.
+  // Not feature-gated: an Applicant must keep this whatever the tenant licenses.
+  { id: 'my-profile', label: 'My Profile', href: '/candidate/profile', icon: UsersIcon, section: 'personal', requiredPermissions: ['view_own_profile'], allowedRoles: ['APPLICANT', 'EMPLOYEE'] },
   { id: 'interview-schedule', label: 'Interview Schedule', href: '/candidate/interviews', icon: CalendarIcon, section: 'personal', requiredPermissions: ['view_own_interviews'] },
   { id: 'my-offers', label: 'My Offers', href: '/candidate/offers', icon: CurrencyDollarIcon, section: 'personal', requiredPermissions: ['view_own_offers'] },
   // Employees also have 'view_internal_jobs' via the (now-hidden) Recruitment
