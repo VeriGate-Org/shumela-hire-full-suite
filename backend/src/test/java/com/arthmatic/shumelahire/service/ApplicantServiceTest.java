@@ -35,6 +35,9 @@ class ApplicantServiceTest {
     @Mock
     private FileStorageService fileStorageService;
 
+    @Mock
+    private com.arthmatic.shumelahire.security.DemographicsAccess demographicsAccess;
+
     @InjectMocks
     private ApplicantService applicantService;
 

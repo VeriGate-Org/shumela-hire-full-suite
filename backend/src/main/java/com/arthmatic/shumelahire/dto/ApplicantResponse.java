@@ -23,6 +23,15 @@ public class ApplicantResponse {
     private String disabilityStatus;
     private String citizenshipStatus;
     private Boolean demographicsConsent;
+
+    /**
+     * Whether the demographic fields above were withheld from this response.
+     *
+     * <p>Sent so a caller can tell <b>withheld</b> from <b>never captured</b>. Without it a
+     * redacted record is indistinguishable from an applicant who declined to answer, and a report
+     * built on the difference would be wrong in a way nobody could see.
+     */
+    private boolean demographicsRedacted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<DocumentResponse> documents;
@@ -30,7 +39,28 @@ public class ApplicantResponse {
     // Constructors
     public ApplicantResponse() {}
     
+    /**
+     * Build a response with demographic fields withheld.
+     *
+     * <p><b>Redaction is the default on purpose.</b> Race, gender, disability and citizenship were
+     * returned in the clear from {@code GET /api/applicants}, which is authorised for RECRUITER,
+     * HIRING_MANAGER, APPLICANT and EMPLOYEE as well as HR — so any signed-in employee, and any
+     * signed-in candidate, could page every applicant's demographics. The same DTO masked the ID
+     * number, so the sensitivity of the record was understood; these four fields were simply
+     * missed.
+     *
+     * <p>Defaulting to redacted means a call site that forgets to say who is asking withholds
+     * rather than leaks. Disclosure is the deliberate act.
+     */
     public ApplicantResponse(Applicant applicant) {
+        this(applicant, false);
+    }
+
+    /**
+     * @param discloseDemographics whether this viewer may see the demographic fields —
+     *                             see {@code DemographicsAccess}, which decides it
+     */
+    public ApplicantResponse(Applicant applicant, boolean discloseDemographics) {
         this.id = applicant.getId();
         this.name = applicant.getName();
         this.surname = applicant.getSurname();
@@ -41,11 +71,16 @@ public class ApplicantResponse {
         this.education = applicant.getEducation();
         this.experience = applicant.getExperience();
         this.skills = applicant.getSkills();
-        this.gender = applicant.getGender();
-        this.race = applicant.getRace();
-        this.disabilityStatus = applicant.getDisabilityStatus();
-        this.citizenshipStatus = applicant.getCitizenshipStatus();
+        // The consent flag itself is not sensitive and is always sent: HR needs to know whether
+        // an applicant answered, and that is a different question from what they answered.
         this.demographicsConsent = applicant.getDemographicsConsent();
+        this.demographicsRedacted = !discloseDemographics;
+        if (discloseDemographics) {
+            this.gender = applicant.getGender();
+            this.race = applicant.getRace();
+            this.disabilityStatus = applicant.getDisabilityStatus();
+            this.citizenshipStatus = applicant.getCitizenshipStatus();
+        }
         this.createdAt = applicant.getCreatedAt();
         this.updatedAt = applicant.getUpdatedAt();
         
@@ -58,7 +93,12 @@ public class ApplicantResponse {
     
     // Static factory method
     public static ApplicantResponse fromEntity(Applicant applicant) {
-        return new ApplicantResponse(applicant);
+        return new ApplicantResponse(applicant, false);
+    }
+
+    /** Build a response deciding disclosure explicitly. */
+    public static ApplicantResponse fromEntity(Applicant applicant, boolean discloseDemographics) {
+        return new ApplicantResponse(applicant, discloseDemographics);
     }
     
     // Getters and Setters
@@ -182,6 +222,11 @@ public class ApplicantResponse {
     }
     
     // Helper methods
+    public boolean isDemographicsRedacted() { return demographicsRedacted; }
+    public void setDemographicsRedacted(boolean demographicsRedacted) {
+        this.demographicsRedacted = demographicsRedacted;
+    }
+
     public String getFullName() {
         return name + " " + surname;
     }

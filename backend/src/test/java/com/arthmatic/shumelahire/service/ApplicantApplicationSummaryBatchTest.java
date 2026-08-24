@@ -42,13 +42,16 @@ class ApplicantApplicationSummaryBatchTest {
     @Mock private FileStorageService fileStorageService;
     @Mock private UserDataRepository userRepository;
     @Mock private ApplicationDataRepository applicationRepository;
+    // Demographic disclosure is decided per read now; this suite exercises the summary batching
+    // rather than disclosure, so a mock that discloses nothing is the honest default here.
+    @Mock private com.arthmatic.shumelahire.security.DemographicsAccess demographicsAccess;
 
     private ApplicantService service;
 
     @BeforeEach
     void setUp() {
         service = new ApplicantService(applicantRepository, documentRepository, auditLogService,
-                fileStorageService, userRepository, applicationRepository);
+                fileStorageService, userRepository, applicationRepository, demographicsAccess);
     }
 
     private static Application application(String id, ApplicationStatus status) {
