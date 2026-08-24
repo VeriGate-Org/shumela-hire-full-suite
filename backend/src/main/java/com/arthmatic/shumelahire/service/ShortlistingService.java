@@ -371,6 +371,36 @@ public class ShortlistingService {
         return shortlistScoreRepository.save(score);
     }
 
+    /**
+     * Include or exclude one application from the shortlist, identified by the application itself.
+     *
+     * <p>{@link #overrideShortlistDecision} keys on a score id, which only exists once someone has
+     * run scoring for the whole vacancy. That made a per-candidate shortlist action impossible to
+     * offer anywhere a candidate appears — the caller would have to know whether a score row
+     * happened to exist, and do something else if it did not. Here the score is computed on demand
+     * when it is missing, so the decision is always recorded against a real assessment rather than
+     * an empty row, and every surface can offer a single unconditional action.
+     *
+     * <p>Scoring runs without the AI pass: this is a person making the call, and a deterministic
+     * score computed in milliseconds is the right thing to attach to their decision. Waiting
+     * twenty seconds for a model to also have an opinion would make a quick action not one.
+     */
+    @Transactional
+    public ShortlistScore setShortlistedForApplication(String applicationId, boolean include,
+                                                       String reason, String userId) {
+        ShortlistScore score = shortlistScoreRepository.findByApplicationId(applicationId).orElse(null);
+
+        if (score == null) {
+            Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
+            JobPosting posting = application.getJobPostingId() == null ? null
+                : jobPostingRepository.findById(application.getJobPostingId()).orElse(null);
+            score = calculateScore(application, posting, false);
+        }
+
+        return overrideShortlistDecision(score.getId(), include, reason, userId);
+    }
+
     public Map<String, Object> getShortlistingSummary(String jobPostingId) {
         List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(jobPostingId);
         JobPosting posting = jobPostingRepository.findById(jobPostingId).orElse(null);

@@ -61,6 +61,30 @@ public class ShortlistingController {
                 id, include, reason, resolveUserId(authentication)));
     }
 
+    /**
+     * Include or exclude one application from the shortlist.
+     *
+     * <p>Keyed on the application rather than a score id so that any surface showing a candidate can
+     * offer the action without first knowing whether scoring has been run for that vacancy. The
+     * service computes the score if it is missing.
+     *
+     * <p>{@code include} defaults to true: the overwhelmingly common call is "shortlist this
+     * person", and a body-less POST should do the obvious thing rather than silently exclude them.
+     */
+    @PostMapping("/applications/{applicationId}/shortlist")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    public ResponseEntity<?> shortlistApplication(
+            @PathVariable String applicationId,
+            @RequestBody(required = false) Map<String, Object> request,
+            Authentication authentication) {
+        boolean include = request == null || !request.containsKey("include")
+                || Boolean.TRUE.equals(request.get("include"));
+        String reason = request == null ? null : (String) request.get("reason");
+
+        return ResponseEntity.ok(shortlistingService.setShortlistedForApplication(
+                applicationId, include, reason, resolveUserId(authentication)));
+    }
+
     private String resolveUserId(Authentication authentication) {
         if (authentication == null) {
             throw new IllegalStateException("Unable to resolve user from authentication");

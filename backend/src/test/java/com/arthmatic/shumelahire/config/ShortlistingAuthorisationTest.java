@@ -54,6 +54,19 @@ class ShortlistingAuthorisationTest {
                 .map(r -> r.group(1)).collect(Collectors.toSet());
     }
 
+    /**
+     * Every request-mapping annotation on a <em>method</em> — i.e. every reachable endpoint.
+     *
+     * <p>Anchored to a line with leading indentation so the class-level
+     * {@code @RequestMapping("/api/shortlisting")}, which sits in column 0 and is a path prefix
+     * rather than an endpoint, is not counted as a sixth handler.
+     */
+    private int endpointCount(String source) {
+        return (int) Pattern.compile("^[ \\t]+@(Get|Post|Put|Patch|Delete|Request)Mapping\\(",
+                        Pattern.MULTILINE)
+                .matcher(source).results().count();
+    }
+
     /** Roles named on each @PreAuthorize in the controller. */
     private List<Set<String>> annotationRoles(String source) {
         return Pattern.compile("@PreAuthorize\\(\"hasAnyRole\\(([^)]*)\\)\"\\)").matcher(source).results()
@@ -83,11 +96,17 @@ class ShortlistingAuthorisationTest {
     @Test
     @DisplayName("Every shortlisting endpoint grants the same roles as the URL rule")
     void annotationsMatchTheUrlRule() throws IOException {
+        String controller = read(CONTROLLER);
         Set<String> urlRule = urlRuleRoles(read(CONFIGS.get(0)));
-        List<Set<String>> annotations = annotationRoles(read(CONTROLLER));
+        List<Set<String>> annotations = annotationRoles(controller);
 
-        assertEquals(4, annotations.size(),
-                "expected four guarded endpoints — an unguarded one would be worse than a mismatched one");
+        // Compare against the number of endpoints actually declared rather than a literal. The
+        // point of this assertion is "no endpoint is unguarded", and a hardcoded count only says
+        // that by coincidence: adding a guarded endpoint failed the test, which trains whoever
+        // sees it to bump the number — the same edit an unguarded endpoint would need.
+        assertEquals(endpointCount(controller), annotations.size(),
+                "every shortlisting endpoint must carry @PreAuthorize — an unguarded one would be "
+                        + "worse than a mismatched one");
 
         for (int i = 0; i < annotations.size(); i++) {
             assertEquals(urlRule, annotations.get(i),
