@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.dto.InterviewSummaryResponse;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.InterviewDataRepository;
 import com.arthmatic.shumelahire.repository.InterviewFeedbackDataRepository;
@@ -675,10 +676,33 @@ public class InterviewService {
         return interviewRepository.findInterviewsNeedingReminders(now, reminderTime);
     }
 
+    /**
+     * Record that a reminder went out.
+     *
+     * <p>This set only the timestamp. {@code needsReminder()} reads the boolean
+     * {@code reminderSent}, which {@code InterviewSchedulingService} maintains and this method did
+     * not — so an interview reminded through {@code POST /{id}/reminder-sent} stayed on the
+     * reminder list <b>permanently</b>, and would be reminded again every time the list was worked.
+     * Two services maintaining one concept, one of them incompletely.
+     */
     public void markReminderSent(String interviewId) {
         Interview interview = getInterviewById(interviewId);
+        interview.setReminderSent(true);
         interview.setReminderSentAt(LocalDateTime.now());
         interviewRepository.save(interview);
+    }
+
+    /**
+     * Counts describing the whole interview set.
+     *
+     * <p>Reads every interview once and derives the figures from that single pass. The alternative
+     * — one query per figure against {@code /upcoming}, {@code /overdue} and
+     * {@code /pending-feedback} — costs three round trips to answer one question, and the three
+     * would not be consistent with each other.
+     */
+    @Transactional(readOnly = true)
+    public InterviewSummaryResponse summary() {
+        return InterviewSummaryResponse.from(interviewRepository.findAll(), LocalDateTime.now());
     }
 
     public List<Interview> getInterviewsRequiringFeedback() {

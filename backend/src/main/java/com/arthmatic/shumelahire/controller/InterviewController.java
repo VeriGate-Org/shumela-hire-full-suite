@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.controller;
 
+import com.arthmatic.shumelahire.dto.InterviewSummaryResponse;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.service.InterviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -346,6 +347,18 @@ public class InterviewController {
     public ResponseEntity<List<Interview>> getOverdueInterviews() {
         List<Interview> overdueInterviews = interviewService.getOverdueInterviews();
         return ResponseEntity.ok(overdueInterviews);
+    }
+
+    /**
+     * Counts for the whole interview set.
+     * GET /api/interviews/summary
+     *
+     * <p>Separate from the list: not paginated, returns no records, every figure describes the
+     * entire set. The page derived its figures from one unparameterised fetch of the list.
+     */
+    @GetMapping("/summary")
+    public ResponseEntity<InterviewSummaryResponse> summary() {
+        return ResponseEntity.ok(interviewService.summary());
     }
 
     // Get interviews requiring feedback

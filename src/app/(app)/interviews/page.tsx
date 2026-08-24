@@ -6,15 +6,27 @@ import {
   MagnifyingGlassIcon,
   ListBulletIcon,
   PlusIcon,
-  ChatBubbleLeftRightIcon,
-  ClockIcon,
-  PencilSquareIcon,
   ArrowLeftIcon,
-  CheckCircleIcon,
-  StarIcon,
 } from '@heroicons/react/24/outline';
 import PageWrapper from '@/components/PageWrapper';
 import { apiFetch } from '@/lib/api-fetch';
+import EmptyState from '@/components/EmptyState';
+import { TableSkeleton } from '@/components/LoadingComponents';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
+import DistributionStrip from '@/components/record/DistributionStrip';
+import FilterChips from '@/components/record/FilterChips';
+import {
+  InterviewSummary,
+  QUEUE_FILTERS,
+  STATE_LABELS,
+  byMostOverdue,
+  feedbackFiled,
+  filterCount,
+  stateOf,
+  waitingDays,
+  whenLabel,
+} from './queue';
 import InterviewScheduler from '@/components/InterviewScheduler';
 import InterviewCalendar, { type Interview as CalendarInterview } from '@/components/InterviewCalendar';
 import InterviewFeedbackForm from '@/components/InterviewFeedbackForm';
@@ -71,13 +83,20 @@ interface Interview extends CalendarInterview {
   cancellationReason?: string;
   feedbacks?: InterviewFeedbackEntry[];
   feedbackCount?: number;
+  /** Denormalised on some responses; the fallback when the applicant is not hydrated. */
+  candidateName?: string;
 }
 
 type InterviewView = 'calendar' | 'feedback' | 'list';
 
 export default function InterviewsPage() {
   const { toast } = useToast();
-  const [view, setView] = useState<InterviewView>('calendar');
+  // The queue leads. A calendar answers "what is on this week"; it cannot show a thing that
+  // already happened and is stuck, which is what this screen mostly needs to surface.
+  const [view, setView] = useState<InterviewView>('list');
+  const [summary, setSummary] = useState<InterviewSummary | null>(null);
+  const [activeFilter, setActiveFilter] = useState('needs-action');
+  const [chasing, setChasing] = useState(false);
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
   const [showSchedulerModal, setShowSchedulerModal] = useState(false);
@@ -85,7 +104,6 @@ export default function InterviewsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
   const [typeFilter, setTypeFilter] = useState('ALL');
 
   const loadInterviews = useCallback(async () => {
@@ -109,11 +127,61 @@ export default function InterviewsPage() {
     }
   }, [toast]);
 
+  const loadSummary = useCallback(async () => {
+    try {
+      const response = await apiFetch('/api/interviews/summary');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      setSummary(await response.json());
+    } catch {
+      // Left null rather than zeroed. Every figure derived from it is then omitted, because a
+      // failed request must not render as "nothing is waiting".
+      setSummary(null);
+    }
+  }, []);
+
   useEffect(() => {
     if (view === 'list' || view === 'calendar') {
       void loadInterviews();
     }
   }, [view, loadInterviews]);
+
+  useEffect(() => {
+    void loadSummary();
+  }, [loadSummary]);
+
+  /**
+   * Ask the panels for the outstanding write-ups.
+   *
+   * <p>POST /{id}/request-feedback stamps feedbackRequestedAt and notifies — a real engine, not a
+   * button that only looks like one. The ids come from the summary, so this chases every
+   * outstanding write-up rather than the ones on the loaded page.
+   */
+  const chaseWriteUps = useCallback(async () => {
+    const ids = summary?.awaitingWriteUpIds ?? [];
+    if (ids.length === 0) return;
+    setChasing(true);
+    try {
+      const results = await Promise.all(
+        ids.map((id) => apiFetch(`/api/interviews/${id}/request-feedback`, { method: 'POST' })),
+      );
+      const failed = results.filter((response) => !response.ok);
+      if (failed.length > 0) {
+        // Says how many, rather than reporting a clean success over a partial one.
+        toast(
+          `${results.length - failed.length} of ${results.length} panels asked; ${failed.length} could not be reached`,
+          'error',
+        );
+      } else {
+        toast(`${results.length} ${results.length === 1 ? 'panel' : 'panels'} asked for their write-up`, 'success');
+      }
+      void loadSummary();
+      void loadInterviews();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not request feedback', 'error');
+    } finally {
+      setChasing(false);
+    }
+  }, [summary, toast, loadSummary, loadInterviews]);
 
   const handleInterviewScheduled = useCallback((interview: { id: number; title: string }) => {
     toast('Interview scheduled successfully', 'success');
@@ -150,112 +218,53 @@ export default function InterviewsPage() {
       || (interview.application?.jobPosting?.title ?? '').toLowerCase().includes(normalizedSearch)
       || (interview.application?.jobPosting?.department ?? '').toLowerCase().includes(normalizedSearch);
 
-    const matchesStatus = statusFilter === 'ALL' || interview.status === statusFilter;
     const matchesType = typeFilter === 'ALL' || interview.type === typeFilter;
 
-    return matchesSearch && matchesStatus && matchesType;
-  }), [interviews, searchTerm, statusFilter, typeFilter]);
+    return matchesSearch && matchesType;
+  }), [interviews, searchTerm, typeFilter]);
 
-  const statusOptions = useMemo(() => [...new Set(interviews.map((interview) => interview.status))], [interviews]);
-  const typeOptions = useMemo(() => [...new Set(interviews.map((interview) => interview.type))], [interviews]);
-  const upcomingInterviews = useMemo(() => {
-    const now = new Date();
-    return interviews.filter((interview) =>
-      interview.isUpcoming || (interview.status === 'SCHEDULED' && new Date(interview.scheduledAt) > now)
-    ).slice(0, 5);
-  }, [interviews]);
-  const overdueInterviews = useMemo(() => {
-    const now = new Date();
-    return interviews.filter((interview) =>
-      interview.isOverdue || (interview.status === 'SCHEDULED' && new Date(interview.scheduledAt) < now)
-    );
-  }, [interviews]);
-  const pendingFeedback = useMemo(() =>
-    interviews.filter((interview) =>
-      interview.status === 'COMPLETED' && (!interview.feedbackCount || interview.feedbackCount === 0)
-    ), [interviews]);
+  // Offered from what the data contains, so the filter cannot list a type this tenant never uses
+  // and return an empty table for it.
+  const typeOptions = useMemo(
+    () => Array.from(new Set(interviews.map((interview) => interview.type).filter(Boolean))).sort(),
+    [interviews],
+  );
 
-  const completedInterviews = useMemo(() =>
-    interviews.filter((interview) => interview.status === 'COMPLETED'), [interviews]);
+  /**
+   * The rows for the table.
+   *
+   * <p>Filtered by the active chip, then ordered so what is stalled leads. The chips' counts come
+   * from the summary and describe the whole set; these rows are the page of records in hand, which
+   * is why the two are computed separately rather than one from the other.
+   */
+  const rows = useMemo(() => {
+    const states = QUEUE_FILTERS.find((filter) => filter.key === activeFilter)?.states ?? [];
+    const matching = states.length === 0
+      ? filteredInterviews
+      : filteredInterviews.filter((interview) => states.includes(stateOf(interview)));
+    return byMostOverdue(matching);
+  }, [filteredInterviews, activeFilter]);
 
   const getPageTitle = () => {
     switch (view) {
-      case 'calendar': return 'Interview Scheduling';
       case 'feedback': return 'Interview Feedback';
-      default: return 'Interview Scheduling';
+      case 'calendar': return 'Interview Scheduling';
+      default: return 'Interviews';
     }
   };
 
   const getPageSubtitle = () => {
     switch (view) {
-      case 'calendar': return 'Schedule interviews, track progress, and submit candidate feedback';
       case 'feedback': return 'Submit structured, auditable feedback for completed interviews.';
-      default: return 'Schedule interviews, track progress, and submit candidate feedback';
+      case 'calendar': return 'Schedule interviews, track progress, and submit candidate feedback';
+      default: return 'What is stalled, what is today, and what is still ahead';
     }
-  };
-
-  const getStatusBadge = (status: string, displayName?: string) => {
-    const label = displayName || getEnumLabel('interviewStatus', status);
-    switch (status) {
-      case 'SCHEDULED':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-navy text-accent-navy">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent-navy" />
-            {label}
-          </span>
-        );
-      case 'COMPLETED':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-success-bg text-success">
-            <span className="w-1.5 h-1.5 rounded-full bg-success" />
-            {label}
-          </span>
-        );
-      case 'CANCELLED':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-error-bg text-error">
-            <span className="w-1.5 h-1.5 rounded-full bg-error" />
-            {label}
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground">
-            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
-            {label}
-          </span>
-        );
-    }
-  };
-
-  const getTypeBadge = (type: string, displayName?: string) => {
-    const label = displayName || getEnumLabel('interviewType', type);
-    const typeMap: Record<string, string> = {
-      'PHONE_SCREEN': 'bg-icon-bg-navy text-accent-navy',
-      'TECHNICAL': 'bg-icon-bg-teal text-accent-teal',
-      'PANEL': 'bg-icon-bg-gold text-accent-gold',
-      'FINAL': 'bg-icon-bg-pink text-accent-pink',
-    };
-    const classes = typeMap[type] || 'bg-muted text-muted-foreground';
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${classes}`}>
-        {label}
-      </span>
-    );
-  };
-
-  const getCandidateInitials = (interview: Interview) => {
-    const name = interview.application?.applicant?.name || '';
-    const surname = interview.application?.applicant?.surname || '';
-    if (name && surname) return `${name[0]}${surname[0]}`.toUpperCase();
-    if (name) return name.substring(0, 2).toUpperCase();
-    return '??';
   };
 
   const getCandidateFullName = (interview: Interview) => {
     const name = interview.application?.applicant?.name ?? '';
     const surname = interview.application?.applicant?.surname ?? '';
-    return (name + ' ' + surname).trim() || (interview as any).candidateName || 'Unknown Candidate';
+    return (name + ' ' + surname).trim() || interview.candidateName || 'Unknown Candidate';
   };
 
   const tabs: Array<{ id: InterviewView; label: string; icon: typeof CalendarDaysIcon }> = [
@@ -290,60 +299,99 @@ export default function InterviewsPage() {
           <AiInterviewQuestionGenerator />
         </AiAssistPanel>
 
-        {/* ====== METRIC CARDS ====== */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {/* Scheduled This Week */}
-          <div className="enterprise-card p-5">
-            <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center">
-                <CalendarDaysIcon className="w-[22px] h-[22px]" />
-              </div>
-              <div>
-                <p className="text-2xl font-extrabold leading-none text-foreground">{upcomingInterviews.length}</p>
-                <p className="text-[0.813rem] font-medium text-muted-foreground mt-1">Scheduled This Week</p>
-              </div>
-            </div>
-          </div>
+        <IdentityBand
+          eyebrow="Interview schedule"
+          title="Interviews"
+          subtitle={
+            summary
+              ? `${summary.total} ${summary.total === 1 ? 'interview' : 'interviews'} on record`
+              : 'Counts unavailable'
+          }
+          figures={
+            summary
+              ? [
+                  {
+                    label: 'Awaiting write-up',
+                    value: summary.awaitingWriteUp,
+                    tone: (summary.awaitingWriteUp > 0 ? 'critical' : undefined) as
+                      | 'critical'
+                      | undefined,
+                  },
+                  {
+                    label: 'Slot passed, untouched',
+                    value: summary.slotPassed,
+                    tone: (summary.slotPassed > 0 ? 'warning' : undefined) as 'warning' | undefined,
+                  },
+                  { label: 'Next 7 days', value: summary.nextSevenDays },
+                ]
+              : []
+          }
+        />
 
-          {/* Completed */}
-          <div className="enterprise-card p-5">
-            <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center">
-                <CheckCircleIcon className="w-[22px] h-[22px]" />
-              </div>
-              <div>
-                <p className="text-2xl font-extrabold leading-none text-foreground">{completedInterviews.length}</p>
-                <p className="text-[0.813rem] font-medium text-muted-foreground mt-1">Completed</p>
-              </div>
-            </div>
-          </div>
+        {summary && summary.awaitingWriteUp > 0 && (
+          <DecisionBar
+            ask={`${summary.awaitingWriteUp} ${
+              summary.awaitingWriteUp === 1 ? 'interview is' : 'interviews are'
+            } finished and nobody has written ${summary.awaitingWriteUp === 1 ? 'it' : 'them'} up.`}
+            why={
+              typeof summary.oldestWriteUpDays === 'number'
+                ? `Each one is holding a candidate at the interview stage. The oldest finished ${
+                    summary.oldestWriteUpDays
+                  } ${summary.oldestWriteUpDays === 1 ? 'day' : 'days'} ago.`
+                : 'Each one is holding a candidate at the interview stage.'
+            }
+          >
+            <PrimaryAction onClick={() => chaseWriteUps()} disabled={chasing}>
+              {chasing ? 'Chasing…' : 'Chase write-ups'}
+            </PrimaryAction>
+            <SecondaryAction
+              onClick={() => {
+                setEditingInterview(null);
+                setShowSchedulerModal(true);
+              }}
+            >
+              Schedule interview
+            </SecondaryAction>
+          </DecisionBar>
+        )}
 
-          {/* Pending Feedback */}
-          <div className="enterprise-card p-5">
-            <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center">
-                <ChatBubbleLeftRightIcon className="w-[22px] h-[22px]" />
-              </div>
-              <div>
-                <p className="text-2xl font-extrabold leading-none text-foreground">{pendingFeedback.length}</p>
-                <p className="text-[0.813rem] font-medium text-muted-foreground mt-1">Pending Feedback</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Total Interviews */}
-          <div className="enterprise-card p-5">
-            <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center">
-                <StarIcon className="w-[22px] h-[22px]" />
-              </div>
-              <div>
-                <p className="text-2xl font-extrabold leading-none text-foreground">{interviews.length}</p>
-                <p className="text-[0.813rem] font-medium text-muted-foreground mt-1">Total Interviews</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {summary ? (
+          <DistributionStrip
+            buckets={[
+              {
+                label: 'Awaiting write-up',
+                count: summary.awaitingWriteUp,
+                detail: 'Done, no feedback filed',
+              },
+              { label: 'Slot passed', count: summary.slotPassed, detail: 'Never started or cancelled' },
+              { label: 'Today', count: summary.today },
+              { label: 'Next 7 days', count: summary.nextSevenDays, detail: 'Still scheduled' },
+              {
+                label: 'Written up',
+                count: filterCount(summary, 'written-up') ?? 0,
+                detail:
+                  typeof summary.medianDaysToWriteUp === 'number'
+                    ? `Median ${summary.medianDaysToWriteUp} ${
+                        summary.medianDaysToWriteUp === 1 ? 'day' : 'days'
+                      } to file`
+                    : undefined,
+              },
+            ]}
+            footnote={
+              <>
+                The first two are stalls the backend already computes and this screen has never
+                shown. They need different remedies: one chases the panel, the other asks whether
+                the interview happened at all.
+              </>
+            }
+          />
+        ) : (
+          !loading && (
+            <p className="text-sm text-muted-foreground px-1">
+              Counts are unavailable — the summary could not be loaded.
+            </p>
+          )
+        )}
 
         {/* ====== VIEW TOGGLE ====== */}
         <div className="flex items-center gap-2">
@@ -428,206 +476,164 @@ export default function InterviewsPage() {
             role="tabpanel"
             id="interviews-panel-list"
             aria-labelledby="interviews-tab-list"
+            className="space-y-4"
           >
-            <div className="enterprise-card overflow-hidden">
-              {/* Card Header with Title + Inline Filters */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 py-4 border-b border-border">
-                <h2 className="text-lg font-bold text-foreground">All Interviews</h2>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div className="relative">
-                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                    <input
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search interviews..."
-                      aria-label="Search interviews by title, candidate, or job"
-                      className="w-full sm:w-auto pl-9 pr-3 py-2 border border-border bg-card rounded-control text-[0.813rem] focus:ring-2 focus:ring-ring/40 focus:border-ring min-w-[180px]"
-                    />
-                  </div>
-                  <select
-                    value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
-                    aria-label="Filter interviews by type"
-                    className="py-2 pl-3 pr-8 border border-border bg-card rounded-control text-[0.813rem] focus:ring-2 focus:ring-ring/40 focus:border-ring min-w-[140px]"
-                  >
-                    <option value="ALL">All Types</option>
-                    {typeOptions.map((type) => (
-                      <option key={type} value={type}>{getEnumLabel('interviewType', type)}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    aria-label="Filter interviews by status"
-                    className="py-2 pl-3 pr-8 border border-border bg-card rounded-control text-[0.813rem] focus:ring-2 focus:ring-ring/40 focus:border-ring min-w-[140px]"
-                  >
-                    <option value="ALL">All Statuses</option>
-                    {statusOptions.map((status) => (
-                      <option key={status} value={status}>{getEnumLabel('interviewStatus', status)}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+            <FilterChips
+              chips={QUEUE_FILTERS.map((filter) => ({
+                key: filter.key,
+                label: filter.label,
+                count: filterCount(summary, filter.key) ?? undefined,
+              }))}
+              activeKey={activeFilter}
+              onChange={setActiveFilter}
+              note={
+                <>
+                  Sorted by <b className="font-bold text-foreground">most overdue</b>
+                </>
+              }
+            />
 
-              {/* Table Body */}
-              {error ? (
-                <div className="p-6">
-                  <ErrorState
-                    title="Failed to load interviews"
-                    message={error}
-                    onRetry={loadInterviews}
+            <div className="enterprise-card overflow-hidden">
+              <div className="px-5 py-4 border-b border-border flex flex-wrap items-center gap-3">
+                <div className="relative flex-1 min-w-[240px]">
+                  <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search by candidate, title or department"
+                    aria-label="Search interviews"
+                    className="w-full pl-9 pr-3 py-2 text-sm rounded-full border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  aria-label="Filter by interview type"
+                  className="px-3 py-2 text-sm rounded-full border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="ALL">All types</option>
+                  {typeOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {getEnumLabel('interviewType', option)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {error ? (
+                <ErrorState title="Failed to load interviews" message={error} onRetry={loadInterviews} />
               ) : loading ? (
-                <div className="p-6">
-                  <CardSkeleton count={4} />
-                </div>
-              ) : filteredInterviews.length === 0 ? (
-                <div className="p-10 text-center">
-                  <p className="text-muted-foreground mb-4">
-                    {interviews.length === 0
-                      ? 'No interviews found. Create your first interview to begin scheduling workflows.'
-                      : 'No interviews match your current search and filter criteria.'}
-                  </p>
-                  <button
-                    onClick={() => {
-                      setEditingInterview(null);
-                      setShowSchedulerModal(true);
-                    }}
-                    className="btn-cta inline-flex items-center gap-2"
-                  >
-                    <PlusIcon className="w-4 h-4" />
-                    Schedule Interview
-                  </button>
-                </div>
+                <TableSkeleton rows={8} columns={5} />
+              ) : rows.length === 0 ? (
+                <EmptyState
+                  icon={CalendarDaysIcon}
+                  title="Nothing here"
+                  description={
+                    activeFilter === 'needs-action'
+                      ? 'No interview is waiting on anybody.'
+                      : 'No interviews match this filter.'
+                  }
+                />
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
+                  <table className="w-full">
                     <thead>
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
-                          Candidate
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
-                          Position
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
-                          Interview Type
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
-                          Date / Time
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
-                          Status
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
-                          Actions
-                        </th>
+                      <tr className="border-b border-border">
+                        {['Candidate', 'When', 'Write-up', 'State', 'Waiting'].map((heading, i) => (
+                          <th
+                            key={heading}
+                            className={`px-5 py-3 text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground ${
+                              i === 4 ? 'text-right' : 'text-left'
+                            }`}
+                          >
+                            {heading}
+                          </th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredInterviews.map((interview, idx) => {
-                        const isLast = idx === filteredInterviews.length - 1;
+                      {rows.map((interview) => {
+                        const state = stateOf(interview);
+                        const filed = feedbackFiled(interview);
+                        const waited = waitingDays(interview);
+                        const when = whenLabel(interview);
+                        const stalled = state === 'awaiting-write-up' || state === 'slot-passed';
                         return (
                           <tr
                             key={interview.id}
-                            className="hover:bg-surface-navy transition-colors"
+                            onClick={() => handleInterviewSelect(interview)}
+                            className="border-b border-border last:border-0 hover:bg-accent/50 cursor-pointer"
                           >
-                            {/* Candidate */}
-                            <td className={`px-4 py-3.5 text-sm ${isLast ? '' : 'border-b border-border'} align-middle`}>
-                              <div className="flex items-center gap-3">
-                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-icon-bg-navy text-accent-navy font-bold text-[0.688rem] flex items-center justify-center">
-                                  {getCandidateInitials(interview)}
-                                </div>
-                                <div className="min-w-0">
-                                  <div className="font-semibold text-foreground truncate">
-                                    {getCandidateFullName(interview)}
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-
-                            {/* Position */}
-                            <td className={`px-4 py-3.5 text-sm text-foreground ${isLast ? '' : 'border-b border-border'} align-middle`}>
-                              {interview.application?.jobPosting?.title || 'Unknown Position'}
-                            </td>
-
-                            {/* Interview Type */}
-                            <td className={`px-4 py-3.5 text-sm ${isLast ? '' : 'border-b border-border'} align-middle`}>
-                              {getTypeBadge(interview.type, interview.typeDisplayName)}
-                            </td>
-
-                            {/* Date / Time */}
-                            <td className={`px-4 py-3.5 text-sm ${isLast ? '' : 'border-b border-border'} align-middle`}>
-                              <div className="font-semibold text-foreground">
-                                {new Date(interview.scheduledAt).toLocaleDateString('en-ZA', {
-                                  weekday: 'short',
-                                  day: 'numeric',
-                                  month: 'short',
-                                })}
+                            <td className="px-5 py-3.5">
+                              <div className="font-semibold text-foreground text-sm">
+                                {getCandidateFullName(interview)}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                {new Date(interview.scheduledAt).toLocaleTimeString('en-ZA', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })}
+                                {[interview.application?.jobPosting?.title, interview.title]
+                                  .filter(Boolean)
+                                  .join(' · ')}
                               </div>
                             </td>
-
-                            {/* Status */}
-                            <td className={`px-4 py-3.5 text-sm ${isLast ? '' : 'border-b border-border'} align-middle`}>
-                              <div className="flex flex-col gap-1">
-                                {getStatusBadge(interview.status, interview.statusDisplayName)}
-                                {interview.isUpcoming && (
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.688rem] font-semibold bg-icon-bg-gold text-accent-gold w-fit">
-                                    Upcoming
-                                  </span>
-                                )}
-                                {interview.isOverdue && (
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.688rem] font-semibold bg-error-bg text-error w-fit">
-                                    Overdue
-                                  </span>
-                                )}
-                                {interview.status === 'COMPLETED' && !interview.feedbackCount && (
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.688rem] font-semibold bg-warning-bg text-warning w-fit">
-                                    Feedback Needed
-                                  </span>
-                                )}
+                            <td className="px-5 py-3.5">
+                              <div className="text-sm text-foreground">
+                                {interview.scheduledAt
+                                  ? new Date(interview.scheduledAt).toLocaleDateString('en-ZA', {
+                                      day: 'numeric',
+                                      month: 'short',
+                                    })
+                                  : '—'}
                               </div>
+                              <div className="text-xs text-muted-foreground">{when ?? 'Not scheduled'}</div>
+                              {typeof interview.rescheduleCount === 'number' &&
+                                interview.rescheduleCount > 0 && (
+                                  // An interview moved repeatedly is a signal about the panel, not
+                                  // the candidate. Recorded on the entity and never rendered.
+                                  <div className="text-xs text-accent-gold mt-0.5">
+                                    Rescheduled {interview.rescheduleCount}×
+                                  </div>
+                                )}
                             </td>
-
-                            {/* Actions */}
-                            <td className={`px-4 py-3.5 text-sm ${isLast ? '' : 'border-b border-border'} align-middle`}>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => {
-                                    setEditingInterview(interview);
-                                    setShowSchedulerModal(true);
-                                  }}
-                                  className="btn-secondary inline-flex items-center gap-1 !px-3 !py-1.5 !text-xs"
+                            <td className="px-5 py-3.5">
+                              {filed === null ? (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              ) : (
+                                // How many write-ups exist. Not "1 of 3": the intended panel size
+                                // would be a comma count over a free-text field.
+                                <span className="text-sm text-foreground tabular-nums">
+                                  {filed} filed
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-5 py-3.5">
+                              <span
+                                className={`inline-flex items-center px-2.5 py-1 rounded-full text-[0.6875rem] font-semibold ${
+                                  state === 'awaiting-write-up'
+                                    ? 'bg-error-bg text-error'
+                                    : state === 'slot-passed'
+                                      ? 'bg-warning-bg text-warning'
+                                      : state === 'written-up'
+                                        ? 'bg-success-bg text-success'
+                                        : 'bg-muted/40 text-muted-foreground'
+                                }`}
+                              >
+                                {STATE_LABELS[state]}
+                              </span>
+                            </td>
+                            <td className="px-5 py-3.5 text-right">
+                              {waited === null ? (
+                                // Not waiting on anybody. A zero here would put it in a queue of
+                                // things to chase.
+                                <span className="text-sm text-muted-foreground">—</span>
+                              ) : (
+                                <span
+                                  className={`text-sm font-semibold tabular-nums ${
+                                    stalled && waited >= 7 ? 'text-error' : 'text-foreground'
+                                  }`}
                                 >
-                                  <PencilSquareIcon className="w-3.5 h-3.5" />
-                                  Edit
-                                </button>
-
-                                {interview.status === 'COMPLETED' && (
-                                  <button
-                                    onClick={() => {
-                                      setSelectedInterview(interview);
-                                      setView('feedback');
-                                    }}
-                                    className={`inline-flex items-center gap-1 !px-3 !py-1.5 !text-xs rounded-full font-semibold uppercase tracking-wider transition-colors ${
-                                      !interview.feedbackCount
-                                        ? 'btn-cta'
-                                        : 'btn-secondary'
-                                    }`}
-                                  >
-                                    <ClockIcon className="w-3.5 h-3.5" />
-                                    {!interview.feedbackCount ? 'Give Feedback' : 'Feedback'}
-                                  </button>
-                                )}
-                              </div>
+                                  {waited} {waited === 1 ? 'day' : 'days'}
+                                </span>
+                              )}
                             </td>
                           </tr>
                         );
