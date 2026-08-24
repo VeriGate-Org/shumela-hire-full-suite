@@ -192,7 +192,17 @@ public class ApplicationManagementService {
     }
 
     /**
-     * Bulk assign applications to specific pipeline stage
+     * Bulk assign applications to specific pipeline stage.
+     *
+     * <p>Bulk is held to the SAME rules as a single move. It previously wrote the target stage
+     * straight onto every record, checking only background checks — so selecting a column of
+     * candidates and choosing a stage could take someone from Application Received to Offer
+     * Extended in one action, skipping every interview, while the single-candidate path refused
+     * the identical move. A control that a checkbox can walk around is not a control.</p>
+     *
+     * <p>Each application is judged on its own current stage: some may move and others be refused
+     * in the same request, so the caller is told exactly which and why via {@code errors} — it
+     * must not read {@code updatedCount} alone as success.</p>
      */
     @Transactional
     public Map<String, Object> bulkAssignPipelineStage(
@@ -205,6 +215,18 @@ public class ApplicationManagementService {
 
         for (Application application : applications) {
             try {
+                // The same ordering rules the single-candidate path enforces (no backward moves
+                // outside the defined re-evaluation paths, nothing out of a terminal stage, no
+                // skipping more than two stages ahead).
+                if (!application.canProgressToStage(pipelineStage)) {
+                    throw new IllegalStateException(String.format(
+                            "%s cannot move from %s to %s",
+                            describe(application),
+                            application.getPipelineStage() != null
+                                    ? application.getPipelineStage().getDisplayName() : "an unset stage",
+                            pipelineStage.getDisplayName()));
+                }
+
                 // Enforce background check completion when moving past BACKGROUND_CHECK
                 if (backgroundCheckService != null
                         && application.getPipelineStage() == PipelineStage.BACKGROUND_CHECK
@@ -219,8 +241,11 @@ public class ApplicationManagementService {
                 applicationRepository.save(application);
                 updatedIds.add(application.getId());
 
+            } catch (IllegalStateException e) {
+                // A refusal, not a failure — the message is already written for a human to read.
+                errors.add(e.getMessage());
             } catch (Exception e) {
-                errors.add("Failed to update application " + application.getId() + ": " + e.getMessage());
+                errors.add("Could not move " + describe(application) + ": " + e.getMessage());
             }
         }
 
@@ -231,6 +256,23 @@ public class ApplicationManagementService {
         result.put("totalRequested", applicationIds.size());
 
         return result;
+    }
+
+    /**
+     * Names the candidate for a message a recruiter will read. Falls back to the application id
+     * only when there is no name to use — an id alone tells the reader nothing about who was
+     * blocked.
+     */
+    private String describe(Application application) {
+        Applicant applicant = application.getApplicant();
+        if (applicant != null) {
+            String name = ((applicant.getName() != null ? applicant.getName() : "") + " "
+                    + (applicant.getSurname() != null ? applicant.getSurname() : "")).trim();
+            if (!name.isEmpty()) {
+                return name;
+            }
+        }
+        return "application " + application.getId();
     }
 
     /**

@@ -41,6 +41,29 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * A refused business rule is an answer, not a server fault.
+     *
+     * <p>{@link IllegalStateException} is what the domain throws when an operation is legitimate but
+     * the current state forbids it — a pipeline transition that would skip a mandatory verification
+     * check, a candidate already at the final stage. Like {@link MultipartException} below, it is a
+     * {@code RuntimeException}, so without this it fell into the catch-all and came back as a
+     * {@code 500}: the caller was told the server had broken when in fact the server had just
+     * enforced a rule, and the reason never reached the screen.</p>
+     *
+     * <p>Endpoints that already catch it locally and return their own body keep doing so; this is
+     * the backstop for the ones that do not.</p>
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
+        logger.warn("Refused by a business rule: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "error", "Not permitted in the current state",
+                "message", ex.getMessage() != null ? ex.getMessage() : "The current state does not permit this action",
+                "timestamp", LocalDateTime.now().toString()
+        ));
+    }
+
+    /**
      * A malformed upload is the caller's mistake, not ours.
      *
      * <p>{@link MultipartException} is a {@code RuntimeException}, so without this it fell into the
