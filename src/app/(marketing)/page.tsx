@@ -11,7 +11,10 @@ import ConstellationGraphic from '@/components/marketing/ConstellationGraphic';
 import GridPattern from '@/components/marketing/GridPattern';
 
 export const metadata: Metadata = {
-  title: 'ShumelaHire — Structured Talent Acquisition for Institutions',
+  // Absolute, so the root layout's "%s | ShumelaHire" template does not append the brand to a
+  // title that already opens with it — the homepage was serving
+  // "ShumelaHire — … for Institutions | ShumelaHire" to search results.
+  title: { absolute: 'ShumelaHire — Structured Talent Acquisition for Institutions' },
   description:
     'ShumelaHire brings order, transparency, and measurable outcomes to every stage of the hiring process. Purpose-built for corporates, DFIs, and government agencies.',
 };
