@@ -178,6 +178,14 @@ const TAB_KEYS = TABS.map(t => t.key);
 /** Statuses an offer reaches only after it has been put to a candidate and settled. */
 const DECIDED_STATUSES = ['ACCEPTED', 'DECLINED', 'WITHDRAWN', 'EXPIRED'];
 
+/**
+ * Statuses where the offer is out with the candidate and its expiry clock is running.
+ *
+ * Deliberately the same set as the "Sent" tab minus APPROVED, which has not reached the candidate
+ * yet. Anything here can lapse, so anything here counts toward near-expiry.
+ */
+const IN_FLIGHT_WITH_CANDIDATE = ['SENT', 'AWAITING_SIGNATURE', 'SIGNED', 'UNDER_NEGOTIATION'];
+
 function getStatusBadge(status: string): { className: string; label: string } {
   switch (status) {
     case 'DRAFT':
@@ -283,8 +291,13 @@ export default function OfferManagement() {
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     return {
       pendingApproval: offersList.filter(o => o.status === 'PENDING_APPROVAL').length,
+      // Every status where the offer is genuinely with the candidate, not just SENT. An offer at
+      // AWAITING_SIGNATURE or UNDER_NEGOTIATION with two days left is the one most likely to
+      // lapse — signing and negotiating are exactly what consume the clock — and counting only
+      // SENT excluded them. The tab grouping above already treats these as in-flight; this now
+      // agrees with it.
       nearExpiry: offersList.filter(o => {
-        if (o.status !== 'SENT' || !o.offerExpiryDate) return false;
+        if (!IN_FLIGHT_WITH_CANDIDATE.includes(o.status) || !o.offerExpiryDate) return false;
         return new Date(o.offerExpiryDate) <= sevenDaysFromNow && new Date(o.offerExpiryDate) > now;
       }).length,
       activeNegotiations: offersList.filter(o => o.status === 'UNDER_NEGOTIATION' || o.status === 'NEGOTIATION').length,
@@ -297,8 +310,14 @@ export default function OfferManagement() {
       const response = await apiFetch('/api/offers/dashboard');
       if (response.ok) {
         const counts = await response.json();
-        const hasData = counts.pendingApproval || counts.nearExpiry || counts.activeNegotiations || counts.recentAcceptances;
-        if (hasData) {
+        // Check the shape, not the values. This previously tested whether any count was truthy,
+        // so a correct all-zero answer — a genuinely quiet week — was falsy, thrown away, and
+        // replaced by counts recomputed from the loaded page. Zero was being read as "no answer"
+        // at the exact moment the server was right.
+        const answered = counts && typeof counts === 'object'
+          && ['pendingApproval', 'nearExpiry', 'activeNegotiations', 'recentAcceptances']
+            .some(key => typeof counts[key] === 'number');
+        if (answered) {
           setDashboardCounts(counts);
           return;
         }

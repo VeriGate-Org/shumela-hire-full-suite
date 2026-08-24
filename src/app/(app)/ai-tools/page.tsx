@@ -8,7 +8,8 @@ import AiEmailDrafter from '@/components/ai/AiEmailDrafter';
 import AiJobDescriptionWriter from '@/components/ai/AiJobDescriptionWriter';
 import AiSalaryBenchmark from '@/components/ai/AiSalaryBenchmark';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
-import AiDisclaimer from '@/components/ai/AiDisclaimer';
+// AiDisclaimer is not imported here: each tool renders its own, with the right risk level —
+// high-risk for the features that judge people, advisory for the rest.
 
 /* ------------------------------------------------------------------ */
 /*  Icon components matching the mock SVGs                             */
@@ -92,7 +93,24 @@ function DollarIcon() {
 
 export default function AiToolsPage() {
   return (
-    <FeatureGate feature="AI_ENABLED">
+    <FeatureGate
+      feature="AI_ENABLED"
+      // Without a fallback this renders null, so a navigation item leads to a blank page on any
+      // tenant without AI — and briefly on every load for tenants with it, because FeatureGate
+      // also returns null while the flag is still loading. An empty screen reads as a broken page;
+      // "not enabled" reads as an answer.
+      fallback={
+        <PageWrapper title="AI Tools" subtitle="Not enabled for this organisation">
+          <div className="enterprise-card p-8 text-center max-w-lg mx-auto">
+            <h2 className="text-lg font-bold text-foreground mb-2">AI features are switched off</h2>
+            <p className="text-sm text-muted-foreground">
+              Nobody in this organisation can use the AI tools at the moment. Your administrator can
+              enable them.
+            </p>
+          </div>
+        </PageWrapper>
+      }
+    >
       <PageWrapper
         title="AI Tools"
         subtitle="AI-powered features to streamline your recruitment workflow"

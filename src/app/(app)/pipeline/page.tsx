@@ -335,9 +335,14 @@ export default function PipelinePage() {
         const backendStage = a.pipelineStage || a.status || 'APPLICATION_RECEIVED';
         const currentStage = BACKEND_STAGE_TO_GROUP[backendStage] || 'applied';
         const stageIndex = STAGE_GROUPS.findIndex(s => s.id === currentStage);
+        // pipelineStageEnteredAt is the field that means "entered this stage"; updatedAt moves on
+        // any edit. Reading updatedAt first meant rating a candidate reset their apparent dwell to
+        // zero, so a card stuck three weeks quietly became fresh the moment anyone touched it.
+        const stageEnteredAt = a.pipelineStageEnteredAt || a.updatedAt;
+        // Last activity is a different question from dwell — it is genuinely the last edit.
         const updatedAt = a.updatedAt || a.pipelineStageEnteredAt;
-        const daysInStage = updatedAt
-          ? Math.floor((Date.now() - new Date(updatedAt).getTime()) / (1000 * 60 * 60 * 24))
+        const daysInStage = stageEnteredAt
+          ? Math.floor((Date.now() - new Date(stageEnteredAt).getTime()) / (1000 * 60 * 60 * 24))
           : 0;
 
         // Handle both DTO (applicantEmail, jobTitle) and raw entity (applicant.email, jobPosting.title)
