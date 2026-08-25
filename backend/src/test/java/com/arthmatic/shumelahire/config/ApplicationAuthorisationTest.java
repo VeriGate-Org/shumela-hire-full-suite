@@ -63,7 +63,7 @@ class ApplicationAuthorisationTest {
     }
 
     private List<Set<String>> annotationRoles(String source) {
-        return Pattern.compile("@PreAuthorize\\(\"hasAnyRole\\(([^)]*)\\)\"\\)").matcher(source).results()
+        return Pattern.compile("@PreAuthorize\\(\"hasAnyRole\\(([^)]*)\\)").matcher(source).results()
                 .map(r -> Pattern.compile("'([A-Z_]+)'").matcher(r.group(1)).results()
                         .map(x -> x.group(1)).collect(Collectors.toSet()))
                 .collect(Collectors.toList());
@@ -72,7 +72,7 @@ class ApplicationAuthorisationTest {
     /** Roles on the handler whose mapping annotation matches {@code mapping}. */
     private Set<String> rolesFor(String source, String mapping) {
         Matcher m = Pattern.compile(
-                Pattern.quote(mapping) + "\\s*@PreAuthorize\\(\"hasAnyRole\\(([^)]*)\\)\"\\)")
+                Pattern.quote(mapping) + "(?:\\s*//[^\\n]*\\n)*\\s*@PreAuthorize\\(\"hasAnyRole\\(([^)]*)\\)")
                 .matcher(source);
         assertTrue(m.find(), "no guarded " + mapping + " — did it move?");
         return Pattern.compile("'([A-Z_]+)'").matcher(m.group(1)).results()
@@ -132,12 +132,27 @@ class ApplicationAuthorisationTest {
         String source = read(CONTROLLER);
         for (String mapping : List.of(
                 "@PostMapping\n",
-                "@GetMapping(\"/applicant/{applicantId}\")\n",
                 "@PostMapping(\"/{id}/withdraw\")\n",
                 "@GetMapping(\"/can-apply\")\n")) {
             assertEquals(new TreeSet<>(SELF_SERVICE), rolesFor(source, mapping),
                     mapping.trim() + " should treat an employee exactly as it treats an applicant");
         }
+    }
+
+    @Test
+    @DisplayName("Reading somebody's applications is parity by ownership, not by role")
+    void applicationsByApplicantAreOwnershipScoped() throws IOException {
+        // This endpoint used to name APPLICANT and EMPLOYEE alongside the staff roles, which granted
+        // both of them every applicant's application history — the id was never checked against the
+        // caller. Parity between an applicant and an employee still holds, but it now holds because
+        // neither is admitted by role and both reach their own records through the same ownership
+        // clause. Asserting the old role set here would be asserting the bug.
+        String source = read(CONTROLLER);
+        Set<String> roles = rolesFor(source, "@GetMapping(\"/applicant/{applicantId}\")\n");
+
+        assertEquals(new TreeSet<>(Set.of("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")), roles);
+        assertTrue(source.contains("or @applicantAccess.isSelf(authentication, #applicantId)"),
+                "the ownership clause is what lets a candidate read their own applications");
     }
 
     @Test

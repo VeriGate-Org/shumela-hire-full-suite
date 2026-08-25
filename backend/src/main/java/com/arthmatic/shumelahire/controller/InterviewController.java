@@ -149,7 +149,9 @@ public class InterviewController {
 
     // Get interviews by application (also accessible by applicants/employees for their own applications)
     @GetMapping("/application/{applicationId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'INTERVIEWER', 'APPLICANT', 'EMPLOYEE')")
+    // The comment above said candidates may read their own; nothing implemented it.
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'INTERVIEWER') "
+            + "or @applicantAccess.ownsApplication(authentication, #applicationId)")
     public ResponseEntity<List<Interview>> getInterviewsByApplication(@PathVariable String applicationId) {
         List<Interview> interviews = interviewService.getInterviewsByApplication(applicationId);
         return ResponseEntity.ok(interviews);

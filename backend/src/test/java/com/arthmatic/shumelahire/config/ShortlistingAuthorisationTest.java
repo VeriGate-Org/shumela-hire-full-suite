@@ -69,7 +69,7 @@ class ShortlistingAuthorisationTest {
 
     /** Roles named on each @PreAuthorize in the controller. */
     private List<Set<String>> annotationRoles(String source) {
-        return Pattern.compile("@PreAuthorize\\(\"hasAnyRole\\(([^)]*)\\)\"\\)").matcher(source).results()
+        return Pattern.compile("@PreAuthorize\\(\"hasAnyRole\\(([^)]*)\\)").matcher(source).results()
                 .map(r -> Pattern.compile("'([A-Z_]+)'").matcher(r.group(1)).results()
                         .map(x -> x.group(1)).collect(Collectors.toSet()))
                 .collect(Collectors.toList());

@@ -87,7 +87,9 @@ public class OfferController {
 
     // Get offers for applicant (O6: single call, eliminates N+1)
     @GetMapping("/applicant/{applicantId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    // Offer terms. Any signed-in candidate could read anyone's by changing the id.
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER') "
+            + "or @applicantAccess.isSelf(authentication, #applicantId)")
     public ResponseEntity<List<Offer>> getOffersByApplicant(@PathVariable String applicantId) {
         if (isSelfServiceCandidate(authentication())) {
             String currentApplicantId = resolveApplicantId(authentication());

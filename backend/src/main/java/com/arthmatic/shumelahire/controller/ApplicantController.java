@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import com.arthmatic.shumelahire.security.ApplicantAccess;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +34,11 @@ public class ApplicantController {
     private static final Logger logger = LoggerFactory.getLogger(ApplicantController.class);
 
     private final ApplicantService applicantService;
+    private final ApplicantAccess applicantAccess;
 
-    public ApplicantController(ApplicantService applicantService) {
+    public ApplicantController(ApplicantService applicantService, ApplicantAccess applicantAccess) {
         this.applicantService = applicantService;
+        this.applicantAccess = applicantAccess;
     }
 
     /**
@@ -64,7 +67,11 @@ public class ApplicantController {
      * PUT /api/applicants/{id}
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT', 'EMPLOYEE')")
+    // The staff half is the role set this endpoint already had — HIRING_MANAGER was never on it and
+    // is not being added here. The new clause is the ownership check: previously any signed-in
+    // candidate could PUT over any applicant record by changing the id.
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER') "
+            + "or @applicantAccess.isSelf(authentication, #id)")
     public ResponseEntity<?> updateApplicant(Authentication authentication,
                                            @PathVariable String id,
                                            @Valid @RequestBody ApplicantCreateRequest request) {
@@ -83,11 +90,39 @@ public class ApplicantController {
     }
 
     /**
+     * The caller's own applicant record.
+     * GET /api/applicants/me
+     *
+     * <p>Self-service used to find its own record by searching the whole applicant list for the
+     * signed-in user's email address — which is why {@code APPLICANT} and {@code EMPLOYEE} had
+     * access to that list at all, and therefore to everybody else on it. Asking "who am I" should
+     * not require the ability to ask "who else is there", and this endpoint takes no parameter, so
+     * it cannot be pointed at anybody else.
+     *
+     * <p>404 when the caller has no applicant record. That is the ordinary state of a staff user
+     * who has never applied, and of a candidate who has signed up but not yet applied.
+     */
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getMyApplicantRecord(Authentication authentication) {
+        try {
+            return applicantAccess.self(authentication)
+                    .map(applicant -> ResponseEntity.ok(
+                            (Object) applicantService.getApplicant(applicant.getId(), authentication)))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            logger.error("Error resolving the caller's own applicant record", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Internal server error"));
+        }
+    }
+
+    /**
      * Get applicant by ID
      * GET /api/applicants/{id}
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("@applicantAccess.maySee(authentication, #id)")
     public ResponseEntity<?> getApplicant(Authentication authentication, @PathVariable String id) {
         try {
             ApplicantResponse response = applicantService.getApplicant(id, authentication);
@@ -186,7 +221,7 @@ public class ApplicantController {
      * GET /api/applicants?search={term}&page={page}&size={size}&sort={field}
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> searchApplicants(
             Authentication authentication,
             @RequestParam(required = false) String search,
@@ -213,7 +248,8 @@ public class ApplicantController {
      * POST /api/applicants/{id}/documents
      */
     @PostMapping(value = "/{id}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER') "
+            + "or @applicantAccess.isSelf(authentication, #id)")
     public ResponseEntity<?> uploadDocument(
             @PathVariable String id,
             @RequestParam(required = false) String applicationId,
@@ -243,7 +279,7 @@ public class ApplicantController {
      * GET /api/applicants/{id}/documents
      */
     @GetMapping("/{id}/documents")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("@applicantAccess.maySee(authentication, #id)")
     public ResponseEntity<?> getApplicantDocuments(@PathVariable String id) {
         try {
             List<Document> documents = applicantService.getApplicantDocuments(id);
@@ -263,7 +299,9 @@ public class ApplicantController {
      * DELETE /api/applicants/{applicantId}/documents/{documentId}
      */
     @DeleteMapping("/{applicantId}/documents/{documentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    // Recruiters could not delete documents before and still cannot.
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER') "
+            + "or @applicantAccess.isSelf(authentication, #applicantId)")
     public ResponseEntity<?> deleteDocument(@PathVariable String applicantId,
                                           @PathVariable String documentId) {
         try {

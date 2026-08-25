@@ -4,18 +4,30 @@ import { apiFetch } from '@/lib/api-fetch';
 let cachedApplicantId: string | null = null;
 let cachedEmail: string | null = null;
 
-export async function getApplicantByEmail(email: string) {
-  const response = await apiFetch(`/api/applicants?search=${encodeURIComponent(email)}&size=1`);
+/**
+ * The signed-in user's own applicant record.
+ *
+ * <p>This used to search the whole applicant list for the caller's email address
+ * (`/api/applicants?search=<email>`), which is the only reason candidates and employees had access
+ * to that endpoint — and therefore to every other candidate's name, email, phone, address and
+ * document list. `/api/applicants/me` resolves the record from the token and takes no parameter,
+ * so it cannot be pointed at anyone else.
+ *
+ * <p>Returns null when the caller has no applicant record yet, which is the ordinary state of
+ * someone who has signed up but not applied. A 404 is that answer, not a failure.
+ */
+export async function getMyApplicant() {
+  const response = await apiFetch('/api/applicants/me');
+  if (response.status === 404) return null;
   if (!response.ok) throw new Error(`Failed to find applicant: HTTP ${response.status}`);
-  const result = await response.json();
-  const applicants = result.content || result.data || result || [];
-  if (applicants.length === 0) return null;
-  return applicants[0];
+  return response.json();
 }
 
 export async function getApplicantId(email: string): Promise<string | null> {
+  // The email is still the cache key — it identifies which signed-in user the cached id belongs to,
+  // so switching accounts in one session cannot serve the previous user's applicant id.
   if (cachedApplicantId && cachedEmail === email) return cachedApplicantId;
-  const applicant = await getApplicantByEmail(email);
+  const applicant = await getMyApplicant();
   if (applicant) {
     cachedApplicantId = applicant.id;
     cachedEmail = email;
