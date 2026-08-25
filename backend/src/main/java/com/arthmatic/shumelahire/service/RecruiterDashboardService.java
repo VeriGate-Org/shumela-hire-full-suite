@@ -1,281 +1,81 @@
 package com.arthmatic.shumelahire.service;
 
-import com.arthmatic.shumelahire.entity.Application;
-import com.arthmatic.shumelahire.entity.ApplicationStatus;
-import com.arthmatic.shumelahire.entity.JobPosting;
+import com.arthmatic.shumelahire.dto.PipelineAnalyticsResponse;
+import com.arthmatic.shumelahire.dto.RecruiterDashboardResponse;
 import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
-import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.arthmatic.shumelahire.repository.OfferDataRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
- * Service for recruiter dashboard analytics and KPIs
+ * The recruitment overview, composed from the summaries each page already uses.
+ *
+ * <p><b>Composed, not recomputed.</b> Every count here comes from the same {@code summary()} method
+ * the corresponding page calls, so the dashboard cannot quote a different number from the screen it
+ * links to. A dashboard that disagrees with the pages beneath it is worse than one that shows
+ * nothing.
+ *
+ * <p><b>Pipeline analytics are allowed to fail without taking the page with them.</b> They read a
+ * date-ranged index and are the one part of this response that can be slow or unavailable; the rest
+ * are counts. A failure there sets {@code pipelineAvailable = false} so the client can say the
+ * funnel is unavailable while still showing the figures it does have — rather than the page
+ * rendering zeros for everything, which is what it did before.
  */
 @Service
 public class RecruiterDashboardService {
 
-    @Autowired
-    private ApplicationDataRepository applicationRepository;
+    private static final Logger logger = LoggerFactory.getLogger(RecruiterDashboardService.class);
 
-    @Autowired
-    private JobPostingDataRepository jobPostingRepository;
+    /** The window the pipeline funnel describes. A quarter is what the page's heading claims. */
+    private static final int PIPELINE_WINDOW_DAYS = 90;
 
-    /**
-     * Get comprehensive recruiter metrics for dashboard
-     */
-    public Map<String, Object> getRecruiterMetrics(LocalDate startDate, LocalDate endDate) {
-        LocalDateTime start = (startDate != null) ? startDate.atStartOfDay() : LocalDateTime.now().minusDays(30);
-        
-        List<Application> applications = applicationRepository.findRecentApplications(start);
-        List<JobPosting> jobPostings = jobPostingRepository.findAll();
+    private final JobPostingService jobPostingService;
+    private final ApplicationService applicationService;
+    private final InterviewService interviewService;
+    private final OfferService offerService;
+    private final PipelineService pipelineService;
+    private final OfferDataRepository offerRepository;
+    private final ApplicationDataRepository applicationRepository;
 
-        Map<String, Object> metrics = new HashMap<>();
-        
-        // Basic counts
-        metrics.put("totalApplications", applications.size());
-        metrics.put("activeJobPostings", jobPostings.size());
-        metrics.put("newApplicants", applications.stream()
-            .map(app -> app.getApplicant().getId())
-            .distinct()
-            .count());
-
-        // Application status breakdown
-        Map<String, Long> statusCounts = applications.stream()
-            .collect(Collectors.groupingBy(
-                app -> app.getStatus().toString(),
-                Collectors.counting()
-            ));
-        metrics.put("applicationsByStatus", statusCounts);
-
-        // Conversion rates
-        long screeningPassed = applications.stream()
-            .mapToLong(app -> app.getStatus().ordinal() > ApplicationStatus.SCREENING.ordinal() ? 1 : 0)
-            .sum();
-        long interviewed = applications.stream()
-            .mapToLong(app -> app.getStatus().ordinal() >= ApplicationStatus.INTERVIEW_SCHEDULED.ordinal() ? 1 : 0)
-            .sum();
-        long hired = applications.stream()
-            .mapToLong(app -> app.getStatus() == ApplicationStatus.HIRED ? 1 : 0)
-            .sum();
-
-        metrics.put("conversionRates", Map.of(
-            "screeningRate", applications.isEmpty() ? 0.0 : (double) screeningPassed / applications.size() * 100,
-            "interviewRate", applications.isEmpty() ? 0.0 : (double) interviewed / applications.size() * 100,
-            "hireRate", applications.isEmpty() ? 0.0 : (double) hired / applications.size() * 100
-        ));
-
-        // Time-based trends
-        Map<String, Long> dailyApplications = applications.stream()
-            .collect(Collectors.groupingBy(
-                app -> app.getCreatedAt().toLocalDate().toString(),
-                Collectors.counting()
-            ));
-        metrics.put("dailyTrends", dailyApplications);
-
-        return metrics;
+    public RecruiterDashboardService(JobPostingService jobPostingService,
+                                     ApplicationService applicationService,
+                                     InterviewService interviewService,
+                                     OfferService offerService,
+                                     PipelineService pipelineService,
+                                     OfferDataRepository offerRepository,
+                                     ApplicationDataRepository applicationRepository) {
+        this.jobPostingService = jobPostingService;
+        this.applicationService = applicationService;
+        this.interviewService = interviewService;
+        this.offerService = offerService;
+        this.pipelineService = pipelineService;
+        this.offerRepository = offerRepository;
+        this.applicationRepository = applicationRepository;
     }
 
-    /**
-     * Get applications count per vacancy for chart visualization
-     */
-    public List<Map<String, Object>> getApplicationsPerVacancy(int days) {
-        LocalDateTime since = LocalDateTime.now().minusDays(days);
-        List<Application> recentApplications = applicationRepository.findRecentApplications(since);
+    public RecruiterDashboardResponse overview() {
+        LocalDateTime now = LocalDateTime.now();
 
-        Map<String, Long> applicationCounts = recentApplications.stream()
-            .collect(Collectors.groupingBy(
-                app -> app.getJobTitle(),
-                Collectors.counting()
-            ));
-
-        return applicationCounts.entrySet().stream()
-            .map(entry -> Map.of(
-                "vacancy", (Object) entry.getKey(),
-                "applications", (Object) entry.getValue(),
-                "jobId", (Object) recentApplications.stream()
-                    .filter(app -> app.getJobTitle().equals(entry.getKey()))
-                    .findFirst()
-                    .map(app -> app.getJobPostingId())
-                    .orElse("")
-            ))
-            .sorted((a, b) -> Long.compare((Long) b.get("applications"), (Long) a.get("applications")))
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Get recruitment pipeline funnel data
-     */
-    public Map<String, Object> getPipelineFunnel(String department, int days) {
-        LocalDateTime since = LocalDateTime.now().minusDays(days);
-        List<Application> applications = applicationRepository.findRecentApplications(since);
-
-        // Filter by department if specified
-        if (department != null && !department.isEmpty()) {
-            applications = applications.stream()
-                .filter(app -> department.equals(app.getDepartment()))
-                .collect(Collectors.toList());
+        PipelineAnalyticsResponse pipeline;
+        try {
+            pipeline = pipelineService.getPipelineAnalytics(now.minusDays(PIPELINE_WINDOW_DAYS), now);
+        } catch (RuntimeException e) {
+            // Logged rather than swallowed. The page reports the funnel as unavailable; everything
+            // else on the response is still true.
+            logger.warn("Pipeline analytics unavailable for the dashboard: {}", e.getMessage());
+            pipeline = null;
         }
 
-        Map<String, Long> funnelData = new LinkedHashMap<>();
-        funnelData.put("Applied", (long) applications.size());
-        funnelData.put("Screening", applications.stream()
-            .mapToLong(app -> app.getStatus().ordinal() > ApplicationStatus.SUBMITTED.ordinal() ? 1 : 0)
-            .sum());
-        funnelData.put("Interview", applications.stream()
-            .mapToLong(app -> app.getStatus().ordinal() >= ApplicationStatus.INTERVIEW_SCHEDULED.ordinal() ? 1 : 0)
-            .sum());
-        funnelData.put("Offer", applications.stream()
-            .mapToLong(app -> app.getStatus().ordinal() >= ApplicationStatus.OFFERED.ordinal() ? 1 : 0)
-            .sum());
-        funnelData.put("Hired", applications.stream()
-            .mapToLong(app -> app.getStatus() == ApplicationStatus.HIRED ? 1 : 0)
-            .sum());
-
-        return Map.of(
-            "funnel", funnelData,
-            "department", department != null ? department : "All Departments",
-            "period", days + " days"
-        );
-    }
-
-    /**
-     * Get average time to fill positions
-     */
-    public Map<String, Object> getTimeToFill(String department, int days) {
-        LocalDateTime since = LocalDateTime.now().minusDays(days);
-        List<Application> hiredApplications = applicationRepository.findByStatusOrderBySubmittedAtDesc(ApplicationStatus.HIRED);
-        
-        // Filter by recent updates and department
-        hiredApplications = hiredApplications.stream()
-            .filter(app -> app.getUpdatedAt() != null && app.getUpdatedAt().isAfter(since))
-            .filter(app -> department == null || department.isEmpty() || department.equals(app.getDepartment()))
-            .collect(Collectors.toList());
-
-        List<Map<String, Object>> timeToFillData = hiredApplications.stream()
-            .map(app -> {
-                long daysToFill = ChronoUnit.DAYS.between(
-                    app.getJobPosting().getPublishedAt().toLocalDate(),
-                    app.getUpdatedAt().toLocalDate()
-                );
-                return Map.of(
-                    "jobTitle", (Object) app.getJobTitle(),
-                    "department", (Object) app.getDepartment(),
-                    "daysToFill", (Object) daysToFill,
-                    "hiredDate", (Object) app.getUpdatedAt().toLocalDate().toString()
-                );
-            })
-            .collect(Collectors.toList());
-
-        double averageDays = hiredApplications.stream()
-            .mapToLong(app -> ChronoUnit.DAYS.between(
-                app.getJobPosting().getPublishedAt().toLocalDate(),
-                app.getUpdatedAt().toLocalDate()
-            ))
-            .average()
-            .orElse(0.0);
-
-        return Map.of(
-            "averageDays", averageDays,
-            "positions", timeToFillData,
-            "department", department != null ? department : "All Departments"
-        );
-    }
-
-    /**
-     * Get recent recruitment activity
-     */
-    public List<Map<String, Object>> getRecentActivity(int limit) {
-        LocalDateTime since = LocalDateTime.now().minusDays(30);
-        List<Application> recentApplications = applicationRepository.findRecentApplications(since);
-        
-        return recentApplications.stream()
-            .limit(limit)
-            .map(app -> Map.of(
-                "id", (Object) app.getId(),
-                "applicantName", (Object) app.getApplicant().getFullName(),
-                "jobTitle", (Object) app.getJobTitle(),
-                "status", (Object) app.getStatus().toString(),
-                "action", (Object) getActionDescription(app.getStatus()),
-                "timestamp", (Object) app.getUpdatedAt() != null ? app.getUpdatedAt() : app.getCreatedAt(),
-                "department", (Object) app.getDepartment()
-            ))
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Get statistics by department
-     */
-    public Map<String, Object> getDepartmentStats(int days) {
-        LocalDateTime since = LocalDateTime.now().minusDays(days);
-        List<Application> applications = applicationRepository.findRecentApplications(since);
-
-        Map<String, Map<String, Object>> departmentStats = applications.stream()
-            .collect(Collectors.groupingBy(
-                app -> app.getDepartment(),
-                Collectors.collectingAndThen(
-                    Collectors.toList(),
-                    apps -> {
-                        Map<String, Object> stats = new HashMap<>();
-                        stats.put("totalApplications", apps.size());
-                        stats.put("uniqueApplicants", apps.stream()
-                            .map(app -> app.getApplicant().getId())
-                            .distinct().count());
-                        stats.put("hired", apps.stream()
-                            .mapToLong(app -> app.getStatus() == ApplicationStatus.HIRED ? 1 : 0)
-                            .sum());
-                        stats.put("averageTimeToFill", apps.stream()
-                            .filter(app -> app.getStatus() == ApplicationStatus.HIRED)
-                            .mapToLong(app -> ChronoUnit.DAYS.between(
-                                app.getJobPosting().getPublishedAt().toLocalDate(),
-                                app.getUpdatedAt().toLocalDate()
-                            ))
-                            .average().orElse(0.0));
-                        return stats;
-                    }
-                )
-            ));
-
-        return Map.of(
-            "departments", departmentStats,
-            "period", days + " days"
-        );
-    }
-
-    /**
-     * Helper method to get action description based on status
-     */
-    private String getActionDescription(ApplicationStatus status) {
-        switch (status) {
-            case SUBMITTED:
-                return "Application submitted";
-            case SCREENING:
-                return "Under screening";
-            case INTERVIEW_SCHEDULED:
-                return "Interview scheduled";
-            case INTERVIEW_COMPLETED:
-                return "Interview completed";
-            case REFERENCE_CHECK:
-                return "Reference check";
-            case OFFER_PENDING:
-                return "Offer being prepared";
-            case OFFERED:
-                return "Offer extended";
-            case OFFER_ACCEPTED:
-                return "Offer accepted";
-            case HIRED:
-                return "Candidate hired";
-            case REJECTED:
-                return "Application rejected";
-            case WITHDRAWN:
-                return "Application withdrawn";
-            default:
-                return "Status updated";
-        }
+        return RecruiterDashboardResponse.from(
+                jobPostingService.summary(),
+                applicationService.summary(),
+                interviewService.summary(),
+                offerService.summary(),
+                offerRepository.findAll(),
+                pipeline,
+                applicationRepository.countBySubmittedAtBetween(now.minusDays(7), now));
     }
 }

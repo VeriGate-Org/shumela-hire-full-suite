@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import com.arthmatic.shumelahire.dto.RecruiterDashboardResponse;
+import com.arthmatic.shumelahire.service.RecruiterDashboardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +27,30 @@ public class AnalyticsController {
     @Autowired
     private AnalyticsService analyticsService;
 
+    @Autowired
+    private RecruiterDashboardService recruiterDashboardService;
+
     // Dashboard endpoints
+    /**
+     * The recruitment overview this dashboard actually needs.
+     * GET /api/analytics/recruiter-overview
+     *
+     * <p>Separate from {@code /dashboard} because that endpoint returns {@code kpis},
+     * {@code trends} and {@code alerts} — and the recruiter dashboard reads
+     * {@code totalApplications}, {@code activeJobPostings}, {@code newApplicants} and
+     * {@code interviewRate} off it. <b>None of those four keys has ever been on that response.</b>
+     * Every one of them passed through {@code || 0}, so the page rendered noughts on a fully
+     * successful request.
+     *
+     * <p>Rather than widen {@code /dashboard} and leave two overlapping contracts, this is the one
+     * the page is built against.
+     */
+    @GetMapping("/recruiter-overview")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    public ResponseEntity<RecruiterDashboardResponse> getRecruiterOverview() {
+        return ResponseEntity.ok(recruiterDashboardService.overview());
+    }
+
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> getDashboardMetrics(
             @RequestParam(required = false) String department,
