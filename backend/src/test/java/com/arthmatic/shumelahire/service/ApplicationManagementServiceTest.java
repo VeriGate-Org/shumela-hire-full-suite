@@ -260,8 +260,11 @@ class ApplicationManagementServiceTest {
     @Test
     void testExportApplications() {
         // Given
-        List<Long> applicationIds = Arrays.asList(1L);
-        List<String> stringIds = Arrays.asList("1");
+        // A real id. This read `Arrays.asList(1L)` with a separate string list for the mock —
+        // encoding the very Long/String round-trip that made export fail, and passing only
+        // because 1L happens to parse. Production ids are UUIDs and never did.
+        List<String> applicationIds = Arrays.asList("a3f1c0de-0000-4000-8000-000000000001");
+        List<String> stringIds = applicationIds;
         when(applicationRepository.findAllByIds(stringIds)).thenReturn(List.of(mockApplication));
 
         // When
@@ -284,8 +287,11 @@ class ApplicationManagementServiceTest {
     @Test
     void testExportApplications_SpecificFields() {
         // Given
-        List<Long> applicationIds = Arrays.asList(1L);
-        List<String> stringIds = Arrays.asList("1");
+        // A real id. This read `Arrays.asList(1L)` with a separate string list for the mock —
+        // encoding the very Long/String round-trip that made export fail, and passing only
+        // because 1L happens to parse. Production ids are UUIDs and never did.
+        List<String> applicationIds = Arrays.asList("a3f1c0de-0000-4000-8000-000000000001");
+        List<String> stringIds = applicationIds;
         List<String> fields = Arrays.asList("id", "applicantName", "status");
         when(applicationRepository.findAllByIds(stringIds)).thenReturn(List.of(mockApplication));
 
@@ -376,5 +382,133 @@ class ApplicationManagementServiceTest {
         assertTrue(errors.get(0).contains("Thandi Nkosi"), errors.get(0));
         verify(applicationRepository).save(mockApplication);
         verify(applicationRepository, never()).save(rejected);
+    }
+
+    // ── Filter options ───────────────────────────────
+
+    @Test
+    void filterOptionsOfferDepartmentsThatActuallyExist() {
+        // The departments were ten literals — Engineering, Marketing, Sales, HR, Finance,
+        // Operations, Product, Customer Support, Legal, R&D — in a tenant whose departments are
+        // none of those. The filter matches on exact equality, so picking any of them emptied the
+        // table, which reads as "no applications" rather than "wrong filter".
+        when(applicationRepository.countByDepartment()).thenReturn(List.of(
+            new Object[]{"Information Technology", 12L},
+            new Object[]{"Enterprise Risk Management", 3L},
+            new Object[]{"Strategic Business Unit", 7L}));
+
+        Map<String, Object> options = applicationManagementService.getFilterOptions();
+
+        @SuppressWarnings("unchecked")
+        List<String> departments = (List<String>) options.get("departments");
+
+        assertEquals(
+            List.of("Enterprise Risk Management", "Information Technology", "Strategic Business Unit"),
+            departments,
+            "departments must come from the applications, sorted");
+        assertFalse(departments.contains("Engineering"), "the hardcoded list must be gone");
+    }
+
+    @Test
+    void filterOptionsDropBlankAndDuplicateDepartments() {
+        when(applicationRepository.countByDepartment()).thenReturn(List.of(
+            new Object[]{"Information Technology", 4L},
+            new Object[]{"Information Technology", 2L},
+            new Object[]{null, 1L},
+            new Object[]{"   ", 1L}));
+
+        @SuppressWarnings("unchecked")
+        List<String> departments =
+            (List<String>) applicationManagementService.getFilterOptions().get("departments");
+
+        assertEquals(List.of("Information Technology"), departments);
+    }
+
+    @Test
+    void filterOptionsCarryLabelsSoNoEnumReachesTheScreen() {
+        when(applicationRepository.countByDepartment()).thenReturn(List.of());
+
+        Map<String, Object> options = applicationManagementService.getFilterOptions();
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, String>> statuses = (List<Map<String, String>>) options.get("statuses");
+
+        Map<String, String> scheduled = statuses.stream()
+            .filter(m -> "INTERVIEW_SCHEDULED".equals(m.get("value")))
+            .findFirst().orElseThrow();
+
+        assertEquals("Interview Scheduled", scheduled.get("label"),
+            "a caller should not have to keep its own copy of the display names");
+    }
+
+    // ── Export ───────────────────────────────────────
+
+    @Test
+    void exportResolvesTheUuidsItIsGiven() {
+        // The controller parsed these to Long first, which threw on every real id, so exporting a
+        // selection could never work — only exporting everything.
+        when(applicationRepository.findAllByIds(List.of("1")))
+            .thenReturn(List.of(mockApplication));
+
+        List<Map<String, Object>> rows =
+            applicationManagementService.exportApplications(List.of("1"), null);
+
+        assertEquals(1, rows.size());
+        assertEquals("John Doe", rows.get(0).get("applicantName"));
+        verify(applicationRepository).findAllByIds(List.of("1"));
+        verify(applicationRepository, never()).findAll();
+    }
+
+    @Test
+    void exportHydratesTheApplicantStub() {
+        // The repository rebuilds applicant as an id-only stub, so every exported name and email
+        // came back null. Search already hydrates; export was never given the same treatment.
+        Applicant stub = new Applicant();
+        stub.setId("1");
+
+        Application app = new Application();
+        app.setId("9");
+        app.setApplicant(stub);
+        app.setStatus(ApplicationStatus.SUBMITTED);
+        app.setPipelineStage(PipelineStage.APPLICATION_RECEIVED);
+
+        when(applicationRepository.findAllByIds(List.of("9"))).thenReturn(List.of(app));
+        when(applicantRepository.findById("1")).thenReturn(Optional.of(mockApplicant));
+
+        List<Map<String, Object>> rows =
+            applicationManagementService.exportApplications(List.of("9"), null);
+
+        assertEquals("John Doe", rows.get(0).get("applicantName"));
+        assertEquals("john.doe@example.com", rows.get(0).get("applicantEmail"));
+    }
+
+    @Test
+    void exportSurvivesAnApplicationWithNoApplicant() {
+        // A bulk export that dies on record 400 of 500 is worse than one that reports a blank cell.
+        Application orphan = new Application();
+        orphan.setId("9");
+        orphan.setApplicant(null);
+        orphan.setStatus(ApplicationStatus.SUBMITTED);
+        orphan.setPipelineStage(PipelineStage.APPLICATION_RECEIVED);
+
+        when(applicationRepository.findAllByIds(List.of("9"))).thenReturn(List.of(orphan));
+
+        List<Map<String, Object>> rows =
+            applicationManagementService.exportApplications(List.of("9"), null);
+
+        assertEquals(1, rows.size());
+        assertNull(rows.get(0).get("applicantName"));
+    }
+
+    @Test
+    void exportCarriesReadableStatusAlongsideTheStoredValue() {
+        when(applicationRepository.findAllByIds(List.of("1"))).thenReturn(List.of(mockApplication));
+
+        Map<String, Object> row =
+            applicationManagementService.exportApplications(List.of("1"), null).get(0);
+
+        assertEquals("SUBMITTED", row.get("status"), "the stored value keeps the file machine-readable");
+        assertEquals("Submitted", row.get("statusLabel"), "the label is what the person opening it needs");
+        assertEquals("Application Received", row.get("pipelineStageLabel"));
     }
 }
