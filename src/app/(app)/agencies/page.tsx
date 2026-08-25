@@ -459,8 +459,8 @@ export default function AgenciesPage() {
     return (
       <PageWrapper>
         <IdentityBand eyebrow="Supplier panel" title="Recruitment Agencies" subtitle="You do not have permission to manage agencies." />
-        <div className="bg-white rounded-[10px] border border-gray-200 p-8 text-center">
-          <p className="text-gray-500 text-sm">
+        <div className="bg-card rounded-[10px] border border-border p-8 text-center">
+          <p className="text-muted-foreground text-sm">
             Agencies can be managed by administrators, HR managers, and recruiters.
           </p>
         </div>
@@ -581,12 +581,12 @@ export default function AgenciesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search agencies..."
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-gold-400"
+            className="w-full px-3 py-2 text-sm border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-gold-400"
           />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as AgencyStatus | 'ALL')}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-gold-400"
+            className="w-full px-3 py-2 text-sm border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-gold-400"
           >
             <option value="ALL">All Statuses</option>
             <option value="PENDING_APPROVAL">Pending Approval</option>
@@ -615,8 +615,8 @@ export default function AgenciesPage() {
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gold-500" />
             </div>
           ) : filteredAgencies.length === 0 ? (
-            <div className="bg-white rounded-[10px] border border-gray-200 p-8 text-center">
-              <p className="text-gray-400 text-sm">
+            <div className="bg-card rounded-[10px] border border-border p-8 text-center">
+              <p className="text-muted-foreground text-sm">
                 {search || statusFilter !== 'ALL'
                   ? 'No agencies match your filters.'
                   : 'No agencies registered yet.'}
@@ -634,16 +634,16 @@ export default function AgenciesPage() {
                 <button
                   key={agency.id}
                   onClick={() => handleSelectAgency(agency)}
-                  className={`w-full text-left bg-white rounded-[10px] border p-4 transition-all hover:shadow-sm ${
+                  className={`w-full text-left bg-card rounded-[10px] border p-4 transition-all hover:shadow-sm ${
                     selectedAgency?.id === agency.id
                       ? 'border-gold-400 bg-gold-50/50 shadow-sm'
-                      : 'border-gray-200'
+                      : 'border-border'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-sm text-gray-900 truncate">{agency.agencyName}</p>
-                      <p className="text-xs text-gray-500 mt-0.5 truncate">{agency.contactPerson}</p>
+                      <p className="font-medium text-sm text-foreground truncate">{agency.agencyName}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{agency.contactPerson}</p>
                     </div>
                     {/* The contract state, not the status pill. An agency whose contract ended
                         seventy days ago showed "Approved" and still does, on the record — this says
@@ -655,7 +655,7 @@ export default function AgenciesPage() {
                           : contractState === 'EXPIRING_SOON'
                             ? 'bg-amber-100 text-amber-800'
                             : contractState === 'SUSPENDED' || contractState === 'TERMINATED'
-                              ? 'bg-gray-100 text-gray-500'
+                              ? 'bg-muted text-muted-foreground'
                               : 'bg-green-100 text-green-700'
                       }`}
                     >
@@ -665,21 +665,21 @@ export default function AgenciesPage() {
 
                   <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                     {placement ? (
-                      <span className="text-xs font-semibold text-gray-700 tabular-nums">
+                      <span className="text-xs font-semibold text-foreground tabular-nums">
                         {placement}
                       </span>
                     ) : (
-                      <span className="text-xs text-gray-400">No submissions yet</span>
+                      <span className="text-xs text-muted-foreground">No submissions yet</span>
                     )}
                     {/* Fee sits beside the rate because neither means anything alone: 18% at a 9%
                         placement rate and 12.5% at 31% are not close decisions on the same row. */}
-                    {fee && <span className="text-xs text-gray-500">fee {fee}</span>}
-                    <span className="text-xs text-gray-500">{beeLabel(agency)}</span>
+                    {fee && <span className="text-xs text-muted-foreground">fee {fee}</span>}
+                    <span className="text-xs text-muted-foreground">{beeLabel(agency)}</span>
                   </div>
 
                   <p
                     className={`text-xs mt-1 ${
-                      contractState === 'LAPSED' ? 'text-red-600 font-medium' : 'text-gray-400'
+                      contractState === 'LAPSED' ? 'text-red-600 font-medium' : 'text-muted-foreground'
                     }`}
                   >
                     {contract}
@@ -692,7 +692,7 @@ export default function AgenciesPage() {
                   </p>
 
                   {agency.specializations && (
-                    <p className="text-xs text-gray-400 mt-1 truncate">{agency.specializations}</p>
+                    <p className="text-xs text-muted-foreground mt-1 truncate">{agency.specializations}</p>
                   )}
                 </button>
                 );
@@ -704,75 +704,75 @@ export default function AgenciesPage() {
         {/* ── Right panel: Agency detail ── */}
         <div className="flex-1 min-w-0">
           {!selectedAgency ? (
-            <div className="bg-white rounded-[10px] border border-gray-200 h-64 flex items-center justify-center">
+            <div className="bg-card rounded-[10px] border border-border h-64 flex items-center justify-center">
               <div className="text-center">
                 <p className="text-4xl mb-3">🤝</p>
-                <p className="text-gray-500 text-sm">Select an agency to view details</p>
+                <p className="text-muted-foreground text-sm">Select an agency to view details</p>
               </div>
             </div>
           ) : (
             <div className="space-y-4">
               {/* Agency header */}
-              <div className="bg-white rounded-[10px] border border-gray-200 p-5">
+              <div className="bg-card rounded-[10px] border border-border p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h2 className="text-lg font-semibold text-gray-900">{selectedAgency.agencyName}</h2>
+                      <h2 className="text-lg font-semibold text-foreground">{selectedAgency.agencyName}</h2>
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[selectedAgency.status]}`}
                       >
                         {STATUS_LABEL[selectedAgency.status]}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 mt-3 text-sm text-gray-600">
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 mt-3 text-sm text-muted-foreground">
                       <div>
-                        <span className="text-gray-400 text-xs">Contact</span>
+                        <span className="text-muted-foreground text-xs">Contact</span>
                         <p>{selectedAgency.contactPerson}</p>
                       </div>
                       <div>
-                        <span className="text-gray-400 text-xs">Email</span>
+                        <span className="text-muted-foreground text-xs">Email</span>
                         <p className="truncate">{selectedAgency.contactEmail}</p>
                       </div>
                       {selectedAgency.contactPhone && (
                         <div>
-                          <span className="text-gray-400 text-xs">Phone</span>
+                          <span className="text-muted-foreground text-xs">Phone</span>
                           <p>{selectedAgency.contactPhone}</p>
                         </div>
                       )}
                       {selectedAgency.registrationNumber && (
                         <div>
-                          <span className="text-gray-400 text-xs">Registration No.</span>
+                          <span className="text-muted-foreground text-xs">Registration No.</span>
                           <p>{selectedAgency.registrationNumber}</p>
                         </div>
                       )}
                       {selectedAgency.feePercentage != null && (
                         <div>
-                          <span className="text-gray-400 text-xs">Fee %</span>
+                          <span className="text-muted-foreground text-xs">Fee %</span>
                           <p>{selectedAgency.feePercentage}%</p>
                         </div>
                       )}
                       {selectedAgency.beeLevel != null && (
                         <div>
-                          <span className="text-gray-400 text-xs">BEE Level</span>
+                          <span className="text-muted-foreground text-xs">BEE Level</span>
                           <p>Level {selectedAgency.beeLevel}</p>
                         </div>
                       )}
                       {selectedAgency.contractStartDate && (
                         <div>
-                          <span className="text-gray-400 text-xs">Contract Start</span>
+                          <span className="text-muted-foreground text-xs">Contract Start</span>
                           <p>{new Date(selectedAgency.contractStartDate).toLocaleDateString()}</p>
                         </div>
                       )}
                       {selectedAgency.contractEndDate && (
                         <div>
-                          <span className="text-gray-400 text-xs">Contract End</span>
+                          <span className="text-muted-foreground text-xs">Contract End</span>
                           <p>{new Date(selectedAgency.contractEndDate).toLocaleDateString()}</p>
                         </div>
                       )}
                     </div>
                     {selectedAgency.specializations && (
-                      <p className="text-xs text-gray-500 mt-3">
-                        <span className="text-gray-400">Specializations: </span>
+                      <p className="text-xs text-muted-foreground mt-3">
+                        <span className="text-muted-foreground">Specializations: </span>
                         {selectedAgency.specializations}
                       </p>
                     )}
@@ -782,7 +782,7 @@ export default function AgenciesPage() {
                   <div className="flex flex-col gap-2 shrink-0">
                     <button
                       onClick={() => openEdit(selectedAgency)}
-                      className="px-3 py-1.5 text-xs border border-gray-300 rounded-full hover:bg-gray-50"
+                      className="px-3 py-1.5 text-xs border border-border rounded-full hover:bg-muted"
                     >
                       Edit
                     </button>
@@ -816,16 +816,16 @@ export default function AgenciesPage() {
               ) : dashboard && (
                 <>
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-white rounded-[10px] border border-gray-200 p-4">
-                      <p className="text-xs text-gray-500 mb-1">Total Submissions</p>
-                      <p className="text-2xl font-bold text-gray-900">{dashboard.totalSubmissions}</p>
+                    <div className="bg-card rounded-[10px] border border-border p-4">
+                      <p className="text-xs text-muted-foreground mb-1">Total Submissions</p>
+                      <p className="text-2xl font-bold text-foreground">{dashboard.totalSubmissions}</p>
                     </div>
-                    <div className="bg-white rounded-[10px] border border-gray-200 p-4">
-                      <p className="text-xs text-gray-500 mb-1">Accepted</p>
+                    <div className="bg-card rounded-[10px] border border-border p-4">
+                      <p className="text-xs text-muted-foreground mb-1">Accepted</p>
                       <p className="text-2xl font-bold text-green-700">{dashboard.acceptedSubmissions}</p>
                     </div>
-                    <div className="bg-white rounded-[10px] border border-gray-200 p-4">
-                      <p className="text-xs text-gray-500 mb-1">Placement Rate</p>
+                    <div className="bg-card rounded-[10px] border border-border p-4">
+                      <p className="text-xs text-muted-foreground mb-1">Placement Rate</p>
                       <p className="text-2xl font-bold text-gold-600">
                         {dashboard.placementRate.toFixed(1)}%
                       </p>
@@ -834,10 +834,10 @@ export default function AgenciesPage() {
 
                   {/* Submit candidate action */}
                   {selectedAgency.status === 'APPROVED' && (
-                    <div className="bg-white rounded-[10px] border border-gray-200 p-4 flex items-center justify-between">
+                    <div className="bg-card rounded-[10px] border border-border p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-800">Submit a candidate</p>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-sm font-medium text-foreground">Submit a candidate</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           Add a candidate submission for a job posting
                         </p>
                       </div>
@@ -859,46 +859,46 @@ export default function AgenciesPage() {
       {/* ── Register Agency Modal ── */}
       {(modal === 'register' || modal === 'edit') && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[10px] shadow-xl max-w-lg w-full p-6 overflow-y-auto max-h-[90vh]">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">
+          <div className="bg-card rounded-[10px] shadow-xl max-w-lg w-full p-6 overflow-y-auto max-h-[90vh]">
+            <h3 className="text-lg font-bold text-foreground mb-4">
               {modal === 'edit' ? 'Edit Agency' : 'Register Agency'}
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Agency Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={agencyForm.agencyName}
                   onChange={(e) => setAgencyForm((f) => ({ ...f, agencyName: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   placeholder="e.g. TalentBridge Staffing"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Contact Person <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={agencyForm.contactPerson}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, contactPerson: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="Jane Smith"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Contact Email <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
                     value={agencyForm.contactEmail}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, contactEmail: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="jane@agency.com"
                   />
                 </div>
@@ -906,22 +906,22 @@ export default function AgenciesPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Contact Phone</label>
                   <input
                     type="tel"
                     value={agencyForm.contactPhone}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, contactPhone: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="+27 11 000 0000"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Registration No.</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Registration No.</label>
                   <input
                     type="text"
                     value={agencyForm.registrationNumber}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, registrationNumber: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="2023/000000/07"
                   />
                 </div>
@@ -939,7 +939,7 @@ export default function AgenciesPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Fee %</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Fee %</label>
                   <input
                     type="number"
                     min="0"
@@ -947,19 +947,19 @@ export default function AgenciesPage() {
                     step="0.01"
                     value={agencyForm.feePercentage}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, feePercentage: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="15"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">BEE Level</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">BEE Level</label>
                   <input
                     type="number"
                     min="1"
                     max="8"
                     value={agencyForm.beeLevel}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, beeLevel: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="2"
                   />
                 </div>
@@ -967,21 +967,21 @@ export default function AgenciesPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Contract Start</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Contract Start</label>
                   <input
                     type="date"
                     value={agencyForm.contractStartDate}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, contractStartDate: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Contract End</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Contract End</label>
                   <input
                     type="date"
                     value={agencyForm.contractEndDate}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, contractEndDate: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
@@ -991,7 +991,7 @@ export default function AgenciesPage() {
               <button
                 onClick={() => setModal(null)}
                 disabled={actionLoading}
-                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50"
+                className="px-4 py-2 text-sm text-foreground border border-border rounded-full hover:bg-muted disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -1014,9 +1014,9 @@ export default function AgenciesPage() {
       {/* ── Submit Candidate Modal ── */}
       {modal === 'submitCandidate' && selectedAgency && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[10px] shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Submit Candidate</h3>
-            <p className="text-sm text-gray-500 mb-4">Via {selectedAgency.agencyName}</p>
+          <div className="bg-card rounded-[10px] shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-foreground mb-1">Submit Candidate</h3>
+            <p className="text-sm text-muted-foreground mb-4">Via {selectedAgency.agencyName}</p>
             <div className="space-y-4">
               <SearchableDropdown
                 label="Job Posting"
@@ -1031,46 +1031,46 @@ export default function AgenciesPage() {
               />
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Candidate Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={submissionForm.candidateName}
                     onChange={(e) => setSubmissionForm((f) => ({ ...f, candidateName: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="Full name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Candidate Email <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
                     value={submissionForm.candidateEmail}
                     onChange={(e) => setSubmissionForm((f) => ({ ...f, candidateEmail: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="candidate@email.com"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Phone</label>
                 <input
                   type="tel"
                   value={submissionForm.candidatePhone}
                   onChange={(e) => setSubmissionForm((f) => ({ ...f, candidatePhone: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   placeholder="+27 82 000 0000"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cover Note</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Cover Note</label>
                 <textarea
                   value={submissionForm.coverNote}
                   onChange={(e) => setSubmissionForm((f) => ({ ...f, coverNote: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   rows={3}
                   placeholder="Brief note about this candidate..."
                 />
@@ -1080,7 +1080,7 @@ export default function AgenciesPage() {
               <button
                 onClick={() => setModal(null)}
                 disabled={actionLoading}
-                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50"
+                className="px-4 py-2 text-sm text-foreground border border-border rounded-full hover:bg-muted disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -1099,10 +1099,10 @@ export default function AgenciesPage() {
       {/* ── Review Submission Modal ── */}
       {modal === 'reviewSubmission' && reviewingSubmission && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[10px] shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Review Submission</h3>
-            <p className="text-sm text-gray-500 mb-6">
-              <span className="font-medium text-gray-700">{reviewingSubmission.candidateName}</span>
+          <div className="bg-card rounded-[10px] shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-foreground mb-1">Review Submission</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              <span className="font-medium text-foreground">{reviewingSubmission.candidateName}</span>
               {reviewingSubmission.jobPosting?.title && (
                 <> — {reviewingSubmission.jobPosting.title}</>
               )}
@@ -1125,7 +1125,7 @@ export default function AgenciesPage() {
               <button
                 onClick={() => { setModal(null); setReviewingSubmission(null); }}
                 disabled={actionLoading}
-                className="w-full px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                className="w-full px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
               >
                 Cancel
               </button>

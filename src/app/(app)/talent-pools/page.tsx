@@ -89,7 +89,7 @@ function StarRating({
           onMouseLeave={() => setHovered(null)}
           className={`text-lg leading-none transition-colors ${
             disabled ? 'cursor-default' : 'cursor-pointer'
-          } ${star <= display ? 'text-gold-500' : 'text-gray-300'}`}
+          } ${star <= display ? 'text-gold-500' : 'text-muted-foreground'}`}
           aria-label={`Rate ${star} star${star !== 1 ? 's' : ''}`}
         >
           ★
@@ -454,8 +454,8 @@ export default function TalentPoolsPage() {
     return (
       <PageWrapper>
         <IdentityBand eyebrow="Candidate pools" title="Talent Pools" subtitle="You do not have permission to manage talent pools." />
-        <div className="bg-white rounded-[10px] border border-gray-200 p-8 text-center">
-          <p className="text-gray-500 text-sm">
+        <div className="bg-card rounded-[10px] border border-border p-8 text-center">
+          <p className="text-muted-foreground text-sm">
             Talent pools can be managed by administrators, HR managers, recruiters and hiring managers.
           </p>
         </div>
@@ -582,7 +582,7 @@ export default function TalentPoolsPage() {
             value={poolSearch}
             onChange={(e) => setPoolSearch(e.target.value)}
             placeholder="Search pools..."
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-gold-400"
+            className="w-full px-3 py-2 text-sm border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-gold-400"
           />
 
           <FilterChips
@@ -603,8 +603,8 @@ export default function TalentPoolsPage() {
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gold-500" />
             </div>
           ) : filteredPools.length === 0 ? (
-            <div className="bg-white rounded-[10px] border border-gray-200 p-8 text-center">
-              <p className="text-gray-400 text-sm">
+            <div className="bg-card rounded-[10px] border border-border p-8 text-center">
+              <p className="text-muted-foreground text-sm">
                 {poolSearch ? 'No pools match your search.' : 'No talent pools yet. Create one to get started.'}
               </p>
             </div>
@@ -620,17 +620,17 @@ export default function TalentPoolsPage() {
                 <button
                   key={pool.id}
                   onClick={() => handleSelectPool(pool)}
-                  className={`w-full text-left bg-white rounded-[10px] border p-4 transition-all hover:shadow-sm ${
+                  className={`w-full text-left bg-card rounded-[10px] border p-4 transition-all hover:shadow-sm ${
                     selectedPool?.id === pool.id
                       ? 'border-gold-400 bg-gold-50/50 shadow-sm'
-                      : 'border-gray-200'
+                      : 'border-border'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-sm text-gray-900 truncate">{pool.poolName}</p>
+                      <p className="font-medium text-sm text-foreground truncate">{pool.poolName}</p>
                       {pool.department && (
-                        <p className="text-xs text-gray-500 mt-0.5 truncate">{pool.department}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 truncate">{pool.department}</p>
                       )}
                     </div>
                     {/* The state says what the pool IS, not merely whether a flag is set. A pool
@@ -642,7 +642,7 @@ export default function TalentPoolsPage() {
                           : poolState === 'stale'
                             ? 'bg-amber-100 text-amber-800'
                             : poolState === 'inactive'
-                              ? 'bg-gray-100 text-gray-500'
+                              ? 'bg-muted text-muted-foreground'
                               : 'bg-green-100 text-green-700'
                       }`}
                     >
@@ -650,20 +650,20 @@ export default function TalentPoolsPage() {
                     </span>
                   </div>
                   <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <span className="text-xs font-semibold text-gray-700 tabular-nums">
+                    <span className="text-xs font-semibold text-foreground tabular-nums">
                       {pool.entryCount ?? 0} held
                     </span>
                     {medianLabel ? (
-                      <span className="text-xs text-gray-500">
-                        median entry <b className="font-semibold text-gray-700">{medianLabel}</b>
+                      <span className="text-xs text-muted-foreground">
+                        median entry <b className="font-semibold text-foreground">{medianLabel}</b>
                       </span>
                     ) : (
-                      <span className="text-xs text-gray-400">no entries yet</span>
+                      <span className="text-xs text-muted-foreground">no entries yet</span>
                     )}
                   </div>
-                  {sources && <p className="text-xs text-gray-400 mt-1">{sources}</p>}
+                  {sources && <p className="text-xs text-muted-foreground mt-1">{sources}</p>}
                   {oldest && poolState !== 'empty' && (
-                    <p className="text-xs text-gray-400 mt-0.5">Oldest {oldest}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Oldest {oldest}</p>
                   )}
                 </button>
                 );
@@ -675,33 +675,33 @@ export default function TalentPoolsPage() {
         {/* ── Right panel: Pool detail ── */}
         <div className="flex-1 min-w-0">
           {!selectedPool ? (
-            <div className="bg-white rounded-[10px] border border-gray-200 h-64 flex items-center justify-center">
+            <div className="bg-card rounded-[10px] border border-border h-64 flex items-center justify-center">
               <div className="text-center">
                 <p className="text-4xl mb-3">🎯</p>
-                <p className="text-gray-500 text-sm">Select a talent pool to view details</p>
+                <p className="text-muted-foreground text-sm">Select a talent pool to view details</p>
               </div>
             </div>
           ) : (
             <div className="space-y-4">
               {/* Header */}
-              <div className="bg-white rounded-[10px] border border-gray-200 p-4 flex items-start justify-between gap-4">
+              <div className="bg-card rounded-[10px] border border-border p-4 flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-lg font-semibold text-gray-900">{selectedPool.poolName}</h2>
+                    <h2 className="text-lg font-semibold text-foreground">{selectedPool.poolName}</h2>
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         selectedPool.isActive
                           ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-500'
+                          : 'bg-muted text-muted-foreground'
                       }`}
                     >
                       {selectedPool.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </div>
                   {selectedPool.description && (
-                    <p className="text-sm text-gray-500">{selectedPool.description}</p>
+                    <p className="text-sm text-muted-foreground">{selectedPool.description}</p>
                   )}
-                  <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500">
+                  <div className="flex flex-wrap gap-4 mt-2 text-xs text-muted-foreground">
                     {selectedPool.department && <span>Dept: {selectedPool.department}</span>}
                     {selectedPool.experienceLevel && <span>Level: {selectedPool.experienceLevel}</span>}
                     {selectedPool.autoAddEnabled && (
@@ -711,7 +711,7 @@ export default function TalentPoolsPage() {
                 </div>
                 <button
                   onClick={() => openEditPool(selectedPool)}
-                  className="shrink-0 px-3 py-1.5 text-xs border border-gray-300 rounded-full hover:bg-gray-50"
+                  className="shrink-0 px-3 py-1.5 text-xs border border-border rounded-full hover:bg-muted"
                 >
                   Edit Pool
                 </button>
@@ -720,19 +720,19 @@ export default function TalentPoolsPage() {
               {/* Analytics summary */}
               {analytics && (
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-white rounded-[10px] border border-gray-200 p-4">
-                    <p className="text-xs text-gray-500 mb-1">Total Candidates</p>
-                    <p className="text-2xl font-bold text-gray-900">{analytics.totalEntries ?? 0}</p>
+                  <div className="bg-card rounded-[10px] border border-border p-4">
+                    <p className="text-xs text-muted-foreground mb-1">Total Candidates</p>
+                    <p className="text-2xl font-bold text-foreground">{analytics.totalEntries ?? 0}</p>
                   </div>
-                  <div className="bg-white rounded-[10px] border border-gray-200 p-4">
+                  <div className="bg-card rounded-[10px] border border-border p-4">
                     {/* activeEntries counts entries that have not been REMOVED from the pool. It
                         was labelled "Available", which is a claim about the candidate rather than
                         about the entry, and nothing in the product records that. */}
-                    <p className="text-xs text-gray-500 mb-1">Still held</p>
+                    <p className="text-xs text-muted-foreground mb-1">Still held</p>
                     <p className="text-2xl font-bold text-green-700">{analytics.activeEntries ?? 0}</p>
                   </div>
-                  <div className="bg-white rounded-[10px] border border-gray-200 p-4">
-                    <p className="text-xs text-gray-500 mb-1">Avg Rating</p>
+                  <div className="bg-card rounded-[10px] border border-border p-4">
+                    <p className="text-xs text-muted-foreground mb-1">Avg Rating</p>
                     <p className="text-2xl font-bold text-gold-600">
                       {analytics.averageRating != null
                         ? analytics.averageRating.toFixed(1)
@@ -743,9 +743,9 @@ export default function TalentPoolsPage() {
               )}
 
               {/* Entries */}
-              <div className="bg-white rounded-[10px] border border-gray-200">
-                <div className="flex items-center justify-between p-4 border-b border-gray-100">
-                  <h3 className="text-sm font-semibold text-gray-700">Candidates</h3>
+              <div className="bg-card rounded-[10px] border border-border">
+                <div className="flex items-center justify-between p-4 border-b border-border">
+                  <h3 className="text-sm font-semibold text-foreground">Candidates</h3>
                   <button
                     onClick={() => {
                       setEntryForm({ applicantId: '', sourceType: 'MANUAL', notes: '' });
@@ -763,23 +763,23 @@ export default function TalentPoolsPage() {
                   </div>
                 ) : entries.length === 0 ? (
                   <div className="p-8 text-center">
-                    <p className="text-gray-400 text-sm">No candidates in this pool yet.</p>
+                    <p className="text-muted-foreground text-sm">No candidates in this pool yet.</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-gray-50 border-b border-gray-100">
+                      <thead className="bg-muted border-b border-border">
                         <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">
                             Candidate
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">
                             Source
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">
                             Rating
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">
                             Added
                           </th>
                           <th className="px-4 py-3" />
@@ -787,14 +787,14 @@ export default function TalentPoolsPage() {
                       </thead>
                       <tbody className="divide-y divide-gray-100">
                         {entries.map((entry) => (
-                          <tr key={entry.id} className="hover:bg-gray-50">
+                          <tr key={entry.id} className="hover:bg-muted">
                             <td className="px-4 py-3">
                               <div>
-                                <p className="font-medium text-gray-900">
+                                <p className="font-medium text-foreground">
                                   {entry.applicant?.fullName ?? entry.applicantName ?? `Applicant #${entry.applicant?.id ?? entry.applicantId ?? entry.id}`}
                                 </p>
                                 {entry.notes && (
-                                  <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[160px]">
+                                  <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-[160px]">
                                     {entry.notes}
                                   </p>
                                 )}
@@ -812,7 +812,7 @@ export default function TalentPoolsPage() {
                                 disabled={ratingLoading === entry.id}
                               />
                             </td>
-                            <td className="px-4 py-3 text-xs text-gray-400">
+                            <td className="px-4 py-3 text-xs text-muted-foreground">
                               {new Date(entry.addedAt).toLocaleDateString()}
                             </td>
                             <td className="px-4 py-3">
@@ -829,7 +829,7 @@ export default function TalentPoolsPage() {
                     </table>
                     {/* Said in the table's own voice, because the column that used to sit here
                         claimed the opposite of the truth. */}
-                    <p className="px-4 py-3 text-xs text-gray-400 border-t border-gray-100">
+                    <p className="px-4 py-3 text-xs text-muted-foreground border-t border-border">
                       {AVAILABILITY_NOT_TRACKED}
                     </p>
                   </div>
@@ -843,29 +843,29 @@ export default function TalentPoolsPage() {
       {/* ── Create / Edit Pool Modal ── */}
       {(modal === 'createPool' || modal === 'editPool') && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[10px] shadow-xl max-w-lg w-full p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">
+          <div className="bg-card rounded-[10px] shadow-xl max-w-lg w-full p-6">
+            <h3 className="text-lg font-bold text-foreground mb-4">
               {modal === 'editPool' ? 'Edit Pool' : 'Create Talent Pool'}
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Pool Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={poolForm.poolName}
                   onChange={(e) => setPoolForm((f) => ({ ...f, poolName: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   placeholder="e.g. Senior Engineers"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Description</label>
                 <textarea
                   value={poolForm.description}
                   onChange={(e) => setPoolForm((f) => ({ ...f, description: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   rows={2}
                   placeholder="Brief description of this pool..."
                 />
@@ -882,11 +882,11 @@ export default function TalentPoolsPage() {
                   searchPlaceholder="Search departments..."
                 />
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Experience Level</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Experience Level</label>
                   <select
                     value={poolForm.experienceLevel}
                     onChange={(e) => setPoolForm((f) => ({ ...f, experienceLevel: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   >
                     <option value="">Select level</option>
                     <option value="Intern">Intern</option>
@@ -912,7 +912,7 @@ export default function TalentPoolsPage() {
                 searchPlaceholder="Search skills..."
               />
               <div className="flex gap-6">
-                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
                   <input
                     type="checkbox"
                     checked={poolForm.isActive}
@@ -921,7 +921,7 @@ export default function TalentPoolsPage() {
                   />
                   Active
                 </label>
-                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
                   <input
                     type="checkbox"
                     checked={poolForm.autoAddEnabled}
@@ -936,7 +936,7 @@ export default function TalentPoolsPage() {
               <button
                 onClick={() => setModal(null)}
                 disabled={actionLoading}
-                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50"
+                className="px-4 py-2 text-sm text-foreground border border-border rounded-full hover:bg-muted disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -955,8 +955,8 @@ export default function TalentPoolsPage() {
       {/* ── Add Entry Modal ── */}
       {modal === 'addEntry' && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[10px] shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Add Candidate to Pool</h3>
+          <div className="bg-card rounded-[10px] shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-foreground mb-4">Add Candidate to Pool</h3>
             <div className="space-y-4">
               <div>
                 {/* Was a `type="number"` box asking the recruiter to type an applicant id. Ids are
@@ -977,7 +977,7 @@ export default function TalentPoolsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Source Type</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Source Type</label>
                 <select
                   value={entryForm.sourceType}
                   onChange={(e) =>
@@ -986,7 +986,7 @@ export default function TalentPoolsPage() {
                       sourceType: e.target.value as typeof entryForm.sourceType,
                     }))
                   }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                 >
                   <option value="MANUAL">Manual</option>
                   <option value="AUTO_REJECTED">Auto-Rejected</option>
@@ -994,11 +994,11 @@ export default function TalentPoolsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Notes</label>
                 <textarea
                   value={entryForm.notes}
                   onChange={(e) => setEntryForm((f) => ({ ...f, notes: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   rows={3}
                   placeholder="Optional notes about this candidate..."
                 />
@@ -1008,7 +1008,7 @@ export default function TalentPoolsPage() {
               <button
                 onClick={() => setModal(null)}
                 disabled={actionLoading}
-                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50"
+                className="px-4 py-2 text-sm text-foreground border border-border rounded-full hover:bg-muted disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -1027,23 +1027,23 @@ export default function TalentPoolsPage() {
       {/* ── Remove Entry Modal ── */}
       {modal === 'removeEntry' && removingEntry && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[10px] shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Remove Candidate</h3>
-            <p className="text-sm text-gray-500 mb-4">
+          <div className="bg-card rounded-[10px] shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-foreground mb-1">Remove Candidate</h3>
+            <p className="text-sm text-muted-foreground mb-4">
               Remove{' '}
-              <span className="font-medium text-gray-700">
+              <span className="font-medium text-foreground">
                 {removingEntry.applicant?.fullName ?? removingEntry.applicantName ?? `Applicant #${removingEntry.applicant?.id ?? removingEntry.applicantId ?? removingEntry.id}`}
               </span>{' '}
               from this pool?
             </p>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Reason <span className="text-gray-400">(optional)</span>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Reason <span className="text-muted-foreground">(optional)</span>
               </label>
               <textarea
                 value={removeReason}
                 onChange={(e) => setRemoveReason(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+                className="w-full px-3 py-2 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                 rows={3}
                 placeholder="Why is this candidate being removed?"
               />
@@ -1052,7 +1052,7 @@ export default function TalentPoolsPage() {
               <button
                 onClick={() => { setModal(null); setRemovingEntry(null); }}
                 disabled={actionLoading}
-                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50"
+                className="px-4 py-2 text-sm text-foreground border border-border rounded-full hover:bg-muted disabled:opacity-50"
               >
                 Cancel
               </button>
