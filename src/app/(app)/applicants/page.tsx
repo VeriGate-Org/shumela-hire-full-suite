@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import ApplicantProfile from '@/components/ApplicantProfile';
 import { useTheme } from '@/contexts/ThemeContext';
 import { apiFetch } from '@/lib/api-fetch';
@@ -272,11 +273,42 @@ export default function ApplicantsPage() {
   );
 
   return (
-    <PageWrapper
-      title={getPageTitle()}
-      subtitle={getPageSubtitle()}
-      actions={actions}
-    >
+    <PageWrapper>
+      {/* Page header, not a record component under one — see #285. Reads getPageTitle() rather
+          than a hardcoded string, or the create and edit screens would both announce themselves
+          as "Candidate Database". */}
+      <IdentityBand
+        eyebrow="Candidate base"
+        title={getPageTitle()}
+        subtitle={
+          view !== 'list'
+            ? getPageSubtitle()
+            : summary
+              ? `${summary.registered} registered · ${summary.applicationsRecorded} ${summary.applicationsRecorded === 1 ? 'application' : 'applications'}`
+              : 'Counts unavailable'
+        }
+        figures={
+          view === 'list' && summary
+            ? [
+                { label: 'In process now', value: summary.inProcessNow },
+                ...(summary.previouslyHired > 0
+                  ? [{ label: 'Previously hired', value: summary.previouslyHired, tone: 'positive' as const }]
+                  : []),
+                // An application whose applicant no longer exists is a data fault, not a metric.
+                // Shown only when there is one, because a standing zero teaches people to skip it.
+                ...(summary.orphanedApplications > 0
+                  ? [{
+                      label: 'Orphaned applications',
+                      value: summary.orphanedApplications,
+                      tone: 'critical' as const,
+                    }]
+                  : []),
+              ]
+            : []
+        }
+        actions={actions}
+      />
+
       <div className="space-y-6">
         {view === 'list' && (
           <>
