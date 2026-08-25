@@ -1,6 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.dto.SalaryRecommendationCreateRequest;
+import com.arthmatic.shumelahire.dto.SalaryRecommendationSummaryResponse;
 import com.arthmatic.shumelahire.dto.SalaryRecommendationProvideRequest;
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.SalaryRecommendation;
@@ -220,6 +221,16 @@ public class SalaryRecommendationService {
      * the state every other status on this record was in — {@link #getAll()} has been sitting here
      * unused while the page called only the two pending lists.
      */
+    /**
+     * Counts across every salary recommendation.
+     *
+     * <p>Whole-set on purpose: the page lists all of them, so counting the loaded rows would be
+     * correct today and quietly wrong the moment the list is paged.
+     */
+    public SalaryRecommendationSummaryResponse summary() {
+        return SalaryRecommendationSummaryResponse.from(repository.findAll(), LocalDateTime.now());
+    }
+
     public List<SalaryRecommendation> getReturned() {
         return repository.findAll().stream()
                 .filter(rec -> rec.getStatus() == SalaryRecommendationStatus.RETURNED)

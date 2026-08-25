@@ -13,6 +13,32 @@ export const salaryRecommendationService = {
     return result.content || result.data || result || [];
   },
 
+  /** Counts across every recommendation. Returns null on failure — never a zeroed object. */
+  async summary(): Promise<unknown | null> {
+    const response = await apiFetch('/api/salary-recommendations/summary');
+    if (!response.ok) return null;
+    return response.json();
+  },
+
+  /**
+   * Send a recommendation back for rework.
+   *
+   * Distinct from reject: a rejection ends the recommendation, a return expects it back. The
+   * transition this calls did not exist until recently — RETURNED was declared and accepted by
+   * submitForReview, but nothing could set it.
+   */
+  async returnForRework(id: number | string, reason: string): Promise<void> {
+    const response = await apiFetch(`/api/salary-recommendations/${id}/return`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason }),
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      throw new Error(body?.error ?? 'Could not return the recommendation');
+    }
+  },
+
   async getById(id: number): Promise<SalaryRecommendation> {
     const response = await apiFetch(`/api/salary-recommendations/${id}`);
     if (!response.ok) throw new Error('Recommendation not found');

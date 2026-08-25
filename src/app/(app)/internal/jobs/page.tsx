@@ -83,7 +83,6 @@ const stripHtmlTags = (html: string | null | undefined): string => {
   return html.replace(/<[^>]*>/g, '').trim();
 };
 
-const INTERNAL_PAGE_SIZE = 20;
 
 export default function InternalJobsBoard() {
   const { user: _user, isAuthenticated, isLoading } = useAuth();
@@ -92,7 +91,6 @@ export default function InternalJobsBoard() {
   const [allJobs, setAllJobs] = useState<InternalJobAd[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(0);
 
   // Filter states
   const [filters, setFilters] = useState<JobFilters>({
@@ -107,6 +105,15 @@ export default function InternalJobsBoard() {
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   // Filter options (these would typically come from backend)
+  // Whole-set counts from the board endpoint. Null when it did not answer — the chips then show
+  // no number rather than a zero, because "none" and "we could not count" are different answers.
+  const [boardCounts, setBoardCounts] = useState<{
+    open: number;
+    closingSoon: number;
+    recentlyClosed: number;
+    alsoExternal: number;
+    withoutBand: number;
+  } | null>(null);
   const [filterOptions, setFilterOptions] = useState({
     departments: [] as string[],
     locations: [] as string[],
@@ -129,13 +136,29 @@ export default function InternalJobsBoard() {
     setError(null);
 
     try {
-      const response = await apiFetch(`/api/ads/internal?page=${currentPage}&size=${INTERNAL_PAGE_SIZE}`);
+      // The board endpoint, not the paged list. /api/ads/internal returns active ads only, so a
+      // role an employee remembers seeing last week simply vanishes and the board looks emptier
+      // than the organisation is. This one keeps recently-closed roles and carries whole-set
+      // counts, so the chips describe every role rather than the loaded page.
+      const response = await apiFetch('/api/ads/internal/board');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const result = await response.json();
-      const content = result.data?.content || result.content || [];
+      const board = result.data ?? result;
+      const content = board?.roles ?? [];
 
       setAllJobs(content);
+      setBoardCounts(
+        typeof board?.open === 'number'
+          ? {
+              open: board.open,
+              closingSoon: board.closingSoon,
+              recentlyClosed: board.recentlyClosed,
+              alsoExternal: board.alsoExternal,
+              withoutBand: board.withoutBand,
+            }
+          : null,
+      );
       // Filter options derived from full results (before filtering).
       setFilterOptions({
         departments: [...new Set(content.map((j: InternalJobAd) => j.department).filter(Boolean))] as string[],
@@ -146,10 +169,11 @@ export default function InternalJobsBoard() {
       console.error('Error fetching internal jobs:', err);
       setError(err instanceof Error ? err.message : 'Failed to load internal jobs');
       setAllJobs([]);
+      setBoardCounts(null);
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, currentPage]);
+  }, [isAuthenticated]);
 
   // Fetch jobs on mount and page changes only
   useEffect(() => {
@@ -229,18 +253,19 @@ export default function InternalJobsBoard() {
             Closing Soon
           </span>
         )}
-        {isInternal && (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gold-100 text-gold-800">
-            <UserGroupIcon className="w-3 h-3 mr-1" />
-            Internal
-          </span>
-        )}
-        {job.channelExternal && (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+        {/* What the channel MEANS, not just which flag is set. "External" told an employee
+            nothing; being considered alongside the open market is the decision they are making. */}
+        {job.channelExternal ? (
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-surface-navy text-primary">
             <EyeIcon className="w-3 h-3 mr-1" />
-            External
+            Also open to external candidates
           </span>
-        )}
+        ) : isInternal ? (
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-surface-gold text-accent-gold">
+            <UserGroupIcon className="w-3 h-3 mr-1" />
+            Colleagues only
+          </span>
+        ) : null}
       </div>
     );
   };
@@ -278,12 +303,20 @@ export default function InternalJobsBoard() {
             )}
           </div>
 
-          {(job.salaryRangeMin || job.salaryRangeMax) && (
-            <div className="flex items-center text-green-600 font-medium mb-3">
-              <CurrencyDollarIcon className="w-4 h-4 mr-1" />
-              {formatSalaryRange(job.salaryRangeMin, job.salaryRangeMax)}
-            </div>
-          )}
+          {/* An absent band says so. Rendering nothing reads like a rendering fault, and an
+              employee cannot tell "not published" from "the page is broken". */}
+          <div className="flex items-center font-medium mb-3">
+            <CurrencyDollarIcon className="w-4 h-4 mr-1 text-muted-foreground" />
+            {job.salaryRangeMin || job.salaryRangeMax ? (
+              <span className="text-accent-teal">
+                {formatSalaryRange(job.salaryRangeMin, job.salaryRangeMax)}
+              </span>
+            ) : (
+              <span className="text-sm text-muted-foreground">
+                Band not published for this role
+              </span>
+            )}
+          </div>
 
           {job.closingDate && (
             <div className="flex items-center text-sm text-muted-foreground mb-4">
@@ -425,6 +458,35 @@ export default function InternalJobsBoard() {
       actions={actions}
     >
       <div className="space-y-6">
+        {/* The two facts that decide whether somebody applies at all — both known long before the
+            application form, where they currently first appear. */}
+        <div className="enterprise-card p-5 border-l-4 border-primary">
+          <p className="text-sm font-semibold text-foreground">
+            Applying internally does not notify your manager.
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {boardCounts && boardCounts.alsoExternal > 0 ? (
+              <>
+                {boardCounts.alsoExternal} of these {boardCounts.open} roles are also advertised
+                externally, so you would be considered alongside candidates from the open market.
+                The rest are open to colleagues only.
+              </>
+            ) : (
+              <>
+                Roles below are open to internal applicants. Where one is also advertised
+                externally the card says so — you would be considered alongside the open market.
+              </>
+            )}
+          </p>
+          {boardCounts && boardCounts.recentlyClosed > 0 && (
+            <p className="text-xs text-muted-foreground/70 mt-2">
+              {boardCounts.recentlyClosed} recently closed role
+              {boardCounts.recentlyClosed === 1 ? ' is' : 's are'} still listed, greyed out, so you
+              can see what you missed.
+            </p>
+          )}
+        </div>
+
         {/* Search and Filters */}
         <div className="enterprise-card p-6">
             {/* Search Bar */}
@@ -592,33 +654,10 @@ export default function InternalJobsBoard() {
               <JobTable />
             )}
 
-            {/* Pagination Controls */}
-            {allJobs.length >= INTERNAL_PAGE_SIZE && (
-              <div className="flex items-center justify-between pt-6">
-                <p className="text-sm text-muted-foreground">
-                  Page {currentPage + 1}
-                </p>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
-                    disabled={currentPage === 0}
-                    className="px-3 py-1 text-sm rounded-full border border-border text-foreground hover:bg-accent disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  <span className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded-full">
-                    {currentPage + 1}
-                  </span>
-                  <button
-                    onClick={() => setCurrentPage(prev => prev + 1)}
-                    disabled={allJobs.length < INTERNAL_PAGE_SIZE}
-                    className="px-3 py-1 text-sm rounded-full border border-border text-foreground hover:bg-accent disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* Pagination removed with the move to the board endpoint, which is not paged —
+                the counts above have to describe every role, and paging them would put the
+                page-scoped-count defect straight back. Leaving the buttons would have left two
+                controls that changed a page number nothing read. */}
           </>
         )}
       </div>

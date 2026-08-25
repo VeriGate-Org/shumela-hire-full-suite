@@ -274,6 +274,18 @@ public class JobAdService {
     }
     
     /**
+     * The internal board: open roles plus those closed within the last fortnight.
+     *
+     * <p>Separate from {@link #getPublishedInternalAds} because that one drops anything past its
+     * closing date, so a role an employee remembers seeing simply disappears. Not paged — the
+     * counts have to describe every role, and a board this size does not need paging.
+     */
+    @Transactional(readOnly = true)
+    public InternalJobBoardResponse getInternalBoard() {
+        return InternalJobBoardResponse.from(jobAdRepository.findByInternalChannel(), LocalDate.now());
+    }
+
+    /**
      * Get published internal job ads (for all authenticated employees)
      */
     @Transactional(readOnly = true)

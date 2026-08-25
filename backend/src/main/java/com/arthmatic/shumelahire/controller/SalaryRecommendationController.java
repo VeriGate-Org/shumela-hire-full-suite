@@ -2,6 +2,7 @@ package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.dto.SalaryRecommendationCreateRequest;
 import com.arthmatic.shumelahire.dto.SalaryRecommendationProvideRequest;
+import com.arthmatic.shumelahire.dto.SalaryRecommendationSummaryResponse;
 import com.arthmatic.shumelahire.entity.SalaryRecommendation;
 import com.arthmatic.shumelahire.service.SalaryRecommendationService;
 import jakarta.validation.Valid;
@@ -141,6 +142,16 @@ public class SalaryRecommendationController {
      * Recommendations that were sent back and not yet resubmitted.
      * GET /api/salary-recommendations/returned
      */
+    /**
+     * Counts across every recommendation.
+     * GET /api/salary-recommendations/summary
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE', 'RECRUITER')")
+    @GetMapping("/summary")
+    public ResponseEntity<SalaryRecommendationSummaryResponse> summary() {
+        return ResponseEntity.ok(service.summary());
+    }
+
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE', 'RECRUITER')")
     @GetMapping("/returned")
     public ResponseEntity<List<SalaryRecommendation>> getReturned() {
