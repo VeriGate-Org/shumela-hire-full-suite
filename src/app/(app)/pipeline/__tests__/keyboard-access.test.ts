@@ -1,7 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 
-const PAGE = path.join(process.cwd(), 'src', 'app', '(app)', 'pipeline', 'page.tsx');
+const DIR = path.join(process.cwd(), 'src', 'app', '(app)', 'pipeline');
+const PAGE = fs.readFileSync(path.join(DIR, 'page.tsx'), 'utf8');
+const CARD = fs.readFileSync(path.join(DIR, 'StageCard.tsx'), 'utf8');
+
+/** Both files together: the board is the page, and the card it renders. */
+const BOARD = `${PAGE}\n${CARD}`;
 
 /**
  * The pipeline board has to be operable without a mouse.
@@ -23,16 +28,22 @@ const PAGE = path.join(process.cwd(), 'src', 'app', '(app)', 'pipeline', 'page.t
  * bound to a bare div — and it can reappear anywhere in a 2,000-line file. A render test would
  * pin the one card it happened to mount and miss the next one.
  *
+ * <p>Reads the card component as well as the page. When the per-stage card was extracted, every
+ * one of these assertions failed while the page remained perfectly operable — the markup had moved,
+ * not regressed. Following it is the right repair; relaxing the assertions would have turned a
+ * guard into a formality, and the extraction did hide one real gap, which is why the list view's
+ * row checkbox is now named too.
+ *
  * <p>It is not a substitute for checking the page with a keyboard. It is a substitute for
  * remembering to.
  */
 describe('the pipeline board can be driven from the keyboard', () => {
-  const source = fs.readFileSync(PAGE, 'utf8');
-
   it('reveals hover-hidden controls on focus as well', () => {
     // Every `opacity-0 group-hover:opacity-100` has to pair with a focus reveal, or a focusable
-    // child of that element becomes invisible while focused.
-    const hoverReveals = source.match(/opacity-0 group-hover:opacity-100[^'"`]*/g) ?? [];
+    // child of that element becomes invisible while focused. Tailwind orders these classes freely,
+    // so the match is on the pair being present in one class string, not on their order.
+    const hoverReveals = (BOARD.match(/className=["'`][^'"`]*group-hover:opacity-100[^'"`]*/g) ?? [])
+      .filter((cls) => /\bopacity-0\b/.test(cls));
 
     expect(hoverReveals.length).toBeGreaterThan(0); // guard against the regex silently going stale
 
@@ -44,27 +55,28 @@ describe('the pipeline board can be driven from the keyboard', () => {
   });
 
   it('opens a candidate from a real button, not a click handler on a div', () => {
-    // setSelectedApplication is the "open this candidate" action. Every call site that a user
-    // triggers must sit on a <button>; the card div may also carry one for mouse convenience, but
-    // it cannot be the only way in.
-    expect(source).toContain('open candidate details');
+    // The card div may carry an onClick for mouse convenience, but it cannot be the only way in.
+    expect(CARD).toContain('open candidate details');
 
-    const cardButton = /<button[^>]*\n(?:[^<]|<(?!\/button))*setSelectedApplication\(application\)/;
-    expect(cardButton.test(source)).toBe(true);
+    const cardButton = /<button[^>]*\n(?:[^<]|<(?!\/button))*onOpen\(\)/;
+    expect(cardButton.test(CARD)).toBe(true);
   });
 
-  it('gives each row action a name that says which candidate it acts on', () => {
+  it('gives every candidate-scoped control a name that says which candidate it acts on', () => {
     // An icon button with title="View details" reads identically on every row, so a screen-reader
     // user hears the same label twenty times and cannot tell the rows apart.
-    expect(source).toMatch(/aria-label=\{`View details for \$\{application\.candidate/);
-    expect(source).toMatch(/aria-label=\{`Select \$\{application\.candidate/);
+    expect(PAGE).toMatch(/aria-label=\{`View details for \$\{application\.candidate/);
+
+    // Both surfaces select a candidate: the board card and the list view's rows.
+    expect(CARD).toMatch(/aria-label=\{`Select \$\{name\}`\}/);
+    expect(PAGE).toMatch(/aria-label=\{`Select \$\{application\.candidate/);
   });
 
   it('keeps the board and its columns announced as lists', () => {
     // The structure screen readers use to say "5 items in Screening". Adding button semantics to
     // the card must not have cost the list semantics around it.
-    expect(source).toContain('role="region"');
-    expect(source).toContain('role="list"');
-    expect(source).toContain('role="listitem"');
+    expect(PAGE).toContain('role="region"');
+    expect(PAGE).toContain('role="list"');
+    expect(CARD).toContain('role="listitem"');
   });
 });

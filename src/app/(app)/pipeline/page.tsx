@@ -14,18 +14,19 @@ import {
   biggestDropOff,
   daysInStage,
   daysLabel,
-  feedbackBadge,
   isBoardCard,
   isPipelineAnalytics,
-  isStuck,
   legalMoves,
   matchesFilter as matchesBoardFilter,
-  offerBadge,
   regressedIds,
   stageMedianDays,
   stageSampleSize,
   stuckCandidates,
 } from './board';
+import { stageState } from './stageSignal';
+import StageCard from './StageCard';
+import { DecisionBar, Evidence, Fold } from './StageDetail';
+import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import {
@@ -47,8 +48,6 @@ import {
   BanknotesIcon,
   StarIcon,
   ArrowDownTrayIcon,
-  PaperClipIcon,
-  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { pipelineApplicationStatusConfig, getStatusConfig } from '@/utils/statusIcons';
@@ -67,7 +66,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import VerificationStatusSummary, { VerificationSummary } from '@/components/VerificationStatusSummary';
 import OfferSummaryPanel from '@/components/OfferSummaryPanel';
 import InterviewSummaryPanel from '@/components/InterviewSummaryPanel';
-import StatusPill from '@/components/StatusPill';
 import ErrorState from '@/components/ErrorState';
 import EmptyState from '@/components/EmptyState';
 import { KanbanSkeleton } from '@/components/LoadingComponents';
@@ -295,7 +293,6 @@ export default function PipelinePage() {
   const [bulkRatingConfirm, setBulkRatingConfirm] = useState<string | null>(null);
   const [documentsLoading, setDocumentsLoading] = useState(false);
   const [ratingUpdating, setRatingUpdating] = useState(false);
-  const [screeningNotesOpen, setScreeningNotesOpen] = useState(false);
   // Lets the AI notes drafter hand its text to the notes box instead of into the void.
   const notesPanelRef = useRef<ScreeningNotesHandle>(null);
   // Keyed by job id: the vacancy's required skills, which AI CV screening compares the candidate
@@ -570,7 +567,6 @@ export default function PipelinePage() {
   useEffect(() => {
     if (!selectedApplication) {
       setDocuments([]);
-      setScreeningNotesOpen(false);
       return;
     }
     // Load documents
@@ -1339,227 +1335,70 @@ export default function PipelinePage() {
                   {/* Cards container */}
                   <div className="p-2.5 flex flex-col gap-2 overflow-y-auto max-h-[560px] flex-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-sm">
                     {stageApplications.map(application => {
-                      const isSelected = selectedIds.has(application.id);
-                      const progressScore = Math.round(application.progress);
-                      const scoreClass = progressScore >= 80 ? 'bg-surface-teal text-accent-teal' : progressScore >= 60 ? 'bg-surface-gold text-accent-gold' : 'bg-surface-pink text-accent-pink';
+                      const cardState = boardCards[String(application.id)];
+                      const verification = verificationSummaries[application.id];
+                      // One derivation, shared with the detail modal. The card and the modal used
+                      // to reach their own conclusions about the same candidate from the same data.
+                      const state = stageState({
+                        groupId: stage.id,
+                        backendStage: application.backendStage,
+                        pipelineStageEnteredAt: application.pipelineStageEnteredAt,
+                        hasScreeningNote: Boolean(application.screeningNotes?.trim()),
+                        card: cardState,
+                        verification: verification ?? null,
+                        analytics,
+                        regressed: regressed.has(String(application.id)),
+                      });
+                      const dwellDays = daysInStage({
+                        id: application.id,
+                        candidateName: '',
+                        stage: application.backendStage,
+                        pipelineStageEnteredAt: application.pipelineStageEnteredAt,
+                      });
+                      // Dwell measured from the real stage-entry time only. Where that is absent the
+                      // card says so rather than reporting "Today", which is what falling back to
+                      // the last edit produced.
+                      const dwell = dwellDays === null
+                        ? 'Time in stage unknown'
+                        : dwellDays === 0 ? 'Today' : `${dwellDays}d in stage`;
+                      // The sub-stage earns its place only where the column spans several of them.
+                      // In a single-stage column it restates the heading.
+                      const subStage = stage.backendStages.length > 1
+                        ? BACKEND_STAGE_DISPLAY[application.backendStage] ?? null
+                        : null;
                       return (
-                        <div
+                        <StageCard
                           key={application.id}
-                          role="listitem"
-                          onClick={() => setSelectedApplication(application)}
-                          className={`bg-card border rounded-card shadow-sm p-3 cursor-pointer transition-all hover:shadow-md hover:border-primary/30 hover:-translate-y-px relative group ${
-                            isSelected ? 'border-primary shadow-[0_0_0_2px_rgba(5,82,126,0.2)]' : 'border-border'
-                          }`}
-                        >
-                          {/* Checkbox - visible on hover, on focus, or when selected.
-                              It was revealed by group-hover alone, which does not fire for a
-                              keyboard user: the control was in the tab order the whole time, so
-                              focus landed on something invisible. Worse than being unreachable,
-                              because the page appears to swallow the Tab key. focus-within is
-                              already used a few lines below for the shortlist button. */}
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            aria-label={`Select ${application.candidate.firstName} ${application.candidate.lastName}`}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) => {
-                              const next = new Set(selectedIds);
-                              if (e.target.checked) next.add(application.id);
-                              else next.delete(application.id);
-                              setSelectedIds(next);
-                            }}
-                            className={`absolute top-2.5 right-2.5 w-4 h-4 rounded border-2 border-border accent-primary transition-opacity ${
-                              isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus:opacity-100'
-                            }`}
-                          />
-
-                          {/* Candidate name — and the card's primary action.
-                              Opening a candidate was an onClick on the card div with no tabIndex,
-                              role or key handler, so the whole board was mouse-only: a keyboard or
-                              screen-reader user could read every card and open none of them. A real
-                              button carries Enter and Space for free. The card keeps its own
-                              onClick, so clicking anywhere on it still works with a mouse. */}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedApplication(application);
-                            }}
-                            className="block text-left font-bold text-[0.8125rem] text-foreground mb-0.5 pr-6 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                          >
-                            {application.candidate.firstName} {application.candidate.lastName}
-                            <span className="sr-only"> — open candidate details</span>
-                          </button>
-
-                          {/* Position */}
-                          <div className="text-[0.6875rem] text-muted-foreground font-medium leading-snug mb-2">
-                            {application.job.title}
-                            {application.job.department && <> &middot; {application.job.department}</>}
-                          </div>
-
-                          {/* Sub-stage badge */}
-                          {stage.backendStages.length > 1 && BACKEND_STAGE_DISPLAY[application.backendStage] && (
-                            <span className="inline-block mb-1.5 px-1.5 py-0.5 text-[0.625rem] font-medium uppercase tracking-wider bg-muted text-muted-foreground rounded">
-                              {BACKEND_STAGE_DISPLAY[application.backendStage]}
-                            </span>
-                          )}
-
-                          {/* Rating stars */}
-                          {application.rating > 0 && (
-                            <div className="flex items-center gap-0.5 mb-1.5">
-                              {[1, 2, 3, 4, 5].map(s => (
-                                s <= application.rating
-                                  ? <StarIconSolid key={s} className="w-3 h-3 text-yellow-400" />
-                                  : <StarIcon key={s} className="w-3 h-3 text-muted-foreground/40" />
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Interview preview on interview cards */}
-                          {/* Interview preview, now from the batch call rather than a per-card
-                              fetch. Same information, one request instead of one per candidate. */}
-                          {stage.id === 'interviews' && boardCards[String(application.id)] && (() => {
-                            const cardState = boardCards[String(application.id)];
-                            const preview = {
-                              nextDate: cardState.nextInterviewAt,
-                              nextType: cardState.nextInterviewType,
-                              latestRecommendation: cardState.latestRecommendation,
-                            };
-                            if (!preview.nextDate && !preview.latestRecommendation) return null;
-                            return (
-                              <div className="mb-1.5 space-y-0.5">
-                                {preview.nextDate && (
-                                  <div className="flex items-center gap-1 text-[10px]">
-                                    <CalendarIcon className="w-3 h-3 text-muted-foreground" />
-                                    <span className="text-foreground font-medium">
-                                      {(() => {
-                                        const d = new Date(preview.nextDate);
-                                        const now = new Date();
-                                        const diffDays = Math.floor((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-                                        const time = d.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' });
-                                        if (diffDays === 0) return `Today ${time}`;
-                                        if (diffDays === 1) return `Tomorrow ${time}`;
-                                        if (diffDays < 0) return `Overdue ${Math.abs(diffDays)}d`;
-                                        return `${d.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })} ${time}`;
-                                      })()}
-                                    </span>
-                                    {preview.nextType && (
-                                      <StatusPill value={preview.nextType} domain="interviewType" size="sm" />
-                                    )}
-                                  </div>
-                                )}
-                                {preview.latestRecommendation && (
-                                  <StatusPill value={preview.latestRecommendation} domain="interviewRecommendation" size="sm" />
-                                )}
-                              </div>
-                            );
-                          })()}
-
-                          {/* Offer status, from the batch call. Only fires for an offer actually
-                              with the candidate — a draft is not, and used to show here. */}
-                          {['offer', 'accepted'].includes(stage.id)
-                            && boardCards[String(application.id)]?.offerStatus && (
-                            <div className="mb-2">
-                              <StatusPill
-                                value={boardCards[String(application.id)]!.offerStatus!}
-                                domain="offerStatus"
-                                size="sm"
-                              />
-                            </div>
-                          )}
-
-                          {/* Verification summary for checks-column apps */}
-                          {stage.id === 'checks' && verificationSummaries[application.id] && (
-                            <VerificationStatusSummary
-                              summary={verificationSummaries[application.id]}
-                              onInitiateChecks={() => setSelectedApplication(application)}
-                              compact
+                          name={`${application.candidate.firstName} ${application.candidate.lastName}`}
+                          role={application.job.title}
+                          department={application.job.department}
+                          state={state}
+                          dwell={dwell}
+                          subStage={subStage}
+                          rating={application.rating}
+                          selected={selectedIds.has(application.id)}
+                          onOpen={() => setSelectedApplication(application)}
+                          onToggleSelect={(checked) => {
+                            const next = new Set(selectedIds);
+                            if (checked) next.add(application.id);
+                            else next.delete(application.id);
+                            setSelectedIds(next);
+                          }}
+                          checkDots={
+                            stage.id === 'checks' && verification && verification.totalRequired > 0
+                              ? { clear: verification.clearCount, total: verification.totalRequired }
+                              : null
+                          }
+                          quickAction={application.status === 'active' ? (
+                            <ShortlistButton
+                              applicationId={application.id}
+                              candidateName={`${application.candidate.firstName} ${application.candidate.lastName}`}
+                              shortlisted={shortlistStates[application.id] ?? false}
+                              variant="icon"
+                              className="!w-5 !h-5"
                             />
-                          )}
-
-                          {/* What is wrong with this card, if anything. Every badge is a stored
-                              fact from the batch call — nothing here is inferred from position. */}
-                          {(() => {
-                            const cardState = boardCards[String(application.id)];
-                            const stuck = isStuck(
-                              {
-                                id: application.id,
-                                candidateName: `${application.candidate.firstName} ${application.candidate.lastName}`,
-                                stage: application.backendStage,
-                                pipelineStageEnteredAt: application.pipelineStageEnteredAt,
-                              },
-                              analytics,
-                            );
-                            const offer = offerBadge(cardState);
-                            const feedback = feedbackBadge(cardState);
-                            const wentBack = regressed.has(String(application.id));
-                            if (!stuck && !offer && !feedback && !wentBack) return null;
-                            return (
-                              <div className="flex flex-wrap gap-1 mb-1.5">
-                                {stuck && (
-                                  <span className="px-1.5 py-0.5 rounded text-[0.625rem] font-bold bg-surface-pink text-accent-pink">
-                                    Past this stage&rsquo;s median
-                                  </span>
-                                )}
-                                {wentBack && (
-                                  <span className="px-1.5 py-0.5 rounded text-[0.625rem] font-bold bg-surface-gold text-accent-gold">
-                                    Moved back
-                                  </span>
-                                )}
-                                {feedback && (
-                                  <span className="px-1.5 py-0.5 rounded text-[0.625rem] font-bold bg-surface-gold text-accent-gold">
-                                    {feedback}
-                                  </span>
-                                )}
-                                {offer && (
-                                  <span className={`px-1.5 py-0.5 rounded text-[0.625rem] font-bold ${
-                                    cardState?.offerExpiringSoon ? 'bg-surface-pink text-accent-pink' : 'bg-surface-teal text-accent-teal'
-                                  }`}>
-                                    {offer}
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          })()}
-
-                          {/* Footer: days in stage + score */}
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="inline-flex items-center gap-1.5 text-[0.6875rem] text-muted-foreground font-medium">
-                              <ClockIcon className="w-3 h-3" />
-                              {(() => {
-                                // Dwell measured from the real stage-entry time only. Where that is
-                                // absent the card says so rather than reporting "Today", which is
-                                // what falling back to the last edit produced.
-                                const dwell = daysInStage({
-                                  id: application.id,
-                                  candidateName: '',
-                                  stage: application.backendStage,
-                                  pipelineStageEnteredAt: application.pipelineStageEnteredAt,
-                                });
-                                if (dwell === null) return 'Time in stage unknown';
-                                return dwell === 0 ? 'Today' : `${dwell}d in stage`;
-                              })()}
-                            </span>
-                            <div className="flex items-center gap-1">
-                              {/* Revealed on hover so the card stays readable at rest, but the
-                                  action is one click away in the view people actually work in. */}
-                              {application.status === 'active' && (
-                                <span className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                                  <ShortlistButton
-                                    applicationId={application.id}
-                                    candidateName={`${application.candidate.firstName} ${application.candidate.lastName}`}
-                                    shortlisted={shortlistStates[application.id] ?? false}
-                                    variant="icon"
-                                    className="!w-6 !h-6"
-                                  />
-                                </span>
-                              )}
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded-button text-[0.6875rem] font-bold ${scoreClass}`}>
-                                {progressScore}%
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                          ) : undefined}
+                        />
                       );
                     })}
                   </div>
@@ -1628,6 +1467,10 @@ export default function PipelinePage() {
                           <input
                             type="checkbox"
                             checked={selectedIds.has(application.id)}
+                            // Unlabelled until now: the guard covering this pattern was satisfied by
+                            // the board card's label, so twenty rows of list view read as twenty
+                            // identical "checkbox" announcements.
+                            aria-label={`Select ${application.candidate.firstName} ${application.candidate.lastName}`}
                             onChange={(e) => {
                               const next = new Set(selectedIds);
                               if (e.target.checked) next.add(application.id);
@@ -1758,360 +1601,351 @@ export default function PipelinePage() {
           // is a different act from reading one.
           const isEarlyStage = ['applied', 'screening'].includes(currentGroupId);
 
-          return (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="pipeline-detail-title"
-              className="bg-card rounded-control shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-border"
-            >
-              {/* Modal Header with stage badge and move button */}
-              <div className="px-6 py-4 border-b border-border flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <h2 id="pipeline-detail-title" className="text-2xl font-bold text-foreground">
-                      {selectedApplication.candidate.firstName} {selectedApplication.candidate.lastName}
-                    </h2>
-                    <StatusPill value={selectedApplication.backendStage} domain="pipelineStage" size="sm" />
-                  </div>
-                  <p className="text-muted-foreground">{selectedApplication.job.title} - {selectedApplication.job.department}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {/* The full record, at an address. This modal stays because it is the
-                      stage-transition workspace — the verification gate and the move-to-next rule
-                      live here — but everything about the candidate now has one home, and this is
-                      the way to it. */}
-                  <a
-                    href={`/applications/${selectedApplication.id}`}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
-                  >
-                    Open full record
-                  </a>
-                  {selectedApplication.status === 'active' && (
-                    <ShortlistButton
-                      applicationId={selectedApplication.id}
-                      candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
-                      shortlisted={shortlistStates[selectedApplication.id] ?? false}
-                      onDone={(next) => setShortlistStates(prev => ({ ...prev, [selectedApplication.id]: next }))}
-                    />
-                  )}
-                  {/* The move offered is the server's, not one derived by walking STAGE_GROUPS by
-                      index. Where the batch has not answered, the client-side guess is used and the
-                      button says nothing it cannot back up — but the server remains the authority
-                      the moment its answer arrives. */}
-                  {selectedApplication.status === 'active' && serverMove && (
-                    <button
-                      onClick={() => { handleStageTransition(selectedApplication.id, serverMove); setSelectedApplication(null); }}
-                      disabled={checksBlocked}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                        checksBlocked
-                          ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                          : 'bg-cta text-cta-foreground hover:opacity-90'
-                      }`}
-                      title={checksBlocked ? 'Complete all verification checks before progressing' : `Move to ${serverMoveLabel}`}
-                    >
-                      <ArrowRightIcon className="w-3.5 h-3.5" />
-                      Move to {serverMoveLabel}
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setSelectedApplication(null)}
-                    aria-label="Close detail panel"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <XCircleIcon className="w-6 h-6" />
-                  </button>
-                </div>
+          // What this stage has to say, from the same derivation the card uses. The two used to
+          // reach independent conclusions about the same candidate.
+          const state = stageState({
+            groupId: currentGroupId,
+            backendStage: selectedApplication.backendStage,
+            pipelineStageEnteredAt: selectedApplication.pipelineStageEnteredAt,
+            hasScreeningNote: Boolean(selectedApplication.screeningNotes?.trim()),
+            card: boardCards[String(selectedApplication.id)],
+            verification: summary ?? null,
+            analytics,
+            regressed: regressed.has(String(selectedApplication.id)),
+          });
+
+          const candidateName = `${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`;
+
+          // Built once, placed either as this stage's evidence or inside a fold. The same markup in
+          // two positions, never two copies of it.
+          const factsBlock = (
+            <dl className="grid grid-cols-2 gap-x-5 gap-y-3 sm:grid-cols-4">
+              <div className="min-w-0">
+                <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Email</dt>
+                <dd className="mt-0.5 truncate text-[0.8125rem]" title={selectedApplication.candidate.email}>
+                  {selectedApplication.candidate.email || <span className="text-muted-foreground">Not recorded</span>}
+                </dd>
               </div>
+              <div>
+                <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Phone</dt>
+                <dd className="mt-0.5 text-[0.8125rem] tabular-nums">
+                  {selectedApplication.candidate.phone || <span className="text-muted-foreground">Not recorded</span>}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Applied</dt>
+                <dd className="mt-0.5 text-[0.8125rem] tabular-nums">
+                  {new Date(selectedApplication.submittedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">In this stage</dt>
+                <dd className={`mt-0.5 text-[0.8125rem] font-semibold tabular-nums ${selectedApplication.daysInStage >= 14 ? 'text-error' : ''}`}>
+                  {selectedApplication.daysInStage} {selectedApplication.daysInStage === 1 ? 'day' : 'days'}
+                </dd>
+              </div>
+              <div className="col-span-2 sm:col-span-4">
+                <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Rating</dt>
+                <dd className="mt-0.5 flex items-center gap-2">
+                  <span className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <button
+                        key={star}
+                        onClick={() => handleRate(selectedApplication.id, star === selectedApplication.rating ? 0 : star)}
+                        disabled={ratingUpdating}
+                        aria-label={`Rate ${star} of 5`}
+                        className="disabled:opacity-50"
+                      >
+                        {star <= selectedApplication.rating
+                          ? <StarIconSolid className="w-4 h-4 text-yellow-400 hover:text-yellow-500" />
+                          : <StarIcon className="w-4 h-4 text-muted-foreground/40 hover:text-yellow-300" />}
+                      </button>
+                    ))}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedApplication.rating > 0 ? `${selectedApplication.rating} of 5` : 'Not rated'}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+          );
 
-              <div className="px-5 py-4 space-y-4">
-                {/* The record's facts, as a definition grid.
-                    This was a Rating row, a heading, and five stacked <p> tags inside a filled box
-                    — around 320px of modal spent on eight short values, most of it gap. Four
-                    columns of label-over-value say the same in a quarter of the height and match
-                    how every other record surface in this product states its terms. */}
-                <dl className="grid grid-cols-2 gap-x-5 gap-y-3 sm:grid-cols-4">
-                  <div className="min-w-0">
-                    <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Email</dt>
-                    <dd className="mt-0.5 truncate text-[0.8125rem]" title={selectedApplication.candidate.email}>
-                      {selectedApplication.candidate.email || <span className="text-muted-foreground">Not recorded</span>}
-                    </dd>
+          const documentsBlock = documentsLoading ? (
+            <div className="flex items-center gap-2 py-1 text-sm text-muted-foreground">
+              <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary" />
+              Loading documents…
+            </div>
+          ) : documents.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No documents attached.</p>
+          ) : (
+            <div className="space-y-2">
+              {documents.map((doc: any) => (
+                <div key={doc.id} className="flex items-center justify-between gap-2 rounded-control border border-border bg-muted/50 p-2.5">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <DocumentTextIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">{doc.filename}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {doc.type === 'CV' ? 'CV / Resume' : doc.type === 'SUPPORT' ? 'Supporting Document' : formatEnumValue(doc.type)}
+                        {doc.fileSizeFormatted && ` — ${doc.fileSizeFormatted}`}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Phone</dt>
-                    <dd className="mt-0.5 text-[0.8125rem] tabular-nums">
-                      {selectedApplication.candidate.phone || <span className="text-muted-foreground">Not recorded</span>}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Applied</dt>
-                    <dd className="mt-0.5 text-[0.8125rem] tabular-nums">
-                      {new Date(selectedApplication.submittedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">In this stage</dt>
-                    <dd className={`mt-0.5 text-[0.8125rem] font-semibold tabular-nums ${selectedApplication.daysInStage >= 14 ? 'text-error' : ''}`}>
-                      {selectedApplication.daysInStage} {selectedApplication.daysInStage === 1 ? 'day' : 'days'}
-                    </dd>
-                  </div>
-                  <div className="col-span-2 sm:col-span-4">
-                    <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Rating</dt>
-                    <dd className="mt-0.5 flex items-center gap-2">
-                      <span className="flex items-center gap-0.5">
-                        {[1, 2, 3, 4, 5].map(star => (
-                          <button
-                            key={star}
-                            onClick={() => handleRate(selectedApplication.id, star === selectedApplication.rating ? 0 : star)}
-                            disabled={ratingUpdating}
-                            aria-label={`Rate ${star} of 5`}
-                            className="disabled:opacity-50"
-                          >
-                            {star <= selectedApplication.rating
-                              ? <StarIconSolid className="w-4 h-4 text-yellow-400 hover:text-yellow-500" />
-                              : <StarIcon className="w-4 h-4 text-muted-foreground/40 hover:text-yellow-300" />}
-                          </button>
-                        ))}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {selectedApplication.rating > 0 ? `${selectedApplication.rating} of 5` : 'Not rated'}
-                      </span>
-                    </dd>
-                  </div>
-                </dl>
+                  {doc.url && (
+                    <a
+                      href={doc.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex flex-shrink-0 items-center gap-1 px-2 py-1 text-xs font-medium text-primary hover:underline"
+                    >
+                      <ArrowDownTrayIcon className="h-3.5 w-3.5" />
+                      Download
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          );
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                  <div className="space-y-4">
-                    {/* Screening Notes — read-only summary. The early stages get the full
-                        read-and-write panel lower down instead, so this would only duplicate it. */}
-                    {!isEarlyStage && selectedApplication.screeningNotes && (
-                      <div>
-                        <button
-                          onClick={() => setScreeningNotesOpen(!screeningNotesOpen)}
-                          className="flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-foreground/80"
-                        >
-                          <ChevronDownIcon className={`w-4 h-4 transition-transform ${screeningNotesOpen ? 'rotate-180' : ''}`} />
-                          Screening Notes
-                        </button>
-                        {screeningNotesOpen && (
-                          <div className="mt-2 bg-muted/50 rounded-control p-3 text-sm text-foreground">
-                            {selectedApplication.screeningNotes}
-                          </div>
+          const timelineBlock = (
+            <div className="max-h-52 space-y-2.5 overflow-y-auto">
+              {timelineLoading ? (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className="h-3 w-3 animate-spin rounded-full border-b-2 border-primary" />
+                  Loading history…
+                </div>
+              ) : timelineEntries.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No stage changes recorded yet.</p>
+              ) : (
+                timelineEntries.map((event, index) => (
+                  <div key={index} className="flex gap-2.5">
+                    <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gold-500" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs text-foreground">
+                        <strong>{event.fromStage ? `${BACKEND_STAGE_DISPLAY[event.fromStage] || formatEnumValue(event.fromStage)} → ${BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage)}` : (BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage))}</strong>
+                        {!isOpaqueId(event.performedBy) && event.performedBy && (
+                          <span className="text-muted-foreground"> by {event.performedBy}</span>
                         )}
                       </div>
-                    )}
-
-                    {/* Documents / CV Section */}
-                    <div>
-                      <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
-                        <PaperClipIcon className="w-4 h-4" />
-                        Documents
-                      </h4>
-                      {documentsLoading ? (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                          Loading documents...
-                        </div>
-                      ) : documents.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">No documents attached.</p>
-                      ) : (
-                        <div className="space-y-2">
-                          {documents.map((doc: any) => (
-                            <div key={doc.id} className="flex items-center justify-between bg-muted/50 rounded-control p-2.5 border border-border">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <DocumentTextIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                                <div className="min-w-0">
-                                  <p className="text-sm font-medium text-foreground truncate">{doc.filename}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {doc.type === 'CV' ? 'CV / Resume' : doc.type === 'SUPPORT' ? 'Supporting Document' : formatEnumValue(doc.type)}
-                                    {doc.fileSizeFormatted && ` - ${doc.fileSizeFormatted}`}
-                                  </p>
-                                </div>
-                              </div>
-                              {doc.url && (
-                                <a
-                                  href={doc.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex-shrink-0 inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-primary hover:underline"
-                                >
-                                  <ArrowDownTrayIcon className="w-3.5 h-3.5" />
-                                  Download
-                                </a>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-[0.6875rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Application Timeline</h3>
-                    {/* No taller than its contents. A 256px scroll area was reserved whether or
-                        not anything was in it, beside a single line of text. */}
-                    <div className="space-y-2.5 max-h-52 overflow-y-auto">
-                      {timelineLoading ? (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="h-3 w-3 animate-spin rounded-full border-b-2 border-primary" />
-                          Loading history…
-                        </div>
-                      ) : timelineEntries.length === 0 ? (
-                        <p className="text-xs text-muted-foreground">No stage changes recorded yet.</p>
-                      ) : (
-                        timelineEntries.map((event, index) => (
-                          <div key={index} className="flex gap-2.5">
-                            <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gold-500" />
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs text-foreground">
-                                <strong>{event.fromStage ? `${BACKEND_STAGE_DISPLAY[event.fromStage] || formatEnumValue(event.fromStage)} → ${BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage)}` : (BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage))}</strong>
-                                {!isOpaqueId(event.performedBy) && event.performedBy && (
-                                  <span className="text-muted-foreground"> by {event.performedBy}</span>
-                                )}
-                              </div>
-                              {event.reason && (
-                                <div className="text-xs text-muted-foreground mt-0.5">{event.reason}</div>
-                              )}
-                              <div className="text-[0.625rem] tabular-nums text-muted-foreground">
-                                {new Date(event.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })} at {new Date(event.createdAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Interview Summary Panel (Interview stages) */}
-                {isInterviewStage && (
-                  <div className="pt-6 border-t border-border">
-                    <InterviewSummaryPanel
-                      applicationId={selectedApplication.id}
-                      candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
-                      jobTitle={selectedApplication.job.title}
-                      // Scheduling happens on the candidate's own record, not in a wizard opened
-                      // from inside this modal. A modal on a modal left you unsure which of the two
-                      // layers Cancel had just dismissed, and the record is where the interview
-                      // belongs anyway.
-                      onSchedule={() => {
-                        router.push(
-                          `/interviews/schedule?applicationId=${selectedApplication.id}` +
-                            `&returnTo=/applications/${selectedApplication.id}`,
-                        );
-                      }}
-                    />
-                  </div>
-                )}
-
-                {/* Offer Summary Panel (Offer/Accepted/Hired) */}
-                {isOfferRelated && (
-                  <div className="pt-6 border-t border-border">
-                    {offerLoading ? (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                        Loading offer data...
+                      {event.reason && <div className="mt-0.5 text-xs text-muted-foreground">{event.reason}</div>}
+                      <div className="text-[0.625rem] tabular-nums text-muted-foreground">
+                        {new Date(event.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })} at {new Date(event.createdAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}
                       </div>
-                    ) : (
-                      <OfferSummaryPanel
-                        offer={offers[selectedApplication.id] || null}
-                        applicationId={selectedApplication.id}
-                        readOnly={isHiredStage}
-                        onAction={() => refreshOffer(selectedApplication.id)}
-                      />
-                    )}
+                    </div>
                   </div>
-                )}
-
-                {/* Verification Summary (for checks stage) */}
-                {isChecksStage && verificationSummaries[selectedApplication.id] && (
-                  <div className="pt-6 border-t border-border">
-                    <VerificationStatusSummary
-                      summary={verificationSummaries[selectedApplication.id]}
-                    />
-                  </div>
-                )}
-
-                {/* Background Screening */}
-                {(isChecksStage || isHiredStage) && (
-                  <div className="pt-6 border-t border-border">
-                    <BackgroundCheckPanel
-                      applicationId={selectedApplication.id}
-                      candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
-                      candidateEmail={selectedApplication.candidate.email}
-                      jobPostingId={selectedApplication.job?.id}
-                      onClose={() => {}}
-                      onChecksUpdated={() => loadVerificationSummaries(applications)}
-                      readOnly={isHiredStage}
-                    />
-                  </div>
-                )}
-
-                {/* Screening notes and verification for the early stages. Interviews, Offer and
-                    Checks each already have a panel for the work done there; Applied and Screening
-                    had nothing, so a recruiter could form a view of a candidate and had nowhere to
-                    put it. */}
-                {isEarlyStage && (
-                  <div className="pt-6 border-t border-border space-y-6">
-                    <ScreeningNotesPanel
-                      ref={notesPanelRef}
-                      applicationId={selectedApplication.id}
-                      notes={selectedApplication.screeningNotes}
-                      onSaved={(allNotes) => {
-                        setApplications(prev => prev.map(a =>
-                          a.id === selectedApplication.id ? { ...a, screeningNotes: allNotes } : a));
-                        setSelectedApplication(prev =>
-                          prev ? { ...prev, screeningNotes: allNotes } : prev);
-                      }}
-                    />
-
-                    {/* Verification already on file, readable from the stage where the screening
-                        decision is made rather than only from Checks. */}
-                    <VerificationReportDownload
-                      applicationId={selectedApplication.id}
-                      hideWhenEmpty={currentGroupId === 'applied'}
-                    />
-                  </div>
-                )}
-
-                {/* AI Candidate Assist — hidden for Checks and Hired stages */}
-                {showAiPanels && (
-                  <div className="pt-6 border-t border-border space-y-4">
-                    <AiCandidatePanel
-                      applicationId={selectedApplication.id}
-                      candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
-                      jobTitle={selectedApplication.job.title}
-                      jobRequirements={jobRequirements[selectedApplication.job.id] || []}
-                      // Without this the Notes tab drafted screening notes and then hid its own
-                      // Apply button, because AiScreeningNotesDrafter only renders it when a
-                      // handler exists. The AI wrote text that had nowhere to go — which is what
-                      // made the panel look decorative in exactly the two stages it is most useful.
-                      onApplyNotes={(text) => {
-                        notesPanelRef.current?.setDraft(text);
-                        toast('Draft moved to Screening Notes — review it, then save', 'info');
-                      }}
-                    />
-
-                    {selectedApplication.backendStage.includes('OFFER') && (
-                      <AiAssistPanel title="AI Offer Prediction" feature="AI_OFFER_PREDICTION" description="Predict offer acceptance likelihood based on candidate and market signals">
-                        <AiOfferPrediction applicationId={selectedApplication.id} />
-                      </AiAssistPanel>
-                    )}
-                  </div>
-                )}
-
-                <div className="flex justify-end pt-6 border-t border-border">
-                  <button
-                    onClick={() => setSelectedApplication(null)}
-                    className="inline-flex items-center px-5 py-2 rounded-button border-2 border-border text-muted-foreground font-semibold text-sm uppercase tracking-wider hover:border-primary hover:text-primary transition-all"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
+                ))
+              )}
             </div>
-          </div>
+          );
+
+          const interviewsBlock = (
+            <InterviewSummaryPanel
+              applicationId={selectedApplication.id}
+              candidateName={candidateName}
+              jobTitle={selectedApplication.job.title}
+              // Scheduling happens on the candidate's own record, not in a wizard opened from
+              // inside this modal. A modal on a modal left you unsure which of the two layers
+              // Cancel had just dismissed, and the record is where the interview belongs anyway.
+              onSchedule={() => {
+                router.push(
+                  `/interviews/schedule?applicationId=${selectedApplication.id}` +
+                    `&returnTo=/applications/${selectedApplication.id}`,
+                );
+              }}
+            />
+          );
+
+          const offerBlock = offerLoading ? (
+            <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
+              <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary" />
+              Loading offer data…
+            </div>
+          ) : (
+            <OfferSummaryPanel
+              offer={offers[selectedApplication.id] || null}
+              applicationId={selectedApplication.id}
+              readOnly={isHiredStage}
+              onAction={() => refreshOffer(selectedApplication.id)}
+            />
+          );
+
+          const verificationBlock = (
+            <div className="space-y-4">
+              {summary && <VerificationStatusSummary summary={summary} />}
+              <BackgroundCheckPanel
+                applicationId={selectedApplication.id}
+                candidateName={candidateName}
+                candidateEmail={selectedApplication.candidate.email}
+                jobPostingId={selectedApplication.job?.id}
+                onClose={() => {}}
+                onChecksUpdated={() => loadVerificationSummaries(applications)}
+                readOnly={isHiredStage}
+              />
+            </div>
+          );
+
+          const notesBlock = (
+            <div className="space-y-4">
+              <ScreeningNotesPanel
+                ref={notesPanelRef}
+                applicationId={selectedApplication.id}
+                notes={selectedApplication.screeningNotes}
+                onSaved={(allNotes) => {
+                  setApplications(prev => prev.map(a =>
+                    a.id === selectedApplication.id ? { ...a, screeningNotes: allNotes } : a));
+                  setSelectedApplication(prev =>
+                    prev ? { ...prev, screeningNotes: allNotes } : prev);
+                }}
+              />
+              {/* Verification already on file, readable from the stage where the screening decision
+                  is made rather than only from Checks. */}
+              <VerificationReportDownload
+                applicationId={selectedApplication.id}
+                hideWhenEmpty={currentGroupId === 'applied'}
+              />
+            </div>
+          );
+
+          const aiBlock = (
+            <div className="space-y-4">
+              <AiCandidatePanel
+                applicationId={selectedApplication.id}
+                candidateName={candidateName}
+                jobTitle={selectedApplication.job.title}
+                jobRequirements={jobRequirements[selectedApplication.job.id] || []}
+                // Without this the Notes tab drafted screening notes and then hid its own Apply
+                // button, because AiScreeningNotesDrafter only renders it when a handler exists.
+                onApplyNotes={(text) => {
+                  notesPanelRef.current?.setDraft(text);
+                  toast('Draft moved to Screening Notes — review it, then save', 'info');
+                }}
+              />
+              {selectedApplication.backendStage.includes('OFFER') && (
+                <AiAssistPanel title="AI Offer Prediction" feature="AI_OFFER_PREDICTION" description="Predict offer acceptance likelihood based on candidate and market signals">
+                  <AiOfferPrediction applicationId={selectedApplication.id} />
+                </AiAssistPanel>
+              )}
+            </div>
+          );
+
+          // The action that discharges the decision, and only where one genuinely exists. There is
+          // no endpoint that reminds an interviewer or nudges a screening provider, so the bar
+          // offers to show the evidence rather than a "Chase" button that would do nothing.
+          const decisionAction = state.action === 'move' && selectedApplication.status === 'active' && serverMove ? (
+            <button
+              onClick={() => { handleStageTransition(selectedApplication.id, serverMove); setSelectedApplication(null); }}
+              disabled={checksBlocked}
+              className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition-colors ${
+                checksBlocked ? 'cursor-not-allowed bg-muted text-muted-foreground' : 'bg-cta text-cta-foreground hover:opacity-90'
+              }`}
+              title={checksBlocked ? 'Complete all verification checks before progressing' : `Move to ${serverMoveLabel}`}
+            >
+              <ArrowRightIcon className="h-3.5 w-3.5" />
+              Move to {serverMoveLabel}
+            </button>
+          ) : null;
+
+          return (
+          <Modal
+            open
+            onClose={() => setSelectedApplication(null)}
+            size="lg"
+            title={candidateName}
+            subtitle={`${selectedApplication.job.title}${selectedApplication.job.department ? ` · ${selectedApplication.job.department}` : ''} · ${currentGroup?.displayName ?? ''}`}
+            footer={
+              <>
+                {/* The full record, at an address. This modal stays because it is the
+                    stage-transition workspace — the verification gate and the move-to-next rule
+                    live here — but everything about the candidate now has one home. */}
+                <a
+                  href={`/applications/${selectedApplication.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
+                >
+                  Open full record
+                </a>
+                {selectedApplication.status === 'active' && (
+                  <ShortlistButton
+                    applicationId={selectedApplication.id}
+                    candidateName={candidateName}
+                    shortlisted={shortlistStates[selectedApplication.id] ?? false}
+                    onDone={(next) => setShortlistStates(prev => ({ ...prev, [selectedApplication.id]: next }))}
+                  />
+                )}
+                <button
+                  onClick={() => setSelectedApplication(null)}
+                  className="inline-flex items-center rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                >
+                  Close
+                </button>
+              </>
+            }
+          >
+            {/* Band 2 — the decision, full-bleed at the top of the body. */}
+            <div className="-mx-5 -mt-4 mb-4">
+              <DecisionBar state={state} action={decisionAction} />
+            </div>
+
+            <div className="space-y-3">
+              {/* Band 3 — this stage's evidence, and only this stage's, open. */}
+              {isEarlyStage && currentGroupId === 'applied' && (
+                <Evidence label="The application" meta={`${documents.length || 0} document${documents.length === 1 ? '' : 's'}`}>
+                  {documentsBlock}
+                </Evidence>
+              )}
+              {isEarlyStage && currentGroupId === 'screening' && (
+                <Evidence label="Screening note" meta="Visible to the panel">
+                  {notesBlock}
+                </Evidence>
+              )}
+              {isInterviewStage && (
+                <Evidence label="Interviews">{interviewsBlock}</Evidence>
+              )}
+              {isChecksStage && (
+                <Evidence label="Verification" meta={summary ? `${summary.clearCount} of ${summary.totalRequired} clear` : null}>
+                  {verificationBlock}
+                </Evidence>
+              )}
+              {isOfferRelated && !isHiredStage && (
+                <Evidence label="Offer">{offerBlock}</Evidence>
+              )}
+              {isHiredStage && (
+                <Evidence label="How this hire was decided">{timelineBlock}</Evidence>
+              )}
+
+              {/* Band 4 — everything else, present and closed. Children are not mounted while a
+                  fold is shut, which is what stops six panels fetching on every open. */}
+              {currentGroupId !== 'applied' && (
+                <Fold label="Documents" count={documents.length ? `${documents.length} file${documents.length === 1 ? '' : 's'}` : null}>
+                  {documentsBlock}
+                </Fold>
+              )}
+              {currentGroupId !== 'screening' && selectedApplication.screeningNotes && (
+                <Fold label="Screening note" count={selectedApplication.rating > 0 ? `Rated ${selectedApplication.rating} of 5` : null}>
+                  <p className="whitespace-pre-wrap text-sm text-foreground">{selectedApplication.screeningNotes}</p>
+                </Fold>
+              )}
+              {!isInterviewStage && ['checks', 'offer', 'accepted', 'hired'].includes(currentGroupId) && (
+                <Fold label="Interviews">{interviewsBlock}</Fold>
+              )}
+              {!isChecksStage && ['offer', 'accepted', 'hired'].includes(currentGroupId) && (
+                <Fold label="Verification" count={summary ? `${summary.clearCount} of ${summary.totalRequired} clear` : null}>
+                  {verificationBlock}
+                </Fold>
+              )}
+              {isHiredStage && (
+                <Fold label="Offer">{offerBlock}</Fold>
+              )}
+              <Fold label="Contact & application facts" count="5 fields">
+                {factsBlock}
+              </Fold>
+              {!isHiredStage && (
+                <Fold label="History" count={timelineEntries.length ? `${timelineEntries.length} event${timelineEntries.length === 1 ? '' : 's'}` : null}>
+                  {timelineBlock}
+                </Fold>
+              )}
+              {showAiPanels && <Fold label="AI candidate assist">{aiBlock}</Fold>}
+            </div>
+          </Modal>
           );
         })()}
       </div>

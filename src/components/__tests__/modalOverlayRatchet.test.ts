@@ -60,7 +60,6 @@ const LEGACY = [
   'app/(app)/performance/360/page.tsx',
   'app/(app)/performance/page.tsx',
   'app/(app)/performance/pips/page.tsx',
-  'app/(app)/pipeline/page.tsx',
   'app/(app)/support/page.tsx',
   'app/(app)/talent-pools/page.tsx',
   'app/(app)/training/admin/page.tsx',
