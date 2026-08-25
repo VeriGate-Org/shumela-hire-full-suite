@@ -1,7 +1,9 @@
 package com.arthmatic.shumelahire.security;
 
 import com.arthmatic.shumelahire.entity.Applicant;
+import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,13 +32,15 @@ import static org.mockito.Mockito.when;
 class ApplicantAccessTest {
 
     private ApplicantDataRepository applicantRepository;
+    private ApplicationDataRepository applicationRepository;
     private ApplicantAccess access;
 
     @BeforeEach
     void setUp() {
         applicantRepository = mock(ApplicantDataRepository.class);
+        applicationRepository = mock(ApplicationDataRepository.class);
         when(applicantRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-        access = new ApplicantAccess(applicantRepository);
+        access = new ApplicantAccess(applicantRepository, applicationRepository);
     }
 
     private static Applicant applicant(String id, String email) {
@@ -128,6 +132,51 @@ class ApplicantAccessTest {
         assertFalse(access.isStaff(null));
         // A token with no email claim cannot be matched to a record, so it is not self.
         assertFalse(access.isSelf(as("ROLE_APPLICANT"), "a1"));
+    }
+
+    @Test
+    @DisplayName("A candidate owns the applications they submitted, and no others")
+    void ownsOwnApplicationsOnly() {
+        Applicant self = applicant("a1", "me@example.com");
+        when(applicantRepository.findByEmail("me@example.com")).thenReturn(Optional.of(self));
+
+        Application mine = new Application();
+        mine.setId("app1");
+        mine.setApplicant(self);
+        Application theirs = new Application();
+        theirs.setId("app2");
+        theirs.setApplicant(applicant("a2", "other@example.com"));
+
+        when(applicationRepository.findById("app1")).thenReturn(Optional.of(mine));
+        when(applicationRepository.findById("app2")).thenReturn(Optional.of(theirs));
+
+        Authentication candidate = asCandidate("me@example.com", "ROLE_APPLICANT");
+
+        assertTrue(access.ownsApplication(candidate, "app1"));
+        assertFalse(access.ownsApplication(candidate, "app2"));
+    }
+
+    @Test
+    @DisplayName("An application that does not exist is not owned")
+    void unknownApplicationIsNotOwned() {
+        // Answering differently for a missing id than for someone else's would let a probe map
+        // which application ids are real.
+        when(applicationRepository.findById("nope")).thenReturn(Optional.empty());
+
+        assertFalse(access.ownsApplication(asCandidate("me@example.com", "ROLE_APPLICANT"), "nope"));
+    }
+
+    @Test
+    @DisplayName("An application with no applicant attached is not owned by anybody")
+    void applicationWithoutApplicantIsNotOwned() {
+        Applicant self = applicant("a1", "me@example.com");
+        when(applicantRepository.findByEmail("me@example.com")).thenReturn(Optional.of(self));
+
+        Application orphan = new Application();
+        orphan.setId("app3");
+        when(applicationRepository.findById("app3")).thenReturn(Optional.of(orphan));
+
+        assertFalse(access.ownsApplication(asCandidate("me@example.com", "ROLE_APPLICANT"), "app3"));
     }
 
     @Test

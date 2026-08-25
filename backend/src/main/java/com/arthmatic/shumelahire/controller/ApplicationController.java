@@ -248,7 +248,10 @@ public class ApplicationController {
      * GET /api/applications/applicant/{applicantId}
      */
     @GetMapping("/applicant/{applicantId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    // Same fault as the applicant endpoints: the role list admitted any candidate and nothing
+    // asked whose applications these were.
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER') "
+            + "or @applicantAccess.isSelf(authentication, #applicantId)")
     public ResponseEntity<?> getApplicationsByApplicant(@PathVariable String applicantId) {
         try {
             List<ApplicationResponse> applications = applicationService.getApplicationsByApplicant(applicantId);

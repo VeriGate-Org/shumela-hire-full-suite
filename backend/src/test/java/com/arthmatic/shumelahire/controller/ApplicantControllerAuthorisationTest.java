@@ -35,6 +35,43 @@ class ApplicantControllerAuthorisationTest {
             "deleteDocument",
             "getApplicationSummary");
 
+    /**
+     * The same fault, on endpoints that hang off other controllers.
+     *
+     * <p>These three are how self-service reads a candidate's applications, offers and interviews.
+     * Each admitted {@code APPLICANT} and {@code EMPLOYEE} by role and checked nothing about the id
+     * — so any signed-in candidate could read anyone's application history, and anyone's offer
+     * terms, by changing the URL. The interviews mapping even carried a comment saying candidates
+     * may read "their own", which nothing implemented.
+     */
+    private static final List<Class<?>> SIBLING_CONTROLLERS = List.of(
+            ApplicationController.class, OfferController.class, InterviewController.class);
+
+    private static final List<String> SIBLING_METHODS = List.of(
+            "getApplicationsByApplicant", "getOffersByApplicant", "getInterviewsByApplication");
+
+    @Test
+    @DisplayName("The sibling self-service reads check ownership too")
+    void siblingSelfServiceReadsCheckOwnership() {
+        for (String methodName : SIBLING_METHODS) {
+            String expression = SIBLING_CONTROLLERS.stream()
+                    .flatMap(type -> Arrays.stream(type.getDeclaredMethods()))
+                    .filter(m -> m.getName().equals(methodName))
+                    .findFirst()
+                    .map(m -> m.getAnnotation(PreAuthorize.class))
+                    .map(PreAuthorize::value)
+                    .orElseThrow(() -> new AssertionError(
+                            methodName + " is gone or lost its @PreAuthorize"));
+
+            assertFalse(expression.contains("'APPLICANT'"),
+                    methodName + " grants APPLICANT by role: " + expression);
+            assertFalse(expression.contains("'EMPLOYEE'"),
+                    methodName + " grants EMPLOYEE by role: " + expression);
+            assertTrue(expression.contains("applicantAccess"),
+                    methodName + " has no ownership clause: " + expression);
+        }
+    }
+
     private static String expressionOn(String methodName) {
         Method method = Arrays.stream(ApplicantController.class.getDeclaredMethods())
                 .filter(m -> m.getName().equals(methodName))

@@ -2,6 +2,7 @@ package com.arthmatic.shumelahire.security;
 
 import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -44,9 +45,12 @@ public class ApplicantAccess {
             "ROLE_ADMIN", "ROLE_HR_MANAGER", "ROLE_RECRUITER", "ROLE_HIRING_MANAGER");
 
     private final ApplicantDataRepository applicantRepository;
+    private final ApplicationDataRepository applicationRepository;
 
-    public ApplicantAccess(ApplicantDataRepository applicantRepository) {
+    public ApplicantAccess(ApplicantDataRepository applicantRepository,
+                           ApplicationDataRepository applicationRepository) {
         this.applicantRepository = applicantRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     /** The applicant record belonging to the caller, if they have one. */
@@ -92,5 +96,27 @@ public class ApplicantAccess {
      */
     public boolean maySee(Authentication authentication, String applicantId) {
         return isStaff(authentication) || isSelf(authentication, applicantId);
+    }
+
+    /**
+     * Whether this application is one the caller submitted.
+     *
+     * <p>Some self-service reads are addressed by application id rather than applicant id — a
+     * candidate's interviews, for one. The interviews endpoint even carried the comment "also
+     * accessible by applicants/employees for their own applications", which describes an intention
+     * nothing implemented: the role list let any candidate read the interviews on any application.
+     *
+     * <p>Resolves the application to its applicant and compares that to the caller. Returns false
+     * for an application that does not exist, so a probe for a valid id learns nothing from the
+     * difference between "not yours" and "not there".
+     */
+    public boolean ownsApplication(Authentication authentication, String applicationId) {
+        if (applicationId == null || applicationId.isBlank()) {
+            return false;
+        }
+        return applicationRepository.findById(applicationId)
+                .map(application -> application.getApplicant() != null
+                        && isSelf(authentication, application.getApplicant().getId()))
+                .orElse(false);
     }
 }
