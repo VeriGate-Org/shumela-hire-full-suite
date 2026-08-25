@@ -117,6 +117,14 @@ public class DynamoJobAdRepository extends DynamoRepository<JobAdItem, JobAd>
     }
 
     @Override
+    public CursorPage<JobAd> findWithFilters(JobAdStatus status, Boolean channelInternal,
+                                              Boolean channelExternal, String searchQuery,
+                                              int page, int pageSize) {
+        return findWithFilters(status, channelInternal, channelExternal, searchQuery,
+                offsetCursor(page, pageSize), pageSize);
+    }
+
+    @Override
     public List<JobAd> findActiveExternalAds(LocalDate currentDate) {
         return findByStatus(JobAdStatus.PUBLISHED).stream()
                 .filter(ad -> Boolean.TRUE.equals(ad.getChannelExternal()))
@@ -136,6 +144,23 @@ public class DynamoJobAdRepository extends DynamoRepository<JobAdItem, JobAd>
     public CursorPage<JobAd> findActiveInternalAdsPaged(LocalDate currentDate, String cursor, int pageSize) {
         List<JobAd> active = findActiveInternalAds(currentDate);
         return paginateInMemory(active, cursor, pageSize);
+    }
+
+    @Override
+    public CursorPage<JobAd> findActiveInternalAdsPaged(LocalDate currentDate, int page, int pageSize) {
+        return findActiveInternalAdsPaged(currentDate, offsetCursor(page, pageSize), pageSize);
+    }
+
+    /**
+     * The cursor this repository issues is a decimal row offset, so a page number converts to one.
+     *
+     * <p>Kept in a named method rather than inlined because the equivalence is the whole reason
+     * offset paging is possible here at all, and it would otherwise read as an unexplained
+     * {@code String.valueOf} at two call sites.
+     */
+    private static String offsetCursor(int page, int pageSize) {
+        long offset = (long) Math.max(page, 0) * Math.max(pageSize, 0);
+        return String.valueOf(offset);
     }
 
     @Override

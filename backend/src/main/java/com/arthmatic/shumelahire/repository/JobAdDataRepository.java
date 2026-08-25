@@ -62,6 +62,21 @@ public interface JobAdDataRepository {
                                        Boolean channelExternal, String searchQuery,
                                        String cursor, int pageSize);
 
+    /**
+     * Search job ads with filters, addressed by page number rather than cursor.
+     *
+     * <p>Offset paging is what the callers of this repository actually do: {@code /api/ads} is a
+     * numbered list a candidate clicks through, not a feed with a "load more" button. Expressing
+     * that as an explicit {@code page} argument — the shape
+     * {@code RecruitmentMetricsDataRepository.searchMetrics} already uses — keeps callers from
+     * having to know that the cursor happens to be a decimal offset in a string.
+     *
+     * @param page zero-based page number
+     */
+    CursorPage<JobAd> findWithFilters(JobAdStatus status, Boolean channelInternal,
+                                       Boolean channelExternal, String searchQuery,
+                                       int page, int pageSize);
+
     /** Find published external ads that are not expired. */
     List<JobAd> findActiveExternalAds(LocalDate currentDate);
 
@@ -70,6 +85,13 @@ public interface JobAdDataRepository {
 
     /** Find published internal ads (paginated). */
     CursorPage<JobAd> findActiveInternalAdsPaged(LocalDate currentDate, String cursor, int pageSize);
+
+    /**
+     * Find published internal ads, addressed by page number rather than cursor.
+     *
+     * @param page zero-based page number
+     */
+    CursorPage<JobAd> findActiveInternalAdsPaged(LocalDate currentDate, int page, int pageSize);
 
     /** Find ads that should be marked as expired. */
     List<JobAd> findAdsToExpire(LocalDate currentDate);
