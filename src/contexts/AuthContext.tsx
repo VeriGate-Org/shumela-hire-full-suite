@@ -287,6 +287,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       sessionStorage.removeItem('mock_user');
       sessionStorage.removeItem('dev_user');
       localStorage.removeItem('auth_token');
+      // Half-finished work is as much this person's as their token is. Drafts live in
+      // localStorage, which outlives the session, so without this the next person to sign in on a
+      // shared workstation could open a wizard and find someone else's unfinished vacancy in it.
+      try {
+        const { clearAllWizardDrafts } = await import('@/hooks/useWizardDraft');
+        clearAllWizardDrafts();
+      } catch {
+        // A failure to clear must not block sign-out — the token is already gone.
+      }
       // Disconnect WebSocket to prevent stale-token reconnects
       try {
         const { webSocketService } = await import('@/services/webSocketService');

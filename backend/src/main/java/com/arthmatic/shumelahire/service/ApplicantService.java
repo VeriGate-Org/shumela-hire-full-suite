@@ -165,7 +165,18 @@ public class ApplicantService {
         applicant.setSurname(request.getSurname());
         applicant.setEmail(request.getEmail());
         applicant.setPhone(request.getPhone());
-        applicant.setIdPassportNumber(request.getIdPassportNumber());
+        // The same hazard as the demographics below, and the same answer.
+        //
+        // ApplicantResponse masks this field unconditionally, so every client that loads a profile
+        // holds "*********1234" rather than the number. A form that posts back what it was handed —
+        // which the applicant form does — therefore wrote the mask over the real value, and the real
+        // value is not recoverable. Masking on read while accepting anything on write is not a risk
+        // of data loss, it is a guarantee of it.
+        //
+        // A real ID or passport number contains no asterisk, so a masked value is unambiguous.
+        if (!isMaskedIdNumber(request.getIdPassportNumber())) {
+            applicant.setIdPassportNumber(request.getIdPassportNumber());
+        }
         applicant.setAddress(request.getAddress());
         applicant.setEducation(request.getEducation());
         applicant.setExperience(request.getExperience());
@@ -450,4 +461,16 @@ public class ApplicantService {
             throw new IllegalArgumentException("Only PDF and Word documents are supported");
         }
     }
+    /**
+     * Whether an incoming ID number is the masked form this API hands out on read.
+     *
+     * <p>{@code ApplicantResponse} renders the number as asterisks plus its last four digits. No
+     * real South African ID or passport number contains an asterisk, so the test is exact rather
+     * than heuristic — and erring toward "masked" is the safe direction: the worst case is that an
+     * update leaves a number unchanged, rather than destroying one.
+     */
+    static boolean isMaskedIdNumber(String value) {
+        return value != null && value.indexOf('*') >= 0;
+    }
+
 }
