@@ -115,7 +115,6 @@ export const navigationRegistry: NavigationEntry[] = [
   // Employee Directory, Add Employee, Payslips and Expense Submission were
   // showing on the IDC tenant (modules = RECRUITMENT,AI,ANALYTICS,ADMINISTRATION).
   { id: 'employee-directory', label: 'Employee Directory', href: '/employee', icon: UsersIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
-  { id: 'add-employee', label: 'Add Employee', href: '/employee/add', icon: UserPlusIcon, section: 'hr_core', requiredPermissions: ['manage_documents'], requiredFeature: 'EMPLOYEE_DOCUMENTS' },
   { id: 'leave', label: 'Leave Management', href: '/leave', icon: CalendarIcon, section: 'hr_core', requiredPermissions: ['manage_leave'], requiredFeature: 'LEAVE_MANAGEMENT' },
   { id: 'payslips', label: 'Payslips', href: '/payroll/payslips', icon: BanknotesIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
   { id: 'time-attendance', label: 'Time & Attendance', href: '/time-attendance', icon: ClockIcon, section: 'hr_core', requiredPermissions: ['view_attendance'], requiredFeature: 'TIME_ATTENDANCE' },
