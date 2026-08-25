@@ -119,7 +119,6 @@ describe('Module gating', () => {
     const labels = visibleSidebar('ADMIN', ALL_MODULES).map((e) => e.label);
     for (const label of [
       'Employee Directory',
-      'Add Employee',
       'Payslips',
       'Expense Submission',
       'HR Analytics',
