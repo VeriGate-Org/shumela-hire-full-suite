@@ -133,6 +133,12 @@ public class DynamoTalentPoolEntryRepository extends DynamoRepository<TalentPool
             entity.setRemovedAt(TimestampUtils.parseTimestamp(item.getRemovedAt()));
         }
         entity.setRemovalReason(item.getRemovalReason());
+        if (item.getRetainUntil() != null) {
+            entity.setRetainUntil(java.time.LocalDate.parse(item.getRetainUntil()));
+        }
+        if (item.getRetentionNoticeSentAt() != null) {
+            entity.setRetentionNoticeSentAt(TimestampUtils.parseTimestamp(item.getRetentionNoticeSentAt()));
+        }
         return entity;
     }
 
@@ -189,6 +195,12 @@ public class DynamoTalentPoolEntryRepository extends DynamoRepository<TalentPool
             item.setRemovedAt(entity.getRemovedAt().format(ISO_FMT));
         }
         item.setRemovalReason(entity.getRemovalReason());
+        if (entity.getRetainUntil() != null) {
+            item.setRetainUntil(entity.getRetainUntil().toString());
+        }
+        if (entity.getRetentionNoticeSentAt() != null) {
+            item.setRetentionNoticeSentAt(entity.getRetentionNoticeSentAt().format(ISO_FMT));
+        }
 
         return item;
     }

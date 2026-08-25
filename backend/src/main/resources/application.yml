@@ -203,20 +203,44 @@ sage:
   evolution:
     enabled: ${SAGE_EVOLUTION_ENABLED:true}
 
-# Approval thresholds
+# Approval thresholds and data retention.
 #
-# Both set approvalLevelRequired to 2 (a second signature) instead of 1. They were hard-coded in
-# two different services with no recorded relationship, so an offer was "high value" at R150,000
-# while a salary recommendation only reached an executive at R200,000.
-#
-# The two figures differ because they measure different things, not because one is wrong:
-#   executive-salary-threshold  -> proposedTargetSalary,  a BASE salary
-#   offer-high-value-threshold  -> totalCompensation,     base + allowances + bonus
-# Total compensation is always the larger number for the same appointment, so a lower bar on it
-# sits closer to the higher bar on base salary than the R50,000 gap suggests.
-#
-# Defaults are the previously hard-coded values, so behaviour is unchanged until these are set.
+# One shumelahire: block, deliberately. Two branches each appended their own, and YAML does not
+# merge duplicate top-level keys — one wins and the other is silently discarded, taking its
+# defaults with it. ApplicationYamlTest fails the build if that happens again.
 shumelahire:
+
+  # Both thresholds set approvalLevelRequired to 2 (a second signature) instead of 1. They were
+  # hard-coded in two different services with no recorded relationship, so an offer was "high value"
+  # at R150,000 while a salary recommendation only reached an executive at R200,000.
+  #
+  # The two figures differ because they measure different things, not because one is wrong:
+  #   executive-salary-threshold  -> proposedTargetSalary,  a BASE salary
+  #   offer-high-value-threshold  -> totalCompensation,     base + allowances + bonus
+  # Total compensation is always the larger number for the same appointment, so a lower bar on it
+  # sits closer to the higher bar on base salary than the R50,000 gap suggests.
+  #
+  # Defaults are the previously hard-coded values, so behaviour is unchanged until these are set.
   approval:
     executive-salary-threshold: ${APPROVAL_EXECUTIVE_SALARY_THRESHOLD:200000}
     offer-high-value-threshold: ${APPROVAL_OFFER_HIGH_VALUE_THRESHOLD:150000}
+
+  # How long a candidate stays in a talent pool after last contact, per POPIA s14. There is no
+  # default: talent-pool-months is 0 (unset), which means retainUntil is never stamped, nothing is
+  # ever eligible, and no entry is ever deleted. Choosing the number is a decision for the client —
+  # see docs/TALENT-POOL-RETENTION-DECISION.md — and a purge running on an invented period would
+  # destroy candidate history irreversibly.
+  #
+  # Roll out in this order: set the months, run the preview, enable the scheduler with purging still
+  # off for a full notice cycle, then enable purging.
+  retention:
+    talent-pool-months: ${TALENT_POOL_RETENTION_MONTHS:0}
+    talent-pool-notice-days: ${TALENT_POOL_RETENTION_NOTICE_DAYS:30}
+    talent-pool-purge-enabled: ${TALENT_POOL_PURGE_ENABLED:false}
+
+# The retention scheduler's own switch, off by default. Separate from the settings above so notices
+# can run for a full cycle before anything is deleted.
+talent-pool:
+  retention:
+    scheduler:
+      enabled: ${TALENT_POOL_RETENTION_SCHEDULER_ENABLED:false}
