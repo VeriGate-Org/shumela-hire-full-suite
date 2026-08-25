@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import {
   ReportBuilder,
   ReportLibrary,
@@ -357,7 +358,12 @@ export default function ReportsPage() {
   ];
 
   return (
-    <PageWrapper title="Reports" subtitle="Build, schedule, and manage organisational reports">
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Reporting"
+        title="Reports"
+        subtitle="Build, schedule, and manage organisational reports"
+      />
       <div className="space-y-6">
 
         {/* Stat Cards Grid */}

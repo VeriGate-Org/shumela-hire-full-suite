@@ -150,6 +150,73 @@ describe('the dead controls found in batches 2 and 3', () => {
   });
 });
 
+/**
+ * The analytics and reporting routes, refreshed in batches 4 and 5.
+ *
+ * <p>Separate from the role dashboards because they live under src/app rather than
+ * src/components, and because the worst of them — executive/overview — failed differently: not
+ * hardcoded colour, but thirteen figures read off endpoints that never returned them.
+ */
+describe('the analytics routes use tokens and lead with the band', () => {
+  const ROUTES = [
+    'analytics/page.tsx',
+    'reports/page.tsx',
+    'performance-analytics/page.tsx',
+    'recruiter-dashboard/page.tsx',
+    'leave/analytics/page.tsx',
+    'analytics/training/page.tsx',
+    'executive/overview/page.tsx',
+    'executive/reports/page.tsx',
+  ];
+
+  const routeSource = (route: string): string =>
+    fs.readFileSync(path.join(process.cwd(), 'src', 'app', '(app)', route), 'utf8');
+
+  /**
+   * Source with comments removed.
+   *
+   * <p>The notes explaining what was deleted name the very fields being asserted absent, so a
+   * plain substring check matches the explanation rather than a live read. Documenting a removal
+   * should not make the guard against it fail.
+   */
+  const routeCode = (route: string): string =>
+    routeSource(route)
+      .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/[^\n]*/g, '');
+
+  it.each(ROUTES)('%s has no light-only colour classes', (route) => {
+    const hardcoded =
+      routeSource(route).match(/\b(bg-white|bg-gray-\d+|text-gray-\d+|border-gray-\d+)\b/g) ?? [];
+
+    expect(hardcoded).toEqual([]);
+  });
+
+  it.each(ROUTES)('%s leads with the identity band', (route) => {
+    expect(routeSource(route)).toContain('IdentityBand');
+  });
+
+  it('the executive overview no longer reads figures no endpoint returns', () => {
+    // Thirteen fields — totalEmployees, turnoverRate, averageTenure, engagementScore,
+    // diversityScore, averageSalary and seven more — were read off /api/analytics/dashboard and
+    // /api/analytics/kpis, which return {kpis, trends, alerts} and {kpis}. None existed, so all
+    // thirteen fell through `|| 0` and the page rendered thirteen zeros on every SUCCESSFUL call.
+    const text = routeCode('executive/overview/page.tsx');
+
+    ['engagementScore', 'diversityScore', 'averageSalary', 'remoteWorkPercentage',
+     'monthlyGrowthRate', 'quarterlyGrowthRate', 'yearlyGrowthRate'].forEach((field) => {
+      expect(text).not.toContain(field);
+    });
+
+    // Headcount and turnover are real, from the endpoint the Executive role dashboard already uses.
+    expect(text).toContain('/api/analytics/hr-overview');
+  });
+
+  it('the executive overview does not offer an export that exports nothing', () => {
+    expect(routeCode('executive/overview/page.tsx')).not.toContain('Export Report');
+  });
+});
+
 describe('one stage order, not two', () => {
   it('both recruiter surfaces import the same funnel stages', () => {
     // FUNNEL_STAGES and STAGE_LABELS were private to components/RecruiterDashboard. Copying them

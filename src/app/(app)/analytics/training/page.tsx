@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { hrAnalyticsService } from '@/services/hrAnalyticsService';
 import { useToast } from '@/components/Toast';
@@ -74,7 +75,12 @@ export default function TrainingAnalyticsPage() {
 
   return (
     <FeatureGate feature="ADVANCED_ANALYTICS">
-      <PageWrapper title="Training Analytics" subtitle="Learning and development metrics across the organization">
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Learning"
+        title="Training Analytics"
+        subtitle="Learning and development metrics across the organization"
+      />
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500" />
