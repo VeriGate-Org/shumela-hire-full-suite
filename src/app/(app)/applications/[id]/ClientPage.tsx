@@ -86,7 +86,7 @@ export default function ApplicationDetailPage() {
   // would read that build-time placeholder on a hard load, so the real id comes off the URL.
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const { toast } = useToast();
   const applicationId = useMemo(() => {
     const parts = pathname.split('/').filter(Boolean);
@@ -99,6 +99,13 @@ export default function ApplicationDetailPage() {
   const [pendingAction, setPendingAction] = useState<RecordAction | null>(null);
   const [working, setWorking] = useState(false);
   const [offer, setOffer] = useState<unknown>(null);
+  /*
+   * Offers exclude INTERVIEWER on the server, and an interviewer can now open a shared candidate
+   * link. OfferSummaryPanel given a null offer says "no offer has been prepared", which would be a
+   * false statement to someone simply not allowed to know. The section is withheld instead.
+   */
+  const OFFER_ROLES = ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'];
+  const maySeeOffers = user?.role != null && OFFER_ROLES.includes(user.role);
   const [timeline, setTimeline] = useState<Array<{
     fromStage?: string; toStage?: string; createdAt?: string; performedBy?: string; reason?: string;
   }>>([]);
@@ -143,7 +150,7 @@ export default function ApplicationDetailPage() {
     if (!isAuthenticated || !applicationId) return;
     let cancelled = false;
 
-    apiFetch(`/api/offers/applications/${applicationId}`)
+    if (maySeeOffers) apiFetch(`/api/offers/applications/${applicationId}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (cancelled || !data) return;
@@ -422,14 +429,16 @@ export default function ApplicationDetailPage() {
               />
             </div>
 
-            <div className="enterprise-card p-5">
-              <OfferSummaryPanel
-                offer={offer}
-                applicationId={application.id}
-                readOnly={ended}
-                onAction={fetchApplication}
-              />
-            </div>
+            {maySeeOffers && (
+              <div className="enterprise-card p-5">
+                <OfferSummaryPanel
+                  offer={offer}
+                  applicationId={application.id}
+                  readOnly={ended}
+                  onAction={fetchApplication}
+                />
+              </div>
+            )}
 
             <AiCandidatePanel
               applicationId={application.id}

@@ -169,8 +169,20 @@ public class ApplicationController {
      * Get application by ID
      * GET /api/applications/{id}
      */
+    /**
+     * One application record.
+     *
+     * <p>INTERVIEWER is admitted here and on no write route. A hiring manager sends a panel member
+     * the candidate's link before an interview, and until now that link answered 403 — which makes
+     * the record's whole reason for having an address useless.
+     *
+     * <p>What an interviewer sees is bounded by the other controllers rather than by this one:
+     * offers, verification results and pipeline transitions each exclude the role, so the link
+     * opens the candidate and the vacancy without opening their salary or their criminal record
+     * check. That split is deliberate — "may open the record" is not "may see everything on it".
+     */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'INTERVIEWER')")
     public ResponseEntity<?> getApplication(@PathVariable String id) {
         try {
             ApplicationResponse response = applicationService.getApplication(id);

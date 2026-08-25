@@ -35,7 +35,19 @@ import java.util.Set;
 public class DemographicsAccess {
 
     /** Roles for whom these fields are part of the job. */
-    private static final Set<String> EQUITY_ROLES = Set.of("ROLE_ADMIN", "ROLE_HR_MANAGER");
+    /**
+     * Who may see and change an applicant's employment-equity answers.
+     *
+     * <p>RECRUITER was added deliberately: a recruiter captures and corrects applicant records, and
+     * excluding them meant the fields were invisible on a screen they own — and, before the guard
+     * below existed, that a recruiter saving the form wrote nulls over the candidate's answers.
+     *
+     * <p>This is special-category personal information under POPIA and the list should stay short.
+     * HIRING_MANAGER and INTERVIEWER are deliberately absent: neither captures the record, and the
+     * point of collecting this is reporting, not selection.
+     */
+    private static final Set<String> EQUITY_ROLES =
+            Set.of("ROLE_ADMIN", "ROLE_HR_MANAGER", "ROLE_RECRUITER");
 
     private final ApplicantDataRepository applicantRepository;
 

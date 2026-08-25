@@ -65,12 +65,34 @@ class DemographicsAccessTest {
     }
 
     @Test
-    @DisplayName("A recruiter cannot — screening a candidate does not require their race")
-    void recruiterMayNotView() {
+    @DisplayName("A recruiter may — they capture and correct the record these fields live on")
+    void recruiterMayView() {
+        // Reversed deliberately, not drifted. This test previously read "a recruiter cannot —
+        // screening a candidate does not require their race", which is the stronger
+        // data-minimisation position and was the right default.
+        //
+        // It was changed because a recruiter owns applicant capture: with the fields invisible to
+        // them the applicant screen showed blanks they could not fill, and — before the guard in
+        // ApplicantService — a recruiter saving that form wrote nulls over the candidate's answers.
+        // The choice is between a recruiter seeing the data and a recruiter silently destroying it.
+        //
+        // The list stays short. Widening it further should be a decision taken as explicitly as
+        // this one was.
         Applicant subject = applicant("a1", "candidate@example.com", null);
 
-        assertFalse(access.mayView(as("ROLE_RECRUITER"), subject));
+        assertTrue(access.mayView(as("ROLE_RECRUITER"), subject));
+    }
+
+    @Test
+    @DisplayName("A hiring manager still cannot — selection is not what this data is for")
+    void hiringManagerMayNotView() {
+        // The reason the original test gave still holds for this role: employment-equity answers
+        // are collected for reporting, and the person choosing between candidates has no need of
+        // them. An interviewer is excluded for the same reason and by the same list.
+        Applicant subject = applicant("a1", "candidate@example.com", null);
+
         assertFalse(access.mayView(as("ROLE_HIRING_MANAGER"), subject));
+        assertFalse(access.mayView(as("ROLE_INTERVIEWER"), subject));
     }
 
     @Test
@@ -148,7 +170,8 @@ class DemographicsAccessTest {
     @DisplayName("hasEquityRole answers the role question without a record in hand")
     void equityRoleIsCheckableAlone() {
         assertTrue(access.hasEquityRole(as("ROLE_ADMIN")));
-        assertFalse(access.hasEquityRole(as("ROLE_RECRUITER")));
+        assertTrue(access.hasEquityRole(as("ROLE_RECRUITER")));
+        assertFalse(access.hasEquityRole(as("ROLE_HIRING_MANAGER")));
         assertFalse(access.hasEquityRole(null));
     }
 
