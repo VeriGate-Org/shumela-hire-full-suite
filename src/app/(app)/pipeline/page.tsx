@@ -60,6 +60,8 @@ import BackgroundCheckPanel from '@/components/BackgroundCheckPanel';
 import VerificationReportDownload from '@/components/VerificationReportDownload';
 import ScreeningNotesPanel, { ScreeningNotesHandle } from '@/components/ScreeningNotesPanel';
 import ShortlistButton from '@/components/ShortlistButton';
+import BulkActionBar, { BulkSelect, BulkButton } from '@/components/record/BulkActionBar';
+import { useAuth } from '@/contexts/AuthContext';
 import VerificationStatusSummary, { VerificationSummary } from '@/components/VerificationStatusSummary';
 import OfferSummaryPanel from '@/components/OfferSummaryPanel';
 import InterviewSummaryPanel from '@/components/InterviewSummaryPanel';
@@ -254,6 +256,7 @@ interface PipelineMetrics {
 
 export default function PipelinePage() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [selectedStage, setSelectedStage] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -287,6 +290,7 @@ export default function PipelinePage() {
   const [stageTransitionConfirm, setStageTransitionConfirm] = useState<{ applicationId: string; targetStage: string; stageName: string } | null>(null);
   const [progressConfirm, setProgressConfirm] = useState<string | null>(null);
   const [bulkMoveConfirm, setBulkMoveConfirm] = useState<string | null>(null);
+  const [bulkRatingConfirm, setBulkRatingConfirm] = useState<string | null>(null);
   const [documentsLoading, setDocumentsLoading] = useState(false);
   const [ratingUpdating, setRatingUpdating] = useState(false);
   const [screeningNotesOpen, setScreeningNotesOpen] = useState(false);
@@ -849,6 +853,41 @@ export default function PipelinePage() {
       await loadPipelineData();
     } catch (error: any) {
       toast(error.message || 'Bulk move failed', 'error');
+    }
+  };
+
+  /*
+   * Which bulk actions this person may use.
+   *
+   * /pipeline is reachable by anyone holding manage_pipeline — ADMIN, HR_MANAGER, RECRUITER and
+   * HIRING_MANAGER. Both actions this bar has offered until now are ADMIN/HR_MANAGER on the
+   * server, so a recruiter could select twenty candidates, press Reject, and be refused. Bulk
+   * rating admits RECRUITER, which is why it is here: gating alone would leave a recruiter with a
+   * bar containing nothing.
+   */
+  const role = user?.role;
+  const canBulkStageOrStatus = role === 'ADMIN' || role === 'HR_MANAGER';
+  const canBulkRate = canBulkStageOrStatus || role === 'RECRUITER';
+
+  const confirmBulkRating = async () => {
+    if (!bulkRatingConfirm) return;
+    const rating = Number(bulkRatingConfirm);
+    const ids = Array.from(selectedIds);
+    setBulkRatingConfirm(null);
+    try {
+      const response = await apiFetch('/api/applications/manage/bulk/rating', {
+        method: 'PUT',
+        body: JSON.stringify({ ratings: Object.fromEntries(ids.map(id => [id, rating])) }),
+      });
+      if (!response.ok) throw new Error(await refusalMessage(response));
+
+      const result = await response.json().catch(() => null);
+      const changed = Array.isArray(result?.updatedIds) ? result.updatedIds.length : ids.length;
+      toast(`Rated ${changed} candidate${changed === 1 ? '' : 's'} ${rating} of 5`, 'success');
+      setSelectedIds(new Set());
+      await loadPipelineData();
+    } catch (error: any) {
+      toast(error.message || 'Bulk rating failed', 'error');
     }
   };
 
@@ -1660,44 +1699,33 @@ export default function PipelinePage() {
           );
         })()}
 
-        {/* Bulk Action Bar */}
-        {selectedIds.size > 0 && (
-          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground rounded-card shadow-lg px-6 py-3 flex items-center gap-4 z-50 animate-in slide-in-from-bottom-4">
-            <span className="text-sm font-bold">{selectedIds.size} selected</span>
-            <div className="w-px h-6 bg-primary-foreground/30" />
-            <select
-              onChange={(e) => {
-                if (e.target.value) {
-                  handleBulkMove(e.target.value);
-                  e.target.value = '';
-                }
-              }}
-              aria-label="Move selected candidates to stage"
-              className="text-xs font-semibold uppercase tracking-[0.05em] border border-primary-foreground/30 rounded-button px-3 py-1.5 bg-transparent text-primary-foreground cursor-pointer"
-              defaultValue=""
-            >
-              <option value="" disabled>Move to...</option>
-              {STAGE_GROUPS.map(s => (
-                <option key={s.id} value={s.id} className="text-foreground bg-card">{s.displayName}</option>
-              ))}
-            </select>
-            <button
-              onClick={handleBulkReject}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.05em] border border-primary-foreground/30 rounded-button px-3 py-1.5 text-primary-foreground hover:bg-primary-foreground/15 transition-all"
-            >
+        {/* Bulk Action Bar — the same component the applications queue uses, so there is one
+            selection model in the product rather than two that drift apart. */}
+        <BulkActionBar count={selectedIds.size} onClear={() => setSelectedIds(new Set())}>
+          {canBulkStageOrStatus && (
+            <BulkSelect
+              label="Move to stage"
+              options={STAGE_GROUPS.map(g => ({ value: g.id, label: g.displayName }))}
+              onChoose={handleBulkMove}
+            />
+          )}
+          {canBulkRate && (
+            <BulkSelect
+              label="Set rating"
+              options={[1, 2, 3, 4, 5].map(n => ({
+                value: String(n),
+                label: `${n} star${n === 1 ? '' : 's'}`,
+              }))}
+              onChoose={setBulkRatingConfirm}
+            />
+          )}
+          {canBulkStageOrStatus && (
+            <BulkButton onClick={handleBulkReject}>
               <XCircleIcon className="w-3.5 h-3.5" />
               Reject
-            </button>
-            <div className="w-px h-6 bg-primary-foreground/30" />
-            <button
-              onClick={() => setSelectedIds(new Set())}
-              className="w-7 h-7 rounded-full bg-primary-foreground/15 text-primary-foreground flex items-center justify-center hover:bg-primary-foreground/30 transition-all"
-              title="Clear selection"
-            >
-              <XCircleIcon className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
+            </BulkButton>
+          )}
+        </BulkActionBar>
 
         {/* Application Detail Modal */}
         {selectedApplication && (() => {
@@ -2073,6 +2101,15 @@ export default function PipelinePage() {
         variant="warning"
         onConfirm={confirmProgressToNext}
         onCancel={() => setProgressConfirm(null)}
+      />
+      <ConfirmDialog
+        open={bulkRatingConfirm !== null}
+        title="Rate Candidates"
+        message={`Set ${selectedIds.size} selected candidate${selectedIds.size === 1 ? '' : 's'} to ${bulkRatingConfirm} of 5?`}
+        confirmLabel="Apply Rating"
+        variant="warning"
+        onConfirm={confirmBulkRating}
+        onCancel={() => setBulkRatingConfirm(null)}
       />
       <ConfirmDialog
         open={bulkMoveConfirm !== null}
