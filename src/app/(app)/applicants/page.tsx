@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import IdentityBand from '@/components/record/IdentityBand';
 import ApplicantProfile from '@/components/ApplicantProfile';
+import ApplicantRecord from '@/components/ApplicantRecord';
 import { useTheme } from '@/contexts/ThemeContext';
 import { apiFetch } from '@/lib/api-fetch';
 import DistributionStrip from '@/components/record/DistributionStrip';
@@ -50,7 +51,7 @@ function formatDate(dateString: string): string {
 }
 
 export default function ApplicantsPage() {
-  const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
+  const [view, setView] = useState<'list' | 'record' | 'create' | 'edit'>('list');
   const [selectedApplicantId, setSelectedApplicantId] = useState<string | number | undefined>();
   const { setCurrentRole } = useTheme();
 
@@ -208,6 +209,18 @@ export default function ApplicantsPage() {
     window.scrollTo(0, 0);
   };
 
+  /**
+   * Opening a person shows the person.
+   *
+   * <p>This used to go straight to the form, which meant the only way to see who someone was, was
+   * to open the thing that lets you change them. Editing is now reached from the record.
+   */
+  const handleOpen = (applicantId: string | number) => {
+    setSelectedApplicantId(applicantId);
+    setView('record');
+    window.scrollTo(0, 0);
+  };
+
   const handleEdit = (applicantId: string | number) => {
     setSelectedApplicantId(applicantId);
     setView('edit');
@@ -220,12 +233,15 @@ export default function ApplicantsPage() {
   };
 
   const handleSave = () => {
-    setView('list');
+    // Back to the record, not the list: you were looking at a person, you changed them, you should
+    // see the result. Returning to the list hides whether the change took.
+    setView(selectedApplicantId === undefined ? 'list' : 'record');
     loadApplicants(currentPage, searchTerm, sortKey);
   };
 
   const getPageTitle = () => {
     switch (view) {
+      case 'record': return 'Applicant';
       case 'create': return 'Create Applicant';
       case 'edit': return 'Edit Applicant';
       default: return 'Candidate Database';
@@ -234,6 +250,7 @@ export default function ApplicantsPage() {
 
   const getPageSubtitle = () => {
     switch (view) {
+      case 'record': return 'Who this person is, and every application they have made.';
       case 'create': return 'Create a new applicant profile with personal information and documents.';
       case 'edit': return 'Edit applicant profile information and manage documents.';
       default: return 'Browse and manage applicant profiles with comprehensive tracking.';
@@ -535,7 +552,7 @@ export default function ApplicantsPage() {
                                 <div>
                                   <p
                                     className="text-sm font-semibold text-foreground cursor-pointer hover:text-primary transition-colors"
-                                    onClick={() => handleEdit(applicant.id)}
+                                    onClick={() => handleOpen(applicant.id)}
                                   >
                                     {applicant.name} {applicant.surname}
                                   </p>
@@ -602,7 +619,7 @@ export default function ApplicantsPage() {
                             </td>
                             <td className="px-4 lg:px-6 py-3 whitespace-nowrap text-right">
                               <button
-                                onClick={() => handleEdit(applicant.id)}
+                                onClick={() => handleOpen(applicant.id)}
                                 className="inline-flex items-center gap-1.5 text-primary hover:text-cta-hover text-[0.8125rem] font-semibold uppercase tracking-wider transition-colors"
                               >
                                 <PencilSquareIcon className="w-4 h-4" />
@@ -668,6 +685,14 @@ export default function ApplicantsPage() {
               </div>
             )}
           </>
+        )}
+
+        {view === 'record' && selectedApplicantId !== undefined && (
+          <ApplicantRecord
+            applicantId={selectedApplicantId}
+            onEdit={() => handleEdit(selectedApplicantId)}
+            onBack={handleBackToList}
+          />
         )}
 
         {(view === 'create' || view === 'edit') && (

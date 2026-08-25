@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
@@ -79,6 +79,11 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // A masked value contains an asterisk; a real ID or passport never does. Mirrors the guard the
+  // service applies, so the two cannot disagree about what "masked" means.
+  const [replacingId, setReplacingId] = useState(false);
+  const originalIdRef = useRef('');
+  const isMaskedId = formData.idPassportNumber.includes('*');
   const [showSuccess, setShowSuccess] = useState(false);
   const [deleteDocId, setDeleteDocId] = useState<number | null>(null);
   
@@ -97,6 +102,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
             return fallback;
           }
         };
+        originalIdRef.current = data.idPassportNumber ?? '';
         setFormData({
           ...data,
           education: parseJsonField(data.education),
@@ -133,10 +139,20 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.surname.trim()) newErrors.surname = 'Surname is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    // Messages say what is wrong with what was typed. "Email is invalid" tells someone their
+    // input is rejected without telling them why, which leaves them to guess.
+    if (!formData.name.trim()) newErrors.name = 'A first name is needed to identify this person.';
+    if (!formData.surname.trim()) newErrors.surname = 'A surname is needed to identify this person.';
+    if (!formData.email.trim()) {
+      newErrors.email = 'An email address is needed — it is how this candidate is contacted.';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'This needs an address like name@example.co.za — check the @ and the domain after it.';
+    }
+    // The service ignores a masked value, so a save that leaves it in place is silently a no-op on
+    // this field. Saying so beats letting someone believe they changed it.
+    if (replacingId && !formData.idPassportNumber.trim()) {
+      newErrors.idPassportNumber = 'Enter the full number, or choose to keep the existing one.';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -356,15 +372,69 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="id-passport" className="block text-sm font-medium text-gray-700 mb-1">
               ID/Passport Number
             </label>
-            <input
-              type="text"
-              value={formData.idPassportNumber}
-              onChange={(e) => setFormData(prev => ({ ...prev, idPassportNumber: e.target.value }))}
-              className="w-full p-2 border border-gray-300 rounded-control"
-            />
+            {/*
+              The server masks this field on every read, so what loaded here is "*****3456", not the
+              number. Binding an editable input to that and posting it back is how the real value
+              got overwritten. The service now refuses a masked value, but a field that silently
+              discards what you type is its own bug — so replacing it is a deliberate act instead.
+            */}
+            {isMaskedId && !replacingId ? (
+              <div className="rounded-control border border-dashed border-border bg-muted/40 p-3">
+                <p className="font-mono text-sm tabular-nums text-foreground">
+                  {formData.idPassportNumber}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Masked by the server — the full number is never sent to this screen, so it cannot
+                  be edited in place.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReplacingId(true);
+                    setFormData(prev => ({ ...prev, idPassportNumber: '' }));
+                  }}
+                  className="mt-2 text-xs font-extrabold uppercase tracking-[0.06em] text-primary hover:underline"
+                >
+                  Replace ID number
+                </button>
+              </div>
+            ) : (
+              <>
+                <input
+                  id="id-passport"
+                  type="text"
+                  value={formData.idPassportNumber}
+                  onChange={(e) => setFormData(prev => ({ ...prev, idPassportNumber: e.target.value }))}
+                  placeholder={replacingId ? 'Enter the full number' : undefined}
+                  className="w-full p-2 border border-gray-300 rounded-control"
+                />
+                {errors.idPassportNumber && (
+                  <p role="alert" className="mt-1 text-xs font-semibold text-error">
+                    {errors.idPassportNumber}
+                  </p>
+                )}
+                {replacingId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReplacingId(false);
+                      setErrors(prev => {
+                        const next = { ...prev };
+                        delete next.idPassportNumber;
+                        return next;
+                      });
+                      setFormData(prev => ({ ...prev, idPassportNumber: originalIdRef.current }));
+                    }}
+                    className="mt-1.5 text-xs font-semibold text-muted-foreground hover:underline"
+                  >
+                    Keep the existing number
+                  </button>
+                )}
+              </>
+            )}
           </div>
           
           <div className="md:col-span-2">
@@ -506,7 +576,12 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                 className="h-4 w-4 text-gold-600 border-gray-300 rounded"
               />
               <span className="text-sm text-gray-700">
-                I consent to the collection and processing of my demographic information in accordance with POPIA
+                Consent given for this information to be collected and used for employment-equity
+                reporting, under POPIA.
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  Clearing this stops the answers being used in reporting. It does not delete what is
+                  already stored — erasing the record is a separate, deliberate act.
+                </span>
               </span>
             </label>
           </div>
@@ -591,7 +666,12 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
       {/* Documents Section - Only show if editing existing applicant */}
       {applicantId && (
         <div className="mt-8 pt-6 border-t">
-          <h3 className="text-lg font-medium mb-4">Documents</h3>
+          <h3 className="text-lg font-medium mb-1">Documents</h3>
+          {/* Uploads write immediately, unlike every other field on this form. Mixing the two
+              silently is how someone discards their changes and is surprised the file stayed. */}
+          <p className="mb-4 text-xs text-muted-foreground">
+            Files save as soon as they are uploaded — they are not part of the changes saved below.
+          </p>
           
           {/* File Upload */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
