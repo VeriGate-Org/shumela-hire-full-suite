@@ -202,3 +202,24 @@ sage:
     enabled: ${SAGE_300_ENABLED:true}
   evolution:
     enabled: ${SAGE_EVOLUTION_ENABLED:true}
+
+# Talent pool retention
+#
+# How long a candidate stays in a talent pool after last contact, per POPIA s14. There is no
+# default: talent-pool-months is 0 (unset), which means retainUntil is never stamped, nothing is
+# ever eligible, and no entry is ever deleted. Choosing the number is a decision for the client —
+# see docs/TALENT-POOL-RETENTION-DECISION.md — and a purge running on an invented period would
+# destroy candidate history irreversibly.
+#
+# Roll out in this order: set the months, run the preview, enable the scheduler with purging still
+# off for a full notice cycle, then enable purging.
+shumelahire:
+  retention:
+    talent-pool-months: ${TALENT_POOL_RETENTION_MONTHS:0}
+    talent-pool-notice-days: ${TALENT_POOL_RETENTION_NOTICE_DAYS:30}
+    talent-pool-purge-enabled: ${TALENT_POOL_PURGE_ENABLED:false}
+
+talent-pool:
+  retention:
+    scheduler:
+      enabled: ${TALENT_POOL_RETENTION_SCHEDULER_ENABLED:false}

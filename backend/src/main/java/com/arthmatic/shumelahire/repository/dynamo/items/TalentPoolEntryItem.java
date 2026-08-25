@@ -48,6 +48,8 @@ public class TalentPoolEntryItem {
     private String addedAt;
     private String removedAt;
     private String removalReason;
+    private String retainUntil;
+    private String retentionNoticeSentAt;
 
     // ── Table keys ───────────────────────────────────────────────────────────
 
@@ -140,4 +142,10 @@ public class TalentPoolEntryItem {
 
     public String getRemovalReason() { return removalReason; }
     public void setRemovalReason(String removalReason) { this.removalReason = removalReason; }
+
+    public String getRetainUntil() { return retainUntil; }
+    public void setRetainUntil(String retainUntil) { this.retainUntil = retainUntil; }
+
+    public String getRetentionNoticeSentAt() { return retentionNoticeSentAt; }
+    public void setRetentionNoticeSentAt(String retentionNoticeSentAt) { this.retentionNoticeSentAt = retentionNoticeSentAt; }
 }

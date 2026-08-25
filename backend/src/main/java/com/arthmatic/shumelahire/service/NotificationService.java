@@ -472,6 +472,48 @@ public class NotificationService {
         }
     }
 
+    /**
+     * Tell a candidate their talent pool entry is due to be deleted, and how to stay.
+     *
+     * <p>The point of the notice is not politeness, it is consent. POPIA lets a recruiter keep a
+     * candidate on file for future opportunities where there is a basis for it; asking converts a
+     * retention liability into a pool of people who have actually said yes.
+     *
+     * <p>Throws if the entry has no applicant to write to. The caller stamps
+     * {@code retentionNoticeSentAt} only after this returns, so a failure leaves the entry due a
+     * notice next run rather than starting a deletion clock on a warning nobody received.
+     */
+    public void notifyTalentPoolRetentionExpiring(TalentPoolEntry entry, int noticeDays) {
+        if (entry == null || entry.getApplicant() == null || entry.getApplicant().getId() == null) {
+            throw new IllegalArgumentException(
+                    "Cannot send a retention notice for an entry with no applicant");
+        }
+
+        String poolName = entry.getTalentPool() != null && entry.getTalentPool().getPoolName() != null
+                ? entry.getTalentPool().getPoolName()
+                : "our talent pool";
+
+        String subject = "Your details are due to be removed from our talent pool";
+        String message = String.format(
+            "Dear %s,\n\n" +
+            "You are currently on our talent pool '%s', which means we may contact you about "
+                + "future opportunities that match your background.\n\n" +
+            "We only keep candidate details for as long as we have a reason to. Your entry has now "
+                + "reached that point, so unless we hear from you we will delete it in %d days.\n\n" +
+            "If you would like to stay on the pool, reply to this message and we will keep your "
+                + "details on file.\n\n" +
+            "If you would rather be removed, you do not need to do anything.\n\n" +
+            "Kind regards,\n" +
+            "HR Team",
+            entry.getApplicant().getName() != null ? entry.getApplicant().getName() : "Candidate",
+            poolName,
+            noticeDays
+        );
+
+        sendNotification(entry.getApplicant().getId(), subject, message,
+                        NotificationChannel.EMAIL, "TALENT_POOL_RETENTION_EXPIRING");
+    }
+
     private void sendNotification(String applicantId, String subject, String message,
                                  NotificationChannel channel, String eventType) {
         try {

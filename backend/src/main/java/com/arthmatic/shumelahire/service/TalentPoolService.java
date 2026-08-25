@@ -35,6 +35,13 @@ public class TalentPoolService {
     @Autowired
     private ApplicantDataRepository applicantRepository;
 
+    /**
+     * Optional so that a deployment with no retention policy — which is every deployment until IDC
+     * sets one — is not a wiring failure. When absent, entries simply carry no retention date.
+     */
+    @Autowired(required = false)
+    private TalentPoolRetentionService retentionService;
+
     public TalentPool createPool(TalentPool pool) {
         pool.setCreatedAt(LocalDateTime.now());
         TalentPool saved = talentPoolRepository.save(pool);
@@ -113,6 +120,12 @@ public class TalentPoolService {
         entry.setAddedAt(LocalDateTime.now());
         entry.setSourceType(sourceType != null ? sourceType : "MANUAL");
         entry.setNotes(notes);
+
+        // Stamps retainUntil from the configured period, or leaves it null when none is set. Null
+        // means no expiry, so an entry created before a policy exists is retained, not deleted.
+        if (retentionService != null) {
+            retentionService.applyRetention(entry);
+        }
 
         TalentPoolEntry saved = talentPoolEntryRepository.save(entry);
         logger.info("Added applicant {} to talent pool {}", applicant.getId(), pool.getPoolName());
