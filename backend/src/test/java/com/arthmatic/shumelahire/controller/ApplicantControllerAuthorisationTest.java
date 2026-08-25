@@ -107,10 +107,22 @@ class ApplicantControllerAuthorisationTest {
         // These five are the candidate's own record and documents. They have to remain reachable,
         // and the only way that is allowed now is by the id being theirs.
         List.of("getApplicant", "updateApplicant", "uploadDocument",
-                "getApplicantDocuments", "deleteDocument")
+                "getApplicantDocuments", "deleteDocument", "getApplicationSummary")
                 .forEach(methodName -> assertTrue(
                         expressionOn(methodName).contains("applicantAccess"),
                         methodName + " no longer consults ApplicantAccess: " + expressionOn(methodName)));
+    }
+
+    @Test
+    @DisplayName("A candidate can read their own application history, and nobody else's")
+    void applicationSummaryIsOwnershipScoped() {
+        // This was staff-only because the read is by applicant id and nothing checked whose id it
+        // was — so a candidate could not see their own history at all. ApplicantAccess is that
+        // missing check, so the endpoint no longer has to choose between useful and safe.
+        String expression = expressionOn("getApplicationSummary");
+
+        assertTrue(expression.contains("applicantAccess"), expression);
+        assertFalse(expression.contains("'APPLICANT'"), expression);
     }
 
     @Test
