@@ -240,6 +240,66 @@ class TalentPoolRetentionServiceTest {
         assertNull(e.getRetentionNoticeSentAt());
     }
 
+    // ── Reaching entries that predate the policy ─────────────────────────────
+
+    @Test
+    @DisplayName("Entries with no retention date are stamped, so the policy reaches them")
+    void backfillStampsExistingEntries() {
+        // Without this the policy would only ever apply to entries created after it was switched
+        // on — and the oldest records, which are exactly what it exists for, would be the only ones
+        // it never touched.
+        TalentPoolEntry old = entry("e1", null, null);
+        old.setAddedAt(LocalDateTime.of(2023, 1, 1, 9, 0));
+
+        assertEquals(1, service.backfillRetentionDates());
+        assertEquals(LocalDate.of(2025, 1, 1), old.getRetainUntil());
+    }
+
+    @Test
+    @DisplayName("Backfilling does not delete anyone, however overdue they are")
+    void backfillIsNotADeletion() {
+        // The first run after enabling a policy must not be able to delete. A backfilled entry is
+        // due a notice, and only then does its grace period start.
+        TalentPoolEntry old = entry("e1", null, null);
+        old.setAddedAt(LocalDateTime.of(2015, 1, 1, 9, 0));
+
+        service.backfillRetentionDates();
+
+        assertEquals(0, service.purgeExpiredEntries(TODAY));
+        verify(entryRepository, never()).deleteById(anyString());
+        assertEquals(1, service.entriesDueNotice(TODAY).size());
+    }
+
+    @Test
+    @DisplayName("Backfilling leaves an already-stamped date alone")
+    void backfillDoesNotOverwrite() {
+        // Recording contact pushes a date out. A nightly backfill must not drag it back.
+        TalentPoolEntry e = entry("e1", TODAY.plusYears(2), null);
+
+        assertEquals(0, service.backfillRetentionDates());
+        assertEquals(TODAY.plusYears(2), e.getRetainUntil());
+    }
+
+    @Test
+    @DisplayName("An entry with no dates at all is not given an invented one")
+    void backfillSkipsUndatedEntries() {
+        TalentPoolEntry e = entry("e1", null, null);
+        e.setAddedAt(null);
+
+        assertEquals(0, service.backfillRetentionDates());
+        assertNull(e.getRetainUntil());
+    }
+
+    @Test
+    @DisplayName("Backfilling does nothing while no period is configured")
+    void backfillRespectsTheSwitch() {
+        configure(0, 30, true);
+        TalentPoolEntry e = entry("e1", null, null);
+
+        assertEquals(0, service.backfillRetentionDates());
+        assertNull(e.getRetainUntil());
+    }
+
     // ── The second switch ────────────────────────────────────────────────────
 
     @Test

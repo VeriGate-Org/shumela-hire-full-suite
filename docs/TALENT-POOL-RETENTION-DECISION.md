@@ -1,113 +1,118 @@
-# Talent pool retention — the decision IDC has to make
+# Talent pool retention and approval thresholds — the policy in force
 
-**Status: awaiting a decision. Nothing in the product deletes talent pool entries today, and
-nothing will until the period below is set.**
+**Status: set and live.** Talent pool entries are kept for **24 months** from last contact, the
+candidate is **warned 30 days before** deletion, and the nightly job is **on**.
 
-This document exists because the engineering was the easy part and the wrong part to start with.
-A purge job running on a period nobody agreed would destroy candidate history on an invented
-schedule, and deletion is the one thing that cannot be undone.
-
----
-
-## What the product does now
-
-Talent pool entries are kept indefinitely. There is no retention period, no expiry, and no purge.
-
-`TalentPoolService.removeEntry` is a **soft delete**: it sets `removedAt` and `removalReason` and
-saves the record. The entry keeps its link to the applicant, so "removed from the pool" does not
-mean "data deleted". A candidate removed two years ago is still on file, fully identifiable.
-
-## Why that is a problem
-
-POPIA §14 requires a responsible party to delete personal information once the purpose for
-collecting it has been achieved, unless retention is authorised by law, justified by the operation,
-or **consented to by the data subject**.
-
-Recruitment pools are the awkward case. The original purpose — a specific vacancy — is achieved the
-moment that vacancy is filled. Keeping the candidate on file afterwards is a *new* purpose (future
-opportunities), and that needs its own basis. Consent is the usual one.
-
-The immediate exposure is not that data is held too long. It is that:
-
-- **Nobody can say for how long.** There is no period to state in a privacy notice or a PAIA manual.
-- **Nobody can answer a candidate who asks to be removed** with anything other than a soft delete
-  that keeps their record.
-
-Both are answerable with a decision, not with code.
+These are product defaults chosen on the evidence below, not client instructions. Every one is
+overridable per environment, and a deployment with a different lawful basis or a different appetite
+should change them rather than inherit them.
 
 ---
 
-## The decision
+## What the product did before
 
-**How long should a candidate stay in a talent pool after their last meaningful contact?**
+Talent pool entries were kept indefinitely. No retention period, no expiry, no purge.
 
-Common South African recruitment practice is **12 to 24 months**. Shorter is more defensible;
-longer is more useful to the recruiter. IDC must pick a number and record it in their privacy
-notice and PAIA manual.
+`TalentPoolService.removeEntry` is still a **soft delete**: it sets `removedAt` and `removalReason`
+and keeps the applicant link. "Removed from the pool" has never meant "data deleted", and it still
+does not — what has changed is that a removed entry now ages out on the same clock as any other.
 
-Secondary decisions that follow from it:
+## The retention period: 24 months
 
-| Question | Default this implementation assumes |
-|---|---|
-| Warn the candidate before deleting? | Yes — a notice is sent, then a grace period runs before deletion |
-| How long is the grace period? | 30 days, configurable |
-| Does a candidate who responds stay? | Yes — recording contact extends the retention date |
-| Do soft-deleted (`removedAt`) entries expire too? | Yes, on the same clock. A removed entry is still retained data |
+POPIA §14 requires deletion once the purpose for collecting personal information has been achieved,
+unless retention is authorised by law, justified by the operation, or consented to by the data
+subject. For a recruitment pool the original purpose — a specific vacancy — ends when that vacancy
+is filled. Keeping someone on file for future opportunities is a *new* purpose needing its own
+basis, and consent is the usual one.
 
-## What is built, and what it does until the decision is made
+24 months is the longer end of ordinary South African recruitment practice, and it is defensible
+here **because it is paired with a notice**. At 24 months the candidate is told, offered the chance
+to stay, and only deleted if they do not answer. A shorter silent period would be worse for both
+sides: the recruiter loses a warm pool, and the candidate loses the choice.
 
-The code is in place and **inert by default**:
+### Notices and deletion are enabled together, deliberately
 
-- `TalentPoolEntry.retainUntil` — the date this entry becomes eligible for deletion, stored per
-  record so retention is auditable rather than implied by a cron expression.
-- `TalentPoolEntry.retentionNoticeSentAt` — when the candidate was warned.
-- `TalentPoolRetentionService` — computes eligibility, sends notices, and purges. It also has a
-  **preview** that reports what *would* be deleted without deleting anything, mirroring
-  `DocumentRetentionService.previewRetention`.
-- `TalentPoolRetentionScheduler` — `@ConditionalOnProperty(matchIfMissing = false)`, so it does not
-  run unless switched on. This follows `DocumentRetentionScheduler`, which is also off by default.
+The notice says "we will delete your details in 30 days". Sending that and then not deleting is a
+false statement to a data subject — worse than either enabling both or enabling neither. So
+`talent-pool-purge-enabled` defaults to **true** alongside the notice.
 
-**With no retention period configured, `retainUntil` is never set, nothing is ever eligible, and no
-entry is ever deleted.** A null `retainUntil` is treated as "no expiry", never as "expired" — the
-same rule as agency contract expiry, and for the same reason: reading "not recorded" as "due" would
-delete the entire pool base on the first run.
+The flag still exists separately so a deployment can hold deletion back while it watches a first
+cycle. That is a temporary state, not the resting one.
 
-## To switch it on
+### Entries that predate the policy
+
+A null `retainUntil` never expires — otherwise switching the policy on would delete the whole pool
+base overnight. But that rule alone would mean the policy only ever applied to *new* entries, and
+the oldest records, which are exactly what it exists for, would be the only ones it never touched.
+
+So the nightly job **backfills first**: any entry without a retention date gets one, computed from
+last contact or, failing that, when it was added. Stamping is not deleting. A backfilled entry that
+is already overdue still gets a notice and still gets its full 30 days, so the first run after
+enabling the policy cannot delete anybody.
+
+## Approval thresholds: R900,000 and R1,125,000
+
+Two gates, both setting `approvalLevelRequired` to 2 instead of 1, previously hard-coded
+independently at **R200,000** (base salary) and **R150,000** (total compensation). Read together
+they left a band where an offer was called high value and then routed to a manager anyway.
+
+They are now chosen as a **pair**, to catch the same appointments:
+
+| Gate | Measures | Value |
+|---|---|---|
+| `executive-salary-threshold` | `proposedTargetSalary` — base salary | **R900,000** |
+| `offer-high-value-threshold` | `getTotalCompensation()` — base + allowances + bonus | **R1,125,000** |
+
+Total compensation runs roughly **1.25× base** for a typical package, so setting the offer gate at
+1.25× the salary gate means an appointment that trips one trips the other. The dead band closes by
+construction rather than by picking two round numbers and hoping. A test asserts the ratio, so the
+two cannot quietly drift apart again.
+
+The level moved up because R200,000 a year would have sent almost every professional appointment to
+an executive, which is how an approval gate stops being read. R900,000 base sits where senior
+appointments are, not where ordinary ones are.
+
+## Configuration
 
 ```yaml
 shumelahire:
+  approval:
+    executive-salary-threshold: ${APPROVAL_EXECUTIVE_SALARY_THRESHOLD:900000}
+    offer-high-value-threshold: ${APPROVAL_OFFER_HIGH_VALUE_THRESHOLD:1125000}
   retention:
-    talent-pool-months: 24        # unset by default; nothing expires until this is set
-    talent-pool-notice-days: 30   # warning period before deletion
-    talent-pool-purge-enabled: false
+    talent-pool-months: ${TALENT_POOL_RETENTION_MONTHS:24}
+    talent-pool-notice-days: ${TALENT_POOL_RETENTION_NOTICE_DAYS:30}
+    talent-pool-purge-enabled: ${TALENT_POOL_PURGE_ENABLED:true}
+
 talent-pool:
   retention:
     scheduler:
-      enabled: false              # the scheduler itself, off by default
+      enabled: ${TALENT_POOL_RETENTION_SCHEDULER_ENABLED:true}
 ```
 
-Recommended sequence:
+**One `shumelahire:` block, deliberately.** Two branches once appended one each; YAML does not merge
+duplicate top-level keys, so one silently wins. `ApplicationYamlTest` now fails the build on that.
 
-1. Set `talent-pool-months`. Entries created from then on get a `retainUntil`.
-2. Backfill `retainUntil` on existing entries — **this is a deliberate manual step**, because it is
-   the point at which a real date is written against real people's records.
-3. Run the preview. Read what it says. It deletes nothing.
-4. Enable the scheduler with `talent-pool-purge-enabled: false` so notices go out but nothing is
-   deleted, and let a full notice period elapse.
-5. Only then set `talent-pool-purge-enabled: true`.
+### Before changing the period
 
----
+`GET /api/talent-pools/retention/preview` reports what the policy would do today and writes
+nothing. Read it before believing what the nightly job is about to do.
 
-## Known gap: nothing records contact
+## Recording contact
 
-Retention is meant to run from **last meaningful contact**, and `TalentPoolEntry.lastContactedAt`
-exists for exactly that. **No service ever writes it.** The only code touching the field is the
-DynamoDB mapper, persisting a value that nothing sets, so it is null on every record.
+`POST /api/talent-pools/entries/{id}/contact` records that somebody engaged with a candidate. It
+pushes the retention date out and clears any notice already sent, so a candidate who is being
+talked to is not warned that they are about to be deleted.
 
-The implementation reads `lastContactedAt` and falls back to `addedAt`, so it becomes correct the
-day something records contact. Until then retention effectively runs from when the candidate was
-added, which is **more aggressive** than intended — a candidate actively engaged with for a year
-still ages out on the clock that started when they were added.
+This closes a gap that mattered: **nothing in the product could write `lastContactedAt`.** The field
+existed and the DynamoDB mapper persisted it, but no service ever set it, so it was null on every
+record. Harmless while nothing read it — and a real problem the moment retention did, because the
+clock would have run from the day a candidate was added, ageing out people who were actively being
+engaged with.
 
-Recording contact is a product gap, not a retention one, but it should be closed before the purge
-is enabled or the policy will delete people it was designed to keep.
+## What is still not automatic
+
+Contact is recorded when somebody calls that endpoint. Nothing infers it from a candidate replying
+to an email, applying again, or being shortlisted. Those would each be reasonable signals and none
+of them is wired up — so a pool worked entirely outside the product will still age out on the date
+its entries were created.

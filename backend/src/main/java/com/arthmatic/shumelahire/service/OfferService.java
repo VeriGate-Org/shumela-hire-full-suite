@@ -39,21 +39,20 @@ public class OfferService {
   /**
    * Total compensation above which an offer needs senior-management rather than manager sign-off.
    *
-   * <p>The counterpart to {@code SalaryRecommendationService}'s executive threshold: both set
-   * {@code approvalLevelRequired} to 2 instead of 1, and both were hard-coded with no recorded
-   * relationship to each other, so an offer was "high value" at R150,000 while a salary
-   * recommendation only reached an executive at R200,000.
+   * <p><b>R1,125,000</b>, which is 1.25x {@code SalaryRecommendationService}'s R900,000 base-salary
+   * threshold. The two gates do the same thing — set {@code approvalLevelRequired} to 2 — and were
+   * previously hard-coded independently at 150000 and 200000, which left a band where an offer was
+   * flagged as high value and then approved by a manager anyway.
    *
-   * <p>The gap is narrower than it looks, and deliberate. This measures
-   * {@code getTotalCompensation()} — base plus allowances and bonus — where the salary threshold
-   * measures base salary alone, so the same appointment is a larger number here. A lower bar on the
-   * larger measure is closer to parity than a single shared figure would be.
+   * <p>They now measure the same seniority through different lenses. This reads
+   * {@code getTotalCompensation()}: base plus allowances, bonus and benefits, about 1.25x base for
+   * a typical package. An appointment that trips the base-salary gate therefore trips this one too,
+   * which is what makes the pair coherent rather than merely both configurable.
    *
-   * <p>Default unchanged, so no offer changes approval level because of this commit. Initialised as
-   * well as annotated because this service is constructed directly in unit tests.
+   * <p>Initialised as well as annotated because this service is constructed directly in unit tests.
    */
-  @Value("${shumelahire.approval.offer-high-value-threshold:150000}")
-  private BigDecimal highValueThreshold = new BigDecimal("150000");
+  @Value("${shumelahire.approval.offer-high-value-threshold:1125000}")
+  private BigDecimal highValueThreshold = new BigDecimal("1125000");
   private static final int DEFAULT_EXPIRY_DAYS = 7;
   private static final int MAX_NEGOTIATION_ROUNDS = 5;
   private static final int STALE_NEGOTIATION_HOURS = 48;
