@@ -22,6 +22,11 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.never;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.mockito.ArgumentMatchers;
+import org.junit.jupiter.api.DisplayName;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicantServiceTest {
@@ -239,5 +244,50 @@ class ApplicantServiceTest {
         verify(applicantRepository, times(1)).existsByEmail(minimalRequest.getEmail());
         verify(applicantRepository, times(1)).save(any(Applicant.class));
         verify(auditLogService, times(1)).logApplicantAction(any(), anyString(), anyString(), anyString());
+    }
+
+    // ── The masked-ID round trip ─────────────────────
+
+    @Test
+    @DisplayName("A masked ID number never overwrites the real one")
+    void maskedIdNumberIsIgnoredOnUpdate() {
+        // ApplicantResponse masks this field on every read, so a form that posts back what it was
+        // handed sends "*****3456". Writing that would destroy the number irrecoverably.
+        when(applicantRepository.findById("1")).thenReturn(Optional.of(testApplicant));
+        when(applicantRepository.save(ArgumentMatchers.any(Applicant.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        testRequest.setIdPassportNumber("*****3456");
+        applicantService.updateApplicant("1", testRequest);
+
+        assertEquals("ID123456", testApplicant.getIdPassportNumber(),
+                "the stored number must survive an update carrying the mask");
+    }
+
+    @Test
+    @DisplayName("A genuinely new ID number still replaces the old one")
+    void realIdNumberStillUpdates() {
+        // The guard must not make the field permanently unwritable — correcting a mistyped ID is a
+        // legitimate act, and refusing it would trade one data problem for another.
+        when(applicantRepository.findById("1")).thenReturn(Optional.of(testApplicant));
+        when(applicantRepository.save(ArgumentMatchers.any(Applicant.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        testRequest.setIdPassportNumber("9001015800088");
+        applicantService.updateApplicant("1", testRequest);
+
+        assertEquals("9001015800088", testApplicant.getIdPassportNumber());
+    }
+
+    @Test
+    @DisplayName("Only an asterisk marks a value as masked")
+    void maskDetectionIsExact() {
+        assertTrue(ApplicantService.isMaskedIdNumber("*****3456"));
+        assertTrue(ApplicantService.isMaskedIdNumber("*"));
+        assertFalse(ApplicantService.isMaskedIdNumber("9001015800088"),
+                "a real number must never be mistaken for a mask, or it becomes unwritable");
+        assertFalse(ApplicantService.isMaskedIdNumber("AB1234567"));
+        assertFalse(ApplicantService.isMaskedIdNumber(null),
+                "null means the caller sent nothing, which is not the same as sending a mask");
     }
 }

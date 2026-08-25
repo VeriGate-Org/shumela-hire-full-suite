@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface DraftEnvelope<T> {
   formData: T;
@@ -30,8 +31,38 @@ interface UseWizardDraftReturn {
   statusText: string;
 }
 
-function storageKey(wizardType: string, entityId?: string | number): string {
-  return `wizard-draft:${wizardType}:${entityId ?? 'new'}`;
+/** Prefix every draft key shares, so a sign-out can clear the lot without knowing their names. */
+export const WIZARD_DRAFT_PREFIX = 'wizard-draft:';
+
+/**
+ * Where a draft is kept.
+ *
+ * <p>The key used to be `wizard-draft:{type}:{entityId ?? 'new'}` — no owner, no tenant. Drafts
+ * live in localStorage, which survives sign-out, so on a shared workstation the next person to
+ * open the same wizard restored the previous person's half-written record: a vacancy's salary band,
+ * a requisition's motivation. Scoping it to the owner is what stops that; clearing on sign-out is
+ * what stops it lingering.
+ *
+ * <p>`'anon'` when nobody is signed in. A draft written before sign-in cannot be attributed, so it
+ * is never restored into an authenticated session.
+ */
+function storageKey(
+  wizardType: string,
+  ownerKey: string,
+  entityId?: string | number,
+): string {
+  return `${WIZARD_DRAFT_PREFIX}${ownerKey}:${wizardType}:${entityId ?? 'new'}`;
+}
+
+/** Removes every wizard draft on this device. Called when a session ends. */
+export function clearAllWizardDrafts(): void {
+  if (typeof localStorage === 'undefined') return;
+  const doomed: string[] = [];
+  for (let i = 0; i < localStorage.length; i += 1) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(WIZARD_DRAFT_PREFIX)) doomed.push(k);
+  }
+  doomed.forEach((k) => localStorage.removeItem(k));
 }
 
 export function useWizardDraft<T>(
@@ -55,7 +86,13 @@ export function useWizardDraft<T>(
   const mountedRef = useRef(false);
   const statusTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const key = storageKey(wizardType, entityId);
+  // Tenant as well as user: the same person may hold accounts in two tenants, and a draft written
+  // in one must not surface in the other.
+  const { user } = useAuth();
+  const ownerKey = user?.id
+    ? `${(user as { tenantId?: string }).tenantId ?? 't'}#${user.id}`
+    : 'anon';
+  const key = storageKey(wizardType, ownerKey, entityId);
 
   // --- Restore on mount ---
   useEffect(() => {
