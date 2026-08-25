@@ -19,29 +19,33 @@ import java.util.Map;
 /**
  * How long a candidate stays in a talent pool, and what happens when that runs out.
  *
- * <p><b>Nothing here deletes anything until IDC sets a retention period.</b> That decision is not
- * an engineering one — see {@code docs/TALENT-POOL-RETENTION-DECISION.md} — and a purge running on a
- * period nobody agreed would destroy candidate history on an invented schedule. With
- * {@code talent-pool-months} unset, {@link #retainUntilFor} returns null, nothing is ever eligible,
- * and {@link #purgeExpiredEntries} does nothing on every run.
+ * <p>Entries are kept for <b>24 months from last contact</b>, the candidate is warned 30 days
+ * before deletion, and the nightly job runs. Rationale for each figure is in
+ * {@code docs/TALENT-POOL-RETENTION-DECISION.md}; every one is overridable per environment, and
+ * setting {@code talent-pool-months} to zero makes this class inert again.
  *
  * <p>POPIA §14 requires deletion once the purpose for collecting personal information is achieved.
  * For a recruitment pool the original purpose ends when the vacancy is filled; keeping someone on
  * file for future opportunities is a new purpose that needs its own basis, usually consent. The
- * notice below is what asks for it.
+ * notice is what asks for it.
  *
- * <p>Four rules, each of which is a way this could destroy data it should not:
+ * <p>Five rules, each of which is a way this could destroy data it should not:
  *
  * <ol>
  *   <li><b>A null {@code retainUntil} never expires.</b> Every entry written before a period was
  *       configured carries null. Reading that as "due" would delete the whole pool base on the
- *       first run.</li>
+ *       first run — which is why {@link #backfillRetentionDates} stamps rather than deletes.</li>
  *   <li><b>Nothing is deleted without notice.</b> An entry with no {@code retentionNoticeSentAt} is
  *       warned, not purged, however far past its date it is.</li>
  *   <li><b>The grace period is measured from the notice, not from the expiry date.</b> A candidate
  *       warned yesterday about a date that passed a year ago still gets their full window.</li>
- *   <li><b>Purging is separately switched on.</b> Notices can run for a full cycle with deletion
- *       still off, which is the only way to see what the policy does before it does it.</li>
+ *   <li><b>Engagement is not correspondence.</b> {@link #recordEngagement} fires on what a
+ *       candidate does — applying, being shortlisted, being interviewed, being made an offer. It
+ *       must never fire on a message we send them, because the retention notice is one: that would
+ *       push its own deadline out nightly and nothing would ever be deleted, while every log line
+ *       claimed the policy was working.</li>
+ *   <li><b>Purging is separately switched on.</b> Deletion can be held back for a first cycle,
+ *       though not indefinitely — the notice promises it.</li>
  * </ol>
  */
 @Service
@@ -98,12 +102,11 @@ public class TalentPoolRetentionService {
      *
      * <p>Measured from {@code lastContactedAt}, falling back to {@code addedAt}.
      *
-     * <p><b>Note that nothing in the product currently writes {@code lastContactedAt}</b> — only the
-     * DynamoDB mapper touches it, persisting a value no service sets. So in practice this runs from
-     * when the candidate was added, which is more aggressive than intended: someone actively engaged
-     * with for a year still ages out on the clock that started the day they were added. Reading the
-     * field anyway means this becomes correct the day contact is recorded, rather than needing to be
-     * found and changed then.
+     * <p>{@code lastContactedAt} is written by {@link #recordEngagement}, which fires when a
+     * candidate applies, is shortlisted, is booked for an interview or is made an offer, and by the
+     * contact endpoint a recruiter can call directly. An entry nobody has engaged with since it was
+     * created therefore ages from {@code addedAt}, which is the intended behaviour rather than a
+     * gap.
      */
     public LocalDate retainUntilFor(TalentPoolEntry entry) {
         if (!isConfigured() || entry == null) {
@@ -179,6 +182,57 @@ public class TalentPoolRetentionService {
             logger.info("Stamped a retention date on {} talent pool entries that had none", stamped);
         }
         return stamped;
+    }
+
+    /**
+     * Record that a candidate engaged with us, against every pool they are in.
+     *
+     * <p>Retention was only ever extended by a recruiter explicitly calling the contact endpoint.
+     * Everything else the candidate did — reapplying, being shortlisted, being interviewed, being
+     * made an offer — left the clock running from the day they were added, so someone the
+     * organisation was actively hiring could be warned that their details were about to be deleted.
+     *
+     * <p><b>What counts is engagement, not correspondence.</b> This is the distinction that makes
+     * the feature work at all: if "we sent them an email" counted, the retention notice itself would
+     * be contact, it would push its own deadline out on every run, and nothing would ever be
+     * deleted. The notice deliberately does not call this, and a test holds that line.
+     *
+     * <p>Never throws. Contact inference is a side effect of a candidate doing something real, and a
+     * failure to extend a retention date must not fail the application they were submitting.
+     *
+     * @return how many pool entries were extended
+     */
+    @Transactional
+    public int recordEngagement(String applicantId, String reason) {
+        if (!isConfigured() || applicantId == null || applicantId.isBlank()) {
+            return 0;
+        }
+        try {
+            List<TalentPoolEntry> entries = entryRepository.findByApplicantId(applicantId);
+            int extended = 0;
+            for (TalentPoolEntry entry : entries) {
+                // A removed entry is left alone. Its clock still runs — a soft delete is still
+                // retained data — but re-engaging elsewhere should not silently resurrect the
+                // retention of a pool somebody deliberately took them out of.
+                if (entry.getRemovedAt() != null) {
+                    continue;
+                }
+                entry.setLastContactedAt(LocalDateTime.now());
+                entry.setRetainUntil(retainUntilFor(entry));
+                entry.setRetentionNoticeSentAt(null);
+                entryRepository.save(entry);
+                extended++;
+            }
+            if (extended > 0) {
+                logger.info("Extended retention on {} talent pool entries for applicant {}: {}",
+                        extended, applicantId, reason);
+            }
+            return extended;
+        } catch (Exception e) {
+            logger.error("Could not record engagement for applicant {} ({}): {}",
+                    applicantId, reason, e.getMessage());
+            return 0;
+        }
     }
 
     /** Entries past their retention date that have not yet been warned. */

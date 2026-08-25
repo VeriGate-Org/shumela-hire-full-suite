@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +51,14 @@ public class ApplicationService {
     }
 
     /**
+     * Optional so a deployment with no retention policy is not a wiring failure, and so services
+     * constructed directly in unit tests do not need it. Guarded at every call site.
+     */
+    @Autowired(required = false)
+    private TalentPoolRetentionService talentPoolRetentionService;
+
+
+    /**
      * Submit a new job application
      */
     public ApplicationResponse submitApplication(ApplicationCreateRequest request) {
@@ -78,6 +87,13 @@ public class ApplicationService {
 
         // Send notification
         notificationService.notifyApplicationSubmitted(savedApplication);
+
+        // Applying again is the clearest engagement signal there is. Without this, a candidate who
+        // reapplied every year would still age out of the talent pool on the date they first joined.
+        if (talentPoolRetentionService != null) {
+            talentPoolRetentionService.recordEngagement(
+                    request.getApplicantId(), "submitted an application");
+        }
 
         // Log to audit
         auditLogService.logUserAction(request.getApplicantId(), "APPLICATION_SUBMITTED", "APPLICATION", savedApplication.getId(),
