@@ -224,7 +224,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
           </button>
           <button
             onClick={handleComplete}
-            className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-foreground uppercase tracking-wider transition-colors"
+            className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-cta-foreground uppercase tracking-wider transition-colors"
           >
             View Draft
           </button>
@@ -291,7 +291,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
               ].map(({ key, label, icon: Icon }, index) => (
                 <div key={key} className="flex items-center">
                   <div className={`flex items-center justify-center w-7 h-7 rounded-full border-2 ${
-                    step === key ? 'bg-cta border-cta text-foreground' :
+                    step === key ? 'bg-cta border-cta text-cta-foreground' :
                     ['customize', 'preview'].includes(step) && index < (['select', 'customize', 'preview'].indexOf(step)) ? 'bg-green-500 border-green-500 text-white' :
                     'border-border text-muted-foreground'
                   }`}>
@@ -393,7 +393,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                   <button
                     onClick={() => setStep('customize')}
                     disabled={!selectedTemplate}
-                    className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider transition-colors"
+                    className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-cta-foreground disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider transition-colors"
                   >
                     Next: Customize Data
                   </button>
@@ -525,7 +525,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                   <button
                     onClick={handleGenerate}
                     disabled={loading}
-                    className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-foreground disabled:opacity-50 uppercase tracking-wider transition-colors"
+                    className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-cta-foreground disabled:opacity-50 uppercase tracking-wider transition-colors"
                   >
                     {loading ? (
                       <>
@@ -571,7 +571,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                     </button>
                     <button
                       onClick={handleComplete}
-                      className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-foreground uppercase tracking-wider transition-colors"
+                      className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-cta-foreground uppercase tracking-wider transition-colors"
                     >
                       Use This Job Ad
                     </button>

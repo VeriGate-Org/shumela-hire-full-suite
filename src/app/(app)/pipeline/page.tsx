@@ -944,7 +944,7 @@ export default function PipelinePage() {
       </button>
       <button
         onClick={() => toast('Add Application feature coming soon', 'info')}
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button bg-cta border-2 border-cta text-foreground font-semibold text-sm uppercase tracking-wider transition-all hover:bg-cta-hover hover:border-cta-hover"
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button bg-cta border-2 border-cta text-cta-foreground font-semibold text-sm uppercase tracking-wider transition-all hover:bg-cta-hover hover:border-cta-hover"
       >
         <PlusIcon className="w-4 h-4" />
         Add Candidate

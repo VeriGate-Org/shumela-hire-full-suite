@@ -268,7 +268,7 @@ export default function ApplicantsPage() {
     <div className="flex items-center gap-3 flex-wrap">
       <button
         onClick={handleCreateNew}
-        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-foreground rounded-full hover:bg-cta-hover hover:border-cta-hover text-sm font-semibold uppercase tracking-wider transition-all"
+        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-cta-foreground rounded-full hover:bg-cta-hover hover:border-cta-hover text-sm font-semibold uppercase tracking-wider transition-all"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -492,7 +492,7 @@ export default function ApplicantsPage() {
                 {!searchTerm && (
                   <button
                     onClick={handleCreateNew}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-foreground rounded-full hover:bg-cta-hover hover:border-cta-hover text-sm font-semibold uppercase tracking-wider transition-all"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-cta-foreground rounded-full hover:bg-cta-hover hover:border-cta-hover text-sm font-semibold uppercase tracking-wider transition-all"
                   >
                     Create New Applicant
                   </button>

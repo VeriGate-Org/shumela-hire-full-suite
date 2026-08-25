@@ -381,6 +381,20 @@
     box-shadow: none;
   }
 
+  /* An outline CTA sitting on the identity band. --cta-on-surface is tuned for the page surface,
+     which in light mode is the same navy the plate is painted in (#032E49 on #032E49 — a 1:1
+     button). The band has its own accent precisely because the page palette does not survive
+     being put on it. */
+  .band-actions .btn-primary {
+    color: var(--band-accent);
+    border-color: var(--band-accent);
+  }
+
+  .band-actions .btn-primary:hover {
+    background-color: var(--band-accent);
+    color: var(--cta-foreground);
+  }
+
   .btn-secondary {
     background-color: var(--secondary);
     color: var(--secondary-foreground);

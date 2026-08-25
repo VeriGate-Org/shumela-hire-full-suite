@@ -450,7 +450,7 @@ export default function FeedPage() {
       actions={
         <Link
           href="/feed/compose"
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-full border-2 border-cta bg-transparent text-primary uppercase tracking-wide hover:bg-cta hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-full border-2 border-cta bg-transparent text-primary uppercase tracking-wide hover:bg-cta hover:text-cta-foreground transition-colors"
         >
           <PlusIcon className="h-4 w-4" />
           New Post
@@ -544,7 +544,7 @@ export default function FeedPage() {
                 </div>
                 <Link
                   href="/feed/compose"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cta border-2 border-cta text-foreground text-xs font-bold uppercase tracking-wide hover:bg-cta-hover hover:border-cta-hover transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cta border-2 border-cta text-cta-foreground text-xs font-bold uppercase tracking-wide hover:bg-cta-hover hover:border-cta-hover transition-colors"
                 >
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                   Post
@@ -565,7 +565,7 @@ export default function FeedPage() {
                 <p className="text-[0.9rem] text-muted-foreground mb-5">Be the first to share something!</p>
                 <Link
                   href="/feed/compose"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-cta bg-transparent text-primary text-sm font-bold uppercase tracking-wide hover:bg-cta hover:text-foreground transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-cta bg-transparent text-primary text-sm font-bold uppercase tracking-wide hover:bg-cta hover:text-cta-foreground transition-colors"
                 >
                   Create Post
                 </Link>

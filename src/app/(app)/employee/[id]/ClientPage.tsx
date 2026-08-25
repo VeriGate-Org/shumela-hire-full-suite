@@ -334,7 +334,7 @@ export default function EmployeeDetailPage() {
               </button>
               <button
                 type="button"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button bg-cta border-2 border-cta text-foreground text-sm font-semibold uppercase tracking-wider hover:bg-cta-hover hover:border-cta-hover hover:shadow-md transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button bg-cta border-2 border-cta text-cta-foreground text-sm font-semibold uppercase tracking-wider hover:bg-cta-hover hover:border-cta-hover hover:shadow-md transition-all"
               >
                 <ArrowDownTrayIcon className="h-4 w-4" />
                 Generate Report

@@ -429,7 +429,7 @@ export default function JobPostingsPage() {
       </button>
       <button
         onClick={() => router.push('/job-postings/new')}
-        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-foreground font-semibold text-sm uppercase tracking-wider rounded-full transition-all hover:bg-cta-hover hover:border-cta-hover"
+        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-cta-foreground font-semibold text-sm uppercase tracking-wider rounded-full transition-all hover:bg-cta-hover hover:border-cta-hover"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Create Job Posting
@@ -971,7 +971,7 @@ export default function JobPostingsPage() {
                 <div className="mt-6 flex justify-end">
                   <button
                     onClick={() => setShowPublishWizard(true)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-foreground font-semibold text-sm uppercase tracking-wider rounded-full transition-all hover:bg-cta-hover hover:border-cta-hover"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-cta-foreground font-semibold text-sm uppercase tracking-wider rounded-full transition-all hover:bg-cta-hover hover:border-cta-hover"
                   >
                     Publish to All Channels
                   </button>

@@ -235,7 +235,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
         <p className="text-sm text-muted-foreground mt-0.5">Create and manage reusable job posting templates</p>
         <button
           onClick={onCreateNew}
-          className="mt-3 w-full inline-flex items-center justify-center whitespace-nowrap px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-foreground uppercase tracking-wider transition-colors"
+          className="mt-3 w-full inline-flex items-center justify-center whitespace-nowrap px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-cta-foreground uppercase tracking-wider transition-colors"
         >
           <PlusIcon className="w-4 h-4 mr-2" />
           New Template
@@ -371,7 +371,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
           <div className="text-muted-foreground mb-4">No templates found</div>
           <button
             onClick={onCreateNew}
-            className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-foreground uppercase tracking-wider transition-colors"
+            className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-cta-foreground uppercase tracking-wider transition-colors"
           >
             <PlusIcon className="w-4 h-4 mr-2" />
             Create Your First Template
@@ -503,7 +503,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
                   {!template.isArchived && (
                     <button
                       onClick={() => onGenerate?.(template)}
-                      className="px-3 py-1 text-xs border-2 border-cta text-cta rounded-full hover:bg-cta hover:text-foreground transition-colors font-medium uppercase tracking-wider"
+                      className="px-3 py-1 text-xs border-2 border-cta text-cta rounded-full hover:bg-cta hover:text-cta-foreground transition-colors font-medium uppercase tracking-wider"
                     >
                       Generate Ad
                     </button>

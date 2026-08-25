@@ -179,7 +179,7 @@ const JobTemplatesPage: React.FC = () => {
       {/* CTA button */}
       <button
         onClick={handleCreateNew}
-        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-foreground rounded-button font-semibold text-sm uppercase tracking-[0.05em] transition-colors hover:bg-cta-hover hover:border-cta-hover"
+        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-cta-foreground rounded-button font-semibold text-sm uppercase tracking-[0.05em] transition-colors hover:bg-cta-hover hover:border-cta-hover"
       >
         <PlusIcon className="w-4 h-4" />
         Create Template
