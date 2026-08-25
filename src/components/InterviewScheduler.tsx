@@ -18,6 +18,12 @@ interface InterviewSchedulerProps {
   applicationId?: string;
   onSuccess?: (interview: InterviewSaveResponse) => void;
   onCancel?: () => void;
+  /**
+   * Defaults to 'page'. It defaulted to 'modal', which was invisible while every caller passed the
+   * prop — and would have rendered an overlay on top of the new routes, which pass nothing.
+   * RequisitionForm already defaulted to 'page', which is why /requisitions/new worked and these
+   * would not have.
+   */
   variant?: 'page' | 'modal';
 }
 
@@ -120,7 +126,7 @@ const DEFAULT_INTERVIEW_DATA: InterviewData = {
   applicationId: '',
 };
 
-export default function InterviewScheduler({ interviewId, applicationId: prefilledApplicationId, onSuccess, onCancel, variant = 'modal' }: InterviewSchedulerProps) {
+export default function InterviewScheduler({ interviewId, applicationId: prefilledApplicationId, onSuccess, onCancel, variant = 'page' }: InterviewSchedulerProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { interviewTypes: INTERVIEW_TYPES } = useInterviewTypes();

@@ -1,5 +1,7 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   CalendarDaysIcon,
@@ -27,7 +29,6 @@ import {
   waitingDays,
   whenLabel,
 } from './queue';
-import InterviewScheduler from '@/components/InterviewScheduler';
 import InterviewCalendar, { type Interview as CalendarInterview } from '@/components/InterviewCalendar';
 import InterviewFeedbackForm from '@/components/InterviewFeedbackForm';
 import ErrorState from '@/components/ErrorState';
@@ -90,6 +91,7 @@ interface Interview extends CalendarInterview {
 type InterviewView = 'calendar' | 'feedback' | 'list';
 
 export default function InterviewsPage() {
+  const router = useRouter();
   const { toast } = useToast();
   // The queue leads. A calendar answers "what is on this week"; it cannot show a thing that
   // already happened and is stuck, which is what this screen mostly needs to surface.
@@ -99,8 +101,6 @@ export default function InterviewsPage() {
   const [chasing, setChasing] = useState(false);
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
-  const [showSchedulerModal, setShowSchedulerModal] = useState(false);
-  const [editingInterview, setEditingInterview] = useState<Interview | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -183,14 +183,6 @@ export default function InterviewsPage() {
     }
   }, [summary, toast, loadSummary, loadInterviews]);
 
-  const handleInterviewScheduled = useCallback((interview: { id: number; title: string }) => {
-    toast('Interview scheduled successfully', 'success');
-    setShowSchedulerModal(false);
-    setEditingInterview(null);
-    setSelectedInterview(null);
-    void loadInterviews();
-  }, [loadInterviews, toast]);
-
   const handleInterviewUpdated = useCallback((interviewId: number, updatedInterview: Interview) => {
     setInterviews((prev) => prev.map((interview) =>
       interview.id === interviewId ? updatedInterview : interview,
@@ -267,8 +259,7 @@ export default function InterviewsPage() {
   const scheduleButton = (
     <button
       onClick={() => {
-        setEditingInterview(null);
-        setShowSchedulerModal(true);
+        router.push('/interviews/schedule?returnTo=/interviews');
       }}
       className="btn-cta inline-flex items-center gap-2"
     >
@@ -341,8 +332,7 @@ export default function InterviewsPage() {
             </PrimaryAction>
             <SecondaryAction
               onClick={() => {
-                setEditingInterview(null);
-                setShowSchedulerModal(true);
+                router.push('/interviews/schedule?returnTo=/interviews');
               }}
             >
               Schedule interview
@@ -642,17 +632,6 @@ export default function InterviewsPage() {
         )}
       </div>
 
-      {showSchedulerModal && (
-        <InterviewScheduler
-          interviewId={editingInterview?.id}
-          onSuccess={handleInterviewScheduled}
-          onCancel={() => {
-            setShowSchedulerModal(false);
-            setEditingInterview(null);
-          }}
-          variant="modal"
-        />
-      )}
     </PageWrapper>
   );
 }

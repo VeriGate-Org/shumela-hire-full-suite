@@ -1,5 +1,7 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import IdentityBand from '@/components/record/IdentityBand';
@@ -65,7 +67,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import VerificationStatusSummary, { VerificationSummary } from '@/components/VerificationStatusSummary';
 import OfferSummaryPanel from '@/components/OfferSummaryPanel';
 import InterviewSummaryPanel from '@/components/InterviewSummaryPanel';
-import InterviewScheduler from '@/components/InterviewScheduler';
 import StatusPill from '@/components/StatusPill';
 import ErrorState from '@/components/ErrorState';
 import EmptyState from '@/components/EmptyState';
@@ -255,6 +256,7 @@ interface PipelineMetrics {
 }
 
 export default function PipelinePage() {
+  const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
@@ -294,7 +296,6 @@ export default function PipelinePage() {
   const [documentsLoading, setDocumentsLoading] = useState(false);
   const [ratingUpdating, setRatingUpdating] = useState(false);
   const [screeningNotesOpen, setScreeningNotesOpen] = useState(false);
-  const [schedulerApplicationId, setSchedulerApplicationId] = useState<string | null>(null);
   // Lets the AI notes drafter hand its text to the notes box instead of into the void.
   const notesPanelRef = useRef<ScreeningNotesHandle>(null);
   // Keyed by job id: the vacancy's required skills, which AI CV screening compares the candidate
@@ -1968,8 +1969,15 @@ export default function PipelinePage() {
                       applicationId={selectedApplication.id}
                       candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
                       jobTitle={selectedApplication.job.title}
+                      // Scheduling happens on the candidate's own record, not in a wizard opened
+                      // from inside this modal. A modal on a modal left you unsure which of the two
+                      // layers Cancel had just dismissed, and the record is where the interview
+                      // belongs anyway.
                       onSchedule={() => {
-                        setSchedulerApplicationId(String(selectedApplication.id));
+                        router.push(
+                          `/interviews/schedule?applicationId=${selectedApplication.id}` +
+                            `&returnTo=/applications/${selectedApplication.id}`,
+                        );
                       }}
                     />
                   </div>
@@ -2132,21 +2140,6 @@ export default function PipelinePage() {
       />
 
       {/* Interview Scheduler Modal */}
-      {schedulerApplicationId !== null && (
-        <InterviewScheduler
-          applicationId={schedulerApplicationId}
-          onSuccess={() => {
-            setSchedulerApplicationId(null);
-            toast('Interview scheduled', 'success');
-            // Refresh the interview panel if detail modal is open
-            if (selectedApplication) {
-              setSelectedApplication({ ...selectedApplication });
-            }
-          }}
-          onCancel={() => setSchedulerApplicationId(null)}
-          variant="modal"
-        />
-      )}
     </PageWrapper>
   );
 }

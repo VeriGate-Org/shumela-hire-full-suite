@@ -426,6 +426,14 @@ export default function ApplicationDetailPage() {
                 applicationId={application.id}
                 candidateName={application.applicantName || 'this candidate'}
                 jobTitle={application.jobTitle || ''}
+                // The record is where an interview is arranged from — it is the surface that knows
+                // the candidate, and the one a panel member can be sent a link to.
+                onSchedule={() =>
+                  router.push(
+                    `/interviews/schedule?applicationId=${application.id}` +
+                      `&returnTo=/applications/${application.id}`,
+                  )
+                }
               />
             </div>
 

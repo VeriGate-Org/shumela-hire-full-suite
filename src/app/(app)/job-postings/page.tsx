@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
-import JobPostingForm from '@/components/JobPostingForm';
 import JobPostingWorkflow from '@/components/JobPostingWorkflow';
 import JobBoardManager from '@/components/JobBoardManager';
 import MultiChannelPublishWizard from '@/components/MultiChannelPublishWizard';
@@ -90,13 +89,11 @@ interface JobPosting {
 const PAGE_SIZE = 10;
 
 export default function JobPostingsPage() {
+  const router = useRouter();
   const [view, setView] = useState<'list' | 'workflow'>('list');
   const [summary, setSummary] = useState<JobPostingSummary | null>(null);
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([]);
   const [selectedJobPosting, setSelectedJobPosting] = useState<JobPosting | null>(null);
-  const [cloneInitialData, setCloneInitialData] = useState<Record<string, unknown> | null>(null);
-  const [showFormModal, setShowFormModal] = useState(false);
-  const [editingJobPostingId, setEditingJobPostingId] = useState<string | number | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('attention');
@@ -133,12 +130,14 @@ export default function JobPostingsPage() {
     setCurrentRole('ADMIN');
   }, [setCurrentRole]);
 
-  // Handle ?action=create from dashboard "Create Position" button
+  // The dashboard's "Create Position" button deep-links here with ?action=create. It used to open
+  // a modal; it now forwards to the route, so the link keeps working and lands somewhere with an
+  // address of its own.
   useEffect(() => {
     if (searchParams.get('action') === 'create') {
-      setShowFormModal(true);
+      router.replace('/job-postings/new');
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   const loadJobPostings = useCallback(async (page = currentPage) => {
     try {
@@ -238,13 +237,6 @@ export default function JobPostingsPage() {
     };
   }, []);
 
-  const handleJobPostingSaved = (jobPosting: { id: string | number; title: string; status: string }) => {
-    console.log('Job posting saved:', jobPosting);
-    setCloneInitialData(null);
-    setShowFormModal(false);
-    setEditingJobPostingId(null);
-    loadJobPostings(0);
-  };
 
   // Updated to accept full posting from workflow (Issue #11)
   // The API response includes all JobPosting fields; the workflow type is narrower
@@ -286,30 +278,14 @@ export default function JobPostingsPage() {
     }
   };
 
-  // Clone action (Issue #6)
-  const handleClone = async (jobPosting: JobPosting) => {
-    try {
-      const response = await apiFetch(`/api/job-postings/${jobPosting.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        // Strip id and status-related fields for the clone
-        const { id: _id, status: _status, statusDisplayName: _sdn, statusCssClass: _scc, statusIcon: _si,
-          canBeEdited: _cbe, canBeSubmittedForApproval: _cbsa, canBeApproved: _cba, canBeRejected: _cbr,
-          canBePublished: _cbp, canBeUnpublished: _cbu, canBeClosed: _cbc,
-          createdAt: _ca, submittedForApprovalAt: _sfaa, approvedAt: _aa, publishedAt: _pa,
-          unpublishedAt: _ua, closedAt: _cla, approvalNotes: _an, rejectionReason: _rr,
-          createdBy: _cb, approvedBy: _ab, publishedBy: _pb,
-          daysFromCreation: _dfc, daysFromPublication: _dfp, applicationsCount: _ac, viewsCount: _vc,
-          ...formFields } = data;
-        setCloneInitialData(formFields);
-        setEditingJobPostingId(null);
-        setShowFormModal(true);
-      } else {
-        toast('Failed to load job posting for cloning', 'error');
-      }
-    } catch {
-      toast('Failed to clone job posting', 'error');
-    }
+  /**
+   * Copying a vacancy.
+   *
+   * <p>The fetch and the field-stripping moved to /job-postings/new, which now owns every way of
+   * opening this wizard. Two copies of "which fields does the server own" is one too many.
+   */
+  const handleClone = (jobPosting: JobPosting) => {
+    router.push(`/job-postings/new?cloneFrom=${jobPosting.id}`);
   };
 
   // CSV export (Issue #8)
@@ -452,7 +428,7 @@ export default function JobPostingsPage() {
         Export
       </button>
       <button
-        onClick={() => { setCloneInitialData(null); setEditingJobPostingId(null); setShowFormModal(true); }}
+        onClick={() => router.push('/job-postings/new')}
         className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-foreground font-semibold text-sm uppercase tracking-wider rounded-full transition-all hover:bg-cta-hover hover:border-cta-hover"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -654,7 +630,7 @@ export default function JobPostingsPage() {
                 }
                 action={!searchTerm && statusFilter === 'ALL' ? {
                   label: 'Create Job Posting',
-                  onClick: () => { setCloneInitialData(null); setEditingJobPostingId(null); setShowFormModal(true); },
+                  onClick: () => router.push('/job-postings/new'),
                 } : undefined}
               />
             ) : (
@@ -801,9 +777,7 @@ export default function JobPostingsPage() {
                           {jobPosting.canBeEdited && (
                             <button
                               onClick={() => {
-                                setCloneInitialData(null);
-                                setEditingJobPostingId(jobPosting.id);
-                                setShowFormModal(true);
+                                router.push(`/job-postings/new?edit=${jobPosting.id}`);
                               }}
                               className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-background hover:text-primary transition-all"
                               title="Edit"
@@ -1080,16 +1054,6 @@ export default function JobPostingsPage() {
         onCancel={() => setShowBulkDeleteConfirm(false)}
       />
 
-      {showFormModal && (
-        <JobPostingForm
-          jobPostingId={editingJobPostingId ?? undefined}
-          initialData={cloneInitialData ?? undefined}
-          currentUserId={currentUserId}
-          onSuccess={handleJobPostingSaved}
-          onCancel={() => { setShowFormModal(false); setEditingJobPostingId(null); setCloneInitialData(null); }}
-          variant="modal"
-        />
-      )}
     </PageWrapper>
   );
 }
