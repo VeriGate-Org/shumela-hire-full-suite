@@ -8,10 +8,7 @@ import AiEmailDrafter from '@/components/ai/AiEmailDrafter';
 
 export default function OffersPage() {
   return (
-    <PageWrapper 
-      title="Offers"
-      subtitle="Manage job offers, negotiations, and candidate onboarding processes"
-    >
+    <PageWrapper>
       <div className="space-y-6">
         {/* Offer and regret correspondence is written here, so the drafter belongs here.
             Offer prediction is not at page level — it needs a specific application, so it

@@ -26,6 +26,14 @@ export interface IdentityBandProps {
   figures?: IdentityFigure[];
   /** Rendered below the subtitle, inside the band — used for a from/to pair or similar. */
   children?: React.ReactNode;
+  /**
+   * The one thing this screen is for — "Schedule interview", "New requisition".
+   *
+   * <p>On a queue screen the band IS the page header, so an action with nowhere else to live
+   * belongs here. The decision bar carries actions too, but only when something is actually owed;
+   * a screen with nothing outstanding would otherwise offer no way to start work at all.
+   */
+  actions?: React.ReactNode;
 }
 
 // Band-scoped state colours. The page palette's --critical and --teal are chosen against a light
@@ -51,6 +59,7 @@ export default function IdentityBand({
   subtitle,
   figures = [],
   children,
+  actions,
 }: IdentityBandProps) {
   return (
     <header className="band-glow relative overflow-hidden rounded-card bg-band px-6 py-6 text-band-foreground">
@@ -68,23 +77,32 @@ export default function IdentityBand({
           {children}
         </div>
 
-        {figures.length > 0 && (
-          <dl className="flex flex-wrap gap-x-7 gap-y-3">
-            {figures.map((figure) => (
-              <div key={figure.label} className="min-w-[88px]">
-                <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.16em] text-band-faint">
-                  {figure.label}
-                </dt>
-                <dd
-                  className={`mt-0.5 text-[1.05rem] font-extrabold tracking-[-0.02em] tabular-nums ${
-                    TONE_CLASS[figure.tone ?? 'default']
-                  }`}
-                >
-                  {figure.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
+        {(figures.length > 0 || actions) && (
+          // Figures and the action share the right-hand side. They wrap as a unit so a narrow
+          // window drops the action below the figures rather than stranding it mid-row.
+          <div className="flex flex-wrap items-start gap-x-7 gap-y-4">
+            {figures.length > 0 && (
+              <dl className="flex flex-wrap gap-x-7 gap-y-3">
+                {figures.map((figure) => (
+                  <div key={figure.label} className="min-w-[88px]">
+                    <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.16em] text-band-faint">
+                      {figure.label}
+                    </dt>
+                    <dd
+                      className={`mt-0.5 text-[1.05rem] font-extrabold tracking-[-0.02em] tabular-nums ${
+                        TONE_CLASS[figure.tone ?? 'default']
+                      }`}
+                    >
+                      {figure.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+            {actions && (
+              <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
+            )}
+          </div>
         )}
       </div>
     </header>

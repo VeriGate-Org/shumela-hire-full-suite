@@ -12,6 +12,7 @@ import PageWrapper from '@/components/PageWrapper';
 import { apiFetch } from '@/lib/api-fetch';
 import EmptyState from '@/components/EmptyState';
 import { TableSkeleton } from '@/components/LoadingComponents';
+import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
 import DistributionStrip from '@/components/record/DistributionStrip';
 import FilterChips from '@/components/record/FilterChips';
@@ -252,14 +253,6 @@ export default function InterviewsPage() {
     }
   };
 
-  const getPageSubtitle = () => {
-    switch (view) {
-      case 'feedback': return 'Submit structured, auditable feedback for completed interviews.';
-      case 'calendar': return 'Schedule interviews, track progress, and submit candidate feedback';
-      default: return 'What is stalled, what is today, and what is still ahead';
-    }
-  };
-
   const getCandidateFullName = (interview: Interview) => {
     const name = interview.application?.applicant?.name ?? '';
     const surname = interview.application?.applicant?.surname ?? '';
@@ -285,7 +278,7 @@ export default function InterviewsPage() {
   );
 
   return (
-    <PageWrapper title={getPageTitle()} subtitle={getPageSubtitle()} actions={scheduleButton}>
+    <PageWrapper>
       <div className="space-y-6">
 
         {/* Interview question generation belongs where interviews are arranged. The component
@@ -298,6 +291,37 @@ export default function InterviewsPage() {
           <AiInterviewQuestionGenerator />
         </AiAssistPanel>
 
+        <IdentityBand
+          actions={scheduleButton}
+          eyebrow="Interview schedule"
+          // The band renders in all three views, so the title has to follow the view or the
+          // feedback and calendar screens both announce themselves as "Interviews".
+          title={getPageTitle()}
+          subtitle={
+            summary
+              ? `${summary.total} ${summary.total === 1 ? 'interview' : 'interviews'} on record`
+              : 'Counts unavailable'
+          }
+          figures={
+            summary
+              ? [
+                  {
+                    label: 'Awaiting write-up',
+                    value: summary.awaitingWriteUp,
+                    tone: (summary.awaitingWriteUp > 0 ? 'critical' : undefined) as
+                      | 'critical'
+                      | undefined,
+                  },
+                  {
+                    label: 'Slot passed, untouched',
+                    value: summary.slotPassed,
+                    tone: (summary.slotPassed > 0 ? 'warning' : undefined) as 'warning' | undefined,
+                  },
+                  { label: 'Next 7 days', value: summary.nextSevenDays },
+                ]
+              : []
+          }
+        />
 
         {summary && summary.awaitingWriteUp > 0 && (
           <DecisionBar
