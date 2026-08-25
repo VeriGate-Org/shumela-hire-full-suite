@@ -13,8 +13,39 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  /*
+   * Stop the CI run once it is unambiguously broken.
+   *
+   * A failing test on CI costs `retries + 1` attempts, and the slowest suites run under
+   * `test.slow()` — a tripled 30s budget, so 90s per attempt. With one worker those add up end to
+   * end rather than overlapping. Six broken tests in `offer-esignature.spec.ts` on 24 Aug turned a
+   * three-minute suite into **30.6 minutes**: 103 passed, 6 failed, and roughly 27 of those minutes
+   * were nothing but timeouts being re-run.
+   *
+   * That pattern repeated four times in one evening, every time on a branch whose redesign had
+   * moved a selector its spec still asserted on. Waiting half an hour to be told what the first
+   * ninety seconds already knew is not information, it is delay.
+   *
+   * Five is deliberately not one. Stopping at the first failure hides whether a change broke one
+   * thing or a whole surface, which is the difference between a typo and a bad assumption. Five is
+   * enough to see the shape and still caps the worst case at roughly a quarter of an hour.
+   *
+   * Local runs are unaffected: `retries` is 0 there and a developer can watch the whole suite.
+   */
+  maxFailures: process.env.CI ? 5 : undefined,
+  /*
+   * `list` alongside `html`, because `html` alone prints nothing until the run ends.
+   *
+   * A job on 24 Aug logged "Running 109 tests using 1 worker" at 21:19:24 and then produced no
+   * further output at all before being cancelled at 22:22:27 — sixty-three minutes of silence. The
+   * tests were running the whole time. There was simply no way to tell that apart from a hung
+   * process, which is why several of these were left to run for the best part of an hour before
+   * anyone concluded anything.
+   *
+   * `list` streams a line per test, so the log answers "is it stuck, or just failing slowly?"
+   * without waiting for the report. `html` is kept for the uploaded artefact.
+   */
+  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`.

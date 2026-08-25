@@ -9,6 +9,7 @@ jobs:
   backend:
     name: Backend
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: backend
@@ -40,6 +41,7 @@ jobs:
   backend-security:
     name: Backend Security Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: backend
@@ -67,6 +69,7 @@ jobs:
   frontend:
     name: Frontend
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -95,6 +98,12 @@ jobs:
   e2e:
     name: E2E
     runs-on: ubuntu-latest
+    # A green suite finishes in about three minutes. Twenty is a backstop, not a budget: without
+    # it the job inherits GitHub's default of 360, and on 24 Aug four runs sat past forty-five
+    # minutes at once with nothing to stop them. `maxFailures` in playwright.config.ts should end
+    # a broken run long before this fires — if this timeout is what kills a job, something is
+    # genuinely stuck rather than merely failing, and that is worth knowing quickly.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -127,6 +136,7 @@ jobs:
   cdk:
     name: CDK Synth
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: infra/cdk
