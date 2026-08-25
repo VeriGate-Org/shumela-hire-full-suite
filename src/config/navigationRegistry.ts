@@ -14,7 +14,6 @@ import {
   BuildingOffice2Icon,
   CurrencyDollarIcon,
   PresentationChartBarIcon,
-  WrenchScrewdriverIcon,
   MagnifyingGlassIcon,
   DocumentCheckIcon,
   Cog6ToothIcon,
@@ -93,7 +92,6 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'applications', label: 'Applications', href: '/applications', icon: DocumentTextIcon, iconSolid: DocumentTextIconSolid, section: 'recruitment', requiredPermissions: ['view_applications'], requiredFeature: 'RECRUITMENT' },
   { id: 'applicants', label: 'Applicants', href: '/applicants', icon: UsersIcon, iconSolid: UsersIconSolid, section: 'recruitment', requiredPermissions: ['view_applicants'], requiredFeature: 'RECRUITMENT' },
   { id: 'pipeline', label: 'Pipeline', href: '/pipeline', icon: Squares2X2Icon, section: 'recruitment', requiredPermissions: ['manage_pipeline'], requiredFeature: 'RECRUITMENT' },
-  { id: 'application-management', label: 'Application Management', href: '/applications/manage', icon: WrenchScrewdriverIcon, section: 'recruitment', requiredPermissions: ['manage_applications'], requiredFeature: 'RECRUITMENT' },
   // talent-pools and agencies share the view_applicants permission with the
   // 'applicants' entry above (deliberately — a HIRING_MANAGER giving
   // HIRING_MANAGER that permission so they can see Applicants would
