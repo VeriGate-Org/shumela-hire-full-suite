@@ -186,6 +186,62 @@ public class AgencyPortalService {
         return saved;
     }
 
+    /**
+     * Suspend approved agencies whose contract end date has passed.
+     *
+     * <p>Nothing acted on {@code contractEndDate}. An agency could be suspended by hand, and
+     * {@code AgencyResponse} computed a {@code LAPSED} contract state for display, but a lapsed
+     * agency kept its portal login and could keep submitting candidates indefinitely — the expiry
+     * was a label on a screen, not a change in what the agency could do. Job ads have had a nightly
+     * expiry job all along; agencies did not.
+     *
+     * <p>Three rules worth stating, because each is a way this could go wrong:
+     *
+     * <ol>
+     *   <li><b>A null end date is never expired.</b> Most profiles carry no contract end date at
+     *       all, and reading "not recorded" as "ended" would suspend the entire agency base on the
+     *       first run. Whether the field should be mandatory is a separate question and not one a
+     *       nightly job should answer by force.</li>
+     *   <li><b>The end date is inclusive.</b> A contract ending today is still running today; it
+     *       lapses tomorrow. Matches {@code findAdsToExpire}, which is the same decision already
+     *       made for job ads.</li>
+     *   <li><b>Suspension goes through the same path a person uses.</b> That disables the contact's
+     *       user account and their Cognito login. Setting the status alone would produce an agency
+     *       marked suspended that could still sign in — a worse state than the one being fixed,
+     *       because it looks handled.</li>
+     * </ol>
+     *
+     * <p>Idempotent: a suspended agency is no longer {@code APPROVED}, so a second run finds
+     * nothing. Agencies still awaiting approval are left alone — {@code PENDING_APPROVAL} cannot
+     * transition to {@code SUSPENDED}, and an expiry date on an unapproved agency is a data problem
+     * for a person to look at, not something to resolve silently.
+     *
+     * @return how many agencies were suspended
+     */
+    @Transactional
+    public int suspendExpiredContracts(LocalDate today) {
+        List<AgencyProfile> expired = agencyProfileRepository.findByStatus(AgencyStatus.APPROVED).stream()
+                .filter(agency -> agency.getContractEndDate() != null)
+                .filter(agency -> agency.getContractEndDate().isBefore(today))
+                .toList();
+
+        int suspended = 0;
+        for (AgencyProfile agency : expired) {
+            try {
+                suspendAgency(agency.getId());
+                logger.info("Suspended agency {} — contract ended {}",
+                        agency.getAgencyName(), agency.getContractEndDate());
+                suspended++;
+            } catch (Exception e) {
+                // One agency with a bad record must not stop the rest being suspended. A contract
+                // that has lapsed stays lapsed, and the next run will try again.
+                logger.error("Could not suspend agency {} whose contract ended {}: {}",
+                        agency.getId(), agency.getContractEndDate(), e.getMessage());
+            }
+        }
+        return suspended;
+    }
+
     private void deactivateAgencyUser(String email) {
         Optional<User> userOpt = userRepository.findByEmail(email);
         userOpt.ifPresent(user -> {
