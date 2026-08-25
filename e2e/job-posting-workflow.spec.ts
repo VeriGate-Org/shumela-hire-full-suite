@@ -152,6 +152,16 @@ async function stubApi(page: Page, posting: Posting): Promise<Captured> {
       return json(route, { content: [posting], totalPages: 1, totalElements: 1 });
     }
 
+    // The queue header counts from this, separately from the rows it lists. Left unstubbed it fell
+    // through to `{}` and the page banner-ed "Counts are unavailable — the summary could not be
+    // loaded", which is honest of the page but noise in a test that is not about counts.
+    if (path === '/api/job-postings/summary') {
+      return json(route, {
+        total: 1, open: 0, draft: 0, approved: 0,
+        awaitingApproval: 1, closed: 0, pastDeadline: 0,
+      });
+    }
+
     // These have to answer with arrays. JobBoardManager — which the page mounts alongside the
     // workflow for a PUBLISHED posting — calls .filter() on the response without checking it,
     // so a non-array body takes the whole page down with it.
@@ -165,10 +175,22 @@ async function stubApi(page: Page, posting: Posting): Promise<Captured> {
   return captured;
 }
 
-/** Opens the workflow record for the single stubbed posting. */
+/**
+ * Opens the workflow record for the single stubbed posting.
+ *
+ * The list opens on the **Needs attention** chip (`page.tsx` → `useState('attention')`), which
+ * selects only `past-deadline` and `awaiting-approval` postings. Most fixtures here are neither,
+ * so the queue filtered them out and the card never rendered — the header counted "1 posting"
+ * while the list said "No job postings available".
+ *
+ * So select **All** explicitly. These tests are about the workflow record, not about which chip the
+ * queue happens to open on: depending on that default made them fail the moment it changed, and
+ * would do so again the next time somebody re-tunes the queue.
+ */
 async function openWorkflow(page: Page, posting: Posting) {
   const captured = await stubApi(page, posting);
   await page.goto('/job-postings');
+  await page.getByRole('button', { name: 'All', exact: true }).click();
   await page.getByRole('button', { name: /view details/i }).first().click();
   await expect(page.getByTestId('stage-rail')).toBeVisible();
   return captured;

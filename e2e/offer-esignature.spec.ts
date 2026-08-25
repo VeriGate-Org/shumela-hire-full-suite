@@ -84,7 +84,22 @@ async function stubApi(
     }
 
     if (path === '/api/offers/search') return json(route, { content: offers, totalPages: 1 });
+    // NB the queue chip is "Out with candidate", not "Sent". The offers redesign renamed it and
+    // widened what it selects: WITH_CANDIDATE is ['SENT','AWAITING_SIGNATURE','SIGNED',
+    // 'UNDER_NEGOTIATION'] (src/components/offers/queue.ts), because counting SENT alone omitted
+    // exactly the offers most likely to lapse — a signature or a negotiation is what consumes the
+    // time. These tests assert that an AWAITING_SIGNATURE or SIGNED offer stays visible there, so
+    // the rename left their meaning intact and only their selector wrong.
+    //
+    // The list also opens on "Expiring", which matches none of these fixtures — hence the explicit
+    // chip click in each test rather than a reliance on whatever the queue opens on.
     if (path === '/api/offers/dashboard') return json(route, {});
+
+    // The queue header counts from this, separately from the rows it lists. Unstubbed it fell
+    // through and the page banner-ed "Counts are unavailable — the summary could not be loaded".
+    if (path === '/api/offers/summary') {
+      return json(route, { total: offers.length, withCandidate: offers.length, expiringSoon: 0, expiringImminently: 0 });
+    }
     return json(route, {});
   });
 
@@ -102,13 +117,13 @@ test.describe('Offer e-signature — the offer stays visible', () => {
   // an offer for signature made it vanish from the board — #241 fixed the badge on offers that
   // could not be seen.
   for (const status of ['AWAITING_SIGNATURE', 'SIGNED']) {
-    test(`an offer in ${status} still appears under Sent`, async ({ page }) => {
+    test(`an offer in ${status} still appears under Out with candidate`, async ({ page }) => {
       await stubApi(page, {
         offers: [OFFER({ status })],
         statuses: { 1: { status: 'sent', envelopeId: 'SIM-abc123' } },
       });
       await page.goto('/offers');
-      await page.getByRole('button', { name: /^Sent/ }).click();
+      await page.getByRole('button', { name: /^Out with candidate/ }).click();
 
       await expect(page.getByText('Thandi Molefe')).toBeVisible();
     });
@@ -124,7 +139,7 @@ test.describe('Offer e-signature — the badge', () => {
       statuses: { 1: { status: 'sent', envelopeId: 'SIM-abc123' } },
     });
     await page.goto('/offers');
-    await page.getByRole('button', { name: /^Sent/ }).click();
+    await page.getByRole('button', { name: /^Out with candidate/ }).click();
 
     await expect(page.getByText(/E-Signature: sent/i)).toBeVisible();
   });
@@ -137,7 +152,7 @@ test.describe('Offer e-signature — the badge', () => {
       simulated: true,
     });
     await page.goto('/offers');
-    await page.getByRole('button', { name: /^Sent/ }).click();
+    await page.getByRole('button', { name: /^Out with candidate/ }).click();
 
     await expect(page.getByText(/simulated/i).first()).toBeVisible();
   });
@@ -145,7 +160,7 @@ test.describe('Offer e-signature — the badge', () => {
   test('stays absent when nothing has been sent', async ({ page }) => {
     await stubApi(page, { offers: [OFFER({ status: 'SENT' })], statuses: { 1: { status: 'not_sent' } } });
     await page.goto('/offers');
-    await page.getByRole('button', { name: /^Sent/ }).click();
+    await page.getByRole('button', { name: /^Out with candidate/ }).click();
 
     await expect(page.getByText(/E-Signature:/i)).toHaveCount(0);
   });
@@ -158,7 +173,7 @@ test.describe('Offer e-signature — sending', () => {
       statuses: { 1: { status: 'not_sent' } },
     });
     await page.goto('/offers');
-    await page.getByRole('button', { name: /^Sent/ }).click();
+    await page.getByRole('button', { name: /^Out with candidate/ }).click();
 
     await page.getByRole('button', { name: 'E-Sign', exact: true }).click();
 
