@@ -12,6 +12,8 @@ import {
   funnelAvailable,
   isRecruiterOverview,
   largestLoss,
+  FUNNEL_STAGES,
+  STAGE_LABELS,
 } from './dashboard/overview';
 
 /**
@@ -31,44 +33,6 @@ export function RecruiterDashboardFilters() {
   return null;
 }
 
-/** The working stages, in order, as the pipeline analytics name them. */
-const FUNNEL_STAGES = [
-  'APPLICATION_RECEIVED',
-  'INITIAL_SCREENING',
-  'PHONE_SCREENING',
-  'FIRST_INTERVIEW',
-  'TECHNICAL_ASSESSMENT',
-  'SECOND_INTERVIEW',
-  'PANEL_INTERVIEW',
-  'MANAGER_INTERVIEW',
-  'FINAL_INTERVIEW',
-  'REFERENCE_CHECK',
-  'BACKGROUND_CHECK',
-  'OFFER_PREPARATION',
-  'OFFER_EXTENDED',
-  'OFFER_NEGOTIATION',
-  'OFFER_ACCEPTED',
-  'HIRED',
-];
-
-const STAGE_LABELS: Record<string, string> = {
-  APPLICATION_RECEIVED: 'Applied',
-  INITIAL_SCREENING: 'Initial screening',
-  PHONE_SCREENING: 'Phone screening',
-  FIRST_INTERVIEW: 'First interview',
-  TECHNICAL_ASSESSMENT: 'Technical assessment',
-  SECOND_INTERVIEW: 'Second interview',
-  PANEL_INTERVIEW: 'Panel interview',
-  MANAGER_INTERVIEW: 'Manager interview',
-  FINAL_INTERVIEW: 'Final interview',
-  REFERENCE_CHECK: 'Reference check',
-  BACKGROUND_CHECK: 'Background check',
-  OFFER_PREPARATION: 'Offer preparation',
-  OFFER_EXTENDED: 'Offer extended',
-  OFFER_NEGOTIATION: 'Offer negotiation',
-  OFFER_ACCEPTED: 'Offer accepted',
-  HIRED: 'Hired',
-};
 
 /**
  * One figure, in whichever of its three states applies.

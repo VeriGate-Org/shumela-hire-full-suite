@@ -2,346 +2,218 @@
 
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
-import { getEnumLabel } from '@/utils/enumLabels';
-import { JobBoardType } from '@/types/jobBoard';
-import BoardLogo from '@/components/BoardLogo';
-import { RealTimeMetrics } from '../../analytics';
-import { DashboardWidget, PerformanceMetrics, DataExplorer } from '../../dashboard';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
+import DistributionStrip from '@/components/record/DistributionStrip';
+import {
+  RecruiterOverview,
+  acceptanceTile,
+  exceptions,
+  funnel,
+  funnelAvailable,
+  isRecruiterOverview,
+  FUNNEL_STAGES,
+  STAGE_LABELS,
+} from '../overview';
+
+/**
+ * What is on a recruiter's desk, on the screen they land on after signing in.
+ *
+ * <p><b>This dashboard used to invent its own content.</b> "Recent Sourcing Activities" was four
+ * hardcoded strings — "Contacted 5 developers on LinkedIn", "Sarah Chen responded to interview
+ * invitation" — rendered as if they were this tenant's activity, with timestamps. Five "Recruiting
+ * Tools" buttons carried no click handler at all. None of it was marked as a placeholder anywhere
+ * on screen.
+ *
+ * <p>It also ignored the endpoint built for exactly this purpose. {@code RecruiterDashboardResponse}
+ * has existed since #278, composed from the same summaries the pipeline, offers and applications
+ * screens use so the figures cannot disagree with the pages they link to — and only
+ * {@code /recruiter-dashboard} consumed it. A recruiter therefore saw invented activity on their
+ * landing page and real figures on a separate nav item.
+ *
+ * <p>Now: the band, bar and strip the rest of the product uses, over the real overview. Everything
+ * on this screen is either sourced or absent with its reason given.
+ */
 
 interface RecruiterDashboardProps {
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
 
-interface MetricItem {
+/** A recent application, as the management search returns it. */
+interface RecentApplication {
   id: string;
-  label: string;
-  value: number;
-  previousValue: number;
-  target: number;
-  unit: 'percentage' | 'number' | 'days';
-  trend: 'up' | 'down' | 'neutral';
-  trendValue: number;
-  description: string;
-  status: 'good' | 'warning' | 'critical';
+  candidateName?: string;
+  jobTitle?: string;
+  status?: string;
+  submittedAt?: string;
 }
 
-interface CandidateRow {
-  id: string;
-  name: string;
-  email: string;
-  position: string;
-  skills: string;
-  experience: string;
-  status: string;
-  source: string;
-  score: number;
+function relativeDay(iso?: string): string {
+  if (!iso) return 'Date not recorded';
+  const then = new Date(iso);
+  if (Number.isNaN(then.getTime())) return 'Date not recorded';
+  const days = Math.floor((Date.now() - then.getTime()) / 86_400_000);
+  if (days <= 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  return `${days} days ago`;
 }
 
-const mockCandidateColumns: any[] = [];
-
-/** One channel's share of applications received. */
-interface SourceChannel {
-  source: string;
-  label: string;
-  applications: number;
-  share: number;
-}
-
-// Colour is assigned by position, so the largest channel always reads the same
-// way regardless of which channel it happens to be for a given tenant.
-const CHANNEL_COLORS = ['bg-cta', 'bg-primary', 'bg-green-500', 'bg-accent-teal', 'bg-gray-500'];
-
-// Sources that name a board this product publishes to. The value and the board
-// are the same brand seen from two directions — an advert we posted, and the
-// applications it returned — so the same mark identifies both.
-const SOURCE_TO_BOARD: Record<string, JobBoardType | undefined> = {
-  PNET: JobBoardType.PNET,
-  CAREER_JUNCTION: JobBoardType.CAREER_JUNCTION,
-  LINKEDIN: JobBoardType.LINKEDIN,
-  INDEED: JobBoardType.INDEED,
-};
-
-export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashboardProps) {
-  const [metrics, setMetrics] = useState<MetricItem[]>([]);
-  const [candidateData, setCandidateData] = useState<CandidateRow[]>([]);
-  const [sourceChannels, setSourceChannels] = useState<SourceChannel[]>([]);
+export default function RecruiterDashboard(_props: RecruiterDashboardProps) {
+  const [overview, setOverview] = useState<RecruiterOverview | null>(null);
+  const [recent, setRecent] = useState<RecentApplication[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchData() {
-      setLoading(true);
-
-      // Fetch metrics, candidates and the source breakdown in parallel
-      const [metricsResult, candidatesResult, statisticsResult] = await Promise.allSettled([
-        apiFetch('/api/analytics/dashboard?role=RECRUITER'),
-        apiFetch('/api/applications/manage/search?size=10&sortBy=submittedAt&sortDirection=desc'),
-        apiFetch('/api/applications/manage/statistics'),
-      ]);
-
-      if (cancelled) return;
-
-      // Process metrics
-      if (metricsResult.status === 'fulfilled' && metricsResult.value.ok) {
-        try {
-          const data = await metricsResult.value.json();
-          if (Array.isArray(data?.metrics) && data.metrics.length > 0) {
-            setMetrics(data.metrics);
-          } else if (data?.kpis && typeof data.kpis === 'object') {
-            // Transform backend kpis map into metrics array
-            const kpiMetrics: MetricItem[] = Object.entries(data.kpis).map(([key, kpi]: [string, any]) => ({
-              id: key,
-              label: key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-              value: Number(kpi?.value) || 0,
-              previousValue: Number(kpi?.previousValue) || 0,
-              target: Number(kpi?.target) || 0,
-              unit: (kpi?.unit || 'number') as 'percentage' | 'number' | 'days',
-              trend: (kpi?.trend?.toLowerCase() === 'up' ? 'up' : kpi?.trend?.toLowerCase() === 'down' ? 'down' : 'neutral') as 'up' | 'down' | 'neutral',
-              trendValue: Number(kpi?.variance) || Number(kpi?.trendValue) || 0,
-              description: kpi?.description || '',
-              status: (kpi?.status || 'warning') as 'good' | 'warning' | 'critical',
-            }));
-            if (kpiMetrics.length > 0) setMetrics(kpiMetrics);
-          }
-        } catch {
-          // Keep default metrics on parse error
-        }
+    (async () => {
+      // The whole-set figures. Guarded rather than trusted: an error body is an object too, and
+      // reading .applications off it would render a desk that looks real and empty.
+      try {
+        const response = await apiFetch('/api/analytics/recruiter-overview');
+        const payload = response.ok ? await response.json() : null;
+        if (!cancelled) setOverview(isRecruiterOverview(payload) ? payload : null);
+      } catch {
+        if (!cancelled) setOverview(null);
       }
 
-      // Process candidates
-      if (candidatesResult.status === 'fulfilled' && candidatesResult.value.ok) {
-        try {
-          const data = await candidatesResult.value.json();
-          const items = Array.isArray(data?.content) ? data.content : Array.isArray(data) ? data : [];
-          const mapped: CandidateRow[] = items.map((item: any) => ({
-            id: item.id?.toString() || '',
-            name: item.candidateName || item.name || '',
-            email: item.candidateEmail || item.email || '',
-            position: item.jobTitle || item.position || '',
-            skills: Array.isArray(item.skills) ? item.skills.join(', ') : (item.skills || ''),
-            experience: item.experience || '',
-            status: item.status || '',
-            source: item.source || '',
-            score: item.score ?? 0,
-          }));
-          setCandidateData(mapped);
-        } catch {
-          // Keep empty candidates on parse error
-        }
+      try {
+        const response = await apiFetch(
+          '/api/applications/manage/search?size=5&sortBy=submittedAt&sortDirection=desc',
+        );
+        const payload = response.ok ? await response.json() : null;
+        const rows = Array.isArray(payload?.content) ? payload.content : [];
+        if (!cancelled) setRecent(rows);
+      } catch {
+        if (!cancelled) setRecent([]);
       }
 
-      // Process the sourcing breakdown
-      if (statisticsResult.status === 'fulfilled' && statisticsResult.value.ok) {
-        try {
-          const data = await statisticsResult.value.json();
-          const distribution: Record<string, number> = data?.sourceDistribution ?? {};
-          const total = Object.values(distribution).reduce((sum, n) => sum + Number(n || 0), 0);
-
-          setSourceChannels(
-            Object.entries(distribution)
-              .map(([source, count]) => ({
-                source,
-                label: getEnumLabel('applicationSource', source),
-                applications: Number(count) || 0,
-                share: total > 0 ? Math.round((Number(count) || 0) / total * 100) : 0,
-              }))
-              .filter((channel) => channel.applications > 0)
-              .sort((a, b) => b.applications - a.applications)
-              .slice(0, 5),
-          );
-        } catch {
-          // Leave the widget in its empty state rather than showing a number
-          // nobody can trace back to an application.
-        }
-      }
-
-      setLoading(false);
-    }
-
-    fetchData();
+      if (!cancelled) setLoading(false);
+    })();
 
     return () => {
       cancelled = true;
     };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="space-y-6 max-w-full overflow-hidden">
-        <div className="bg-white rounded-control border border-gray-200 p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="h-20 bg-gray-200 rounded"></div>
-              <div className="h-20 bg-gray-200 rounded"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const acceptance = acceptanceTile(overview);
+  const owed = exceptions(overview);
+  const stages = funnelAvailable(overview) ? funnel(overview, FUNNEL_STAGES) : [];
 
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
-      {/* Real-Time Sourcing Metrics */}
-      <div className="w-full overflow-hidden">
-        <RealTimeMetrics updateInterval={5000} />
-      </div>
+    <div className="space-y-4">
+      <IdentityBand
+        eyebrow="Your desk"
+        title="Recruiter"
+        subtitle={
+          overview
+            ? `${overview.applications} ${overview.applications === 1 ? 'application' : 'applications'} · ${overview.openAdverts} ${overview.openAdverts === 1 ? 'advert' : 'adverts'} open`
+            : loading
+              ? 'Loading your desk…'
+              : 'Counts unavailable'
+        }
+        figures={
+          overview
+            ? [
+                {
+                  label: 'Unscreened',
+                  value: overview.unscreened,
+                  tone: (overview.unscreened > 0 ? 'warning' : undefined) as 'warning' | undefined,
+                },
+                {
+                  label: 'Interviews unwritten',
+                  value: overview.interviewsAwaitingFeedback,
+                  tone: (overview.interviewsAwaitingFeedback > 0 ? 'warning' : undefined) as
+                    | 'warning'
+                    | undefined,
+                },
+                // A rate over too few settled offers is noise wearing a percentage sign. The
+                // threshold is stated rather than the figure being quietly withheld — and it is
+                // never rendered as 0%, which would read as "nobody accepts our offers".
+                {
+                  label: 'Offer acceptance',
+                  value:
+                    acceptance.kind === 'value'
+                      ? `${acceptance.value}%`
+                      : acceptance.reason,
+                },
+              ]
+            : []
+        }
+      />
 
-      {/* Recruiter Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-full">
-        {/* Main Recruiting Content */}
-        <div className="lg:col-span-2 space-y-6 min-w-0">
-          {/* Recruiting Performance Metrics */}
-          <div className="w-full overflow-hidden">
-            <PerformanceMetrics
-              metrics={metrics}
-              title="Recruiting Performance Indicators"
-              subtitle="Track your sourcing and candidate engagement effectiveness"
-              timeframe={selectedTimeframe}
-            />
-          </div>
+      {owed.length > 0 && (
+        <DecisionBar
+          ask={`${owed.reduce((total, entry) => total + entry.count, 0)} ${
+            owed.reduce((total, entry) => total + entry.count, 0) === 1 ? 'item is' : 'items are'
+          } waiting on you.`}
+          why={owed.map((entry) => `${entry.count} ${entry.label.toLowerCase()}`).join(' · ')}
+          tone="owed"
+        >
+          <PrimaryAction onClick={() => (window.location.href = '/pipeline')}>
+            Open pipeline
+          </PrimaryAction>
+          <SecondaryAction onClick={() => (window.location.href = '/applications')}>
+            Applications
+          </SecondaryAction>
+        </DecisionBar>
+      )}
 
-          {/* Candidate Database */}
-          <div className="w-full overflow-hidden">
-            <div className="max-h-96 overflow-hidden">
-              <DataExplorer
-                data={candidateData}
-                columns={mockCandidateColumns}
-                title="Candidate Database"
-                subtitle="Search and manage your candidate pipeline"
-                defaultView="table"
-              />
-            </div>
-          </div>
+      {!loading && overview && owed.length === 0 && (
+        <DecisionBar
+          ask="Nothing is waiting on you."
+          why="No unscreened applications, no interviews without feedback, and no offers expiring."
+          tone="settled"
+        />
+      )}
+
+      {stages.length > 0 && (
+        <DistributionStrip
+          buckets={stages.map((stage) => ({
+            label: STAGE_LABELS[stage.stage] ?? stage.stage,
+            count: stage.reached,
+          }))}
+          footnote="Candidates who reached each stage, across every open advert."
+        />
+      )}
+
+      <div className="enterprise-card">
+        <div className="flex items-baseline justify-between gap-3 px-5 py-4 border-b border-border flex-wrap">
+          <h2 className="text-[0.8125rem] font-extrabold tracking-[-0.01em] text-foreground">
+            Newest applications
+          </h2>
+          <span className="text-xs text-muted-foreground">
+            {recent.length > 0 ? `${recent.length} most recent` : 'Nothing yet'}
+          </span>
         </div>
-
-        {/* Recruiting Sidebar */}
-        <div className="space-y-6 min-w-0">
-          {/* Sourcing Activities */}
-          <div className="w-full overflow-hidden">
-            <DashboardWidget
-              id="sourcing-activities"
-              title="Recent Sourcing Activities"
-              subtitle="Latest candidate outreach and responses"
-              refreshable={true}
-              size="small"
-            >
-              <div className="space-y-3 max-h-60 overflow-y-auto">
-                {[
-                  {
-                    id: '1',
-                    type: 'outreach',
-                    message: 'Contacted 5 developers on LinkedIn',
-                    time: '30 minutes ago',
-                    color: 'text-primary',
-                  },
-                  {
-                    id: '2',
-                    type: 'response',
-                    message: 'Sarah Chen responded to interview invitation',
-                    time: '1 hour ago',
-                    color: 'text-green-600',
-                  },
-                  {
-                    id: '3',
-                    type: 'screening',
-                    message: 'Completed phone screen with Mike Rodriguez',
-                    time: '2 hours ago',
-                    color: 'text-link',
-                  },
-                  {
-                    id: '4',
-                    type: 'research',
-                    message: 'Added 12 new candidates to database',
-                    time: '4 hours ago',
-                    color: 'text-orange-600',
-                  },
-                ].map((activity) => (
-                  <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-muted rounded-card">
-                    <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${activity.color.replace('text-', 'bg-')}`}></div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground truncate">{activity.message}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
-                    </div>
+        <div className="px-5 py-3">
+          {recent.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-2">
+              {loading ? 'Loading…' : 'No applications have been submitted yet.'}
+            </p>
+          ) : (
+            recent.map((application) => (
+              <div
+                key={application.id}
+                className="flex items-center justify-between gap-3 py-2.5 border-t border-border first:border-t-0"
+              >
+                <div className="min-w-0">
+                  <div className="font-bold text-sm text-foreground truncate">
+                    {application.candidateName || 'Name not recorded'}
                   </div>
-                ))}
-              </div>
-            </DashboardWidget>
-          </div>
-
-          {/* Sourcing Channels */}
-          <div className="w-full overflow-hidden">
-            <DashboardWidget
-              id="sourcing-channels"
-              title="Top Sourcing Channels"
-              subtitle="Applications received by channel"
-              size="small"
-            >
-              {sourceChannels.length === 0 ? (
-                <p className="text-sm text-muted-foreground p-3">
-                  No application sources recorded yet.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {sourceChannels.map((channel, index) => (
-                    <div
-                      key={channel.source}
-                      className="flex items-center justify-between p-3 bg-muted rounded-card"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        {/* A channel that IS a board carries its mark; the rest
-                            keep the colour dot, so the two read as one list. */}
-                        {SOURCE_TO_BOARD[channel.source] ? (
-                          <BoardLogo boardType={SOURCE_TO_BOARD[channel.source]!} size="sm" />
-                        ) : (
-                          <div
-                            className={`w-3 h-3 mx-1 rounded-full flex-shrink-0 ${
-                              CHANNEL_COLORS[index % CHANNEL_COLORS.length]
-                            }`}
-                          />
-                        )}
-                        <span className="font-medium text-foreground truncate">{channel.label}</span>
-                      </div>
-                      <div className="text-sm text-muted-foreground flex-shrink-0 ml-3">
-                        {channel.applications} &middot; {channel.share}%
-                      </div>
-                    </div>
-                  ))}
+                  <div className="text-xs text-muted-foreground truncate">
+                    {application.jobTitle || 'Role not recorded'} · {relativeDay(application.submittedAt)}
+                  </div>
                 </div>
-              )}
-            </DashboardWidget>
-          </div>
-
-          {/* Recruiting Quick Actions */}
-          <div className="w-full overflow-hidden">
-            <DashboardWidget
-              id="recruiting-actions"
-              title="Recruiting Tools"
-              subtitle="Quick access to sourcing tools"
-              size="small"
-            >
-              <div className="grid grid-cols-1 gap-2">
-                {[
-                  { label: 'Search Candidates', color: 'bg-cta text-cta-foreground' },
-                  { label: 'Send Outreach', color: 'bg-green-600 text-white' },
-                  { label: 'Schedule Screen', color: 'bg-cta text-cta-foreground' },
-                  { label: 'Update Pipeline', color: 'bg-orange-600 text-white' },
-                  { label: 'Generate Report', color: 'bg-red-600 text-white' },
-                ].map((action) => (
-                  <button
-                    key={action.label}
-                    className={`${action.color} p-3 rounded-control hover:opacity-95 transition-opacity text-sm font-medium text-center w-full`}
-                  >
-                    {action.label}
-                  </button>
-                ))}
+                {application.status && (
+                  <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[0.5625rem] font-extrabold uppercase tracking-[0.1em] bg-muted text-muted-foreground">
+                    {application.status.replace(/_/g, ' ')}
+                  </span>
+                )}
               </div>
-            </DashboardWidget>
-          </div>
+            ))
+          )}
         </div>
       </div>
     </div>
