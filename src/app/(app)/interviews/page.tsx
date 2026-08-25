@@ -12,6 +12,7 @@ import PageWrapper from '@/components/PageWrapper';
 import { apiFetch } from '@/lib/api-fetch';
 import EmptyState from '@/components/EmptyState';
 import { TableSkeleton } from '@/components/LoadingComponents';
+import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
 import DistributionStrip from '@/components/record/DistributionStrip';
 import FilterChips from '@/components/record/FilterChips';
@@ -298,6 +299,34 @@ export default function InterviewsPage() {
           <AiInterviewQuestionGenerator />
         </AiAssistPanel>
 
+        <IdentityBand
+          eyebrow="Interview schedule"
+          title="Interviews"
+          subtitle={
+            summary
+              ? `${summary.total} ${summary.total === 1 ? 'interview' : 'interviews'} on record`
+              : 'Counts unavailable'
+          }
+          figures={
+            summary
+              ? [
+                  {
+                    label: 'Awaiting write-up',
+                    value: summary.awaitingWriteUp,
+                    tone: (summary.awaitingWriteUp > 0 ? 'critical' : undefined) as
+                      | 'critical'
+                      | undefined,
+                  },
+                  {
+                    label: 'Slot passed, untouched',
+                    value: summary.slotPassed,
+                    tone: (summary.slotPassed > 0 ? 'warning' : undefined) as 'warning' | undefined,
+                  },
+                  { label: 'Next 7 days', value: summary.nextSevenDays },
+                ]
+              : []
+          }
+        />
 
         {summary && summary.awaitingWriteUp > 0 && (
           <DecisionBar

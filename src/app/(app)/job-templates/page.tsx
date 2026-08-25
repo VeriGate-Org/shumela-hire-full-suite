@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { JobAdTemplate, JobAdDraft } from '@/types/jobTemplate';
 import { jobTemplateService } from '@/services/jobTemplateService';
 import TemplateList from '@/components/templates/TemplateList';
+import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
 import DistributionStrip from '@/components/record/DistributionStrip';
 import { TEMPLATE_PLACEHOLDERS } from '@/types/jobTemplate';
@@ -201,6 +202,37 @@ const JobTemplatesPage: React.FC = () => {
         />
       )}
 
+      <IdentityBand
+        eyebrow="Job ad template library"
+        title="Job Templates"
+        subtitle={
+          counts
+            ? `${counts.total} ${counts.total === 1 ? 'template' : 'templates'} · source copy for every advert`
+            : 'Library unavailable'
+        }
+        figures={
+          counts
+            ? [
+                ...(usageKnown
+                  ? [{ label: 'Adverts generated', value: counts.advertsGenerated }]
+                  : []),
+                { label: 'In use', value: counts.inUse },
+                {
+                  label: 'Overdue revision',
+                  value: counts.overdueRevision,
+                  tone: (counts.overdueRevision > 0 ? 'critical' : undefined) as
+                    | 'critical'
+                    | undefined,
+                },
+                {
+                  label: 'Never used',
+                  value: counts.neverUsed,
+                  tone: (counts.neverUsed > 0 ? 'warning' : undefined) as 'warning' | undefined,
+                },
+              ]
+            : []
+        }
+      />
 
       {counts && usageKnown && (overdue.length > 0 || mostUsed) && (
         <DecisionBar

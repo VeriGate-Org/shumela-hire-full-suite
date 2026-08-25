@@ -9,6 +9,7 @@ import ErrorState from '@/components/ErrorState';
 import { TableSkeleton } from '@/components/LoadingComponents';
 import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import StatusPill from '@/components/StatusPill';
+import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
 import DistributionStrip from '@/components/record/DistributionStrip';
 import FilterChips from '@/components/record/FilterChips';
@@ -363,6 +364,38 @@ export default function ApplicationsPage() {
       actions={actions}
     >
       <div className="space-y-4">
+        <IdentityBand
+          eyebrow="Application triage"
+          title="Applications"
+          subtitle={
+            summary
+              ? `${summary.live} live of ${summary.total} received`
+              : 'Counts unavailable'
+          }
+          figures={
+            summary
+              ? [
+                  {
+                    label: 'Unscreened',
+                    value: summary.unscreened,
+                    tone: (summary.unscreened > 0 ? 'warning' : undefined) as 'warning' | undefined,
+                  },
+                  ...(typeof summary.oldestUnscreenedDays === 'number'
+                    ? [
+                        {
+                          label: 'Oldest unscreened',
+                          value: `${summary.oldestUnscreenedDays} days`,
+                          tone: (summary.oldestUnscreenedDays >= 14 ? 'critical' : 'warning') as
+                            | 'critical'
+                            | 'warning',
+                        },
+                      ]
+                    : []),
+                  ...(atOffer !== null ? [{ label: 'At offer', value: atOffer }] : []),
+                ]
+              : []
+          }
+        />
 
         {summary && summary.unscreened > 0 && (
           <DecisionBar

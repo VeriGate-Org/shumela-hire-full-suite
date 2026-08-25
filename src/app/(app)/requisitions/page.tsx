@@ -6,6 +6,7 @@ import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import { TableSkeleton } from '@/components/LoadingComponents';
+import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
 import DistributionStrip from '@/components/record/DistributionStrip';
 import FilterChips from '@/components/record/FilterChips';
@@ -143,6 +144,38 @@ export default function RequisitionsPage() {
 
   return (
     <PageWrapper title="Requisitions" subtitle="Headcount requests and their approval">
+      <IdentityBand
+        eyebrow="Approval queue"
+        title="Requisitions"
+        subtitle={
+          summary
+            ? `${summary.total} ${summary.total === 1 ? 'requisition' : 'requisitions'} across the organisation`
+            : 'Counts unavailable'
+        }
+        figures={
+          summary
+            ? [
+                { label: 'Awaiting a decision', value: summary.awaitingDecision },
+                // Only for the roles that actually clear a stage. A figure nobody can act on is
+                // one more number to read past.
+                ...(onYou !== null
+                  ? [{
+                      label: 'On you',
+                      value: onYou,
+                      tone: (onYou > 0 ? 'warning' : undefined) as 'warning' | undefined,
+                    }]
+                  : []),
+                ...(typeof summary.oldestWaitingDays === 'number'
+                  ? [{
+                      label: 'Oldest waiting',
+                      value: `${summary.oldestWaitingDays} days`,
+                      tone: (summary.oldestWaitingDays >= 14 ? 'critical' : 'warning') as 'critical' | 'warning',
+                    }]
+                  : []),
+              ]
+            : []
+        }
+      />
 
       {summary && summary.awaitingDecision > 0 && (
         <DecisionBar
