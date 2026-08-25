@@ -115,6 +115,38 @@ public class SalaryRecommendationController {
         }
     }
 
+    /**
+     * Send a recommendation back for rework.
+     * POST /api/salary-recommendations/{id}/return
+     *
+     * <p>Separate from {@code /reject}: a rejection ends the recommendation, a return expects it
+     * back. {@code submitForReview} already accepts a returned recommendation, so this closes a
+     * loop that was built with one end missing.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE')")
+    @PostMapping("/{id}/return")
+    public ResponseEntity<?> returnForRework(@PathVariable String id,
+                                             @RequestBody Map<String, String> body,
+                                             Authentication auth) {
+        try {
+            return ResponseEntity.ok(service.returnForRework(id, auth.getName(), body.get("reason")));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Recommendations that were sent back and not yet resubmitted.
+     * GET /api/salary-recommendations/returned
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE', 'RECRUITER')")
+    @GetMapping("/returned")
+    public ResponseEntity<List<SalaryRecommendation>> getReturned() {
+        return ResponseEntity.ok(service.getReturned());
+    }
+
     @PostMapping("/{id}/link-offer")
     public ResponseEntity<?> linkToOffer(@PathVariable String id,
                                           @RequestBody Map<String, String> body,

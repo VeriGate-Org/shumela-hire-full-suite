@@ -159,6 +159,73 @@ public class SalaryRecommendationService {
         return saved;
     }
 
+    /**
+     * Send a recommendation back to whoever raised it, to be fixed and resubmitted.
+     *
+     * <p><b>This is the transition that was missing.</b> {@code RETURNED} has existed on
+     * {@link SalaryRecommendationStatus} since the enum was written, and {@link #submitForReview}
+     * has always accepted it — the resubmission half of the loop was built. But no code anywhere
+     * set the status, so no recommendation could ever be in it. The workflow could reject, and it
+     * could resubmit something that had been returned; it could not return.
+     *
+     * <p><b>Returning is not rejecting.</b> A rejection ends the recommendation — the salary was
+     * refused. A return is a request for rework: the number, the justification or the market
+     * evidence is not good enough yet, and the requester is expected to fix it and come back. Only
+     * one of the two leaves the record alive, which is why they are separate statuses and separate
+     * operations rather than a rejection with a flag.
+     *
+     * <p>Returnable from any stage where somebody is holding it for a decision:
+     * {@code PENDING_REVIEW} (the reviewer wants more before recommending a number),
+     * {@code RECOMMENDED} and {@code PENDING_APPROVAL} (the approver wants the number revised). A
+     * {@code DRAFT} cannot be returned because nobody has been asked to look at it, and a
+     * {@code REJECTED} or {@code IMPLEMENTED} one is finished.
+     *
+     * @param reason why it is going back — required, because "returned" with no explanation is
+     *               indistinguishable from a mistake and leaves the requester nothing to act on
+     */
+    public SalaryRecommendation returnForRework(String id, String returnedBy, String reason) {
+        if (reason == null || reason.isBlank()) {
+            throw new IllegalArgumentException("A reason is required when returning a recommendation");
+        }
+
+        SalaryRecommendation rec = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
+
+        SalaryRecommendationStatus status = rec.getStatus();
+        if (status != SalaryRecommendationStatus.PENDING_REVIEW
+                && status != SalaryRecommendationStatus.RECOMMENDED
+                && status != SalaryRecommendationStatus.PENDING_APPROVAL) {
+            throw new IllegalStateException(
+                    "Can only return a recommendation that is awaiting review or approval, not " + status);
+        }
+
+        rec.setStatus(SalaryRecommendationStatus.RETURNED);
+        rec.setReturnedBy(returnedBy);
+        rec.setReturnReason(reason);
+        rec.setReturnedAt(LocalDateTime.now());
+        // Counted rather than flagged: resubmission moves the status on, so without this the fact
+        // that it was ever returned disappears the moment somebody fixes it.
+        rec.setTimesReturned((rec.getTimesReturned() == null ? 0 : rec.getTimesReturned()) + 1);
+
+        SalaryRecommendation saved = repository.save(rec);
+        auditLogService.saveLog(returnedBy, "RETURN_FOR_REWORK", "SALARY_RECOMMENDATION", id,
+                "Returned recommendation " + rec.getRecommendationNumber() + " for rework: " + reason);
+        return saved;
+    }
+
+    /**
+     * Recommendations sent back and not yet resubmitted.
+     *
+     * <p>The screen these belong on does not exist yet. Until it does they are invisible, which is
+     * the state every other status on this record was in — {@link #getAll()} has been sitting here
+     * unused while the page called only the two pending lists.
+     */
+    public List<SalaryRecommendation> getReturned() {
+        return repository.findAll().stream()
+                .filter(rec -> rec.getStatus() == SalaryRecommendationStatus.RETURNED)
+                .toList();
+    }
+
     public SalaryRecommendation linkToOffer(String id, String offerId, String userId) {
         SalaryRecommendation rec = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
