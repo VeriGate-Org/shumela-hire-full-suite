@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -399,6 +400,49 @@ public class ApplicationManagementService {
         java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy 'at' HH:mm");
 
     /**
+     * The options a filter control can legitimately offer.
+     *
+     * <p>Departments come from the applications themselves. This list used to be ten literals —
+     * Engineering, Marketing, Sales, HR, Finance, Operations, Product, Customer Support, Legal,
+     * R&amp;D — carrying the comment "this could be fetched from database". None of them exist in a
+     * tenant whose departments are Strategic Business Unit, Information Technology and Enterprise
+     * Risk Management, and the filter matches on exact equality, so choosing any option emptied the
+     * table. That reads as "no applications" rather than "wrong filter", which is why a control
+     * that cannot match anything is worse than no control at all.
+     *
+     * <p>Statuses and stages are returned as value/label pairs rather than bare enum constants, so
+     * a caller does not have to keep its own copy of the display names to avoid printing
+     * INTERVIEW_SCHEDULED at a person.
+     */
+    public Map<String, Object> getFilterOptions() {
+        Map<String, Object> options = new LinkedHashMap<>();
+
+        options.put("statuses", java.util.Arrays.stream(ApplicationStatus.values())
+            .map(s -> Map.of("value", s.name(), "label", s.getDisplayName()))
+            .collect(Collectors.toList()));
+
+        options.put("pipelineStages", java.util.Arrays.stream(PipelineStage.values())
+            .map(s -> Map.of("value", s.name(), "label", s.getDisplayName()))
+            .collect(Collectors.toList()));
+
+        List<String> departments = applicationRepository.countByDepartment().stream()
+            .map(row -> row[0])
+            .filter(Objects::nonNull)
+            .map(String::valueOf)
+            .filter(d -> !d.isBlank())
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
+        options.put("departments", departments);
+
+        options.put("ratingRange", Map.of("min", 1, "max", 5));
+        options.put("sortFields", List.of(
+            "submittedAt", "updatedAt", "rating", "jobTitle", "department", "status"));
+
+        return options;
+    }
+
+    /**
      * Get applications statistics for management console
      */
     public Map<String, Object> getApplicationStatistics() {
@@ -471,24 +515,35 @@ public class ApplicationManagementService {
      * Export applications data for reporting
      */
     public List<Map<String, Object>> exportApplications(
-            List<Long> applicationIds,
+            List<String> applicationIds,
             List<String> fields) {
 
         List<Application> applications = applicationIds != null && !applicationIds.isEmpty() ?
-            applicationRepository.findAllByIds(applicationIds.stream().map(String::valueOf).collect(Collectors.toList())) :
+            applicationRepository.findAllByIds(applicationIds) :
             applicationRepository.findAll();
+
+        // The repository rebuilds application.applicant as an id-only stub, so without this every
+        // exported name and email came back null. The search path already does this; export was
+        // simply never given the same treatment — and it could not be noticed while the endpoint
+        // rejected every id it was handed.
+        hydrateApplicants(applications);
 
         return applications.stream().map(app -> {
             Map<String, Object> record = new HashMap<>();
+            Applicant applicant = app.getApplicant();
 
             if (fields == null || fields.contains("id")) {
                 record.put("id", app.getId());
             }
+            // Guarded rather than assumed. An applicant record that has been deleted, or an
+            // application written before the association existed, would otherwise fail the whole
+            // export on one row — and a bulk export that dies on record 400 of 500 is worse than
+            // one that reports a blank cell.
             if (fields == null || fields.contains("applicantName")) {
-                record.put("applicantName", app.getApplicant().getFullName());
+                record.put("applicantName", applicant == null ? null : applicant.getFullName());
             }
             if (fields == null || fields.contains("applicantEmail")) {
-                record.put("applicantEmail", app.getApplicant().getEmail());
+                record.put("applicantEmail", applicant == null ? null : applicant.getEmail());
             }
             if (fields == null || fields.contains("jobTitle")) {
                 record.put("jobTitle", app.getJobTitle());
@@ -496,11 +551,16 @@ public class ApplicationManagementService {
             if (fields == null || fields.contains("department")) {
                 record.put("department", app.getDepartment());
             }
+            // Both the stored value and the label. The value keeps the file machine-readable; the
+            // label is what the person opening the spreadsheet needs, and saves them decoding
+            // INTERVIEW_SCHEDULED by eye.
             if (fields == null || fields.contains("status")) {
-                record.put("status", app.getStatus().name());
+                record.put("status", app.getStatus() == null ? null : app.getStatus().name());
+                record.put("statusLabel", app.getStatus() == null ? null : app.getStatus().getDisplayName());
             }
             if (fields == null || fields.contains("pipelineStage")) {
-                record.put("pipelineStage", app.getPipelineStage().name());
+                record.put("pipelineStage", app.getPipelineStage() == null ? null : app.getPipelineStage().name());
+                record.put("pipelineStageLabel", app.getPipelineStage() == null ? null : app.getPipelineStage().getDisplayName());
             }
             if (fields == null || fields.contains("rating")) {
                 record.put("rating", app.getRating());

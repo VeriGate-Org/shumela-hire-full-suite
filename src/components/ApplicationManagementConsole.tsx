@@ -110,9 +110,19 @@ export default function ApplicationManagementConsole() {
     averageRating: 0
   });
 
-  const [statusOptions, setStatusOptions] = useState<string[]>(['SUBMITTED', 'SCREENING', 'INTERVIEW_SCHEDULED', 'INTERVIEW_COMPLETED', 'REFERENCE_CHECK', 'OFFER_PENDING', 'OFFERED', 'OFFER_ACCEPTED', 'OFFER_DECLINED', 'REJECTED', 'WITHDRAWN', 'HIRED']);
-  const [departmentOptions, setDepartmentOptions] = useState<string[]>(['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations']);
-  const [stageOptions, setStageOptions] = useState<string[]>(['APPLICATION', 'SCREENING', 'INTERVIEW', 'TECHNICAL', 'FINAL', 'OFFER']);
+  /**
+   * Options now arrive as {value,label} from the API, which is also where their labels come from.
+   *
+   * The fallbacks below used to be the real list. Departments defaulted to Engineering/Sales/
+   * Marketing/HR/Finance/Operations and stages to APPLICATION/SCREENING/INTERVIEW/TECHNICAL/FINAL/
+   * OFFER — six stage values that do not exist in PipelineStage at all. Filters match on exact
+   * equality, so either fallback silently emptied the table. Starting empty is the honest state:
+   * a filter with no options reads as "not loaded", a filter full of fictional options reads as
+   * "no results".
+   */
+  const [statusOptions, setStatusOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [departmentOptions, setDepartmentOptions] = useState<string[]>([]);
+  const [stageOptions, setStageOptions] = useState<Array<{ value: string; label: string }>>([]);
 
   useEffect(() => {
     const fetchFilterOptions = async () => {
@@ -496,7 +506,7 @@ export default function ApplicationManagementConsole() {
                 className="w-full border border-border rounded-control px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
               >
                 {statusOptions.map(status => (
-                  <option key={status} value={status}>{formatEnumValue(status)}</option>
+                  <option key={status.value} value={status.value}>{status.label}</option>
                 ))}
               </select>
             </div>
@@ -671,7 +681,7 @@ export default function ApplicationManagementConsole() {
                   >
                     <option value="">Select Status</option>
                     {statusOptions.map(status => (
-                      <option key={status} value={status}>{formatEnumValue(status)}</option>
+                      <option key={status.value} value={status.value}>{status.label}</option>
                     ))}
                   </select>
                 )}
@@ -699,7 +709,7 @@ export default function ApplicationManagementConsole() {
                   >
                     <option value="">Select Stage</option>
                     {stageOptions.map(stage => (
-                      <option key={stage} value={stage}>{stage}</option>
+                      <option key={stage.value} value={stage.value}>{stage.label}</option>
                     ))}
                   </select>
                 )}

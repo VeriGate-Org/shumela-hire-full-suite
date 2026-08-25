@@ -300,10 +300,11 @@ public class ApplicationManagementController {
             @RequestParam(required = false) List<String> fields,
             @RequestParam(defaultValue = "json") String format) {
         try {
-            List<Long> longIds = applicationIds != null
-                ? applicationIds.stream().map(Long::valueOf).collect(java.util.stream.Collectors.toList())
-                : null;
-            var data = applicationManagementService.exportApplications(longIds, fields);
+            // Ids are UUID strings here, as they are everywhere in this system. This parsed them to
+            // Long first, which threw NumberFormatException on every real id and surfaced as
+            // "Export failed" — so exporting a selection could never work, only exporting
+            // everything. The service turned them straight back into strings anyway.
+            var data = applicationManagementService.exportApplications(applicationIds, fields);
 
             Map<String, Object> response = new HashMap<>();
             response.put("format", format);
@@ -326,30 +327,7 @@ public class ApplicationManagementController {
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getFilterOptions() {
         try {
-            Map<String, Object> options = new HashMap<>();
-
-            // Application statuses
-            options.put("statuses", ApplicationStatus.values());
-
-            // Pipeline stages
-            options.put("pipelineStages", PipelineStage.values());
-
-            // Common departments (this could be fetched from database)
-            options.put("departments", List.of(
-                "Engineering", "Marketing", "Sales", "HR", "Finance",
-                "Operations", "Product", "Customer Support", "Legal", "R&D"
-            ));
-
-            // Rating range
-            options.put("ratingRange", Map.of("min", 1, "max", 5));
-
-            // Sort fields
-            options.put("sortFields", List.of(
-                "submittedAt", "updatedAt", "rating", "jobTitle",
-                "department", "status", "applicant.name"
-            ));
-
-            return ResponseEntity.ok(options);
+            return ResponseEntity.ok(applicationManagementService.getFilterOptions());
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                 .body(new ErrorResponse("Failed to get filter options: " + e.getMessage()));
