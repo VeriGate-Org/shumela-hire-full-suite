@@ -291,11 +291,8 @@ public class JobAdService {
     @Transactional(readOnly = true)
     public Page<JobAdResponse> getPublishedInternalAds(Pageable pageable) {
         CursorPage<JobAd> cursorPage = jobAdRepository.findActiveInternalAdsPaged(
-            LocalDate.now(), null, pageable.getPageSize());
-        List<JobAdResponse> content = cursorPage.content().stream()
-            .map(JobAdResponse::fromEntity)
-            .toList();
-        return new PageImpl<>(content, pageable, content.size());
+            LocalDate.now(), pageable.getPageNumber(), pageable.getPageSize());
+        return toPage(cursorPage, pageable);
     }
 
     /**
@@ -313,11 +310,32 @@ public class JobAdService {
         }
 
         CursorPage<JobAd> cursorPage = jobAdRepository.findWithFilters(
-            status, channelInternal, channelExternal, query, null, pageable.getPageSize());
+            status, channelInternal, channelExternal, query,
+            pageable.getPageNumber(), pageable.getPageSize());
+        return toPage(cursorPage, pageable);
+    }
+
+    /**
+     * Turn a repository page into a {@link Page}, keeping the total the repository actually counted.
+     *
+     * <p>Both callers used to build {@code new PageImpl<>(content, pageable, content.size())}, which
+     * reported the size of the current page as the size of the whole result set — so a 20-row page
+     * of 300 ads claimed {@code totalElements = 20} and {@code totalPages = 1}. The repository had
+     * been returning the real count in {@link CursorPage#totalElements()} the whole time and it was
+     * being discarded.
+     *
+     * <p>Falls back to the page size only when the repository genuinely did not count, which is not
+     * a case any current implementation hits — it is here so a future one cannot silently produce a
+     * null total.
+     */
+    private static Page<JobAdResponse> toPage(CursorPage<JobAd> cursorPage, Pageable pageable) {
         List<JobAdResponse> content = cursorPage.content().stream()
             .map(JobAdResponse::fromEntity)
             .toList();
-        return new PageImpl<>(content, pageable, content.size());
+        long total = cursorPage.totalElements() != null
+            ? cursorPage.totalElements()
+            : pageable.getOffset() + content.size();
+        return new PageImpl<>(content, pageable, total);
     }
     
     /**

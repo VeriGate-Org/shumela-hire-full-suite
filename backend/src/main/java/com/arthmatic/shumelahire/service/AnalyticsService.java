@@ -680,6 +680,11 @@ public class AnalyticsService {
             hiringManagerId != null ? hiringManagerId : null,
             startDate, endDate,
             pageable.getPageNumber(), pageable.getPageSize());
-        return new PageImpl<>(result.content(), pageable, result.content().size());
+        // The repository counts the whole filtered set and returns it; using result.content().size()
+        // instead reported one page as the entire result, collapsing totalPages to 1.
+        long total = result.totalElements() != null
+            ? result.totalElements()
+            : pageable.getOffset() + result.content().size();
+        return new PageImpl<>(result.content(), pageable, total);
     }
 }
