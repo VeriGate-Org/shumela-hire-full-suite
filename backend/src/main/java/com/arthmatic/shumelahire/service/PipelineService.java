@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.dto.PipelineAnalyticsResponse;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.BackgroundCheckDataRepository;
 import com.arthmatic.shumelahire.repository.PipelineTransitionDataRepository;
@@ -194,75 +195,34 @@ public class PipelineService {
     }
 
     // Analytics and reporting
-    public Map<String, Object> getPipelineAnalytics(LocalDateTime startDate, LocalDateTime endDate) {
-        Map<String, Object> analytics = new HashMap<>();
+    /**
+     * The largest window of transitions any analytics call will read at once.
+     *
+     * <p>The board and the dashboard both look at a quarter. A cap is here because this is a single
+     * indexed read rather than a paged one, and an unbounded range on a busy tenant is a slow query
+     * dressed as an analytics feature.
+     */
+    public static final int MAX_ANALYTICS_TRANSITIONS = 20_000;
 
-        // Funnel data
-        List<Object[]> funnelData = pipelineTransitionRepository.getPipelineFunnelData(startDate, endDate);
-        Map<String, Long> funnel = new LinkedHashMap<>();
-        for (Object[] row : funnelData) {
-            PipelineStage stage = (PipelineStage) row[0];
-            Long count = (Long) row[1];
-            funnel.put(stage.getDisplayName(), count);
-        }
-        analytics.put("funnel", funnel);
-
-        // Stage durations
-        List<Object[]> durationData = pipelineTransitionRepository.getAverageStageDurations(startDate, endDate);
-        Map<String, Double> averageDurations = new HashMap<>();
-        for (Object[] row : durationData) {
-            PipelineStage stage = (PipelineStage) row[0];
-            Double avgHours = (Double) row[1];
-            averageDurations.put(stage.getDisplayName(), avgHours);
-        }
-        analytics.put("averageStageDurations", averageDurations);
-
-        // Conversion rates
-        List<Object[]> conversionData = pipelineTransitionRepository.getStageConversionRates(startDate, endDate);
-        Map<String, Map<String, Long>> conversions = new HashMap<>();
-        for (Object[] row : conversionData) {
-            PipelineStage fromStage = (PipelineStage) row[0];
-            PipelineStage toStage = (PipelineStage) row[1];
-            Long count = (Long) row[2];
-            
-            conversions.computeIfAbsent(fromStage.getDisplayName(), k -> new HashMap<>())
-                      .put(toStage.getDisplayName(), count);
-        }
-        analytics.put("conversions", conversions);
-
-        // Success rates
-        List<Object[]> successData = pipelineTransitionRepository.getSuccessRatesByStage(startDate, endDate);
-        Map<String, Double> successRates = new HashMap<>();
-        for (Object[] row : successData) {
-            PipelineStage stage = (PipelineStage) row[0];
-            Long successful = (Long) row[1];
-            Long total = (Long) row[2];
-            double rate = total > 0 ? (successful.doubleValue() / total.doubleValue()) * 100 : 0.0;
-            successRates.put(stage.getDisplayName(), rate);
-        }
-        analytics.put("successRates", successRates);
-
-        // Transition velocity
-        List<Object[]> velocityData = pipelineTransitionRepository.getTransitionVelocity(startDate, endDate);
-        Map<String, Long> velocity = new LinkedHashMap<>();
-        for (Object[] row : velocityData) {
-            String date = row[0].toString();
-            Long count = (Long) row[1];
-            velocity.put(date, count);
-        }
-        analytics.put("velocity", velocity);
-
-        // Automation statistics
-        List<Object[]> automationData = pipelineTransitionRepository.getAutomationStatistics(startDate, endDate);
-        Map<String, Long> automation = new HashMap<>();
-        for (Object[] row : automationData) {
-            Boolean automated = (Boolean) row[0];
-            Long count = (Long) row[1];
-            automation.put(automated ? "Automated" : "Manual", count);
-        }
-        analytics.put("automation", automation);
-
-        return analytics;
+    /**
+     * What the pipeline is doing, over a window.
+     *
+     * <p><b>Rewritten because none of this ran.</b> The previous implementation called eight
+     * repository methods returning {@code List<Object[]>}, and the only implementation of every one
+     * of them throws {@code UnsupportedOperationException("Analytics queries will be migrated to
+     * Athena")}. There is no JPA implementation — the interface names one in a comment, and no such
+     * class exists anywhere in the backend. So {@code GET /api/pipeline/analytics} returned a 500
+     * on every call, which is why the recruiter dashboard has been rendering a page of zeroes: it
+     * reads the result inside an {@code if (ok)} with no else branch.
+     *
+     * <p>Now: one indexed read of the transitions in the window, and the aggregates computed in
+     * Java by {@link PipelineAnalyticsResponse}. Slower than a database aggregate and enormously
+     * faster than a query that throws.
+     */
+    public PipelineAnalyticsResponse getPipelineAnalytics(LocalDateTime startDate, LocalDateTime endDate) {
+        List<PipelineTransition> transitions = pipelineTransitionRepository
+                .findTransitionsByDateRange(startDate, endDate, MAX_ANALYTICS_TRANSITIONS);
+        return PipelineAnalyticsResponse.from(transitions);
     }
 
     public Map<String, Object> getBottleneckAnalysis(int thresholdDays, LocalDateTime startDate, 
@@ -440,9 +400,18 @@ public class PipelineService {
         return result;
     }
 
-    public List<PipelineTransition> getRegressionAnalysis(LocalDateTime startDate, LocalDateTime endDate) {
-        return pipelineTransitionRepository.findRegressions(startDate, endDate);
+    /**
+     * Moves to an earlier stage in the window.
+     *
+     * <p>Derived from the transitions rather than asked of {@code findRegressions}, which throws.
+     * A candidate returned from Checks to Interviews is a different situation from one who arrived
+     * there normally, and the board showed them identically.
+     */
+    public List<PipelineAnalyticsResponse.Regression> getRegressionAnalysis(LocalDateTime startDate,
+                                                                            LocalDateTime endDate) {
+        return getPipelineAnalytics(startDate, endDate).getRegressions();
     }
+
 
     private void enforceBackgroundCheckCompletion(Application application) {
         // Resolve rather than read the relation directly: on DynamoDB (the serverless/production
