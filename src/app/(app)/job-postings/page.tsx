@@ -16,7 +16,6 @@ import { useToast } from '@/components/Toast';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
-import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
 import DistributionStrip from '@/components/record/DistributionStrip';
 import FilterChips from '@/components/record/FilterChips';
@@ -498,32 +497,6 @@ export default function JobPostingsPage() {
               </div>
             )}
 
-            <IdentityBand
-              eyebrow="Advert queue"
-              title="Job Postings"
-              subtitle={
-                summary
-                  ? `${summary.total} ${summary.total === 1 ? 'advert' : 'adverts'} · ${
-                      summary.applicationsReceived
-                    } applications received`
-                  : 'Counts unavailable'
-              }
-              figures={
-                summary
-                  ? [
-                      { label: 'Open to applicants', value: summary.openToApplicants },
-                      { label: 'Awaiting approval', value: summary.awaitingApproval },
-                      {
-                        label: 'Past deadline',
-                        value: summary.pastDeadline,
-                        tone: (summary.pastDeadline > 0 ? 'critical' : undefined) as
-                          | 'critical'
-                          | undefined,
-                      },
-                    ]
-                  : []
-              }
-            />
 
             {summary && summary.pastDeadline > 0 && (
               <DecisionBar
