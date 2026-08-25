@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/api-fetch';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
 import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics, CandidatePipeline } from '../../dashboard';
-import { ApplicationVolumeChart } from '../../charts';
 import EmptyState from '@/components/EmptyState';
 import { BriefcaseIcon, CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
@@ -44,15 +45,6 @@ interface PipelineStage {
   name: string;
   color: string;
   candidates: PipelineCandidate[];
-}
-
-interface VolumeDataPoint {
-  date: string;
-  applications: number;
-  interviews: number;
-  offers: number;
-  hires: number;
-  [key: string]: unknown;
 }
 
 const defaultMetrics: MetricItem[] = [
@@ -229,13 +221,15 @@ function transformApplicationsToPipeline(applications: any[]): PipelineStage[] {
   ];
 }
 
-export default function HiringManagerDashboard({ selectedTimeframe }: HiringManagerDashboardProps) {
+// selectedTimeframe is still in the props so RoleDashboard's call site is unchanged, but it is
+// deliberately unused: /api/analytics/dashboard accepts only department and date, so passing it
+// re-fetched identical data. Making it real is a backend change with its own gate.
+export default function HiringManagerDashboard(_props: HiringManagerDashboardProps) {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [metrics, setMetrics] = useState<MetricItem[]>(defaultMetrics);
   const [totalApplications, setTotalApplications] = useState<number | undefined>(undefined);
   const [pipelineStages, setPipelineStages] = useState<PipelineStage[]>([]);
-  const [applicationVolumeData, setApplicationVolumeData] = useState<VolumeDataPoint[]>([]);
   const [openPositions, setOpenPositions] = useState<any[]>([]);
   const [upcomingInterviews, setUpcomingInterviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -248,7 +242,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
     setError(null);
 
     const [dashboardResult, applicationsResult, positionsResult, interviewsResult] = await Promise.allSettled([
-      apiFetch(`/api/analytics/dashboard?role=HIRING_MANAGER&timeframe=${selectedTimeframe}`),
+      apiFetch('/api/analytics/dashboard'),
       // size=50 against a tenant with 92 applications meant the widget silently showed just over
       // half of them and labelled the result a total. The endpoint returns totalElements, which
       // is used below to say so honestly when a cap is still in play.
@@ -283,9 +277,6 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
           if (kpiMetrics.length > 0) setMetrics(kpiMetrics);
         }
 
-        if (Array.isArray(data?.applicationVolume) && data.applicationVolume.length > 0) {
-          setApplicationVolumeData(data.applicationVolume);
-        }
       } catch {
         // Keep defaults on parse error
       }
@@ -337,7 +328,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
     }
 
     setLoading(false);
-  }, [selectedTimeframe]);
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -372,13 +363,13 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
   if (loading) {
     return (
       <div className="space-y-6 max-w-full overflow-hidden">
-        <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
+        <div className="bg-card rounded-control border border-border border-t-2 border-t-gold-500 p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
+            <div className="h-3 bg-muted rounded w-1/2"></div>
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="h-20 bg-gray-200 rounded"></div>
-              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="h-20 bg-muted rounded"></div>
+              <div className="h-20 bg-muted rounded"></div>
             </div>
           </div>
         </div>
@@ -386,14 +377,58 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
     );
   }
 
+  const owedToYou = (upcomingInterviews?.length ?? 0) + (openPositions?.length ?? 0);
+
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
+    <div className="space-y-4 max-w-full overflow-hidden">
+      <IdentityBand
+        eyebrow="Your vacancies"
+        title="Hiring Manager"
+        subtitle={
+          typeof totalApplications === 'number'
+            ? `${openPositions.length} ${openPositions.length === 1 ? 'role' : 'roles'} open · ${totalApplications} ${totalApplications === 1 ? 'candidate' : 'candidates'} in play`
+            : loading
+              ? 'Loading your vacancies…'
+              : 'Counts unavailable'
+        }
+        figures={[
+          { label: 'Open roles', value: openPositions.length },
+          {
+            label: 'Interviews booked',
+            value: upcomingInterviews.length,
+            tone: (upcomingInterviews.length > 0 ? 'warning' : undefined) as 'warning' | undefined,
+          },
+        ]}
+      />
+
+      {!loading && (
+        owedToYou > 0 ? (
+          <DecisionBar
+            ask={`${upcomingInterviews.length} ${upcomingInterviews.length === 1 ? 'interview is' : 'interviews are'} coming up.`}
+            why={`Across ${openPositions.length} open ${openPositions.length === 1 ? 'role' : 'roles'}. Candidates cannot advance until you record a decision.`}
+            tone="owed"
+          >
+            <PrimaryAction onClick={() => (window.location.href = '/pipeline')}>
+              Open pipeline
+            </PrimaryAction>
+            <SecondaryAction onClick={() => (window.location.href = '/interviews')}>
+              My interviews
+            </SecondaryAction>
+          </DecisionBar>
+        ) : (
+          <DecisionBar
+            ask="Nothing is waiting on you."
+            why="No open roles carry an outstanding decision."
+            tone="settled"
+          />
+        )
+      )}
       {/* Real-Time Hiring Metrics */}
       {!isMounted ? (
-        <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
+        <div className="bg-card rounded-control border border-border border-t-2 border-t-gold-500 p-6">
           <div className="animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
+            <div className="h-3 bg-muted rounded w-1/2"></div>
           </div>
         </div>
       ) : (
@@ -428,7 +463,6 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
           metrics={metrics}
           title="Hiring Performance Indicators"
           subtitle="Track your team's hiring effectiveness"
-          timeframe={selectedTimeframe}
         />
       </div>
 
@@ -448,10 +482,10 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
                 {openPositions
                   .slice(positionsPage * POSITIONS_PAGE_SIZE, (positionsPage + 1) * POSITIONS_PAGE_SIZE)
                   .map((position: any) => (
-                  <div key={position.id || position.title} className="flex items-center justify-between p-3 bg-gray-50 rounded-control">
+                  <div key={position.id || position.title} className="flex items-center justify-between p-3 bg-muted rounded-control">
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{position.title || position.role}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="font-medium text-foreground truncate">{position.title || position.role}</p>
+                      <p className="text-sm text-muted-foreground">
                         {position.applicationCount ?? position.applications ?? 0} applications
                       </p>
                     </div>
@@ -459,7 +493,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         position.status === 'PUBLISHED' || position.status === 'Active'
                           ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
+                          : 'bg-muted text-foreground'
                       }`}>
                         {position.status === 'PUBLISHED' ? 'Active' : (position.status || 'Active')}
                       </span>
@@ -471,24 +505,24 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
                   const rangeStart = positionsPage * POSITIONS_PAGE_SIZE + 1;
                   const rangeEnd = Math.min((positionsPage + 1) * POSITIONS_PAGE_SIZE, openPositions.length);
                   return (
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                      <span className="text-xs text-gray-500">
+                    <div className="flex items-center justify-between pt-3 border-t border-border">
+                      <span className="text-xs text-muted-foreground">
                         {rangeStart}–{rangeEnd} of {openPositions.length}
                       </span>
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => setPositionsPage(p => p - 1)}
                           disabled={positionsPage === 0}
-                          className="p-1 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
                         >
-                          <ChevronLeftIcon className="w-4 h-4 text-gray-600" />
+                          <ChevronLeftIcon className="w-4 h-4 text-muted-foreground" />
                         </button>
                         <button
                           onClick={() => setPositionsPage(p => p + 1)}
                           disabled={positionsPage >= totalPages - 1}
-                          className="p-1 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
                         >
-                          <ChevronRightIcon className="w-4 h-4 text-gray-600" />
+                          <ChevronRightIcon className="w-4 h-4 text-muted-foreground" />
                         </button>
                       </div>
                     </div>
@@ -506,30 +540,6 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
           </DashboardWidget>
         </div>
 
-        {/* Application Volume */}
-        <div className="min-w-0 overflow-hidden">
-          <DashboardWidget
-            id="application-volume"
-            title="Application Volume Trends"
-            subtitle="Daily application submissions over time"
-            refreshable={true}
-            size="medium"
-          >
-            <div className="w-full h-64 overflow-hidden">
-              {applicationVolumeData.length > 0 ? (
-                <ApplicationVolumeChart
-                  data={applicationVolumeData.slice(-30)}
-                  timeframe="month"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">
-                  No volume data available
-                </div>
-              )}
-            </div>
-          </DashboardWidget>
-        </div>
-
         {/* Today's Interviews */}
         <div className="min-w-0 overflow-hidden">
           <DashboardWidget
@@ -542,16 +552,16 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
             {upcomingInterviews.length > 0 ? (
               <div className="space-y-3">
                 {upcomingInterviews.map((interview: any) => (
-                  <div key={interview.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-control">
+                  <div key={interview.id} className="flex items-start gap-3 p-3 hover:bg-muted rounded-control">
                     <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0 bg-gold-500"></div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {interview.candidateName || interview.candidate}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {interview.jobTitle || interview.position}
                       </p>
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         {interview.scheduledAt
                           ? new Date(interview.scheduledAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })
                           : interview.time}

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
 import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics } from '../../dashboard';
 
@@ -98,6 +100,12 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Whole-set posting counts from GET /api/job-postings/summary. Separate from the paged read
+  // below, which exists only because the summary carries no per-department split — counting the
+  // page and calling it a total is the defect this pairing avoids.
+  const [postingSummary, setPostingSummary] = useState<{
+    total: number; openToApplicants: number; pastDeadline: number; awaitingApproval: number;
+  } | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
@@ -109,9 +117,10 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
       const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       // Fetch dashboard metrics and job posting data in parallel
-      const [dashboardRes, jobPostingsRes, applicationsRes] = await Promise.allSettled([
+      const [dashboardRes, jobPostingsRes, applicationsRes, postingSummaryRes] = await Promise.allSettled([
         apiFetch(`/api/analytics/dashboard?date=${endDate}`),
         apiFetch('/api/job-postings?size=200'),
+        apiFetch('/api/job-postings/summary'),
         apiFetch(`/api/applications?size=1&startDate=${startDate}&endDate=${endDate}`),
       ]);
 
@@ -123,6 +132,13 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
         setError('Unable to connect to the server. Please try again later.');
         setLoading(false);
         return;
+      }
+
+      if (postingSummaryRes.status === 'fulfilled' && postingSummaryRes.value.ok) {
+        const payload = await postingSummaryRes.value.json();
+        // Guarded: an error body is an object too, and reading .total off it would render a
+        // confident zero.
+        setPostingSummary(typeof payload?.total === 'number' ? payload : null);
       }
 
       // Map KPIs to MetricItem format
@@ -190,6 +206,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
             .map(([department, counts]) => ({ department, ...counts }))
             .sort((a, b) => (b.open + b.inProgress) - (a.open + a.inProgress))
             .slice(0, 6);
+          // Derived from the first 200 postings, not every one — see the footnote on the card.
 
           if (pipelineData.length > 0) {
             setPipeline(pipelineData);
@@ -240,7 +257,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
                 type: log.action || 'unknown',
                 message: log.details || `${log.action} on ${log.entityType}`,
                 time: log.timestamp ? formatRelativeTime(log.timestamp) : 'Recently',
-                color: colorMap[log.action?.toUpperCase()] || 'text-gray-600',
+                color: colorMap[log.action?.toUpperCase()] || 'text-muted-foreground',
               })),
             );
           }
@@ -262,13 +279,13 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
   if (loading) {
     return (
       <div className="space-y-6 max-w-full overflow-hidden">
-        <div className="bg-white dark:bg-charcoal rounded-[2px] border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-card dark:bg-charcoal rounded-[2px] border border-border p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+            <div className="h-4 bg-muted rounded w-1/4" />
+            <div className="h-3 bg-muted rounded w-1/2" />
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded" />
-              <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded" />
+              <div className="h-20 bg-muted rounded" />
+              <div className="h-20 bg-muted rounded" />
             </div>
           </div>
         </div>
@@ -304,12 +321,12 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
   if (isEmpty) {
     return (
       <div className="space-y-6 max-w-full overflow-hidden">
-        <div className="bg-white dark:bg-charcoal rounded-[2px] border border-gray-200 dark:border-gray-700 p-8 text-center">
-          <svg className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-card dark:bg-charcoal rounded-[2px] border border-border p-8 text-center">
+          <svg className="w-16 h-16 text-muted-foreground mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Welcome to ShumelaHire</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto">
+          <h3 className="text-lg font-semibold text-foreground">Welcome to ShumelaHire</h3>
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-2 max-w-md mx-auto">
             Your HR dashboard will populate once employees, job postings, and leave data are configured.
             Get started by adding employees or creating job postings.
           </p>
@@ -319,7 +336,51 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
   }
 
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
+    <div className="space-y-4 max-w-full overflow-hidden">
+      <IdentityBand
+        eyebrow="People operations"
+        title="HR"
+        subtitle={
+          postingSummary
+            ? `${postingSummary.total} ${postingSummary.total === 1 ? 'posting' : 'postings'} · ${postingSummary.openToApplicants} open to applicants`
+            : loading
+              ? 'Loading…'
+              : 'Counts unavailable'
+        }
+        figures={
+          postingSummary
+            ? [
+                { label: 'Open to applicants', value: postingSummary.openToApplicants },
+                ...(postingSummary.awaitingApproval > 0
+                  ? [{ label: 'Awaiting approval', value: postingSummary.awaitingApproval, tone: 'warning' as const }]
+                  : []),
+                ...(postingSummary.pastDeadline > 0
+                  ? [{ label: 'Past deadline', value: postingSummary.pastDeadline, tone: 'critical' as const }]
+                  : []),
+              ]
+            : []
+        }
+      />
+
+      {!loading && postingSummary && (
+        postingSummary.pastDeadline > 0 ? (
+          <DecisionBar
+            ask={`${postingSummary.pastDeadline} ${postingSummary.pastDeadline === 1 ? 'advert is' : 'adverts are'} past their closing date.`}
+            why="They are still visible to candidates until the nightly expiry job runs, or somebody closes them."
+            tone="owed"
+          >
+            <PrimaryAction onClick={() => (window.location.href = '/job-postings')}>
+              Review adverts
+            </PrimaryAction>
+          </DecisionBar>
+        ) : (
+          <DecisionBar
+            ask="No adverts are past their closing date."
+            why="Every published posting is still inside its window."
+            tone="settled"
+          />
+        )
+      )}
       {/* Real-Time HR Metrics */}
       <div className="w-full overflow-hidden">
         <RealTimeMetrics updateInterval={5000} />
@@ -355,8 +416,8 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
                 <div className="space-y-4">
                   {pipeline.length > 0 ? (
                     pipeline.map((dept) => (
-                      <div key={dept.department} className="flex items-center justify-between p-3 bg-off-white dark:bg-gray-800/50 rounded-[2px]">
-                        <span className="font-medium text-gray-900 dark:text-gray-100">{dept.department}</span>
+                      <div key={dept.department} className="flex items-center justify-between p-3 bg-off-white/50 rounded-[2px]">
+                        <span className="font-medium text-foreground">{dept.department}</span>
                         <div className="flex items-center gap-4 text-sm">
                           <span className="text-orange-600">{dept.open} open</span>
                           <span className="text-primary">{dept.inProgress} active</span>
@@ -365,7 +426,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">No job posting data available</p>
+                    <p className="text-sm text-muted-foreground dark:text-muted-foreground text-center py-4">No job posting data available</p>
                   )}
                 </div>
               </DashboardWidget>
@@ -383,15 +444,15 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
                 <div className="space-y-4">
                   {lifecycle.length > 0 ? (
                     lifecycle.map((item) => (
-                      <div key={item.stage} className="flex items-center justify-between p-3 bg-off-white dark:bg-gray-800/50 rounded-[2px]">
-                        <span className="font-medium text-gray-900 dark:text-gray-100">{item.stage}</span>
+                      <div key={item.stage} className="flex items-center justify-between p-3 bg-off-white/50 rounded-[2px]">
+                        <span className="font-medium text-foreground">{item.stage}</span>
                         <span className={`px-2 py-1 rounded-[2px] text-sm font-medium ${item.color}`}>
                           {item.count}
                         </span>
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">No lifecycle data available</p>
+                    <p className="text-sm text-muted-foreground dark:text-muted-foreground text-center py-4">No lifecycle data available</p>
                   )}
                 </div>
               </DashboardWidget>
@@ -414,16 +475,16 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {activities.length > 0 ? (
                   activities.map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-off-white dark:hover:bg-gray-800/50 rounded-[2px]">
+                    <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-off-white dark:hover:bg-card/50 rounded-[2px]">
                       <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${activity.color.replace('text-', 'bg-')}`} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-900 dark:text-gray-100 truncate">{activity.message}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{activity.time}</p>
+                        <p className="text-sm text-foreground truncate">{activity.message}</p>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-1">{activity.time}</p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">No recent activities</p>
+                  <p className="text-sm text-muted-foreground dark:text-muted-foreground text-center py-4">No recent activities</p>
                 )}
               </div>
             </DashboardWidget>
