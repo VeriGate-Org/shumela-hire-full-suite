@@ -60,6 +60,10 @@
   /* IDC CTA & Accent */
   --cta: #F1C54B;
   --cta-foreground: #032E49;
+  /* CTA ink where there is NO gold fill behind it — an outline button at rest sits on the page,
+     not on --cta, so --cta-foreground is the wrong token there. On a white card the navy reads
+     well and the gold would not, so light mode keeps the navy. */
+  --cta-on-surface: #032E49;
   --cta-hover: #D4A832;
   --cta-border: #F1C54B;
   --link: #0693E3;
@@ -160,6 +164,8 @@
 
   --cta: #F1C54B;
   --cta-foreground: #0F172A;
+  /* Gold, matching the border: on a dark card the navy ink above is invisible. */
+  --cta-on-surface: #F1C54B;
   --cta-hover: #D4A832;
   --cta-border: #F1C54B;
   --link: #60A5FA;
@@ -351,7 +357,9 @@
   /* IDC Button — Gold outline pill CTA */
   .btn-primary {
     background: transparent;
-    color: var(--cta-foreground);
+    /* Not --cta-foreground: that is the ink for sitting ON the gold, and it only becomes correct
+       on :hover below, once the fill is actually there. */
+    color: var(--cta-on-surface);
     border: 2px solid var(--cta);
     border-radius: var(--radius-button);
     padding: 0.5rem 1.25rem;

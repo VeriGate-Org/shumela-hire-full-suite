@@ -126,6 +126,7 @@ const config: Config = {
       ring: 'var(--ring)',
       cta: 'var(--cta)',
       'cta-foreground': 'var(--cta-foreground)',
+      'cta-on-surface': 'var(--cta-on-surface)',
       'cta-hover': 'var(--cta-hover)',
       'cta-border': 'var(--cta-border)',
       link: 'var(--link)',
