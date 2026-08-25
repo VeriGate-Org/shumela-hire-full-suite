@@ -1,9 +1,12 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.dto.BoardCardResponse;
 import com.arthmatic.shumelahire.dto.PipelineAnalyticsResponse;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.BackgroundCheckDataRepository;
 import com.arthmatic.shumelahire.repository.PipelineTransitionDataRepository;
+import com.arthmatic.shumelahire.repository.OfferDataRepository;
+import com.arthmatic.shumelahire.repository.InterviewDataRepository;
 import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +30,12 @@ public class PipelineService {
 
     @Autowired
     private BackgroundCheckDataRepository backgroundCheckRepository;
+
+    @Autowired
+    private OfferDataRepository offerRepository;
+
+    @Autowired
+    private InterviewDataRepository interviewRepository;
 
     @Autowired
     private ApplicationJobPostingResolver jobPostingResolver;
@@ -335,6 +344,64 @@ public class PipelineService {
     }
 
     // Utility methods
+    /**
+     * The largest batch {@link #getBoardCards} will accept.
+     *
+     * <p>A pipeline column holds tens, not thousands. Rejecting an over-long request rather than
+     * truncating it, because a partial board that looks complete is worse than an error.
+     */
+    public static final int MAX_BOARD_CARDS = 200;
+
+    /**
+     * Card decoration for several applications at once, keyed by application id.
+     *
+     * <p><b>Replaces one HTTP request per card, twice over.</b> The board looped
+     * {@code apiFetch('/api/offers/applications/' + id)} and the same for interviews, so a
+     * hundred-candidate board issued two hundred requests on load. This is one.
+     *
+     * <p>It carries the legal moves as well, which the board had been computing in the browser by
+     * walking its own stage array by index.
+     *
+     * @throws IllegalArgumentException if more than {@link #MAX_BOARD_CARDS} ids are requested
+     */
+    public Map<String, BoardCardResponse> getBoardCards(List<String> applicationIds) {
+        if (applicationIds == null || applicationIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<String> distinctIds = applicationIds.stream()
+                .filter(id -> id != null && !id.isBlank())
+                .distinct()
+                .toList();
+
+        if (distinctIds.size() > MAX_BOARD_CARDS) {
+            throw new IllegalArgumentException(
+                    "Too many application ids: " + distinctIds.size() + ", maximum is " + MAX_BOARD_CARDS);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        Map<String, BoardCardResponse> cards = new LinkedHashMap<>();
+
+        for (String applicationId : distinctIds) {
+            List<PipelineStage> transitions;
+            try {
+                transitions = getAvailableTransitions(applicationId);
+            } catch (IllegalArgumentException e) {
+                // The application does not exist. Dropped rather than returned with an empty move
+                // list, so the caller can tell "nowhere to go" from "no such application".
+                continue;
+            }
+
+            cards.put(applicationId, BoardCardResponse.from(
+                    transitions,
+                    offerRepository.findByApplicationId(applicationId),
+                    interviewRepository.findByApplicationId(applicationId),
+                    now));
+        }
+
+        return cards;
+    }
+
     public List<PipelineStage> getAvailableTransitions(String applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
