@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import ApplicationStatusTracker from '@/components/ApplicationStatusTracker';
 import EmptyState from '@/components/EmptyState';
@@ -27,6 +26,10 @@ import {
 } from './queue';
 import { useToast } from '@/components/Toast';
 import ShortlistButton from '@/components/ShortlistButton';
+import BulkActionBar, { BulkSelect, BulkButton } from '@/components/record/BulkActionBar';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSearchParams } from 'next/navigation';
 import {
   MagnifyingGlassIcon,
   DocumentTextIcon,
@@ -79,10 +82,10 @@ interface Application {
  * "no applications" rather than "wrong filter". A control that cannot match anything is worse than
  * an absent one, because it looks like an answer.
  *
- * Deriving from the loaded page is a floor, not the finished job: it can only offer departments
- * present in the current page of results. The management console already has a proper
- * `/api/applications/manage/filter-options` endpoint and this page should use it when it is
- * rebuilt.
+ * Departments now come from `/api/applications/summary`, which derives them from the applications
+ * themselves. An earlier note here pointed at `/api/applications/manage/filter-options` as "a
+ * proper endpoint" to adopt instead — it was not: it returned the same ten literals this page had
+ * already removed for matching nothing, and adopting it would have reintroduced the bug.
  */
 
 // Pipeline stage definitions matching the mock
@@ -149,7 +152,21 @@ const PAGE_SIZE = 20;
 
 export default function ApplicationsPage() {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const searchParams = useSearchParams();
   const [advancing, setAdvancing] = useState(false);
+
+  // Bulk work is a state of this list, not a separate console. Selection is held by id rather than
+  // by row so it survives re-sorting and refreshes within a page.
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkConfirm, setBulkConfirm] = useState<
+    { kind: 'status' | 'stage' | 'rating'; value: string; label: string } | null
+  >(null);
+  const [options, setOptions] = useState<{
+    statuses: Array<{ value: string; label: string }>;
+    pipelineStages: Array<{ value: string; label: string }>;
+  }>({ statuses: [], pipelineStages: [] });
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -299,6 +316,136 @@ export default function ApplicationsPage() {
     }
   };
 
+  /*
+   * Which bulk actions this person may use.
+   *
+   * The endpoints do not all admit the same roles: bulk status and stage are ADMIN/HR_MANAGER,
+   * rating also admits RECRUITER, export is ADMIN/HR_MANAGER. A recruiter — who lives on this
+   * screen — may only rate, and a hiring manager may do none of it. Offering all four to everyone
+   * would put three controls in front of a recruiter that answer 403.
+   */
+  const role = user?.role;
+  const canBulkStatusOrStage = role === 'ADMIN' || role === 'HR_MANAGER';
+  const canBulkRate = canBulkStatusOrStage || role === 'RECRUITER';
+  const canExport = canBulkStatusOrStage;
+
+  useEffect(() => {
+    // Only for the bulk selects' options; the department filter is served by the summary endpoint,
+    // which already derives real departments from the applications themselves.
+    if (!canBulkStatusOrStage) return;
+    apiFetch('/api/applications/manage/filter-options')
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (!data) return;
+        setOptions({
+          statuses: Array.isArray(data.statuses) ? data.statuses : [],
+          pipelineStages: Array.isArray(data.pipelineStages) ? data.pipelineStages : [],
+        });
+      })
+      .catch(() => {});
+  }, [canBulkStatusOrStage]);
+
+  // Honoured so a deep link can name a candidate. The hiring manager dashboard sends one when
+  // you click someone in its pipeline list; without this the link lands on an unfiltered queue and
+  // the candidate you asked for is somewhere in the pages below.
+  useEffect(() => {
+    const initial = searchParams.get('search');
+    if (initial) {
+      setSearchTerm(initial);
+      loadApplications(0, initial, statusesFor(activeFilter), departmentFilter);
+    }
+    // Deliberately once, on mount: re-running would fight the user's own typing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const runBulk = async () => {
+    if (!bulkConfirm) return;
+    const { kind, value } = bulkConfirm;
+    const ids = Array.from(selectedIds);
+    setBulkConfirm(null);
+    setBulkBusy(true);
+
+    const endpoint =
+      kind === 'status' ? '/api/applications/manage/bulk/status'
+      : kind === 'stage' ? '/api/applications/manage/bulk/pipeline-stage'
+      : '/api/applications/manage/bulk/rating';
+
+    const body: Record<string, unknown> = { applicationIds: ids };
+    if (kind === 'status') body.status = value;
+    if (kind === 'stage') body.pipelineStage = value;
+    if (kind === 'rating') {
+      body.ratings = Object.fromEntries(ids.map(id => [id, Number(value)]));
+    }
+
+    try {
+      const response = await apiFetch(endpoint, { method: 'PUT', body: JSON.stringify(body) });
+      if (!response.ok) throw new Error(await refusalMessage(response));
+
+      // Bulk is many decisions, not one. The server moves who it can and refuses who it cannot, so
+      // reporting ids.length would claim a clean sweep while a candidate sat unchanged.
+      const result = await response.json().catch(() => null);
+      const refused: string[] = Array.isArray(result?.errors) ? result.errors : [];
+      const changed: number =
+        typeof result?.updatedCount === 'number' ? result.updatedCount
+        : Array.isArray(result?.updatedIds) ? result.updatedIds.length
+        : ids.length;
+
+      if (refused.length > 0) {
+        toast(
+          `Updated ${changed} of ${ids.length}. ${refused.length} refused: ${refused.slice(0, 2).join(' · ')}`,
+          changed > 0 ? 'info' : 'error',
+        );
+      } else {
+        toast(`Updated ${changed} application${changed === 1 ? '' : 's'}`, 'success');
+      }
+
+      clearSelection();
+      loadApplications(currentPage, searchTerm, statusesFor(activeFilter), departmentFilter);
+      loadSummary();
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Bulk update failed', 'error');
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  /**
+   * The API exports either the ids you name, or every application there is. It has no notion of
+   * "the current filter", so neither does this: `runExport(ids)` is the selection and
+   * `runExport()` is genuinely everything. Calling the latter "export queue" would misdescribe a
+   * file that ignores the filters on screen.
+   */
+  const runExport = async (ids?: string[]) => {
+    setBulkBusy(true);
+    try {
+      const params = new URLSearchParams();
+      (ids ?? []).forEach(id => params.append('applicationIds', id));
+      const response = await apiFetch(`/api/applications/manage/export?${params.toString()}`);
+      if (!response.ok) throw new Error(await refusalMessage(response));
+
+      const payload = await response.json();
+      const blob = new Blob([JSON.stringify(payload.data ?? payload, null, 2)], {
+        type: 'application/json',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = ids ? `applications-${ids.length}.json` : 'applications-all.json';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+
+      toast(`Exported ${payload.recordCount ?? (ids?.length ?? 0)} application(s)`, 'success');
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Export failed', 'error');
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
   const handleWithdraw = async (applicationId: string, reason: string) => {
     try {
       const response = await apiFetch(`/api/applications/${applicationId}/withdraw`, {
@@ -325,12 +472,17 @@ export default function ApplicationsPage() {
         <ArrowPathIcon className="w-4 h-4 mr-1.5" />
         Refresh
       </button>
-      <Link
-        href="/applications/manage"
-        className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
-      >
-        Advanced Management
-      </Link>
+      {/* Was "Advanced Management", pointing at a separate console. Bulk work now happens here,
+          on the rows you have already filtered, so the link had nowhere left to go. */}
+      {canExport && (
+        <button
+          onClick={() => runExport()}
+          disabled={bulkBusy}
+          className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider disabled:opacity-50"
+        >
+          {bulkBusy ? 'Working...' : 'Export all'}
+        </button>
+      )}
     </div>
   );
 
@@ -412,9 +564,9 @@ export default function ApplicationsPage() {
               .join(' ')}
           >
             <PrimaryAction onClick={() => applyFilter('unscreened')}>Screen oldest first</PrimaryAction>
-            <Link href="/applications/manage">
-              <SecondaryAction>Advanced management</SecondaryAction>
-            </Link>
+            {canExport && (
+              <SecondaryAction onClick={() => runExport()}>Export all applications</SecondaryAction>
+            )}
           </DecisionBar>
         )}
 
@@ -539,6 +691,21 @@ export default function ApplicationsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border">
+                    <th className="w-10 px-5 py-3">
+                      <input
+                        type="checkbox"
+                        aria-label="Select all on this page"
+                        checked={rows.length > 0 && rows.every(r => selectedIds.has(r.id))}
+                        onChange={e => {
+                          const next = new Set(selectedIds);
+                          // Only this page. Selecting rows you cannot see, then acting on them,
+                          // is how a bulk tool does something nobody intended.
+                          rows.forEach(r => (e.target.checked ? next.add(r.id) : next.delete(r.id)));
+                          setSelectedIds(next);
+                        }}
+                        className="w-[18px] h-[18px] rounded border-2 border-border accent-primary"
+                      />
+                    </th>
                     <th className="text-left px-5 py-3 text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">
                       Applicant
                     </th>
@@ -569,6 +736,20 @@ export default function ApplicationsPage() {
                         onClick={() => setSelectedApplication(app)}
                         className="border-b border-border last:border-0 hover:bg-accent/50 cursor-pointer"
                       >
+                        <td className="px-5 py-3.5" onClick={e => e.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            aria-label={`Select ${app.applicantName || 'application'}`}
+                            checked={selectedIds.has(app.id)}
+                            onChange={e => {
+                              const next = new Set(selectedIds);
+                              if (e.target.checked) next.add(app.id);
+                              else next.delete(app.id);
+                              setSelectedIds(next);
+                            }}
+                            className="w-[18px] h-[18px] rounded border-2 border-border accent-primary"
+                          />
+                        </td>
                         <td className="px-5 py-3.5">
                           <div className="font-semibold text-foreground text-sm">
                             {app.applicantName || 'Unknown'}
@@ -582,7 +763,9 @@ export default function ApplicationsPage() {
                         <td className="px-5 py-3.5 text-sm text-muted-foreground">
                           {/* Where candidates come from is the one figure that says whether the
                               job-board spend is working, and it was on the record and off screen. */}
-                          {app.applicationSource || <span className="text-muted-foreground/60">Not recorded</span>}
+                          {app.applicationSource
+                            ? getEnumLabel('applicationSource', app.applicationSource)
+                            : <span className="text-muted-foreground/60">Not recorded</span>}
                         </td>
                         <td className="px-5 py-3.5">
                           <StatusPill value={app.status} domain="applicationStatus" size="sm" />
@@ -876,6 +1059,73 @@ export default function ApplicationsPage() {
           );
         })()}
       </div>
+
+      <BulkActionBar count={selectedIds.size} onClear={clearSelection}>
+        {canBulkStatusOrStage && options.pipelineStages.length > 0 && (
+          <BulkSelect
+            label="Move to stage"
+            options={options.pipelineStages}
+            disabled={bulkBusy}
+            onChoose={value =>
+              setBulkConfirm({
+                kind: 'stage',
+                value,
+                label: options.pipelineStages.find(o => o.value === value)?.label ?? value,
+              })
+            }
+          />
+        )}
+        {canBulkStatusOrStage && options.statuses.length > 0 && (
+          <BulkSelect
+            label="Set status"
+            options={options.statuses}
+            disabled={bulkBusy}
+            onChoose={value =>
+              setBulkConfirm({
+                kind: 'status',
+                value,
+                label: options.statuses.find(o => o.value === value)?.label ?? value,
+              })
+            }
+          />
+        )}
+        {canBulkRate && (
+          <BulkSelect
+            label="Set rating"
+            options={[1, 2, 3, 4, 5].map(n => ({
+              value: String(n),
+              label: `${n} star${n === 1 ? '' : 's'}`,
+            }))}
+            disabled={bulkBusy}
+            onChoose={value =>
+              setBulkConfirm({ kind: 'rating', value, label: `${value} of 5` })
+            }
+          />
+        )}
+        {canExport && (
+          <BulkButton onClick={() => runExport(Array.from(selectedIds))} disabled={bulkBusy}>
+            Export selected
+          </BulkButton>
+        )}
+      </BulkActionBar>
+
+      <ConfirmDialog
+        open={bulkConfirm !== null}
+        title="Apply to selected applications"
+        message={
+          bulkConfirm
+            ? `${
+                bulkConfirm.kind === 'stage' ? 'Move'
+                : bulkConfirm.kind === 'status' ? 'Set the status of'
+                : 'Rate'
+              } ${selectedIds.size} application${selectedIds.size === 1 ? '' : 's'} to ${bulkConfirm.label}?`
+            : ''
+        }
+        confirmLabel="Apply"
+        variant="warning"
+        onConfirm={runBulk}
+        onCancel={() => setBulkConfirm(null)}
+      />
     </PageWrapper>
   );
 }

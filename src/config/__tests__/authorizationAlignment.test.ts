@@ -38,7 +38,11 @@ describe('Authorization alignment', () => {
     expectNavRoles('talent-pools', ['ADMIN', 'HR_MANAGER', 'RECRUITER']);
     expectNavRoles('offers', ['ADMIN', 'HIRING_MANAGER', 'HR_MANAGER']);
     expectNavRoles('workflow', ['ADMIN', 'HR_MANAGER']);
-    expectNavRoles('application-management', ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER']);
+    // 'application-management' was retired: its bulk actions and export moved onto the
+    // applications queue, so the queue is what now needs to stay aligned. It carries the wider
+    // audience of the two, which is the point — a recruiter should not have to leave the list to
+    // act on it.
+    expectNavRoles('applications', ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER']);
     expectNavRoles('applicants', ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER']);
     expectNavRoles('integrations', ['ADMIN', 'HR_MANAGER']);
     // ReportingController admits HIRING_MANAGER as of the same change that

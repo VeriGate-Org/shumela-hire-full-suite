@@ -366,7 +366,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
   };
 
   const handleCandidateClick = (candidate: any) => {
-    router.push(`/applications/manage?search=${encodeURIComponent(candidate.name)}`);
+    router.push(`/applications?search=${encodeURIComponent(candidate.name)}`);
   };
 
   if (loading) {
@@ -590,7 +590,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
               Post New Job
             </button>
             <button
-              onClick={() => router.push('/applications/manage')}
+              onClick={() => router.push('/applications')}
               className="bg-gold-500 text-violet-950 px-6 py-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium"
             >
               Review Applications
