@@ -102,7 +102,7 @@ export default function RoleSwitcher() {
               type="button"
               role="menuitem"
               onClick={() => select(originalRole)}
-              className="flex w-full items-center gap-2 border-b border-border bg-surface-gold px-4 py-2.5 text-xs font-semibold text-cta-foreground transition-colors hover:brightness-95"
+              className="flex w-full items-center gap-2 border-b border-border bg-surface-gold px-4 py-2.5 text-xs font-semibold text-cta-on-surface transition-colors hover:brightness-95"
             >
               <ArrowUturnLeftIcon className="h-4 w-4" />
               Return to {ROLE_DISPLAY_NAMES[originalRole]}
