@@ -73,16 +73,34 @@ class ApprovalThresholdTest {
     void thresholdBoundary() {
         // Strictly greater-than. An amount exactly on the threshold stays with the manager, which is
         // the existing behaviour and the easiest thing to change by accident.
-        assertEquals(1, approvalLevelFor("199999"));
-        assertEquals(1, approvalLevelFor("200000"));
-        assertEquals(2, approvalLevelFor("200001"));
+        assertEquals(1, approvalLevelFor("899999"));
+        assertEquals(1, approvalLevelFor("900000"));
+        assertEquals(2, approvalLevelFor("900001"));
     }
 
     @Test
-    @DisplayName("The default is the figure that was hard-coded, so nothing reroutes on deploy")
-    void defaultIsUnchanged() {
-        assertEquals(new BigDecimal("200000"),
-                ReflectionTestUtils.getField(service, "executiveApprovalThreshold"));
+    @DisplayName("The two thresholds are set to catch the same appointments")
+    void thresholdsAreChosenAsAPair() {
+        // The original pair — 200000 on base salary, 150000 on total compensation — left a band
+        // where an offer was called high value and then routed to a manager anyway. Total
+        // compensation runs about 1.25x base for a typical package, so putting the offer gate at
+        // 1.25x the salary gate makes an appointment that trips one trip the other. The ratio is
+        // the point; asserting it stops the two drifting apart again.
+        BigDecimal salaryThreshold =
+                (BigDecimal) ReflectionTestUtils.getField(service, "executiveApprovalThreshold");
+        BigDecimal offerThreshold = new BigDecimal("1125000"); // OfferService's default
+
+        assertEquals(new BigDecimal("900000"), salaryThreshold);
+        assertEquals(0, offerThreshold.compareTo(
+                salaryThreshold.multiply(new BigDecimal("1.25"))));
+    }
+
+    @Test
+    @DisplayName("A professional-level appointment does not need an executive")
+    void ordinaryAppointmentsDoNotEscalate() {
+        // The reason the figure moved. At 200000 almost every appointment reached an executive,
+        // which is how an approval gate stops being read.
+        assertEquals(1, approvalLevelFor("650000"));
     }
 
     @Test

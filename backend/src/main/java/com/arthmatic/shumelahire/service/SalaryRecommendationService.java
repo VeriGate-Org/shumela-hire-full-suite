@@ -29,28 +29,27 @@ public class SalaryRecommendationService {
     /**
      * Proposed base salary above which a recommendation needs executive rather than manager sign-off.
      *
-     * <p>Was hard-coded to 200000, with no way to change it short of a rebuild, and no relationship
-     * recorded to {@code OfferService}'s own high-value threshold of 150000 — which does exactly the
-     * same thing, setting {@code approvalLevelRequired} to 2 instead of 1. Two undocumented rand
-     * figures that nobody could compare, in a system whose entire subject is who is allowed to
-     * approve what.
+     * <p><b>R900,000.</b> Both this and {@code OfferService}'s high-value threshold set
+     * {@code approvalLevelRequired} to 2 instead of 1, and both were previously hard-coded — 200000
+     * here, 150000 there — with no recorded relationship, leaving a band where an offer was called
+     * high value and then routed to a manager anyway.
      *
-     * <p><b>They are not measuring the same thing, which is why they are not being collapsed into
-     * one number.</b> This reads {@code proposedTargetSalary} — a base salary. The offer threshold
-     * reads {@code totalCompensation}, which includes allowances and bonus and is therefore always
-     * the larger figure for the same person. A lower bar on the larger measure and a higher bar on
-     * the smaller one converge rather than conflict.
+     * <p>The two are now chosen together so that they catch <b>the same appointments</b>. This reads
+     * {@code proposedTargetSalary}, a base salary. The offer threshold reads
+     * {@code totalCompensation} — base plus allowances, bonus and benefits — which for a typical
+     * package runs about 1.25x base. Setting the offer gate at 1.25x this one means an appointment
+     * that trips one trips the other, and the dead band closes by construction rather than by
+     * picking two round numbers and hoping.
      *
-     * <p>Both are now settable, and both defaults are unchanged, so this commit alters no approval
-     * outcome. The figures themselves read like placeholders — R200,000 a year would send most
-     * professional appointments to an executive — and choosing real ones is a business decision,
-     * not an engineering one.
+     * <p>The level is set where senior appointments sit rather than where every professional hire
+     * does: the previous 200000 would have sent almost every appointment to an executive, which is
+     * how an approval gate becomes a rubber stamp.
      *
      * <p>Initialised as well as annotated: this service is constructed directly in unit tests, where
      * Spring never runs and an annotation-only field would be null at the comparison.
      */
-    @Value("${shumelahire.approval.executive-salary-threshold:200000}")
-    private BigDecimal executiveApprovalThreshold = new BigDecimal("200000");
+    @Value("${shumelahire.approval.executive-salary-threshold:900000}")
+    private BigDecimal executiveApprovalThreshold = new BigDecimal("900000");
 
     private final SalaryRecommendationDataRepository repository;
     private final ApplicationDataRepository applicationRepository;

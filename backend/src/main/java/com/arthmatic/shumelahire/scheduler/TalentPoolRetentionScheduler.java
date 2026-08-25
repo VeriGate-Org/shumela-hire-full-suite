@@ -46,10 +46,14 @@ public class TalentPoolRetentionScheduler {
 
         LocalDate today = LocalDate.now();
         try {
+            // Backfill first, so the policy reaches entries that predate it. Stamping is not
+            // deleting: a backfilled entry still gets a notice and its full grace period, so the
+            // first run after enabling the policy cannot delete anyone.
+            int stamped = retentionService.backfillRetentionDates();
             int notified = retentionService.sendRetentionNotices(today);
             int deleted = retentionService.purgeExpiredEntries(today);
-            logger.info("Talent pool retention completed. Notices sent: {}, entries deleted: {}",
-                    notified, deleted);
+            logger.info("Talent pool retention completed. Dates stamped: {}, notices sent: {}, "
+                    + "entries deleted: {}", stamped, notified, deleted);
         } catch (Exception e) {
             // An exception escaping a @Scheduled method is swallowed by the executor, so this is
             // the only place it would ever be seen.

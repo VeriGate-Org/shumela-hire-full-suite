@@ -50,26 +50,34 @@ public class TalentPoolRetentionService {
     private static final Logger logger = LoggerFactory.getLogger(TalentPoolRetentionService.class);
 
     /**
-     * Months a candidate is kept after last contact. <b>Unset by default.</b>
+     * Months a candidate is kept after last contact. <b>24.</b>
+     *
+     * <p>The longer end of ordinary South African recruitment practice, which is defensible here
+     * because it is paired with a notice: at 24 months the candidate is told, offered the chance to
+     * stay, and only deleted if they do not answer. A shorter silent period would be worse for both
+     * sides — the recruiter loses a warm pool, the candidate loses the choice.
      *
      * <p>Zero or negative is treated as unset rather than as "delete immediately". A misconfigured
      * value must fail safe, and the failure mode of the alternative is unrecoverable.
      */
-    @Value("${shumelahire.retention.talent-pool-months:0}")
-    private int retentionMonths;
+    @Value("${shumelahire.retention.talent-pool-months:24}")
+    private int retentionMonths = 24;
 
     /** Days between warning a candidate and deleting their entry. */
     @Value("${shumelahire.retention.talent-pool-notice-days:30}")
     private int noticeDays = 30;
 
     /**
-     * Whether the purge may actually delete. Notices are sent regardless.
+     * Whether the purge may actually delete.
      *
-     * <p>Separate from the scheduler's own switch so a deployment can run notices for a full cycle
-     * and read what the policy is about to do, before anything is destroyed.
+     * <p><b>On, and deliberately tied to the notice rather than left off.</b> Sending a candidate a
+     * message saying their details will be deleted in 30 days and then not deleting them is a false
+     * statement to a data subject — worse than either enabling both or enabling neither. The flag
+     * remains separate so a deployment can hold deletion back while it watches a first cycle, but
+     * that is a temporary state, not the resting one.
      */
-    @Value("${shumelahire.retention.talent-pool-purge-enabled:false}")
-    private boolean purgeEnabled;
+    @Value("${shumelahire.retention.talent-pool-purge-enabled:true}")
+    private boolean purgeEnabled = true;
 
     private final TalentPoolEntryDataRepository entryRepository;
     private final NotificationService notificationService;
@@ -132,6 +140,45 @@ public class TalentPoolRetentionService {
         entry.setRetainUntil(retainUntilFor(entry));
         entry.setRetentionNoticeSentAt(null);
         return entryRepository.save(entry);
+    }
+
+    /**
+     * Stamp a retention date onto entries that have none.
+     *
+     * <p>Without this the policy would only ever apply to entries created after it was switched on.
+     * Everything already in the pool carries a null {@code retainUntil}, and a null never expires —
+     * so the oldest records, which are exactly the ones the policy exists for, would be the only
+     * ones it never touched.
+     *
+     * <p>Safe to run every night because <b>stamping is not deleting</b>. A backfilled entry that is
+     * already past its date still gets a notice and still gets its full grace period before
+     * anything happens to it, so the first run of a newly enabled policy cannot delete anyone.
+     *
+     * @return how many entries were given a retention date
+     */
+    @Transactional
+    public int backfillRetentionDates() {
+        if (!isConfigured()) {
+            return 0;
+        }
+        int stamped = 0;
+        for (TalentPoolEntry entry : entryRepository.findAll()) {
+            if (entry.getRetainUntil() != null) {
+                continue;
+            }
+            LocalDate retainUntil = retainUntilFor(entry);
+            if (retainUntil == null) {
+                // No addedAt and no contact date. Left alone rather than given an invented date.
+                continue;
+            }
+            entry.setRetainUntil(retainUntil);
+            entryRepository.save(entry);
+            stamped++;
+        }
+        if (stamped > 0) {
+            logger.info("Stamped a retention date on {} talent pool entries that had none", stamped);
+        }
+        return stamped;
     }
 
     /** Entries past their retention date that have not yet been warned. */
