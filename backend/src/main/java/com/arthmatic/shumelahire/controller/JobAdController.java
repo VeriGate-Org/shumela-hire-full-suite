@@ -56,6 +56,25 @@ public class JobAdController {
     }
 
     /**
+     * GET /ads/internal/board - The internal opportunities board.
+     *
+     * <p>Open roles plus anything closed in the last fortnight, closing soonest first, with counts
+     * that describe every role rather than the loaded page.
+     */
+    @GetMapping("/internal/board")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<InternalJobBoardResponse>> getInternalBoard() {
+        try {
+            return ResponseEntity.ok(ApiResponse.success(
+                    jobAdService.getInternalBoard(), "Internal board retrieved successfully"));
+        } catch (Exception e) {
+            logger.error("Error fetching internal board", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Internal server error"));
+        }
+    }
+
+    /**
      * POST /ads - Create job ad (draft or publish)
      */
     @PostMapping

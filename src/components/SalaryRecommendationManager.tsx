@@ -7,6 +7,24 @@ import { salaryRecommendationService } from '@/services/salaryRecommendationServ
 import { useDepartments } from '@/hooks/useDepartments';
 import { usePositionLevels } from '@/hooks/useLookups';
 import EmptyState from './EmptyState';
+import DistributionStrip from '@/components/record/DistributionStrip';
+import FilterChips from '@/components/record/FilterChips';
+import {
+  QUEUE_FILTERS,
+  RecommendationRow,
+  RecommendationSummary,
+  approvalLevel,
+  bandPosition,
+  BAND_LABELS,
+  bandScale,
+  byLongestWaiting,
+  canReturn,
+  filterCount,
+  isRecommendationSummary,
+  matchesFilter,
+  money,
+  waitingDays,
+} from '@/components/salary/queue';
 import {
   SalaryRecommendation,
   SalaryRecommendationStatus,
@@ -34,6 +52,12 @@ export default function SalaryRecommendationManager() {
   const [approvalNotes, setApprovalNotes] = useState('');
   const [rejectReason, setRejectReason] = useState('');
   const [actionLoading, setActionLoading] = useState<number | null>(null);
+  // Whole-set counts. Guarded, because an error body is an object too and reading counts off it
+  // would render a strip of zeroes indistinguishable from a quiet month.
+  const [summary, setSummary] = useState<RecommendationSummary | null>(null);
+  const [queueFilter, setQueueFilter] = useState('on-me');
+  const [showReturnModal, setShowReturnModal] = useState<{ id: number } | null>(null);
+  const [returnReason, setReturnReason] = useState('');
 
   const [createForm, setCreateForm] = useState<SalaryRecommendationCreateRequest>({
     positionTitle: '',
@@ -61,6 +85,9 @@ export default function SalaryRecommendationManager() {
       setLoadError(null);
       const data = await salaryRecommendationService.getAll();
       setRecommendations(data);
+
+      const payload = await salaryRecommendationService.summary().catch(() => null);
+      setSummary(isRecommendationSummary(payload) ? payload : null);
     } catch (error) {
       console.error('Failed to load recommendations:', error);
       const message = 'Failed to load salary recommendations';
@@ -156,6 +183,30 @@ export default function SalaryRecommendationManager() {
     }
   };
 
+  /**
+   * Send a recommendation back to whoever raised it.
+   *
+   * Not the same as rejecting. A rejection ends it; a return expects it back, and
+   * submitForReview accepts a returned recommendation — a loop that only closed once the
+   * transition behind this button was added.
+   */
+  const handleReturn = async () => {
+    if (!showReturnModal) return;
+    const { id } = showReturnModal;
+    try {
+      setActionLoading(id);
+      await salaryRecommendationService.returnForRework(id, returnReason);
+      setShowReturnModal(null);
+      setReturnReason('');
+      toast('Sent back for rework', 'success');
+      await loadRecommendations();
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'Could not return the recommendation', 'error');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const getActions = (rec: SalaryRecommendation) => {
     const isLoading = actionLoading === rec.id;
     const actions: React.ReactNode[] = [];
@@ -185,14 +236,35 @@ export default function SalaryRecommendationManager() {
           Approve
         </button>,
         <button key="reject" onClick={() => setShowRejectModal({ id: rec.id })} disabled={isLoading}
-          className="text-xs px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded hover:bg-red-100 disabled:opacity-50">
+          className="text-xs px-2 py-1 bg-surface-pink text-accent-pink border border-border rounded-control hover:opacity-80 disabled:opacity-50">
           Reject
+        </button>
+      );
+    }
+
+    // Returnable wherever somebody is holding it for a decision — the same guard the server
+    // applies, so the button is never offered where the call would be refused.
+    if (canReturn(rec as unknown as RecommendationRow)) {
+      actions.push(
+        <button key="return" onClick={() => setShowReturnModal({ id: rec.id })} disabled={isLoading}
+          className="text-xs px-2 py-1 bg-surface-gold text-accent-gold border border-border rounded-control hover:opacity-80 disabled:opacity-50">
+          Return
         </button>
       );
     }
 
     return actions;
   };
+
+  // One queue, longest wait first. Review and approval are stages of one thing, and the ordering
+  // that matters is how long each has been sitting — not which stage it sits in.
+  // The derivations work on the structural RecommendationRow shape; the rows themselves stay
+  // SalaryRecommendation so the existing action handlers keep their types.
+  const visible = byLongestWaiting(
+    (recommendations as unknown as RecommendationRow[]).filter(rec =>
+      matchesFilter(queueFilter, rec),
+    ),
+  ) as unknown as SalaryRecommendation[];
 
   if (loading) {
     return <div className="flex justify-center py-12"><div className="animate-spin h-8 w-8 border-2 border-gold-500 border-t-transparent rounded-full" /></div>;
@@ -229,6 +301,83 @@ export default function SalaryRecommendationManager() {
         </div>
       )}
 
+      {/* What is actually on the table, and what is out of band. Every figure counts
+          recommendations and comes from one endpoint, so none can disagree with another. */}
+      {summary ? (
+        <div className="mb-4">
+          <DistributionStrip
+            buckets={[
+              { label: 'Awaiting review', count: summary.awaitingReview, detail: 'Needs a number' },
+              {
+                label: 'Awaiting approval',
+                count: summary.awaitingApproval,
+                detail: 'Recommended, unsigned',
+              },
+              {
+                label: 'Returned',
+                count: summary.returned,
+                detail: 'Sent back, not resubmitted',
+                tone: summary.returned > 0 ? 'warning' : 'default',
+              },
+              {
+                label: 'Above proposed band',
+                count: summary.aboveProposedBand,
+                detail: 'Recommended over their own ceiling',
+                tone: summary.aboveProposedBand > 0 ? 'critical' : 'default',
+              },
+            ]}
+            footnote={
+              <>
+                <b className="font-bold text-foreground">{summary.live}</b> live recommendations
+                {money(summary.totalProposed) ? (
+                  <>
+                    {' '}totalling{' '}
+                    <b className="font-bold text-foreground">{money(summary.totalProposed)}</b>{' '}
+                    proposed
+                  </>
+                ) : (
+                  <span className="text-muted-foreground/70">
+                    {' '}— no proposed target recorded on any of them
+                  </span>
+                )}
+                {summary.liveWithoutTarget > 0 && (
+                  <span className="text-muted-foreground/70">
+                    {' '}({summary.liveWithoutTarget} without a target, excluded from the total)
+                  </span>
+                )}
+                {summary.oldestWaitingDays != null && (
+                  <>
+                    . Longest wait{' '}
+                    <b className="font-bold text-foreground">{summary.oldestWaitingDays} days</b>
+                    {summary.oldestWaitingRef && ` (${summary.oldestWaitingRef})`}
+                  </>
+                )}
+              </>
+            }
+          />
+        </div>
+      ) : (
+        <div className="enterprise-card p-4 mb-4">
+          <p className="text-sm text-muted-foreground">
+            Recommendation counts unavailable. The list below is still complete.
+          </p>
+        </div>
+      )}
+
+      <div className="mb-4">
+        <FilterChips
+          chips={QUEUE_FILTERS.map(f => ({
+            key: f.key,
+            label: f.label,
+            count: filterCount(summary, f.key) ?? undefined,
+          }))}
+          activeKey={queueFilter}
+          onChange={setQueueFilter}
+          aria-label="Filter salary recommendations"
+          note={<>Longest waiting first</>}
+        />
+      </div>
+
       {/* Table */}
       <div className="overflow-x-auto border border-gray-200 rounded-control">
         <table className="min-w-full divide-y divide-gray-200">
@@ -237,16 +386,17 @@ export default function SalaryRecommendationManager() {
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ref</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proposed Target</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recommended</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Against the band</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approval</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waiting</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {recommendations.length === 0 ? (
               <tr>
-                <td colSpan={7} className="p-0">
+                <td colSpan={8} className="p-0">
                   <EmptyState
                     icon={CurrencyDollarIcon}
                     title="No salary recommendations"
@@ -259,7 +409,7 @@ export default function SalaryRecommendationManager() {
                 </td>
               </tr>
             ) : (
-              recommendations.map(rec => (
+              visible.map(rec => (
                 <tr key={rec.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm font-mono text-gray-600">{rec.recommendationNumber}</td>
                   <td className="px-4 py-3 text-sm">
@@ -267,12 +417,99 @@ export default function SalaryRecommendationManager() {
                     {rec.department && <div className="text-gray-500 text-xs">{rec.department}</div>}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">{rec.candidateName || '-'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{formatCurrency(rec.proposedTargetSalary)}</td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{formatCurrency(rec.recommendedSalary)}</td>
+                  {/* The four amounts compared instead of listed. On one scale they answer the
+                      reviewer's actual question — is this inside the band, and how far is it from
+                      what the candidate asked for. A recommendation over its own ceiling is
+                      invisible in a column of figures and obvious here. */}
+                  <td className="px-4 py-3 text-sm min-w-[230px]">
+                    {(() => {
+                      const asRow = rec as unknown as RecommendationRow;
+                      const position = bandPosition(asRow);
+                      const scale = bandScale(asRow);
+                      const recommended = money(rec.recommendedSalary, rec.currency);
+
+                      if (!scale) {
+                        return (
+                          <span className="text-xs text-muted-foreground">
+                            {position === 'unrecommended'
+                              ? 'Not yet recommended'
+                              : 'No band proposed'}
+                          </span>
+                        );
+                      }
+
+                      return (
+                        <div>
+                          <div className="relative h-2 rounded-full bg-muted">
+                            {scale.markers.map(marker => (
+                              <span
+                                key={marker.key}
+                                title={`${marker.label}: ${money(marker.value, rec.currency)}`}
+                                className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full border border-card ${
+                                  marker.key === 'recommended'
+                                    ? `w-3 h-3 ${marker.outside ? 'bg-error' : 'bg-primary'}`
+                                    : 'w-2 h-2 bg-muted-foreground'
+                                }`}
+                                style={{ left: `${marker.percent}%` }}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-xs mt-1">
+                            {recommended ? (
+                              <>
+                                <b className="font-semibold text-foreground">{recommended}</b>{' '}
+                                <span
+                                  className={
+                                    position === 'above' || position === 'below'
+                                      ? 'text-error font-semibold'
+                                      : 'text-muted-foreground'
+                                  }
+                                >
+                                  {BAND_LABELS[position]}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground">Not yet recommended</span>
+                            )}
+                          </p>
+                          <p className="text-[0.6875rem] text-muted-foreground/70">
+                            Band {money(scale.min, rec.currency)} – {money(scale.max, rec.currency)}
+                          </p>
+                        </div>
+                      );
+                    })()}
+                  </td>
+                  {/* Who has to sign. A level 3 waiting twelve days is waiting on a different
+                      person from a level 1, and the row never said which. */}
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
+                    {approvalLevel(rec as unknown as RecommendationRow) !== null
+                      ? `Level ${approvalLevel(rec as unknown as RecommendationRow)}`
+                      : <span className="text-xs text-muted-foreground/60">Not set</span>}
+                  </td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(rec.status)}`}>
                       {getStatusDisplayName(rec.status)}
                     </span>
+                    {rec.status === 'RETURNED' && (rec as unknown as RecommendationRow).returnReason && (
+                      <p className="text-[0.6875rem] text-muted-foreground mt-1 max-w-[180px]">
+                        {(rec as unknown as RecommendationRow).returnReason}
+                      </p>
+                    )}
+                  </td>
+                  {/* Null, not a dash meaning zero: something settled is not waiting nought days,
+                      it is not waiting. */}
+                  <td className="px-4 py-3 text-sm tabular-nums">
+                    {(() => {
+                      const waited = waitingDays(rec as unknown as RecommendationRow);
+                      if (waited === null) {
+                        return <span className="text-xs text-muted-foreground/60">Not waiting</span>;
+                      }
+                      return (
+                        <span className={waited >= 10 ? 'text-error font-semibold' : 'text-foreground'}>
+                          {waited} day{waited === 1 ? '' : 's'}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1 flex-wrap">{getActions(rec)}</div>
@@ -433,6 +670,49 @@ export default function SalaryRecommendationManager() {
       )}
 
       {/* Reject Modal */}
+      {/* Returning, not rejecting. A rejection ends the recommendation; this sends it back to be
+          fixed and resubmitted, which is why the reason is required rather than optional. */}
+      {showReturnModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-card border border-border rounded-card shadow-xl max-w-md w-full mx-4 p-6">
+            <h3 className="text-lg font-bold text-foreground mb-1">Return for rework</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              This goes back to whoever raised it, to be fixed and resubmitted. It is not a
+              rejection.
+            </p>
+            <label className="block text-sm font-medium text-foreground mb-1" htmlFor="return-reason">
+              What needs to change?
+            </label>
+            <textarea
+              id="return-reason"
+              value={returnReason}
+              onChange={e => setReturnReason(e.target.value)}
+              rows={3}
+              className="w-full border border-border bg-card text-foreground rounded-control px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              placeholder="Market evidence missing; recommended figure is above the proposed band"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Required — a return with no explanation leaves the requester nothing to act on.
+            </p>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => { setShowReturnModal(null); setReturnReason(''); }}
+                className="px-4 py-2 text-sm border border-border text-muted-foreground rounded-control hover:bg-muted"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReturn}
+                disabled={!returnReason.trim() || actionLoading === showReturnModal.id}
+                className="px-4 py-2 text-sm bg-cta text-cta-foreground rounded-control disabled:opacity-50"
+              >
+                Send back
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showRejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-control shadow-xl max-w-md w-full mx-4 p-6">
