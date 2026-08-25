@@ -1337,7 +1337,7 @@ export default function PipelinePage() {
                   </div>
 
                   {/* Cards container */}
-                  <div className="p-3 flex flex-col gap-2.5 overflow-y-auto max-h-[520px] flex-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-sm">
+                  <div className="p-2.5 flex flex-col gap-2 overflow-y-auto max-h-[560px] flex-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-sm">
                     {stageApplications.map(application => {
                       const isSelected = selectedIds.has(application.id);
                       const progressScore = Math.round(application.progress);
@@ -1347,7 +1347,7 @@ export default function PipelinePage() {
                           key={application.id}
                           role="listitem"
                           onClick={() => setSelectedApplication(application)}
-                          className={`bg-card border rounded-card shadow-sm p-3.5 cursor-pointer transition-all hover:shadow-md hover:border-primary/30 hover:-translate-y-px relative group ${
+                          className={`bg-card border rounded-card shadow-sm p-3 cursor-pointer transition-all hover:shadow-md hover:border-primary/30 hover:-translate-y-px relative group ${
                             isSelected ? 'border-primary shadow-[0_0_0_2px_rgba(5,82,126,0.2)]' : 'border-border'
                           }`}
                         >
@@ -1385,28 +1385,28 @@ export default function PipelinePage() {
                               e.stopPropagation();
                               setSelectedApplication(application);
                             }}
-                            className="block text-left font-bold text-sm text-foreground mb-0.5 pr-6 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                            className="block text-left font-bold text-[0.8125rem] text-foreground mb-0.5 pr-6 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
                           >
                             {application.candidate.firstName} {application.candidate.lastName}
                             <span className="sr-only"> — open candidate details</span>
                           </button>
 
                           {/* Position */}
-                          <div className="text-xs text-muted-foreground font-medium leading-snug mb-2.5">
+                          <div className="text-[0.6875rem] text-muted-foreground font-medium leading-snug mb-2">
                             {application.job.title}
                             {application.job.department && <> &middot; {application.job.department}</>}
                           </div>
 
                           {/* Sub-stage badge */}
                           {stage.backendStages.length > 1 && BACKEND_STAGE_DISPLAY[application.backendStage] && (
-                            <span className="inline-block mb-2 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider bg-muted text-muted-foreground rounded">
+                            <span className="inline-block mb-1.5 px-1.5 py-0.5 text-[0.625rem] font-medium uppercase tracking-wider bg-muted text-muted-foreground rounded">
                               {BACKEND_STAGE_DISPLAY[application.backendStage]}
                             </span>
                           )}
 
                           {/* Rating stars */}
                           {application.rating > 0 && (
-                            <div className="flex items-center gap-0.5 mb-2">
+                            <div className="flex items-center gap-0.5 mb-1.5">
                               {[1, 2, 3, 4, 5].map(s => (
                                 s <= application.rating
                                   ? <StarIconSolid key={s} className="w-3 h-3 text-yellow-400" />
@@ -1427,7 +1427,7 @@ export default function PipelinePage() {
                             };
                             if (!preview.nextDate && !preview.latestRecommendation) return null;
                             return (
-                              <div className="mb-2 space-y-1">
+                              <div className="mb-1.5 space-y-0.5">
                                 {preview.nextDate && (
                                   <div className="flex items-center gap-1 text-[10px]">
                                     <CalendarIcon className="w-3 h-3 text-muted-foreground" />
@@ -1495,7 +1495,7 @@ export default function PipelinePage() {
                             const wentBack = regressed.has(String(application.id));
                             if (!stuck && !offer && !feedback && !wentBack) return null;
                             return (
-                              <div className="flex flex-wrap gap-1 mb-2">
+                              <div className="flex flex-wrap gap-1 mb-1.5">
                                 {stuck && (
                                   <span className="px-1.5 py-0.5 rounded text-[0.625rem] font-bold bg-surface-pink text-accent-pink">
                                     Past this stage&rsquo;s median
@@ -1825,41 +1825,64 @@ export default function PipelinePage() {
                 </div>
               </div>
 
-              <div className="p-6 space-y-6">
-                {/* Rating */}
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-foreground">Rating</span>
-                  <div className="flex items-center gap-0.5">
-                    {[1, 2, 3, 4, 5].map(s => (
-                      <button
-                        key={s}
-                        onClick={() => handleRate(selectedApplication.id, s === selectedApplication.rating ? 0 : s)}
-                        disabled={ratingUpdating}
-                        className="disabled:opacity-50"
-                      >
-                        {s <= selectedApplication.rating
-                          ? <StarIconSolid className="w-5 h-5 text-yellow-400 hover:text-yellow-500" />
-                          : <StarIcon className="w-5 h-5 text-muted-foreground/40 hover:text-yellow-300" />
-                        }
-                      </button>
-                    ))}
+              <div className="px-5 py-4 space-y-4">
+                {/* The record's facts, as a definition grid.
+                    This was a Rating row, a heading, and five stacked <p> tags inside a filled box
+                    — around 320px of modal spent on eight short values, most of it gap. Four
+                    columns of label-over-value say the same in a quarter of the height and match
+                    how every other record surface in this product states its terms. */}
+                <dl className="grid grid-cols-2 gap-x-5 gap-y-3 sm:grid-cols-4">
+                  <div className="min-w-0">
+                    <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Email</dt>
+                    <dd className="mt-0.5 truncate text-[0.8125rem]" title={selectedApplication.candidate.email}>
+                      {selectedApplication.candidate.email || <span className="text-muted-foreground">Not recorded</span>}
+                    </dd>
                   </div>
-                  {selectedApplication.rating > 0 && (
-                    <span className="text-xs text-muted-foreground">{selectedApplication.rating}/5</span>
-                  )}
-                </div>
+                  <div>
+                    <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Phone</dt>
+                    <dd className="mt-0.5 text-[0.8125rem] tabular-nums">
+                      {selectedApplication.candidate.phone || <span className="text-muted-foreground">Not recorded</span>}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Applied</dt>
+                    <dd className="mt-0.5 text-[0.8125rem] tabular-nums">
+                      {new Date(selectedApplication.submittedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">In this stage</dt>
+                    <dd className={`mt-0.5 text-[0.8125rem] font-semibold tabular-nums ${selectedApplication.daysInStage >= 14 ? 'text-error' : ''}`}>
+                      {selectedApplication.daysInStage} {selectedApplication.daysInStage === 1 ? 'day' : 'days'}
+                    </dd>
+                  </div>
+                  <div className="col-span-2 sm:col-span-4">
+                    <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Rating</dt>
+                    <dd className="mt-0.5 flex items-center gap-2">
+                      <span className="flex items-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <button
+                            key={star}
+                            onClick={() => handleRate(selectedApplication.id, star === selectedApplication.rating ? 0 : star)}
+                            disabled={ratingUpdating}
+                            aria-label={`Rate ${star} of 5`}
+                            className="disabled:opacity-50"
+                          >
+                            {star <= selectedApplication.rating
+                              ? <StarIconSolid className="w-4 h-4 text-yellow-400 hover:text-yellow-500" />
+                              : <StarIcon className="w-4 h-4 text-muted-foreground/40 hover:text-yellow-300" />}
+                          </button>
+                        ))}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {selectedApplication.rating > 0 ? `${selectedApplication.rating} of 5` : 'Not rated'}
+                      </span>
+                    </dd>
+                  </div>
+                </dl>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground">Candidate Information</h3>
-                    <div className="bg-muted/50 rounded-control p-4 space-y-2">
-                      <p><strong>Email:</strong> {selectedApplication.candidate.email}</p>
-                      <p><strong>Phone:</strong> {selectedApplication.candidate.phone}</p>
-                      <p><strong>Applied:</strong> {new Date(selectedApplication.submittedAt).toLocaleDateString()}</p>
-                      <p><strong>Last Activity:</strong> {new Date(selectedApplication.lastActivity).toLocaleDateString()}</p>
-                      <p><strong>Days in Stage:</strong> {selectedApplication.daysInStage}</p>
-                    </div>
-
                     {/* Screening Notes — read-only summary. The early stages get the full
                         read-and-write panel lower down instead, so this would only duplicate it. */}
                     {!isEarlyStage && selectedApplication.screeningNotes && (
@@ -1925,24 +1948,23 @@ export default function PipelinePage() {
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground">Application Timeline</h3>
-                    <div className="space-y-4 max-h-64 overflow-y-auto">
+                    <h3 className="text-[0.6875rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Application Timeline</h3>
+                    {/* No taller than its contents. A 256px scroll area was reserved whether or
+                        not anything was in it, beside a single line of text. */}
+                    <div className="space-y-2.5 max-h-52 overflow-y-auto">
                       {timelineLoading ? (
-                        <div className="flex items-center justify-center py-8">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span className="h-3 w-3 animate-spin rounded-full border-b-2 border-primary" />
+                          Loading history…
                         </div>
                       ) : timelineEntries.length === 0 ? (
-                        <p className="text-sm text-muted-foreground py-4">No timeline entries recorded yet.</p>
+                        <p className="text-xs text-muted-foreground">No stage changes recorded yet.</p>
                       ) : (
                         timelineEntries.map((event, index) => (
-                          <div key={index} className="flex space-x-3">
-                            <div className="flex-shrink-0">
-                              <div className="w-8 h-8 bg-gold-100 rounded-full flex items-center justify-center">
-                                <div className="w-3 h-3 bg-gold-500 rounded-full"></div>
-                              </div>
-                            </div>
+                          <div key={index} className="flex gap-2.5">
+                            <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gold-500" />
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm text-foreground">
+                              <div className="text-xs text-foreground">
                                 <strong>{event.fromStage ? `${BACKEND_STAGE_DISPLAY[event.fromStage] || formatEnumValue(event.fromStage)} → ${BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage)}` : (BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage))}</strong>
                                 {!isOpaqueId(event.performedBy) && event.performedBy && (
                                   <span className="text-muted-foreground"> by {event.performedBy}</span>
@@ -1951,8 +1973,8 @@ export default function PipelinePage() {
                               {event.reason && (
                                 <div className="text-xs text-muted-foreground mt-0.5">{event.reason}</div>
                               )}
-                              <div className="text-sm text-muted-foreground">
-                                {new Date(event.createdAt).toLocaleDateString()} at {new Date(event.createdAt).toLocaleTimeString()}
+                              <div className="text-[0.625rem] tabular-nums text-muted-foreground">
+                                {new Date(event.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })} at {new Date(event.createdAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}
                               </div>
                             </div>
                           </div>
