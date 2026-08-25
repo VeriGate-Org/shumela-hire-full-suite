@@ -5,6 +5,8 @@ import { DashboardWidget } from '../../dashboard';
 import { getMyDashboardData } from '@/services/candidateService';
 import { getEnumLabel } from '@/utils/enumLabels';
 import { useAuth } from '@/contexts/AuthContext';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
 
 interface ApplicantDashboardProps {
   selectedTimeframe: string;
@@ -47,7 +49,7 @@ const STATUS_COLOR_MAP: Record<string, string> = {
   OFFER: 'bg-green-100 text-green-800',
   OFFER_RECEIVED: 'bg-green-100 text-green-800',
   REJECTED: 'bg-red-100 text-red-800',
-  WITHDRAWN: 'bg-gray-100 text-gray-800',
+  WITHDRAWN: 'bg-muted text-foreground',
 };
 
 const STATUS_DISPLAY_MAP: Record<string, string> = {
@@ -64,7 +66,7 @@ const STATUS_DISPLAY_MAP: Record<string, string> = {
 };
 
 function getStatusColor(status: string): string {
-  return STATUS_COLOR_MAP[status] ?? 'bg-gray-100 text-gray-800';
+  return STATUS_COLOR_MAP[status] ?? 'bg-muted text-foreground';
 }
 
 function getStatusDisplay(status: string): string {
@@ -193,28 +195,28 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
       <div className="space-y-6 max-w-full overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-full">
           <div className="lg:col-span-2 space-y-6 min-w-0">
-            <div className="bg-white rounded-control border border-gray-200 p-6 animate-pulse">
-              <div className="h-5 bg-gray-200 rounded w-1/3 mb-4" />
+            <div className="bg-card rounded-control border border-border p-6 animate-pulse">
+              <div className="h-5 bg-muted rounded w-1/3 mb-4" />
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-20 bg-gray-100 rounded-control" />
+                  <div key={i} className="h-20 bg-muted rounded-control" />
                 ))}
               </div>
             </div>
-            <div className="bg-white rounded-control border border-gray-200 p-6 animate-pulse">
-              <div className="h-5 bg-gray-200 rounded w-1/3 mb-4" />
+            <div className="bg-card rounded-control border border-border p-6 animate-pulse">
+              <div className="h-5 bg-muted rounded w-1/3 mb-4" />
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 bg-gray-100 rounded-control" />
+                  <div key={i} className="h-16 bg-muted rounded-control" />
                 ))}
               </div>
             </div>
           </div>
           <div className="space-y-6 min-w-0">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-control border border-gray-200 p-6 animate-pulse">
-                <div className="h-5 bg-gray-200 rounded w-2/3 mb-4" />
-                <div className="h-24 bg-gray-100 rounded-control" />
+              <div key={i} className="bg-card rounded-control border border-border p-6 animate-pulse">
+                <div className="h-5 bg-muted rounded w-2/3 mb-4" />
+                <div className="h-24 bg-muted rounded-control" />
               </div>
             ))}
           </div>
@@ -223,8 +225,42 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
     );
   }
 
+  const liveApplications = recentApplications.length;
+  const nextInterview = upcomingInterviews[0];
+
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
+    <div className="space-y-4 max-w-full overflow-hidden">
+      <IdentityBand
+        eyebrow="Your job search"
+        title={user?.name ? `Welcome back, ${user.name.split(' ')[0]}` : 'Your applications'}
+        subtitle={`${liveApplications} ${liveApplications === 1 ? 'application' : 'applications'} · ${upcomingInterviews.length} ${upcomingInterviews.length === 1 ? 'interview' : 'interviews'} booked`}
+        figures={[
+          { label: 'Applications', value: liveApplications },
+          {
+            label: 'Interviews booked',
+            value: upcomingInterviews.length,
+            tone: (upcomingInterviews.length > 0 ? 'positive' : undefined) as 'positive' | undefined,
+          },
+        ]}
+      />
+
+      {nextInterview ? (
+        <DecisionBar
+          ask="You have an interview coming up."
+          why={`${nextInterview.position ?? 'Interview'}${nextInterview.date ? ` · ${nextInterview.date}` : ''}`}
+          tone="owed"
+        >
+          <PrimaryAction onClick={() => (window.location.href = '/candidate/interviews')}>
+            View details
+          </PrimaryAction>
+        </DecisionBar>
+      ) : (
+        <DecisionBar
+          ask="No interviews booked yet."
+          why="You will be told here as soon as one is scheduled."
+          tone="settled"
+        />
+      )}
       {/* Applicant Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-full">
         {/* Main Applicant Content */}
@@ -240,11 +276,11 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
             >
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {statusCounts.map((item) => (
-                  <div key={item.status} className="text-center p-4 bg-gray-50 rounded-control">
+                  <div key={item.status} className="text-center p-4 bg-muted rounded-control">
                     <div className={`text-2xl font-bold mb-2 px-3 py-1 rounded-full ${item.color} inline-block`}>
                       {item.count}
                     </div>
-                    <p className="text-sm font-medium text-gray-700">{item.status}</p>
+                    <p className="text-sm font-medium text-foreground">{item.status}</p>
                   </div>
                 ))}
               </div>
@@ -262,20 +298,27 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
             >
               <div className="space-y-4">
                 {recentApplications.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No applications yet. Start applying to jobs to see them here.</p>
+                  <p className="text-muted-foreground text-sm">No applications yet. Start applying to jobs to see them here.</p>
                 ) : (
                   recentApplications.map((application) => (
-                    <div key={application.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-control hover:bg-gray-50">
+                    <div key={application.id} className="flex items-center justify-between p-4 border border-border rounded-control hover:bg-muted">
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-lg font-semibold text-gray-900 truncate">{application.position}</h4>
-                        <p className="text-sm text-gray-600">{application.company}{application.location ? ` \u2022 ${application.location}` : ''}</p>
-                        <p className="text-xs text-gray-500 mt-1">Applied {application.appliedDate}</p>
+                        <h4 className="text-lg font-semibold text-foreground truncate">{application.position}</h4>
+                        <p className="text-sm text-muted-foreground">{application.company}{application.location ? ` \u2022 ${application.location}` : ''}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Applied {application.appliedDate}</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${application.statusColor}`}>
                           {application.status}
                         </span>
-                        <button className="text-gold-600 hover:text-gold-800 text-sm font-medium rounded-full">
+                        {/* Dead until now: no onClick. #299 gave the record an address, so this
+                            has an obvious destination rather than needing a modal. */}
+                        <button
+                          onClick={() => {
+                            window.location.href = `/applications/${encodeURIComponent(String(application.id))}`;
+                          }}
+                          className="text-accent-gold hover:underline text-sm font-medium rounded-full"
+                        >
                           View Details
                         </button>
                       </div>
@@ -299,28 +342,28 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">Profile Strength</span>
+                  <span className="text-sm font-medium text-foreground">Profile Strength</span>
                   <span className="text-sm font-bold text-green-600">85%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-2">
                   <div className="bg-green-600 h-2 rounded-full" style={{ width: '85%' }}></div>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <span className="text-green-600">{'\u2713'}</span>
-                    <span className="text-gray-600">Resume uploaded</span>
+                    <span className="text-muted-foreground">Resume uploaded</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-green-600">{'\u2713'}</span>
-                    <span className="text-gray-600">Skills added</span>
+                    <span className="text-muted-foreground">Skills added</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-orange-600">{'\u25CB'}</span>
-                    <span className="text-gray-600">Portfolio missing</span>
+                    <span className="text-muted-foreground">Portfolio missing</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-green-600">{'\u2713'}</span>
-                    <span className="text-gray-600">References added</span>
+                    <span className="text-muted-foreground">References added</span>
                   </div>
                 </div>
               </div>
@@ -338,16 +381,16 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
             >
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {upcomingInterviews.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No upcoming interviews scheduled.</p>
+                  <p className="text-muted-foreground text-sm">No upcoming interviews scheduled.</p>
                 ) : (
                   upcomingInterviews.map((interview) => (
-                    <div key={interview.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-control">
+                    <div key={interview.id} className="flex items-start gap-3 p-3 hover:bg-muted rounded-control">
                       <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${interview.color.replace('text-', 'bg-')}`}></div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{interview.company}</p>
-                        <p className="text-xs text-gray-500 truncate">{interview.position}</p>
-                        <p className="text-xs text-gray-600 mt-1">{interview.date} at {interview.time}</p>
-                        <p className="text-xs text-gray-500">{getEnumLabel('interviewType', interview.type)}</p>
+                        <p className="text-sm font-medium text-foreground truncate">{interview.company}</p>
+                        <p className="text-xs text-muted-foreground truncate">{interview.position}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{interview.date} at {interview.time}</p>
+                        <p className="text-xs text-muted-foreground">{getEnumLabel('interviewType', interview.type)}</p>
                       </div>
                     </div>
                   ))
@@ -357,30 +400,12 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
           </div>
 
           {/* Quick Actions — static UI config */}
-          <div className="w-full overflow-hidden">
-            <DashboardWidget
-              id="applicant-actions"
-              title="Quick Actions"
-              subtitle="Manage your job search"
-              size="small"
-            >
-              <div className="grid grid-cols-1 gap-2">
-                {[
-                  { label: 'Browse Jobs', color: 'bg-gold-500 text-violet-950' },
-                  { label: 'Update Profile', color: 'bg-green-600 text-white' },
-                  { label: 'Upload Resume', color: 'bg-gold-500 text-violet-950' },
-                  { label: 'Messages', color: 'bg-orange-600 text-white' },
-                ].map((action) => (
-                  <button
-                    key={action.label}
-                    className={`${action.color} p-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium text-center w-full`}
-                  >
-                    {action.label}
-                  </button>
-                ))}
-              </div>
-            </DashboardWidget>
-          </div>
+          {/* "Quick Actions" was four buttons — Browse Jobs, Update Profile, Upload Resume,
+              Messages — rendered from a map with no onClick on any of them, and Messages names a
+              feature this product does not have. Removed rather than restyled: four controls that
+              look like navigation and are not is worse than three fewer places to click. Browsing
+              roles is reachable from the nav, and the decision bar above carries the real next
+              action. */}
         </div>
       </div>
     </div>

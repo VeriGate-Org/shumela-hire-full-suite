@@ -15,6 +15,8 @@ import {
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import { apiFetch } from '@/lib/api-fetch';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
 import { DashboardWidget } from '../../dashboard';
 
 interface ExecutiveDashboardProps {
@@ -93,15 +95,15 @@ function KpiTile({ label, value, icon: Icon, tone, href, onClick, hint }: KpiTil
       type="button"
       onClick={handleClick}
       disabled={!isClickable}
-      className={`bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-4 text-left w-full transition-shadow ${
+      className={`bg-card rounded-control border border-border border-t-2 border-t-gold-500 p-4 text-left w-full transition-shadow ${
         isClickable ? 'hover:shadow-md cursor-pointer' : 'cursor-default'
       }`}
     >
       <div className="flex items-start justify-between">
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-wider text-gray-500">{label}</p>
-          <p className="mt-2 text-2xl font-semibold text-gray-900">{value}</p>
-          {hint && <p className="mt-1 text-xs text-gray-500 truncate">{hint}</p>}
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
+          <p className="mt-2 text-2xl font-semibold text-foreground">{value}</p>
+          {hint && <p className="mt-1 text-xs text-muted-foreground truncate">{hint}</p>}
         </div>
         <div className={`p-2 rounded-full ${toneClasses[tone]}`}>
           <Icon className="h-5 w-5" />
@@ -137,6 +139,12 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
   const [leadership, setLeadership] = useState<LeadershipMember[]>([]);
   const [openRequisitions, setOpenRequisitions] = useState<Requisition[]>([]);
   const [pendingRequisitions, setPendingRequisitions] = useState<Requisition[]>([]);
+  // Whole-set counts from GET /api/requisitions/summary. The two paged reads below stay because
+  // the lists need rows, but the FIGURES came from those pages: openRequisitions.length against a
+  // ?size=10 fetch, so an organisation with 19 open requisitions read 10 with nothing saying so.
+  const [requisitionSummary, setRequisitionSummary] = useState<{
+    total: number; awaitingDecision: number; oldestWaitingDays: number | null;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -150,15 +158,26 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
         leadershipRes,
         openReqsRes,
         pendingReqsRes,
+        reqSummaryRes,
       ] = await Promise.allSettled([
         apiFetch('/api/analytics/hr-overview'),
         apiFetch('/api/employees/department-counts'),
         apiFetch('/api/executive/leadership/team'),
         apiFetch('/api/requisitions?status=APPROVED&size=10'),
         apiFetch('/api/requisitions?status=PENDING_APPROVAL&size=10'),
+        apiFetch('/api/requisitions/summary'),
       ]);
 
       if (cancelled) return;
+
+      if (reqSummaryRes.status === 'fulfilled' && reqSummaryRes.value.ok) {
+        try {
+          const payload = await reqSummaryRes.value.json();
+          setRequisitionSummary(typeof payload?.total === 'number' ? payload : null);
+        } catch {
+          setRequisitionSummary(null);
+        }
+      }
 
       if (hrOverviewRes.status === 'fulfilled' && hrOverviewRes.value.ok) {
         try {
@@ -234,27 +253,81 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
   const newHiresMonth = headcount?.newHiresThisMonth ?? 0;
   const terminationsMonth = headcount?.terminationsThisMonth ?? 0;
   const departmentCount = departmentEntries.length;
-  const openRequisitionsCount = openRequisitions.length;
-  const pendingRequisitionsCount = pendingRequisitions.length;
+  // From the summary, not from the ten rows fetched for the list beneath.
+  const openRequisitionsCount = requisitionSummary
+    ? requisitionSummary.total - requisitionSummary.awaitingDecision
+    : null;
+  const pendingRequisitionsCount = requisitionSummary?.awaitingDecision ?? null;
 
   if (loading) {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-control border border-gray-200 p-4 animate-pulse h-24" />
+            <div key={i} className="bg-card rounded-control border border-border p-4 animate-pulse h-24" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-control border border-gray-200 p-6 animate-pulse h-64" />
-          <div className="bg-white rounded-control border border-gray-200 p-6 animate-pulse h-64" />
+          <div className="lg:col-span-2 bg-card rounded-control border border-border p-6 animate-pulse h-64" />
+          <div className="bg-card rounded-control border border-border p-6 animate-pulse h-64" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
+    <div className="space-y-4 max-w-full overflow-hidden">
+      <IdentityBand
+        eyebrow="Organisation"
+        title="Executive"
+        subtitle={
+          requisitionSummary
+            ? `${totalHeadcount} people · ${requisitionSummary.total} ${requisitionSummary.total === 1 ? 'requisition' : 'requisitions'}`
+            : loading
+              ? 'Loading…'
+              : 'Counts unavailable'
+        }
+        figures={[
+          ...(pendingRequisitionsCount
+            ? [{ label: 'Awaiting your approval', value: pendingRequisitionsCount, tone: 'warning' as const }]
+            : []),
+          {
+            label: 'Annual turnover',
+            value: turnoverRate != null ? `${turnoverRate}%` : 'Not recorded',
+          },
+          ...(requisitionSummary?.oldestWaitingDays
+            ? [{
+                label: 'Oldest waiting',
+                value: `${requisitionSummary.oldestWaitingDays} days`,
+                tone: (requisitionSummary.oldestWaitingDays >= 14 ? 'critical' : 'warning') as 'critical' | 'warning',
+              }]
+            : []),
+        ]}
+      />
+
+      {!loading && requisitionSummary && (
+        pendingRequisitionsCount ? (
+          <DecisionBar
+            ask={`${pendingRequisitionsCount} ${pendingRequisitionsCount === 1 ? 'requisition is' : 'requisitions are'} waiting on an approval.`}
+            why={
+              requisitionSummary.oldestWaitingDays
+                ? `The oldest has waited ${requisitionSummary.oldestWaitingDays} days.`
+                : 'None has a recorded waiting time yet.'
+            }
+            tone="owed"
+          >
+            <PrimaryAction onClick={() => (window.location.href = '/requisitions')}>
+              Review approvals
+            </PrimaryAction>
+          </DecisionBar>
+        ) : (
+          <DecisionBar
+            ask="No requisitions are waiting on an approval."
+            why="Every requisition has cleared its decision points."
+            tone="settled"
+          />
+        )
+      )}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <KpiTile
           label="Total Headcount"
@@ -281,11 +354,11 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
         />
         <KpiTile
           label="Open Requisitions"
-          value={openRequisitionsCount}
+          value={openRequisitionsCount ?? '—'}
           icon={BriefcaseIcon}
           tone="gold"
           href="/requisitions"
-          hint={pendingRequisitionsCount > 0 ? `${pendingRequisitionsCount} pending approval` : undefined}
+          hint={pendingRequisitionsCount ? `${pendingRequisitionsCount} pending approval` : undefined}
         />
         <KpiTile
           label="Departments"
@@ -313,7 +386,7 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
             size="medium"
           >
             {departmentEntries.length === 0 ? (
-              <div className="py-8 text-center text-sm text-gray-500">
+              <div className="py-8 text-center text-sm text-muted-foreground">
                 No department data available yet.
               </div>
             ) : (
@@ -346,7 +419,7 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
             size="medium"
           >
             {openRequisitions.length === 0 ? (
-              <div className="py-8 text-center text-sm text-gray-500">
+              <div className="py-8 text-center text-sm text-muted-foreground">
                 No open requisitions.
               </div>
             ) : (
@@ -355,17 +428,17 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
                   <button
                     key={req.id}
                     onClick={() => router.push(`/requisitions/${req.id}`)}
-                    className="w-full text-left flex items-center justify-between py-3 hover:bg-gray-50 rounded-control px-2"
+                    className="w-full text-left flex items-center justify-between py-3 hover:bg-muted rounded-control px-2"
                   >
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {req.title || req.jobTitle || 'Untitled requisition'}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {req.department || ''} {req.hiringManagerName ? `· ${req.hiringManagerName}` : ''}
                       </p>
                     </div>
-                    <span className="text-xs text-gray-700 font-medium flex-shrink-0 ml-3">
+                    <span className="text-xs text-foreground font-medium flex-shrink-0 ml-3">
                       {formatDate(req.createdAt)}
                     </span>
                   </button>
@@ -383,7 +456,7 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
             size="small"
           >
             {pendingRequisitions.length === 0 ? (
-              <div className="py-6 text-center text-sm text-gray-500">
+              <div className="py-6 text-center text-sm text-muted-foreground">
                 You&apos;re all caught up.
               </div>
             ) : (
@@ -392,14 +465,14 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
                   <button
                     key={req.id}
                     onClick={() => router.push(`/requisitions/${req.id}`)}
-                    className="w-full text-left flex items-start gap-3 p-3 hover:bg-gray-50 rounded-control"
+                    className="w-full text-left flex items-start gap-3 p-3 hover:bg-muted rounded-control"
                   >
                     <ClipboardDocumentCheckIcon className="h-4 w-4 text-gold-600 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {req.title || req.jobTitle || 'Untitled requisition'}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {req.department || ''} {req.createdAt ? `· ${formatDate(req.createdAt)}` : ''}
                       </p>
                     </div>
@@ -416,7 +489,7 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
             size="small"
           >
             {leadership.length === 0 ? (
-              <div className="py-6 text-center text-sm text-gray-500">
+              <div className="py-6 text-center text-sm text-muted-foreground">
                 No leadership data available.
               </div>
             ) : (
@@ -432,16 +505,16 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
                   return (
                     <div
                       key={leader.id}
-                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-control"
+                      className="flex items-center gap-3 p-2 hover:bg-muted rounded-control"
                     >
                       <div className="h-8 w-8 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
                         {initials}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {leader.name || 'Unknown'}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           {leader.title || leader.role || ''}
                           {leader.department ? ` · ${leader.department}` : ''}
                         </p>
@@ -491,18 +564,18 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
                   <div className="flex items-center justify-between p-3 bg-muted rounded-card">
                     <div className="flex items-center gap-2">
                       <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                      <span className="text-sm text-gray-700">Offer acceptance</span>
+                      <span className="text-sm text-foreground">Offer acceptance</span>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900">{kpis.offerAcceptanceRate}%</span>
+                    <span className="text-sm font-semibold text-foreground">{kpis.offerAcceptanceRate}%</span>
                   </div>
                 )}
                 {kpis.employeeSatisfactionScore != null && (
                   <div className="flex items-center justify-between p-3 bg-muted rounded-card">
                     <div className="flex items-center gap-2">
                       <ChartBarIcon className="h-4 w-4 text-violet-600" />
-                      <span className="text-sm text-gray-700">Satisfaction</span>
+                      <span className="text-sm text-foreground">Satisfaction</span>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900">{kpis.employeeSatisfactionScore}/10</span>
+                    <span className="text-sm font-semibold text-foreground">{kpis.employeeSatisfactionScore}/10</span>
                   </div>
                 )}
               </div>

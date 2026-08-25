@@ -145,6 +145,27 @@ export default function InterviewsPage() {
     }
   }, [view, loadInterviews]);
 
+  // Deep link into one interview's feedback form: /interviews?feedback={id}
+  //
+  // The feedback view was reachable only by clicking through this page, which left the
+  // Interviewer dashboard's "Submit Feedback" button with nowhere to point — it carried no
+  // onClick at all, so the primary action of that screen did nothing. Rather than build a second
+  // feedback form on the dashboard (a fourth surface, the mistake #299 unwound for candidate
+  // records), the form stays here and gains an address.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const wanted = new URLSearchParams(window.location.search).get('feedback');
+    if (!wanted) return;
+
+    const match = interviews.find((interview) => String(interview.id) === wanted);
+    // Silently ignored when the id is not in the loaded set — the interviewer still lands on a
+    // working page rather than an error about an interview they may not be on the panel for.
+    if (match) {
+      setSelectedInterview(match);
+      setView('feedback');
+    }
+  }, [interviews]);
+
   useEffect(() => {
     void loadSummary();
   }, [loadSummary]);

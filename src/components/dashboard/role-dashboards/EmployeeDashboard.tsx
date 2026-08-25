@@ -6,6 +6,8 @@ import { DashboardWidget } from '../../dashboard';
 import { getMyDashboardData } from '@/services/candidateService';
 import { getEnumLabel } from '@/utils/enumLabels';
 import { useAuth } from '@/contexts/AuthContext';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
 
 interface EmployeeDashboardProps {
   selectedTimeframe: string;
@@ -48,7 +50,7 @@ const STATUS_COLOR_MAP: Record<string, string> = {
   OFFER: 'bg-green-100 text-green-800',
   OFFER_RECEIVED: 'bg-green-100 text-green-800',
   REJECTED: 'bg-red-100 text-red-800',
-  WITHDRAWN: 'bg-gray-100 text-gray-800',
+  WITHDRAWN: 'bg-muted text-foreground',
 };
 
 const STATUS_DISPLAY_MAP: Record<string, string> = {
@@ -65,7 +67,7 @@ const STATUS_DISPLAY_MAP: Record<string, string> = {
 };
 
 function getStatusColor(status: string): string {
-  return STATUS_COLOR_MAP[status] ?? 'bg-gray-100 text-gray-800';
+  return STATUS_COLOR_MAP[status] ?? 'bg-muted text-foreground';
 }
 
 function getStatusDisplay(status: string): string {
@@ -196,28 +198,28 @@ export default function EmployeeDashboard({ selectedTimeframe: _selectedTimefram
       <div className="space-y-6 max-w-full overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-full">
           <div className="lg:col-span-2 space-y-6 min-w-0">
-            <div className="bg-white rounded-control border border-gray-200 p-6 animate-pulse">
-              <div className="h-5 bg-gray-200 rounded w-1/3 mb-4" />
+            <div className="bg-card rounded-control border border-border p-6 animate-pulse">
+              <div className="h-5 bg-muted rounded w-1/3 mb-4" />
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-20 bg-gray-100 rounded-control" />
+                  <div key={i} className="h-20 bg-muted rounded-control" />
                 ))}
               </div>
             </div>
-            <div className="bg-white rounded-control border border-gray-200 p-6 animate-pulse">
-              <div className="h-5 bg-gray-200 rounded w-1/3 mb-4" />
+            <div className="bg-card rounded-control border border-border p-6 animate-pulse">
+              <div className="h-5 bg-muted rounded w-1/3 mb-4" />
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 bg-gray-100 rounded-control" />
+                  <div key={i} className="h-16 bg-muted rounded-control" />
                 ))}
               </div>
             </div>
           </div>
           <div className="space-y-6 min-w-0">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-control border border-gray-200 p-6 animate-pulse">
-                <div className="h-5 bg-gray-200 rounded w-2/3 mb-4" />
-                <div className="h-24 bg-gray-100 rounded-control" />
+              <div key={i} className="bg-card rounded-control border border-border p-6 animate-pulse">
+                <div className="h-5 bg-muted rounded w-2/3 mb-4" />
+                <div className="h-24 bg-muted rounded-control" />
               </div>
             ))}
           </div>
@@ -227,7 +229,45 @@ export default function EmployeeDashboard({ selectedTimeframe: _selectedTimefram
   }
 
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
+    <div className="space-y-4 max-w-full overflow-hidden">
+      <IdentityBand
+        eyebrow="Internal opportunities"
+        title={user?.name ? `Welcome back, ${user.name.split(' ')[0]}` : 'Internal opportunities'}
+        subtitle={`${recentApplications.length} ${recentApplications.length === 1 ? 'application' : 'applications'} · ${upcomingInterviews.length} ${upcomingInterviews.length === 1 ? 'interview' : 'interviews'} booked`}
+        figures={[
+          { label: 'Your applications', value: recentApplications.length },
+          {
+            label: 'Interviews booked',
+            value: upcomingInterviews.length,
+            tone: (upcomingInterviews.length > 0 ? 'positive' : undefined) as 'positive' | undefined,
+          },
+        ]}
+      />
+
+      {!loading && (
+        upcomingInterviews.length > 0 ? (
+          <DecisionBar
+            ask="You have an interview coming up."
+            why="Applying internally does not notify your manager until you are shortlisted."
+            tone="owed"
+          >
+            <PrimaryAction onClick={() => (window.location.href = '/internal/jobs')}>
+              Browse internal roles
+            </PrimaryAction>
+          </DecisionBar>
+        ) : (
+          <DecisionBar
+            ask="No interviews booked."
+            why="Internal roles you can apply for are on the internal job board."
+            tone="settled"
+          >
+            <PrimaryAction onClick={() => (window.location.href = '/internal/jobs')}>
+              Browse internal roles
+            </PrimaryAction>
+          </DecisionBar>
+        )
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-full">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6 min-w-0">
@@ -242,11 +282,11 @@ export default function EmployeeDashboard({ selectedTimeframe: _selectedTimefram
             >
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {statusCounts.map((item) => (
-                  <div key={item.status} className="text-center p-4 bg-gray-50 rounded-control">
+                  <div key={item.status} className="text-center p-4 bg-muted rounded-control">
                     <div className={`text-2xl font-bold mb-2 px-3 py-1 rounded-full ${item.color} inline-block`}>
                       {item.count}
                     </div>
-                    <p className="text-sm font-medium text-gray-700">{item.status}</p>
+                    <p className="text-sm font-medium text-foreground">{item.status}</p>
                   </div>
                 ))}
               </div>
@@ -264,14 +304,14 @@ export default function EmployeeDashboard({ selectedTimeframe: _selectedTimefram
             >
               <div className="space-y-4">
                 {recentApplications.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No applications yet. Browse internal or external jobs to get started.</p>
+                  <p className="text-muted-foreground text-sm">No applications yet. Browse internal or external jobs to get started.</p>
                 ) : (
                   recentApplications.map((application) => (
-                    <div key={application.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-control hover:bg-gray-50">
+                    <div key={application.id} className="flex items-center justify-between p-4 border border-border rounded-control hover:bg-muted">
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-lg font-semibold text-gray-900 truncate">{application.position}</h4>
-                        <p className="text-sm text-gray-600">{application.company}{application.location ? ` • ${application.location}` : ''}</p>
-                        <p className="text-xs text-gray-500 mt-1">Applied {application.appliedDate}</p>
+                        <h4 className="text-lg font-semibold text-foreground truncate">{application.position}</h4>
+                        <p className="text-sm text-muted-foreground">{application.company}{application.location ? ` • ${application.location}` : ''}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Applied {application.appliedDate}</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${application.statusColor}`}>
@@ -305,16 +345,16 @@ export default function EmployeeDashboard({ selectedTimeframe: _selectedTimefram
             >
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {upcomingInterviews.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No upcoming interviews scheduled.</p>
+                  <p className="text-muted-foreground text-sm">No upcoming interviews scheduled.</p>
                 ) : (
                   upcomingInterviews.map((interview) => (
-                    <div key={interview.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-control">
+                    <div key={interview.id} className="flex items-start gap-3 p-3 hover:bg-muted rounded-control">
                       <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${interview.color.replace('text-', 'bg-')}`}></div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{interview.company}</p>
-                        <p className="text-xs text-gray-500 truncate">{interview.position}</p>
-                        <p className="text-xs text-gray-600 mt-1">{interview.date} at {interview.time}</p>
-                        <p className="text-xs text-gray-500">{getEnumLabel('interviewType', interview.type)}</p>
+                        <p className="text-sm font-medium text-foreground truncate">{interview.company}</p>
+                        <p className="text-xs text-muted-foreground truncate">{interview.position}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{interview.date} at {interview.time}</p>
+                        <p className="text-xs text-muted-foreground">{getEnumLabel('interviewType', interview.type)}</p>
                       </div>
                     </div>
                   ))

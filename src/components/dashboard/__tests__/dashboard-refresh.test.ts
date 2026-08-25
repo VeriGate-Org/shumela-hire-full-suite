@@ -3,8 +3,20 @@ import path from 'path';
 
 const DIR = path.join(process.cwd(), 'src', 'components', 'dashboard', 'role-dashboards');
 
-/** The dashboards refreshed in batch 1. Extend as later batches land. */
-const REFRESHED = ['RecruiterDashboard', 'HiringManagerDashboard', 'HRDashboard'];
+/** Every role dashboard. All ten are refreshed as of batches 1–3. */
+const REFRESHED = [
+  'RecruiterDashboard', 'HiringManagerDashboard', 'HRDashboard',
+  'ExecutiveDashboard', 'LineManagerDashboard', 'AdminDashboard',
+  'ApplicantDashboard', 'EmployeeDashboard', 'InterviewerDashboard',
+  'PlatformOwnerDashboard',
+];
+
+/**
+ * PlatformOwner carries no DecisionBar, and that is correct rather than an omission: it fetches
+ * nothing, holds no state and is two links to other screens. A decision bar there would have to
+ * invent something to decide about.
+ */
+const NO_DECISION_BAR = ['PlatformOwnerDashboard'];
 
 function source(name: string): string {
   return fs.readFileSync(path.join(DIR, `${name}.tsx`), 'utf8');
@@ -37,9 +49,21 @@ describe('the refreshed dashboards use tokens, not hardcoded colour', () => {
     expect(source(name)).toContain('IdentityBand');
   });
 
-  it.each(REFRESHED)('%s says what is waiting on this person', (name) => {
-    // A dashboard's job is to answer "what do I do next". None of these had a DecisionBar.
-    expect(source(name)).toContain('DecisionBar');
+  it.each(REFRESHED.filter((name) => !NO_DECISION_BAR.includes(name)))(
+    '%s says what is waiting on this person',
+    (name) => {
+      // A dashboard's job is to answer "what do I do next". None of these had a DecisionBar.
+      expect(source(name)).toContain('DecisionBar');
+    },
+  );
+
+  it.each(NO_DECISION_BAR)('%s is excluded from the decision bar rule on purpose', (name) => {
+    // An exclusion list nobody checks is how the next one slips through — the lesson from the AI
+    // registry. If this screen ever gains data, it should gain a bar and leave this list.
+    const text = source(name);
+
+    expect(text).not.toContain('apiFetch');
+    expect(text).not.toContain('useState');
   });
 });
 
@@ -81,6 +105,48 @@ describe('nothing on these screens is invented', () => {
     // that paged read — the summary carries no department breakdown — so both are fetched and the
     // whole-set figures come from the summary.
     expect(source('HRDashboard')).toContain('/api/job-postings/summary');
+  });
+});
+
+describe('the dead controls found in batches 2 and 3', () => {
+  it('the interviewer can actually submit feedback', () => {
+    // The button carried no onClick. Recording feedback is the entire purpose of that screen and
+    // nothing else on it could do so, so the primary action did nothing at all. The form lives on
+    // the interviews page; it now has an address rather than being duplicated here.
+    const text = source('InterviewerDashboard');
+
+    expect(text).toContain('Submit Feedback');
+    expect(text).toMatch(/interviews\?feedback=/);
+  });
+
+  it('the applicant can open the record behind a row', () => {
+    // Also dead. #299 gave the record an address, so this had an obvious destination.
+    expect(source('ApplicantDashboard')).toMatch(/\/applications\/\$\{/);
+  });
+
+  it('the applicant quick actions are gone rather than restyled', () => {
+    // Four buttons rendered from a map with no onClick on any of them, one of them naming
+    // "Messages" — a feature this product does not have.
+    const text = source('ApplicantDashboard');
+
+    expect(text).not.toContain("'Upload Resume'");
+    expect(text).not.toContain("'Messages'");
+  });
+
+  it('no dashboard still sends a role parameter the endpoint discards', () => {
+    // /api/analytics/dashboard accepts department and date only. Three screens sent role=.
+    REFRESHED.forEach((name) => {
+      expect(source(name)).not.toMatch(/dashboard\?role=/);
+    });
+  });
+
+  it('the executive requisition figures come from the summary, not a page of ten', () => {
+    // openRequisitions.length against a ?size=10 fetch: an organisation with 19 open requisitions
+    // read 10, with nothing saying so.
+    const text = source('ExecutiveDashboard');
+
+    expect(text).toContain('/api/requisitions/summary');
+    expect(text).not.toContain('const openRequisitionsCount = openRequisitions.length');
   });
 });
 
