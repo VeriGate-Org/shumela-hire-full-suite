@@ -11,6 +11,7 @@ import com.arthmatic.shumelahire.repository.SalaryRecommendationDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,32 @@ import java.util.UUID;
 public class SalaryRecommendationService {
 
     private static final Logger logger = LoggerFactory.getLogger(SalaryRecommendationService.class);
-    private static final BigDecimal EXECUTIVE_APPROVAL_THRESHOLD = new BigDecimal("200000");
+
+    /**
+     * Proposed base salary above which a recommendation needs executive rather than manager sign-off.
+     *
+     * <p>Was hard-coded to 200000, with no way to change it short of a rebuild, and no relationship
+     * recorded to {@code OfferService}'s own high-value threshold of 150000 — which does exactly the
+     * same thing, setting {@code approvalLevelRequired} to 2 instead of 1. Two undocumented rand
+     * figures that nobody could compare, in a system whose entire subject is who is allowed to
+     * approve what.
+     *
+     * <p><b>They are not measuring the same thing, which is why they are not being collapsed into
+     * one number.</b> This reads {@code proposedTargetSalary} — a base salary. The offer threshold
+     * reads {@code totalCompensation}, which includes allowances and bonus and is therefore always
+     * the larger figure for the same person. A lower bar on the larger measure and a higher bar on
+     * the smaller one converge rather than conflict.
+     *
+     * <p>Both are now settable, and both defaults are unchanged, so this commit alters no approval
+     * outcome. The figures themselves read like placeholders — R200,000 a year would send most
+     * professional appointments to an executive — and choosing real ones is a business decision,
+     * not an engineering one.
+     *
+     * <p>Initialised as well as annotated: this service is constructed directly in unit tests, where
+     * Spring never runs and an annotation-only field would be null at the comparison.
+     */
+    @Value("${shumelahire.approval.executive-salary-threshold:200000}")
+    private BigDecimal executiveApprovalThreshold = new BigDecimal("200000");
 
     private final SalaryRecommendationDataRepository repository;
     private final ApplicationDataRepository applicationRepository;
@@ -63,7 +89,7 @@ public class SalaryRecommendationService {
         }
 
         // Determine approval level based on proposed target salary
-        if (request.getProposedTargetSalary() != null && request.getProposedTargetSalary().compareTo(EXECUTIVE_APPROVAL_THRESHOLD) > 0) {
+        if (request.getProposedTargetSalary() != null && request.getProposedTargetSalary().compareTo(executiveApprovalThreshold) > 0) {
             rec.setApprovalLevelRequired(2); // Executive approval
         } else {
             rec.setApprovalLevelRequired(1); // Manager approval
@@ -108,7 +134,7 @@ public class SalaryRecommendationService {
         rec.setBenefitsNotes(request.getBenefitsNotes());
 
         // Determine if approval is needed based on recommended amount
-        if (request.getRecommendedSalary().compareTo(EXECUTIVE_APPROVAL_THRESHOLD) > 0) {
+        if (request.getRecommendedSalary().compareTo(executiveApprovalThreshold) > 0) {
             rec.setApprovalLevelRequired(2);
             rec.setStatus(SalaryRecommendationStatus.PENDING_APPROVAL);
         } else if (Boolean.TRUE.equals(rec.getRequiresApproval())) {

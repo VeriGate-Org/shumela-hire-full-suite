@@ -202,3 +202,21 @@ sage:
     enabled: ${SAGE_300_ENABLED:true}
   evolution:
     enabled: ${SAGE_EVOLUTION_ENABLED:true}
+
+# Approval thresholds
+#
+# Both set approvalLevelRequired to 2 (a second signature) instead of 1. They were hard-coded in
+# two different services with no recorded relationship, so an offer was "high value" at R150,000
+# while a salary recommendation only reached an executive at R200,000.
+#
+# The two figures differ because they measure different things, not because one is wrong:
+#   executive-salary-threshold  -> proposedTargetSalary,  a BASE salary
+#   offer-high-value-threshold  -> totalCompensation,     base + allowances + bonus
+# Total compensation is always the larger number for the same appointment, so a lower bar on it
+# sits closer to the higher bar on base salary than the R50,000 gap suggests.
+#
+# Defaults are the previously hard-coded values, so behaviour is unchanged until these are set.
+shumelahire:
+  approval:
+    executive-salary-threshold: ${APPROVAL_EXECUTIVE_SALARY_THRESHOLD:200000}
+    offer-high-value-threshold: ${APPROVAL_OFFER_HIGH_VALUE_THRESHOLD:150000}
