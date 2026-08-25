@@ -47,7 +47,6 @@ const LEGACY = [
   'app/(app)/employee/documents/page.tsx',
   'app/(app)/executive/budget/page.tsx',
   'app/(app)/executive/leadership/page.tsx',
-  'app/(app)/executive/overview/page.tsx',
   'app/(app)/executive/planning/page.tsx',
   'app/(app)/executive/reports/page.tsx',
   'app/(app)/expenses/page.tsx',

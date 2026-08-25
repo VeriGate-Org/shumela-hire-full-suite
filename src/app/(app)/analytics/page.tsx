@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import {
   AdvancedAnalyticsDashboard,
   RealTimeMetrics,
@@ -225,11 +226,13 @@ export default function AnalyticsPage() {
   );
 
   return (
-    <PageWrapper
-      title="Analytics Dashboard"
-      subtitle="Recruitment performance insights"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Recruitment"
+        title="Analytics Dashboard"
+        subtitle="Recruitment performance insights"
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* Time range bar — pill toggle group + filter button */}
         <div className="flex items-center justify-between flex-wrap gap-3">

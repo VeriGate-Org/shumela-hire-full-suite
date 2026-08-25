@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { hrAnalyticsService } from '@/services/hrAnalyticsService';
 import {
   RecruitmentBarChart,
@@ -23,7 +24,12 @@ export default function PerformanceAnalyticsPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Performance Analytics" subtitle="Insights across performance reviews and goals">
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Performance"
+        title="Performance Analytics"
+        subtitle="Insights across performance reviews and goals"
+      />
         <TableSkeleton />
       </PageWrapper>
     );
@@ -36,7 +42,12 @@ export default function PerformanceAnalyticsPage() {
   const pipStats = (data.pipStats || {}) as any;
 
   return (
-    <PageWrapper title="Performance Analytics" subtitle="Insights across performance reviews and goals">
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Performance"
+        title="Performance Analytics"
+        subtitle="Insights across performance reviews and goals"
+      />
       <div className="space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
