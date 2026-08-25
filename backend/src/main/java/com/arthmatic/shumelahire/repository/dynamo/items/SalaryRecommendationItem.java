@@ -68,6 +68,10 @@ public class SalaryRecommendationItem {
     private String approvedBy;
     private String approvedAt;
     private String approvalNotes;
+    private String returnedBy;
+    private String returnReason;
+    private String returnedAt;
+    private Integer timesReturned;
     private String rejectedBy;
     private String rejectionReason;
     private String currency;
@@ -242,4 +246,16 @@ public class SalaryRecommendationItem {
 
     public String getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getReturnedBy() { return returnedBy; }
+    public void setReturnedBy(String returnedBy) { this.returnedBy = returnedBy; }
+
+    public String getReturnReason() { return returnReason; }
+    public void setReturnReason(String returnReason) { this.returnReason = returnReason; }
+
+    public String getReturnedAt() { return returnedAt; }
+    public void setReturnedAt(String returnedAt) { this.returnedAt = returnedAt; }
+
+    public Integer getTimesReturned() { return timesReturned; }
+    public void setTimesReturned(Integer timesReturned) { this.timesReturned = timesReturned; }
 }

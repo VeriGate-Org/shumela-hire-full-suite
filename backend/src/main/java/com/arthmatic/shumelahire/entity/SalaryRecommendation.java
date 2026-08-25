@@ -67,6 +67,28 @@ public class SalaryRecommendation extends TenantAwareEntity {
 
     private String approvalNotes;
 
+    /**
+     * Who sent this back for rework, and why.
+     *
+     * <p>Distinct from {@code rejectedBy}: a rejection is the end of the recommendation, a return
+     * is a request to fix it and resubmit. {@code submitForReview} has always accepted
+     * {@code RETURNED} — the transition that could produce it was the missing half.
+     */
+    private String returnedBy;
+
+    private String returnReason;
+
+    private LocalDateTime returnedAt;
+
+    /**
+     * How many times this recommendation has been sent back.
+     *
+     * <p>Resubmitting moves the status to {@code PENDING_REVIEW}, so without a count the fact that
+     * it was ever returned disappears the moment it is fixed. One return is a correction; four is a
+     * disagreement nobody is resolving, and the reviewer deserves to see which.
+     */
+    private Integer timesReturned = 0;
+
     private String rejectedBy;
 
     private String rejectionReason;
@@ -196,4 +218,16 @@ public class SalaryRecommendation extends TenantAwareEntity {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getReturnedBy() { return returnedBy; }
+    public void setReturnedBy(String returnedBy) { this.returnedBy = returnedBy; }
+
+    public String getReturnReason() { return returnReason; }
+    public void setReturnReason(String returnReason) { this.returnReason = returnReason; }
+
+    public LocalDateTime getReturnedAt() { return returnedAt; }
+    public void setReturnedAt(LocalDateTime returnedAt) { this.returnedAt = returnedAt; }
+
+    public Integer getTimesReturned() { return timesReturned; }
+    public void setTimesReturned(Integer timesReturned) { this.timesReturned = timesReturned; }
 }

@@ -152,6 +152,14 @@ public class DynamoSalaryRecommendationRepository
             entity.setApprovedAt(TimestampUtils.parseTimestamp(item.getApprovedAt()));
         }
         entity.setApprovalNotes(item.getApprovalNotes());
+        entity.setReturnedBy(item.getReturnedBy());
+        entity.setReturnReason(item.getReturnReason());
+        if (item.getReturnedAt() != null) {
+            entity.setReturnedAt(LocalDateTime.parse(item.getReturnedAt()));
+        }
+        // Absent on records written before returning existed — zero, not null, so the count is
+        // always a number a caller can add to.
+        entity.setTimesReturned(item.getTimesReturned() == null ? 0 : item.getTimesReturned());
         entity.setRejectedBy(item.getRejectedBy());
         entity.setRejectionReason(item.getRejectionReason());
         entity.setCurrency(item.getCurrency());
@@ -275,6 +283,12 @@ public class DynamoSalaryRecommendationRepository
             item.setApprovedAt(entity.getApprovedAt().format(ISO_FMT));
         }
         item.setApprovalNotes(entity.getApprovalNotes());
+        item.setReturnedBy(entity.getReturnedBy());
+        item.setReturnReason(entity.getReturnReason());
+        if (entity.getReturnedAt() != null) {
+            item.setReturnedAt(entity.getReturnedAt().toString());
+        }
+        item.setTimesReturned(entity.getTimesReturned());
         item.setRejectedBy(entity.getRejectedBy());
         item.setRejectionReason(entity.getRejectionReason());
         item.setCurrency(entity.getCurrency());
