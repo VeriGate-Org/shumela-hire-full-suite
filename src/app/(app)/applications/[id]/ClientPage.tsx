@@ -10,6 +10,10 @@ import EmptyState from '@/components/EmptyState';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import VerificationReportDownload from '@/components/VerificationReportDownload';
 import ShortlistButton from '@/components/ShortlistButton';
+import ScreeningNotesPanel from '@/components/ScreeningNotesPanel';
+import InterviewSummaryPanel from '@/components/InterviewSummaryPanel';
+import OfferSummaryPanel from '@/components/OfferSummaryPanel';
+import AiCandidatePanel from '@/components/ai/AiCandidatePanel';
 import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, {
   PrimaryAction,
@@ -94,6 +98,11 @@ export default function ApplicationDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<RecordAction | null>(null);
   const [working, setWorking] = useState(false);
+  const [offer, setOffer] = useState<unknown>(null);
+  const [timeline, setTimeline] = useState<Array<{
+    fromStage?: string; toStage?: string; createdAt?: string; performedBy?: string; reason?: string;
+  }>>([]);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -126,6 +135,61 @@ export default function ApplicationDetailPage() {
     if (!isAuthenticated || !applicationId) return;
     fetchApplication();
   }, [isAuthenticated, applicationId, fetchApplication]);
+
+  // The offer and the transition history live behind their own endpoints. Both were reachable only
+  // from the pipeline board's modal, which is why that modal was the real candidate record and this
+  // page — the one with a URL — was the poorest of the three.
+  useEffect(() => {
+    if (!isAuthenticated || !applicationId) return;
+    let cancelled = false;
+
+    apiFetch(`/api/offers/applications/${applicationId}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        setOffer(Array.isArray(data) ? data[0] ?? null : data);
+      })
+      .catch(() => {});
+
+    apiFetch(`/api/pipeline/applications/${applicationId}/timeline`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (cancelled) return;
+        const rows = Array.isArray(data) ? data : data?.content ?? [];
+        setTimeline(
+          rows.map((t: Record<string, string>) => ({
+            fromStage: t.fromStage,
+            toStage: t.toStage,
+            createdAt: t.createdAt || t.transitionDate,
+            // Prefer the name. performedBy holds a user id, and putting that on screen is how a
+            // UUID ends up where a person's name belongs.
+            performedBy: t.performedByName || undefined,
+            reason: t.reason || t.notes || undefined,
+          })),
+        );
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, applicationId]);
+
+  /**
+   * Copy this record's address.
+   *
+   * <p>The reason this page exists rather than a modal: a hiring manager has to be able to send a
+   * candidate to a panel or an approver, and a modal cannot be sent.
+   */
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast('Could not copy the link — your browser refused clipboard access', 'error');
+    }
+  };
 
   /**
    * Move the application to another status.
@@ -242,11 +306,27 @@ export default function ApplicationDetailPage() {
               : []),
           ]}
         >
-          <div
-            aria-hidden
-            className="w-12 h-12 rounded-full bg-band-accent/20 text-band-accent grid place-items-center text-sm font-extrabold tracking-tight"
-          >
-            {initialsOf(application.applicantName)}
+          <div className="mt-4 flex items-center gap-3">
+            <div
+              aria-hidden
+              className="w-12 h-12 rounded-full bg-band-accent/20 text-band-accent grid place-items-center text-sm font-extrabold tracking-tight"
+            >
+              {initialsOf(application.applicantName)}
+            </div>
+            {/* The address is shown, not just copyable. A hiring manager sending this to a panel
+                should be able to see what they are about to send. */}
+            <div className="flex min-w-0 items-center gap-2 rounded-control border border-band-line bg-band-fill px-3 py-2">
+              <span className="truncate font-mono text-xs text-band-strong">
+                {typeof window === 'undefined' ? '' : window.location.host}/applications/{application.id.slice(0, 8)}…
+              </span>
+              <button
+                type="button"
+                onClick={copyLink}
+                className="whitespace-nowrap text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] text-band-accent hover:underline"
+              >
+                {copied ? 'Copied' : 'Copy link'}
+              </button>
+            </div>
           </div>
         </IdentityBand>
 
@@ -292,7 +372,8 @@ export default function ApplicationDetailPage() {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 enterprise-card overflow-hidden">
+          <div className="lg:col-span-2 space-y-4">
+          <div className="enterprise-card overflow-hidden">
             <div className="px-5 py-4 border-b border-border flex items-baseline justify-between gap-3">
               <h2 className="text-[0.8125rem] font-extrabold tracking-tight">The record so far</h2>
               <span className="text-xs text-muted-foreground">
@@ -306,8 +387,9 @@ export default function ApplicationDetailPage() {
                     <span className="text-[0.5625rem] font-extrabold uppercase tracking-[0.16em] text-muted-foreground">
                       {entry.stage}
                     </span>
-                    {/* Who wrote it is not recorded — the notes are free text with no author, and
-                        the audit trail that would carry one names the candidate as the actor. */}
+                    {/* These stage narratives carry no author — they are free text on the
+                        application. Notes added below are attributed, so over time the unattributed
+                        ones age out of the record rather than being retrofitted. */}
                     <span className="text-xs text-muted-foreground">{entry.kind}</span>
                   </div>
                   {entry.body ? (
@@ -318,6 +400,42 @@ export default function ApplicationDetailPage() {
                 </div>
               ))}
             </div>
+          </div>
+
+            {/* Writable, and each entry carries its author and time. The read-only summary above is
+                the narrative the stages produced; this is where a view gets recorded. */}
+            <div className="enterprise-card p-5">
+              <ScreeningNotesPanel
+                applicationId={application.id}
+                notes={application.screeningNotes}
+                onSaved={(allNotes) =>
+                  setApplication((prev) => (prev ? { ...prev, screeningNotes: allNotes } : prev))
+                }
+              />
+            </div>
+
+            <div className="enterprise-card p-5">
+              <InterviewSummaryPanel
+                applicationId={application.id}
+                candidateName={application.applicantName || 'this candidate'}
+                jobTitle={application.jobTitle || ''}
+              />
+            </div>
+
+            <div className="enterprise-card p-5">
+              <OfferSummaryPanel
+                offer={offer}
+                applicationId={application.id}
+                readOnly={ended}
+                onAction={fetchApplication}
+              />
+            </div>
+
+            <AiCandidatePanel
+              applicationId={application.id}
+              candidateName={application.applicantName || 'this candidate'}
+              jobTitle={application.jobTitle || ''}
+            />
           </div>
 
           <div className="space-y-4">
@@ -395,6 +513,57 @@ export default function ApplicationDetailPage() {
 
             <div className="enterprise-card p-5">
               <VerificationReportDownload applicationId={application.id} />
+            </div>
+
+            {/* History, deliberately secondary to the decisions on the left. */}
+            <div className="enterprise-card overflow-hidden">
+              <div className="px-5 py-4 border-b border-border flex items-baseline justify-between gap-3">
+                <h2 className="text-[0.8125rem] font-extrabold tracking-tight">Activity</h2>
+                {timeline.length > 0 && (
+                  <span className="text-xs text-muted-foreground">{timeline.length} recorded</span>
+                )}
+              </div>
+              <div className="p-5">
+                {timeline.length === 0 ? (
+                  // "Nothing recorded" and "we could not load it" are different facts, but the
+                  // honest reading of an empty list here is that this record predates the
+                  // transition log — which is common, so it says that rather than nothing.
+                  <p className="text-sm text-muted-foreground">
+                    No stage changes are recorded against this application.
+                  </p>
+                ) : (
+                  <ol className="space-y-3">
+                    {timeline.map((event, index) => (
+                      <li key={index} className="flex gap-3">
+                        <span
+                          aria-hidden
+                          className="mt-1.5 h-2 w-2 flex-none rounded-full bg-border"
+                        />
+                        <div className="min-w-0">
+                          <p className="text-xs text-foreground">
+                            <b className="font-extrabold">
+                              {event.fromStage
+                                ? `${getEnumLabel('pipelineStage', event.fromStage)} → ${getEnumLabel('pipelineStage', event.toStage ?? '')}`
+                                : getEnumLabel('pipelineStage', event.toStage ?? '')}
+                            </b>
+                            {event.performedBy && (
+                              <span className="text-muted-foreground"> by {event.performedBy}</span>
+                            )}
+                          </p>
+                          {event.reason && (
+                            <p className="mt-0.5 text-xs text-muted-foreground">{event.reason}</p>
+                          )}
+                          {event.createdAt && (
+                            <time className="mt-0.5 block text-[0.625rem] tabular-nums text-muted-foreground">
+                              {formatDate(event.createdAt)}
+                            </time>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
             </div>
           </div>
         </div>

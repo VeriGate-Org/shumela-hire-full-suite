@@ -1777,6 +1777,16 @@ export default function PipelinePage() {
                   <p className="text-muted-foreground">{selectedApplication.job.title} - {selectedApplication.job.department}</p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {/* The full record, at an address. This modal stays because it is the
+                      stage-transition workspace — the verification gate and the move-to-next rule
+                      live here — but everything about the candidate now has one home, and this is
+                      the way to it. */}
+                  <a
+                    href={`/applications/${selectedApplication.id}`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
+                  >
+                    Open full record
+                  </a>
                   {selectedApplication.status === 'active' && (
                     <ShortlistButton
                       applicationId={selectedApplication.id}

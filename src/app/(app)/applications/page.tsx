@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import PageWrapper from '@/components/PageWrapper';
-import ApplicationStatusTracker from '@/components/ApplicationStatusTracker';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import { TableSkeleton } from '@/components/LoadingComponents';
@@ -25,27 +24,20 @@ import {
   stageCount,
 } from './queue';
 import { useToast } from '@/components/Toast';
-import ShortlistButton from '@/components/ShortlistButton';
 import BulkActionBar, { BulkSelect, BulkButton } from '@/components/record/BulkActionBar';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   MagnifyingGlassIcon,
   DocumentTextIcon,
-  XCircleIcon,
   ArrowPathIcon,
-  StarIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
 } from '@heroicons/react/24/outline';
-import AiCandidatePanel from '@/components/ai/AiCandidatePanel';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiSmartSearch from '@/components/ai/AiSmartSearch';
 import { getEnumLabel } from '@/utils/enumLabels';
-
 interface Application {
   /**
    * A string UUID, as it is everywhere else in the platform. This was declared `number`, which
@@ -73,88 +65,19 @@ interface Application {
 }
 
 /*
- * Departments come from the applications themselves.
- *
- * This was a hardcoded list — Engineering, Marketing, Sales, HR, Finance, Operations, Legal,
- * Product — with no overlap whatsoever against the departments this tenant actually uses
- * (Strategic Business Unit, Information Technology, Enterprise Risk Management). Since the filter
- * matches on exact string equality, choosing any department emptied the table, which reads as
- * "no applications" rather than "wrong filter". A control that cannot match anything is worse than
- * an absent one, because it looks like an answer.
- *
- * Departments now come from `/api/applications/summary`, which derives them from the applications
- * themselves. An earlier note here pointed at `/api/applications/manage/filter-options` as "a
- * proper endpoint" to adopt instead — it was not: it returned the same ten literals this page had
- * already removed for matching nothing, and adopting it would have reintroduced the bug.
+ * Departments come from `/api/applications/summary`, which derives them from the applications
+ * themselves rather than from a literal list. An earlier note here pointed at
+ * `/api/applications/manage/filter-options` as the endpoint to adopt — it was not: it returned ten
+ * hardcoded departments this tenant does not have. Fixed at source in #296.
  */
 
-// Pipeline stage definitions matching the mock
-// TODO: Consolidate with backend-provided statusCssClass from ApplicationResponse
-function getStatusColor(status: string): string {
-  switch (status) {
-    case 'SUBMITTED': return 'bg-icon-bg-navy text-primary';
-    case 'SCREENING': return 'bg-icon-bg-gold text-accent-gold';
-    case 'INTERVIEW_SCHEDULED': return 'bg-icon-bg-teal text-accent-teal';
-    case 'INTERVIEW_COMPLETED': return 'bg-icon-bg-teal text-accent-teal';
-    case 'REFERENCE_CHECK': return 'bg-warning-bg text-warning';
-    case 'OFFER_PENDING': return 'bg-warning-bg text-warning';
-    case 'OFFERED': return 'bg-violet-100 text-violet-700';
-    case 'OFFER_ACCEPTED': return 'bg-success-bg text-success';
-    case 'HIRED': return 'bg-success-bg text-success';
-    case 'REJECTED': return 'bg-error-bg text-error';
-    case 'WITHDRAWN': return 'bg-muted/50 text-muted-foreground';
-    case 'OFFER_DECLINED': return 'bg-warning-bg text-warning';
-    default: return 'bg-muted/50 text-muted-foreground';
-  }
-}
-
-function getStatusDotColor(status: string): string {
-  switch (status) {
-    case 'SUBMITTED': return 'bg-primary';
-    case 'SCREENING': return 'bg-accent-gold';
-    case 'INTERVIEW_SCHEDULED':
-    case 'INTERVIEW_COMPLETED': return 'bg-accent-teal';
-    case 'REFERENCE_CHECK':
-    case 'OFFER_PENDING': return 'bg-warning';
-    case 'OFFERED': return 'bg-violet-600';
-    case 'OFFER_ACCEPTED':
-    case 'HIRED': return 'bg-success';
-    case 'REJECTED': return 'bg-error';
-    default: return 'bg-muted-foreground';
-  }
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-ZA', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
-function renderStars(rating: number) {
-  return Array.from({ length: 5 }, (_, i) => (
-    <StarIcon
-      key={i}
-      className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground/40'}`}
-    />
-  ));
-}
-
-/**
- * A rating is one to five, and is shown as one to five.
- *
- * This previously multiplied the rating by twenty and rendered "80%" beside a progress bar — a
- * four-star judgement dressed as a measurement to the nearest percent. The scale has five points;
- * presenting it as a hundred implies a precision nobody entered and nobody can act on.
- */
 const PAGE_SIZE = 20;
 
 export default function ApplicationsPage() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const [advancing, setAdvancing] = useState(false);
 
   // Bulk work is a state of this list, not a separate console. Selection is held by id rather than
   // by row so it survives re-sorting and refreshes within a page.
@@ -175,18 +98,11 @@ export default function ApplicationsPage() {
   const [summary, setSummary] = useState<ApplicationSummary | null>(null);
   const [activeFilter, setActiveFilter] = useState('unscreened');
   const [aiSearchMode, setAiSearchMode] = useState(false);
-  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [expandedDetailSections, setExpandedDetailSections] = useState<Record<string, boolean>>({});
-  const [activeModalTab, setActiveModalTab] = useState<'overview' | 'screening' | 'feedback'>('overview');
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
-  const toggleDetailSection = (section: string) => {
-    setExpandedDetailSections(prev => ({ ...prev, [section]: !prev[section] }));
-  };
 
   const loadApplications = useCallback(async (page: number, search: string, statuses: string[], department: string) => {
     setLoading(true);
@@ -289,33 +205,6 @@ export default function ApplicationsPage() {
         0
       )
     : null;
-
-  /**
-   * Advance a candidate one pipeline stage.
-   *
-   * The footer button that says this rendered with no onClick at all, so it did nothing — which
-   * reads as a broken product rather than a missing feature. The pipeline endpoint owns stage
-   * order and the verification gate, so this defers to it rather than reimplementing either, and
-   * surfaces a refusal in the API's own words.
-   */
-  const handleAdvanceStage = async (applicationId: string) => {
-    setAdvancing(true);
-    try {
-      const response = await apiFetch(
-        `/api/pipeline/applications/${applicationId}/progress?performedBy=1`,
-        { method: 'POST' },
-      );
-      if (!response.ok) throw new Error(await refusalMessage(response));
-      toast('Candidate advanced to the next stage', 'success');
-      loadApplications(currentPage, searchTerm, statusesFor(activeFilter), departmentFilter);
-      setSelectedApplication(null);
-    } catch (error: unknown) {
-      toast(error instanceof Error ? error.message : 'Could not advance this candidate', 'error');
-    } finally {
-      setAdvancing(false);
-    }
-  };
-
   /*
    * Which bulk actions this person may use.
    *
@@ -443,22 +332,6 @@ export default function ApplicationsPage() {
       toast(err instanceof Error ? err.message : 'Export failed', 'error');
     } finally {
       setBulkBusy(false);
-    }
-  };
-
-  const handleWithdraw = async (applicationId: string, reason: string) => {
-    try {
-      const response = await apiFetch(`/api/applications/${applicationId}/withdraw`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason }),
-      });
-      if (response.ok) {
-        loadApplications(currentPage, searchTerm, statusesFor(activeFilter), departmentFilter);
-        setSelectedApplication(null);
-      }
-    } catch (error) {
-      console.error('Error withdrawing application:', error);
     }
   };
 
@@ -733,7 +606,9 @@ export default function ApplicationsPage() {
                     return (
                       <tr
                         key={app.id}
-                        onClick={() => setSelectedApplication(app)}
+                        // The record has a URL because a hiring manager has to be able to send it.
+                        // A modal here would be a fourth candidate-detail surface, and a worse one.
+                        onClick={() => router.push(`/applications/${app.id}`)}
                         className="border-b border-border last:border-0 hover:bg-accent/50 cursor-pointer"
                       >
                         <td className="px-5 py-3.5" onClick={e => e.stopPropagation()}>
@@ -831,233 +706,7 @@ export default function ApplicationsPage() {
         </div>
 
         {/* ===== Application Detail Modal ===== */}
-        {selectedApplication && (() => {
-          const name = selectedApplication.applicantName || 'Unknown';
-          const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-          return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
-              {/* Overlay with blur */}
-              <div
-                className="fixed inset-0 bg-foreground/50 backdrop-blur-sm"
-                onClick={() => setSelectedApplication(null)}
-                aria-hidden="true"
-              />
-              {/* Modal */}
-              <div
-                className="relative bg-card rounded-2xl shadow-xl max-w-[760px] w-full max-h-[90vh] flex flex-col"
-                role="dialog"
-                aria-modal="true"
-                aria-label="Application details"
-              >
-                {/* Modal Header */}
-                <div className="flex items-center justify-between px-6 pt-6">
-                  <h2 className="text-xl font-bold text-foreground">Application Details</h2>
-                  <button
-                    onClick={() => setSelectedApplication(null)}
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:bg-surface-navy hover:text-foreground transition-colors"
-                    aria-label="Close application details"
-                  >
-                    <XCircleIcon className="w-5 h-5" />
-                  </button>
-                </div>
 
-                {/* Modal Tabs */}
-                <div className="flex border-b-2 border-border mx-6 mt-4 gap-0">
-                  {([
-                    { key: 'overview' as const, label: 'Overview' },
-                    { key: 'screening' as const, label: 'Screening Notes' },
-                    { key: 'feedback' as const, label: 'Feedback' },
-                  ]).map(tab => (
-                    <button
-                      key={tab.key}
-                      type="button"
-                      onClick={() => setActiveModalTab(tab.key)}
-                      className={`px-5 py-2.5 text-[0.8125rem] font-semibold border-b-2 -mb-[2px] transition-colors ${
-                        activeModalTab === tab.key
-                          ? 'text-primary border-primary'
-                          : 'text-muted-foreground border-transparent hover:text-primary'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Scrollable Body */}
-                <div className="p-6 overflow-y-auto flex-1">
-                  {/* Overview Tab */}
-                  {activeModalTab === 'overview' && (
-                    <div className="space-y-5">
-                      {/* Applicant Header */}
-                      <div className="flex items-center gap-4 pb-5 border-b border-border">
-                        <div className="w-14 h-14 rounded-full bg-cta/15 flex items-center justify-center shrink-0">
-                          <span className="text-base font-bold text-cta">{initials}</span>
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-foreground">{name}</h3>
-                          <p className="text-[0.8125rem] text-muted-foreground mt-0.5">
-                            {selectedApplication.jobTitle}
-                            {selectedApplication.department && ` - ${selectedApplication.department}`}
-                          </p>
-                          <span className={`inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-[0.6875rem] font-semibold uppercase tracking-wider ${getStatusColor(selectedApplication.status)}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${getStatusDotColor(selectedApplication.status)}`} />
-                            {selectedApplication.statusDisplayName}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Status Tracker */}
-                      <ApplicationStatusTracker
-                        application={selectedApplication}
-                        onWithdraw={handleWithdraw}
-                        showWithdrawOption={selectedApplication.canBeWithdrawn}
-                      />
-
-                      {/* Metadata Grid */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[0.6875rem] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Email</span>
-                          <span className="text-sm font-semibold text-foreground truncate">{selectedApplication.applicantEmail}</span>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[0.6875rem] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Source</span>
-                          <span className="text-sm font-semibold text-foreground">
-                            {selectedApplication.applicationSource
-                              ? getEnumLabel('applicationSource', selectedApplication.applicationSource)
-                              : 'Not recorded'}
-                          </span>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[0.6875rem] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Submitted</span>
-                          <span className="text-sm font-semibold text-foreground">{formatDate(selectedApplication.submittedAt)}</span>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[0.6875rem] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Days in Pipeline</span>
-                          <span className="text-sm font-semibold text-foreground">{selectedApplication.daysFromSubmission} days</span>
-                        </div>
-                        {selectedApplication.rating && (
-                          <div className="flex flex-col gap-1">
-                            <span className="text-[0.6875rem] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Rating</span>
-                            <div className="flex items-center gap-0.5">{renderStars(selectedApplication.rating)}</div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Expandable Sections */}
-                      {[
-                        { key: 'coverLetter', label: 'Cover Letter', icon: DocumentTextIcon, content: selectedApplication.coverLetter },
-                      ].filter(section => section.content).map(section => (
-                        <div key={section.key} className="border border-border rounded-card overflow-hidden">
-                          <button
-                            onClick={() => toggleDetailSection(section.key)}
-                            className="flex items-center justify-between w-full text-left px-4 py-3 hover:bg-accent/50 transition-colors"
-                            aria-expanded={expandedDetailSections[section.key] ?? false}
-                          >
-                            <div className="flex items-center gap-2">
-                              <section.icon className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-xs font-semibold text-foreground uppercase tracking-[0.05em]">{section.label}</span>
-                            </div>
-                            {expandedDetailSections[section.key] ? (
-                              <ChevronUpIcon className="w-4 h-4 text-muted-foreground" />
-                            ) : (
-                              <ChevronDownIcon className="w-4 h-4 text-muted-foreground" />
-                            )}
-                          </button>
-                          {expandedDetailSections[section.key] && (
-                            <div className="px-4 pb-4">
-                              <div className="p-3 bg-muted/30 rounded-control">
-                                <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{section.content}</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-
-                      {/* AI Candidate Assist */}
-                      <AiCandidatePanel
-                        applicationId={String(selectedApplication.id)}
-                        candidateName={selectedApplication.applicantName}
-                        jobTitle={selectedApplication.jobTitle}
-                      />
-                    </div>
-                  )}
-
-                  {/* Screening Notes Tab */}
-                  {activeModalTab === 'screening' && (
-                    <div className="space-y-4">
-                      {selectedApplication.screeningNotes ? (
-                        <div className="p-4 bg-muted/30 rounded-control border border-border">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
-                              <span className="text-[0.625rem] font-bold text-primary-foreground">HR</span>
-                            </div>
-                            <span className="text-[0.8125rem] font-semibold text-foreground">Screening Notes</span>
-                          </div>
-                          <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{selectedApplication.screeningNotes}</p>
-                        </div>
-                      ) : (
-                        <div className="text-center py-8 text-sm text-muted-foreground">
-                          No screening notes available for this application.
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Feedback Tab */}
-                  {activeModalTab === 'feedback' && (
-                    <div className="space-y-4">
-                      {selectedApplication.interviewFeedback ? (
-                        <div className="p-4 bg-muted/30 rounded-control border border-border">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-full bg-accent-teal flex items-center justify-center">
-                                <span className="text-[0.625rem] font-bold text-white">IF</span>
-                              </div>
-                              <span className="text-[0.8125rem] font-semibold text-foreground">Interview Feedback</span>
-                            </div>
-                            {selectedApplication.rating && (
-                              <div className="flex gap-0.5">
-                                {renderStars(selectedApplication.rating)}
-                              </div>
-                            )}
-                          </div>
-                          <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{selectedApplication.interviewFeedback}</p>
-                        </div>
-                      ) : (
-                        <div className="text-center py-8 text-sm text-muted-foreground">
-                          No feedback available for this application.
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Modal Footer */}
-                <div className="px-6 py-4 border-t border-border shrink-0 flex justify-end gap-3">
-                  <button
-                    onClick={() => setSelectedApplication(null)}
-                    className="px-5 py-2.5 text-[0.8125rem] font-semibold text-muted-foreground hover:text-primary hover:bg-surface-navy rounded-full transition-colors"
-                  >
-                    Close
-                  </button>
-                  <button
-                    onClick={() => handleAdvanceStage(selectedApplication.id)}
-                    disabled={advancing}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 text-[0.8125rem] font-semibold border border-border rounded-full text-foreground bg-card hover:bg-surface-navy hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <ChevronRightIcon className="w-3.5 h-3.5" />
-                    {advancing ? 'Advancing...' : 'Advance Stage'}
-                  </button>
-                  <ShortlistButton
-                    applicationId={selectedApplication.id}
-                    candidateName={selectedApplication.applicantName}
-                    variant="primary"
-                  />
-                </div>
-              </div>
-            </div>
-          );
-        })()}
       </div>
 
       <BulkActionBar count={selectedIds.size} onClear={clearSelection}>
