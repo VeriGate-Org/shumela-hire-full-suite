@@ -226,15 +226,16 @@ const TemplateList: React.FC<TemplateListProps> = ({
 
   return (
     <div className={className}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h2 className="text-lg font-bold text-foreground">Job Ad Templates</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">Create and manage reusable job posting templates</p>
-        </div>
+      {/* Header — stacked, not side-by-side. This list lives in a fixed ~340px column, so a
+          right-aligned pill beside the heading squeezes both: the button wraps onto two lines and
+          the description loses half its width. Viewport breakpoints are no help here, because the
+          constraint is the panel, not the screen. */}
+      <div className="mb-5">
+        <h2 className="text-lg font-bold text-foreground">Job Ad Templates</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">Create and manage reusable job posting templates</p>
         <button
           onClick={onCreateNew}
-          className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-foreground uppercase tracking-wider transition-colors"
+          className="mt-3 w-full inline-flex items-center justify-center whitespace-nowrap px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-foreground uppercase tracking-wider transition-colors"
         >
           <PlusIcon className="w-4 h-4 mr-2" />
           New Template
@@ -244,8 +245,8 @@ const TemplateList: React.FC<TemplateListProps> = ({
       {/* Search and Filters */}
       <div className="border border-border rounded-card mb-5">
         <div className="p-4 border-b border-border">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 relative">
+          <div className="flex gap-3">
+            <div className="flex-1 min-w-0 relative">
               <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
@@ -259,7 +260,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
             <button
               onClick={() => setShowFilters(!showFilters)}
               aria-label="Toggle filters"
-              className="inline-flex items-center px-3 py-2 border border-border rounded-control text-sm text-muted-foreground hover:bg-accent transition-colors"
+              className="inline-flex shrink-0 items-center whitespace-nowrap px-3 py-2 border border-border rounded-control text-sm text-muted-foreground hover:bg-accent transition-colors"
             >
               <FunnelIcon className="w-4 h-4 mr-2" />
               Filters
@@ -268,7 +269,9 @@ const TemplateList: React.FC<TemplateListProps> = ({
 
           {showFilters && (
             <div className="mt-4 pt-4 border-t border-border">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Single column for the same reason as the header: sm: is a viewport query, and it
+                  fires on a wide screen even though this panel stays ~340px. */}
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                     Employment Type
@@ -375,7 +378,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {templates.map((template) => (
             <div
               key={template.id}

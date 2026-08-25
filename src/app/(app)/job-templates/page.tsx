@@ -298,12 +298,15 @@ const JobTemplatesPage: React.FC = () => {
       {activeView === 'list' && (
         <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-4">
           {/* Left: Template List Panel */}
-          <div className="enterprise-card overflow-hidden flex flex-col max-h-[680px] lg:max-h-[680px]">
+          <div className="enterprise-card overflow-hidden flex flex-col max-h-[680px]">
+            {/* The card itself has no padding, so the list has to carry its own — without it the
+                heading and the search row sit flush against the panel border. min-h-0 is what
+                lets the list scroll inside the capped height instead of being clipped. */}
             <TemplateList
               onEdit={handleEdit}
               onGenerate={handleGenerate}
               onCreateNew={handleCreateNew}
-              className=""
+              className="flex-1 min-h-0 overflow-y-auto p-4 md:p-5"
             />
           </div>
 
