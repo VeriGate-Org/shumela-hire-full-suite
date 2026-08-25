@@ -1,7 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
+import {
+  ApplicantSnapshot,
+  changeCount,
+  hasChanged,
+  previousValue,
+  summarise,
+  summaryLine,
+} from '@/components/applicants/changes';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
@@ -82,6 +92,52 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
   // A masked value contains an asterisk; a real ID or passport never does. Mirrors the guard the
   // service applies, so the two cannot disagree about what "masked" means.
   const [replacingId, setReplacingId] = useState(false);
+
+  // The record as it was loaded. Everything the save bar says is a comparison against this, so it
+  // is set once on load and never written again until a save succeeds.
+  const [original, setOriginal] = useState<ApplicantSnapshot | null>(null);
+
+  // Everything the save bar and the per-field hints say comes from this one comparison.
+  const changes = useMemo(() => summarise(original, formData), [original, formData]);
+  const pendingCount = changeCount(changes, replacingId);
+
+  /**
+   * A marker beside a section heading whose list changed.
+   *
+   * <p>A scalar field can show its previous value under the input. A list cannot, so the heading
+   * carries what changed instead — "one skill added", "one qualification removed".
+   */
+  const SectionChanged = ({ field }: { field: string }) => {
+    if (!hasChanged(changes, field)) return null;
+    const labels = changes.filter((c) => c.field === field).map((c) => c.label).join(' · ');
+    return (
+      <span className="text-xs font-semibold text-accent-gold">{labels}</span>
+    );
+  };
+
+  const ChangedFrom = ({ field }: { field: string }) => {
+    const before = previousValue(changes, field);
+    if (before === undefined) return null;
+    return (
+      <p className="mt-1 text-xs text-accent-gold font-semibold">Changed from {before}</p>
+    );
+  };
+
+  /**
+   * Put the form back the way it was loaded.
+   *
+   * <p>Documents are deliberately untouched: they upload immediately, so they were never part of
+   * what "discard" is about to throw away, and silently reverting them is not possible anyway.
+   */
+  const handleDiscard = () => {
+    if (!original) return;
+    if (pendingCount > 0 && !window.confirm(`Discard ${pendingCount} unsaved ${pendingCount === 1 ? 'change' : 'changes'}? Uploaded documents are not affected.`)) {
+      return;
+    }
+    setFormData((prev) => ({ ...prev, ...JSON.parse(JSON.stringify(original)) }));
+    setReplacingId(false);
+    setErrors({});
+  };
   const originalIdRef = useRef('');
   const isMaskedId = formData.idPassportNumber.includes('*');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -103,12 +159,16 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
           }
         };
         originalIdRef.current = data.idPassportNumber ?? '';
-        setFormData({
+        const loaded = {
           ...data,
           education: parseJsonField(data.education),
           experience: parseJsonField(data.experience),
           skills: parseJsonField(data.skills),
-        });
+        };
+        setFormData(loaded);
+        // Structured-cloned so later edits to formData cannot reach back and mutate the baseline,
+        // which would make every comparison against it read "no changes".
+        setOriginal(JSON.parse(JSON.stringify(loaded)));
       }
     } catch (error) {
       console.error('Error loading applicant:', error);
@@ -185,6 +245,11 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
         const result = await response.json();
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
+        // What was unsaved is now saved, so the bar has nothing left to report. Taken from the
+        // submitted state rather than the response, because the response masks the identity number
+        // and re-baselining on it would show a phantom change on the next edit.
+        setOriginal(JSON.parse(JSON.stringify(formData)));
+        setReplacingId(false);
         
         if (onSave) {
           onSave(result);
@@ -275,6 +340,25 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
     }
   };
   
+  const removeEducation = (index: number) => {
+    setFormData(prev => ({ ...prev, education: prev.education.filter((_, i) => i !== index) }));
+  };
+
+  const removeExperience = (index: number) => {
+    setFormData(prev => ({ ...prev, experience: prev.experience.filter((_, i) => i !== index) }));
+  };
+
+  /**
+   * Change one field of one entry, without mutating the entry.
+   *
+   * <p>The education inputs previously did {@code const copy = [...list]; copy[i].field = value},
+   * which copies the array but not the objects inside it — so the "copy" and the original share
+   * every entry, and the assignment writes through to both. That is invisible while nothing else
+   * holds a reference, and stops the unsaved-changes comparison working the moment something does.
+   */
+  const editEntry = <T,>(list: T[], index: number, patch: Partial<T>): T[] =>
+    list.map((entry, i) => (i === index ? { ...entry, ...patch } : entry));
+
   const addEducation = () => {
     setFormData(prev => ({
       ...prev,
@@ -282,7 +366,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
     }));
   };
   
-  const _addExperience = () => {
+  const addExperience = () => {
     setFormData(prev => ({
       ...prev,
       experience: [...prev.experience, { company: '', position: '', startDate: '', endDate: '', description: '' }]
@@ -300,79 +384,114 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
   };
   
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-control shadow-lg">
-      <h1 className="text-2xl font-bold mb-6">
-        {applicantId ? 'Edit Applicant Profile' : 'Create Applicant Profile'}
-      </h1>
+    <div className="max-w-4xl mx-auto p-6 space-y-4">
+      <IdentityBand
+        eyebrow={applicantId ? 'Editing applicant' : 'New applicant'}
+        title={
+          [formData.name, formData.surname].filter(Boolean).join(' ') ||
+          (applicantId ? 'Applicant' : 'New applicant')
+        }
+        subtitle={
+          applicantId
+            ? 'Changes are not saved until you say so. Documents are the exception — they save on upload.'
+            : 'Nothing is saved until you say so.'
+        }
+      />
+
+      {/*
+        The save bar states what is about to happen and stays with you down a long form. A single
+        Save at the bottom answers "how do I finish"; it does not answer "what am I about to do" —
+        which is the question that matters when editing a record somebody else created.
+      */}
+      {pendingCount > 0 && (
+        <div className="sticky top-2 z-10">
+          <DecisionBar
+            ask={`${pendingCount} unsaved ${pendingCount === 1 ? 'change' : 'changes'}`}
+            why={summaryLine(changes, replacingId)}
+            tone="owed"
+          >
+            <PrimaryAction type="submit" form="applicant-form" disabled={loading}>
+              Save changes
+            </PrimaryAction>
+            <SecondaryAction type="button" onClick={handleDiscard} disabled={loading}>
+              Discard
+            </SecondaryAction>
+          </DecisionBar>
+        </div>
+      )}
       
       {showSuccess && (
-        <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+        <div className="mb-4 p-4 bg-surface-teal border border-accent-teal text-accent-teal rounded">
           Profile saved successfully!
         </div>
       )}
       
       {errors.general && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="mb-4 p-4 bg-error/10 border border-error text-error rounded">
           {errors.general}
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form id="applicant-form" onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Name *
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              className={`w-full p-2 border rounded-control ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full p-2 border rounded-control ${errors.name ? 'border-error' : 'border-border'}`}
             />
-            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+            <ChangedFrom field="name" />
+            {errors.name && <p className="text-error text-sm mt-1">{errors.name}</p>}
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Surname *
             </label>
             <input
               type="text"
               value={formData.surname}
               onChange={(e) => setFormData(prev => ({ ...prev, surname: e.target.value }))}
-              className={`w-full p-2 border rounded-control ${errors.surname ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full p-2 border rounded-control ${errors.surname ? 'border-error' : 'border-border'}`}
             />
-            {errors.surname && <p className="text-red-500 text-sm mt-1">{errors.surname}</p>}
+            <ChangedFrom field="surname" />
+            {errors.surname && <p className="text-error text-sm mt-1">{errors.surname}</p>}
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Email *
             </label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-              className={`w-full p-2 border rounded-control ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full p-2 border rounded-control ${errors.email ? 'border-error' : 'border-border'}`}
             />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+            <ChangedFrom field="email" />
+            {errors.email && <p className="text-error text-sm mt-1">{errors.email}</p>}
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Phone
             </label>
             <input
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-              className="w-full p-2 border border-gray-300 rounded-control"
+              className="w-full p-2 border border-border rounded-control"
             />
+            <ChangedFrom field="phone" />
           </div>
           
           <div>
-            <label htmlFor="id-passport" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="id-passport" className="block text-sm font-medium text-foreground mb-1">
               ID/Passport Number
             </label>
             {/*
@@ -409,7 +528,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                   value={formData.idPassportNumber}
                   onChange={(e) => setFormData(prev => ({ ...prev, idPassportNumber: e.target.value }))}
                   placeholder={replacingId ? 'Enter the full number' : undefined}
-                  className="w-full p-2 border border-gray-300 rounded-control"
+                  className="w-full p-2 border border-border rounded-control"
                 />
                 {errors.idPassportNumber && (
                   <p role="alert" className="mt-1 text-xs font-semibold text-error">
@@ -438,15 +557,16 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
           </div>
           
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Address
             </label>
             <textarea
               value={formData.address}
               onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-              className="w-full p-2 border border-gray-300 rounded-control"
+              className="w-full p-2 border border-border rounded-control"
               rows={3}
             />
+            <ChangedFrom field="address" />
           </div>
         </div>
         
@@ -464,7 +584,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
         {/* Education Section */}
         <div>
           <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-medium">Education</h3>
+            <div className="flex items-baseline gap-3 flex-wrap"><h3 className="text-lg font-medium">Education</h3><SectionChanged field="education" /></div>
             <button
               type="button"
               onClick={addEducation}
@@ -475,63 +595,171 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
           </div>
           
           {formData.education.map((edu, index) => (
-            <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 p-3 border rounded-control">
-              <input
-                type="text"
-                placeholder="Institution"
-                value={edu.institution}
-                onChange={(e) => {
-                  const newEducation = [...formData.education];
-                  newEducation[index].institution = e.target.value;
-                  setFormData(prev => ({ ...prev, education: newEducation }));
-                }}
-                className="p-2 border border-gray-300 rounded-control"
-              />
-              <input
-                type="text"
-                placeholder="Degree"
-                value={edu.degree}
-                onChange={(e) => {
-                  const newEducation = [...formData.education];
-                  newEducation[index].degree = e.target.value;
-                  setFormData(prev => ({ ...prev, education: newEducation }));
-                }}
-                className="p-2 border border-gray-300 rounded-control"
-              />
-              <input
-                type="text"
-                placeholder="Field of Study"
-                value={edu.fieldOfStudy}
-                onChange={(e) => {
-                  const newEducation = [...formData.education];
-                  newEducation[index].fieldOfStudy = e.target.value;
-                  setFormData(prev => ({ ...prev, education: newEducation }));
-                }}
-                className="p-2 border border-gray-300 rounded-control"
-              />
-              <input
-                type="number"
-                placeholder="Graduation Year"
-                value={edu.graduationYear}
-                onChange={(e) => {
-                  const newEducation = [...formData.education];
-                  newEducation[index].graduationYear = parseInt(e.target.value);
-                  setFormData(prev => ({ ...prev, education: newEducation }));
-                }}
-                className="p-2 border border-gray-300 rounded-control"
-              />
+            <div key={index} className="mb-3 p-3 border border-border rounded-control">
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => removeEducation(index)}
+                  className="text-xs font-semibold text-error hover:underline"
+                >
+                  Remove
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+                <input
+                  type="text"
+                  aria-label="Institution"
+                  placeholder="Institution"
+                  value={edu.institution}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev, education: editEntry(prev.education, index, { institution: e.target.value }),
+                  }))}
+                  className="w-full p-2 border border-border rounded-control bg-card text-foreground"
+                />
+                <input
+                  type="text"
+                  aria-label="Qualification"
+                  placeholder="Qualification"
+                  value={edu.degree}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev, education: editEntry(prev.education, index, { degree: e.target.value }),
+                  }))}
+                  className="w-full p-2 border border-border rounded-control bg-card text-foreground"
+                />
+                <input
+                  type="text"
+                  aria-label="Field of study"
+                  placeholder="Field of study"
+                  value={edu.fieldOfStudy}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev, education: editEntry(prev.education, index, { fieldOfStudy: e.target.value }),
+                  }))}
+                  className="w-full p-2 border border-border rounded-control bg-card text-foreground"
+                />
+                <input
+                  type="number"
+                  aria-label="Year completed"
+                  placeholder="Year completed"
+                  value={Number.isFinite(edu.graduationYear) ? edu.graduationYear : ''}
+                  onChange={(e) => {
+                    // parseInt('') is NaN, which JSON.stringify writes as null. Clearing the box
+                    // therefore saved a null year while the box looked merely empty.
+                    const parsed = parseInt(e.target.value, 10);
+                    setFormData(prev => ({
+                      ...prev,
+                      education: editEntry(prev.education, index, {
+                        graduationYear: Number.isFinite(parsed) ? parsed : (undefined as unknown as number),
+                      }),
+                    }));
+                  }}
+                  className="w-full p-2 border border-border rounded-control bg-card text-foreground"
+                />
+              </div>
             </div>
           ))}
+          {formData.education.length === 0 && (
+            <p className="text-sm text-muted-foreground">No qualifications recorded.</p>
+          )}
         </div>
-        
+
+        {/*
+          Work experience.
+
+          This section did not exist. The field was parsed on load, held in state and written back
+          on every save — but never rendered, and its add handler was named _addExperience so the
+          unused-variable lint would stay quiet about it. A recruiter could not see or correct a
+          candidate's work history, and nothing said so.
+        */}
+        <div>
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex items-baseline gap-3 flex-wrap"><h3 className="text-lg font-medium text-foreground">Work experience</h3><SectionChanged field="experience" /></div>
+            <button
+              type="button"
+              onClick={addExperience}
+              className="px-3 py-1 bg-gold-500 text-cta-foreground rounded-control text-sm hover:bg-gold-600"
+            >
+              Add a role
+            </button>
+          </div>
+
+          {formData.experience.map((role, index) => (
+            <div key={index} className="mb-3 p-3 border border-border rounded-control">
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => removeExperience(index)}
+                  className="text-xs font-semibold text-error hover:underline"
+                >
+                  Remove
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+                <input
+                  type="text"
+                  aria-label="Employer"
+                  placeholder="Employer"
+                  value={role.company}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev, experience: editEntry(prev.experience, index, { company: e.target.value }),
+                  }))}
+                  className="w-full p-2 border border-border rounded-control bg-card text-foreground"
+                />
+                <input
+                  type="text"
+                  aria-label="Position"
+                  placeholder="Position"
+                  value={role.position}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev, experience: editEntry(prev.experience, index, { position: e.target.value }),
+                  }))}
+                  className="w-full p-2 border border-border rounded-control bg-card text-foreground"
+                />
+                <input
+                  type="text"
+                  aria-label="From"
+                  placeholder="From (e.g. Mar 2019)"
+                  value={role.startDate}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev, experience: editEntry(prev.experience, index, { startDate: e.target.value }),
+                  }))}
+                  className="w-full p-2 border border-border rounded-control bg-card text-foreground"
+                />
+                <input
+                  type="text"
+                  aria-label="To"
+                  placeholder="To (or Present)"
+                  value={role.endDate}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev, experience: editEntry(prev.experience, index, { endDate: e.target.value }),
+                  }))}
+                  className="w-full p-2 border border-border rounded-control bg-card text-foreground"
+                />
+                <textarea
+                  aria-label="What the role involved"
+                  placeholder="What the role involved"
+                  rows={2}
+                  value={role.description}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev, experience: editEntry(prev.experience, index, { description: e.target.value }),
+                  }))}
+                  className="w-full p-2 border border-border rounded-control bg-card text-foreground md:col-span-2"
+                />
+              </div>
+            </div>
+          ))}
+          {formData.experience.length === 0 && (
+            <p className="text-sm text-muted-foreground">No roles recorded.</p>
+          )}
+        </div>
+
         {/* Skills Section */}
         <div>
           <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-medium">Skills</h3>
+            <div className="flex items-baseline gap-3 flex-wrap"><h3 className="text-lg font-medium">Skills</h3><SectionChanged field="skills" /></div>
             <button
               type="button"
               onClick={addSkill}
-              className="px-3 py-1 bg-green-500 text-white rounded-control text-sm hover:bg-green-600"
+              className="px-3 py-1 bg-gold-500 text-cta-foreground rounded-control text-sm hover:bg-gold-600"
             >
               Add Skill
             </button>
@@ -541,7 +769,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
             {formData.skills.map((skill, index) => (
               <span
                 key={index}
-                className="px-3 py-1 bg-gray-200 rounded-full text-sm flex items-center gap-2"
+                className="px-3 py-1 bg-muted rounded-full text-sm flex items-center gap-2"
               >
                 {skill}
                 <button
@@ -550,7 +778,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                     const newSkills = formData.skills.filter((_, i) => i !== index);
                     setFormData(prev => ({ ...prev, skills: newSkills }));
                   }}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-error hover:text-error"
                 >
                   ×
                 </button>
@@ -559,96 +787,63 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
           </div>
         </div>
         
-        {/* Employment Equity Information (Optional) */}
-        <div className="border-t pt-6">
-          <h3 className="text-lg font-medium mb-1">Employment Equity Information (Optional)</h3>
-          <p className="text-sm text-gray-500 mb-4">
-            This information is collected in compliance with the Employment Equity Act and is used for reporting purposes only.
-            Providing this information is voluntary and will not affect your application.
+        {/*
+          Employment equity — shown, not edited.
+
+          These four answers are given by the candidate under consent and feed employment-equity
+          reporting. Letting a member of staff change them here means someone else altering another
+          person's self-declaration, which is a different act from correcting a typo in a surname.
+
+          The server already refuses a write from a viewer who was not shown them
+          (ApplicantService gates on demographicsAccess.mayView). This is the narrower rule on top:
+          staff may read them and may not rewrite them.
+        */}
+        <div className="border-t border-border pt-6">
+          <div className="flex items-baseline justify-between gap-3 flex-wrap mb-1">
+            <h3 className="text-lg font-medium text-foreground">Employment equity</h3>
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.12em]">
+              Given by the candidate
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Collected under the Employment Equity Act and used for reporting only. Giving it is
+            voluntary and does not affect any application.
           </p>
 
-          <div className="mb-4">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={formData.demographicsConsent || false}
-                onChange={(e) => setFormData(prev => ({ ...prev, demographicsConsent: e.target.checked }))}
-                className="h-4 w-4 text-gold-600 border-gray-300 rounded"
-              />
-              <span className="text-sm text-gray-700">
-                Consent given for this information to be collected and used for employment-equity
-                reporting, under POPIA.
-                <span className="mt-1 block text-xs text-muted-foreground">
-                  Clearing this stops the answers being used in reporting. It does not delete what is
-                  already stored — erasing the record is a separate, deliberate act.
-                </span>
-              </span>
-            </label>
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+            {[
+              ['Gender', formData.gender],
+              ['Population group', formData.race],
+              ['Disability', formData.disabilityStatus],
+              ['Citizenship', formData.citizenshipStatus],
+            ].map(([label, value]) => (
+              <div key={label as string}>
+                <dt className="text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">
+                  {label}
+                </dt>
+                <dd className="text-sm text-foreground mt-0.5">
+                  {value || <span className="text-muted-foreground">Not declared</span>}
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          <div className="mt-4 rounded-control border border-border bg-muted px-4 py-3">
+            <p className="text-sm font-bold text-foreground">
+              {formData.demographicsConsent
+                ? 'Consent given for this to be used in employment-equity reporting.'
+                : 'Consent not given, so this is not used in reporting.'}
+            </p>
+            {/*
+              This says what is true rather than what would be reassuring. There is no candidate
+              self-service surface for these fields anywhere in the product — this form was the only
+              one — so "the candidate maintains these on their profile" would be a comfortable lie.
+            */}
+            <p className="mt-1 text-xs text-muted-foreground">
+              Staff cannot change these here. There is currently no screen on which a candidate can
+              revise them either, so a correction needs a developer until one exists.
+            </p>
           </div>
-
-          {formData.demographicsConsent && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                <select
-                  value={formData.gender || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value || undefined }))}
-                  className="w-full p-2 border border-gray-300 rounded-control"
-                >
-                  <option value="">Select...</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Non-binary">Non-binary</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Race</label>
-                <select
-                  value={formData.race || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, race: e.target.value || undefined }))}
-                  className="w-full p-2 border border-gray-300 rounded-control"
-                >
-                  <option value="">Select...</option>
-                  <option value="African">African</option>
-                  <option value="Coloured">Coloured</option>
-                  <option value="Indian">Indian</option>
-                  <option value="White">White</option>
-                  <option value="Other">Other</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Disability Status</label>
-                <select
-                  value={formData.disabilityStatus || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, disabilityStatus: e.target.value || undefined }))}
-                  className="w-full p-2 border border-gray-300 rounded-control"
-                >
-                  <option value="">Select...</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Citizenship Status</label>
-                <select
-                  value={formData.citizenshipStatus || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, citizenshipStatus: e.target.value || undefined }))}
-                  className="w-full p-2 border border-gray-300 rounded-control"
-                >
-                  <option value="">Select...</option>
-                  <option value="South African">South African</option>
-                  <option value="Work Permit">Work Permit</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Submit Button */}
@@ -676,7 +871,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
           {/* File Upload */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Upload CV
               </label>
               <input
@@ -687,12 +882,12 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                   if (file) handleFileUpload(file, 'CV');
                 }}
                 disabled={uploading}
-                className="w-full p-2 border border-gray-300 rounded-control"
+                className="w-full p-2 border border-border rounded-control"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Upload Supporting Document
               </label>
               <input
@@ -703,33 +898,33 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                   if (file) handleFileUpload(file, 'SUPPORT');
                 }}
                 disabled={uploading}
-                className="w-full p-2 border border-gray-300 rounded-control"
+                className="w-full p-2 border border-border rounded-control"
               />
             </div>
           </div>
           
           {/* Documents List */}
           {documents.length > 0 && (
-            <div className="bg-gray-50 rounded-control p-4">
+            <div className="bg-muted rounded-control p-4">
               <h4 className="font-medium mb-3">Uploaded Documents</h4>
               <div className="space-y-2">
                 {documents.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between p-3 bg-white rounded border">
+                  <div key={doc.id} className="flex items-center justify-between p-3 bg-card rounded border">
                     <div className="flex items-center space-x-3">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        doc.type === 'CV' ? 'bg-gold-100 text-gold-800' : 'bg-gray-100 text-gray-800'
+                        doc.type === 'CV' ? 'bg-gold-100 text-gold-800' : 'bg-muted text-foreground'
                       }`}>
                         {getEnumLabel('documentType', doc.type)}
                       </span>
                       <span className="font-medium">{doc.filename}</span>
-                      <span className="text-sm text-gray-500">{doc.fileSizeFormatted}</span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-muted-foreground">{doc.fileSizeFormatted}</span>
+                      <span className="text-sm text-muted-foreground">
                         {new Date(doc.uploadedAt).toLocaleDateString()}
                       </span>
                     </div>
                     <button
                       onClick={() => handleDeleteDocument(doc.id)}
-                      className="text-red-500 hover:text-red-700 font-medium text-sm"
+                      className="text-error hover:text-error font-medium text-sm"
                     >
                       Delete
                     </button>
