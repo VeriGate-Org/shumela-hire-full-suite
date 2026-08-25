@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,24 @@ public class OfferService {
   @Autowired private NotificationService notificationService;
 
   // Constants for business rules
-  private static final BigDecimal HIGH_VALUE_THRESHOLD = new BigDecimal("150000");
+  /**
+   * Total compensation above which an offer needs senior-management rather than manager sign-off.
+   *
+   * <p>The counterpart to {@code SalaryRecommendationService}'s executive threshold: both set
+   * {@code approvalLevelRequired} to 2 instead of 1, and both were hard-coded with no recorded
+   * relationship to each other, so an offer was "high value" at R150,000 while a salary
+   * recommendation only reached an executive at R200,000.
+   *
+   * <p>The gap is narrower than it looks, and deliberate. This measures
+   * {@code getTotalCompensation()} — base plus allowances and bonus — where the salary threshold
+   * measures base salary alone, so the same appointment is a larger number here. A lower bar on the
+   * larger measure is closer to parity than a single shared figure would be.
+   *
+   * <p>Default unchanged, so no offer changes approval level because of this commit. Initialised as
+   * well as annotated because this service is constructed directly in unit tests.
+   */
+  @Value("${shumelahire.approval.offer-high-value-threshold:150000}")
+  private BigDecimal highValueThreshold = new BigDecimal("150000");
   private static final int DEFAULT_EXPIRY_DAYS = 7;
   private static final int MAX_NEGOTIATION_ROUNDS = 5;
   private static final int STALE_NEGOTIATION_HOURS = 48;
@@ -676,7 +694,7 @@ public class OfferService {
   private void setApprovalRequirements(Offer offer) {
     BigDecimal totalCompensation = offer.getTotalCompensation();
 
-    if (totalCompensation.compareTo(HIGH_VALUE_THRESHOLD) > 0) {
+    if (totalCompensation.compareTo(highValueThreshold) > 0) {
       offer.setApprovalLevelRequired(2); // Senior management approval
     } else {
       offer.setApprovalLevelRequired(1); // Manager approval
