@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
 import StatusPill from '@/components/StatusPill';
 import { getEnumLabel } from '@/utils/enumLabels';
 
@@ -103,17 +105,17 @@ const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
       <div className="space-y-6 max-w-full overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-control border border-gray-200 p-5 animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-              <div className="h-8 bg-gray-200 rounded w-1/3" />
+            <div key={i} className="bg-card rounded-control border border-border p-5 animate-pulse">
+              <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+              <div className="h-8 bg-muted rounded w-1/3" />
             </div>
           ))}
         </div>
-        <div className="bg-white rounded-control border border-gray-200 p-6 animate-pulse">
-          <div className="h-5 bg-gray-200 rounded w-1/3 mb-4" />
+        <div className="bg-card rounded-control border border-border p-6 animate-pulse">
+          <div className="h-5 bg-muted rounded w-1/3 mb-4" />
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 bg-gray-100 rounded-control" />
+              <div key={i} className="h-16 bg-muted rounded-control" />
             ))}
           </div>
         </div>
@@ -122,42 +124,83 @@ const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
   }
 
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
+    <div className="space-y-4 max-w-full overflow-hidden">
+      <IdentityBand
+        eyebrow="Your panel work"
+        title="Interviewer"
+        subtitle={`${upcomingInterviews.length} ${upcomingInterviews.length === 1 ? 'interview' : 'interviews'} scheduled · ${completedCount} completed`}
+        figures={[
+          ...(pendingFeedback.length > 0
+            ? [{ label: 'Feedback due', value: pendingFeedback.length, tone: 'warning' as const }]
+            : []),
+          { label: 'Completed', value: completedCount },
+          // Null rather than 0.0 when nobody has been rated: an average of nothing is not zero,
+          // and a 0.0 here would read as "this interviewer scores everyone badly".
+          {
+            label: 'Average rating given',
+            value: averageRating === null ? 'No ratings recorded yet' : averageRating.toFixed(1),
+          },
+        ]}
+      />
+
+      {pendingFeedback.length > 0 ? (
+        <DecisionBar
+          ask={`${pendingFeedback.length} ${pendingFeedback.length === 1 ? 'candidate is' : 'candidates are'} waiting on your feedback.`}
+          why="Nobody can advance them until you record a view."
+          tone="owed"
+        >
+          <PrimaryAction
+            onClick={() => {
+              const first = pendingFeedback[0];
+              window.location.href = `/interviews?feedback=${encodeURIComponent(String(first.id))}`;
+            }}
+          >
+            Give feedback
+          </PrimaryAction>
+        </DecisionBar>
+      ) : (
+        <DecisionBar
+          ask="No feedback is outstanding."
+          why="Every interview you have completed has a view recorded against it."
+          tone="settled"
+        />
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-control border border-gray-200 p-5">
-          <h4 className="text-sm font-medium text-gray-500">Upcoming Interviews</h4>
+        <div className="bg-card rounded-control border border-border p-5">
+          <h4 className="text-sm font-medium text-muted-foreground">Upcoming Interviews</h4>
           <p className="text-2xl font-bold text-gold-600 mt-1">{upcomingInterviews.length}</p>
         </div>
-        <div className="bg-white rounded-control border border-gray-200 p-5">
-          <h4 className="text-sm font-medium text-gray-500">Pending Feedback</h4>
+        <div className="bg-card rounded-control border border-border p-5">
+          <h4 className="text-sm font-medium text-muted-foreground">Pending Feedback</h4>
           <p className="text-2xl font-bold text-yellow-600 mt-1">{pendingFeedback.length}</p>
         </div>
-        <div className="bg-white rounded-control border border-gray-200 p-5">
-          <h4 className="text-sm font-medium text-gray-500">Completed This Month</h4>
+        <div className="bg-card rounded-control border border-border p-5">
+          <h4 className="text-sm font-medium text-muted-foreground">Completed This Month</h4>
           <p className="text-2xl font-bold text-green-600 mt-1">{completedCount}</p>
         </div>
-        <div className="bg-white rounded-control border border-gray-200 p-5">
-          <h4 className="text-sm font-medium text-gray-500">Average Rating Given</h4>
+        <div className="bg-card rounded-control border border-border p-5">
+          <h4 className="text-sm font-medium text-muted-foreground">Average Rating Given</h4>
           <p className="text-2xl font-bold text-purple-600 mt-1">{averageRating ?? '—'}</p>
         </div>
       </div>
 
       {/* Upcoming Interviews */}
-      <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Interviews</h3>
+      <div className="bg-card rounded-control border border-border border-t-2 border-t-gold-500 p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Upcoming Interviews</h3>
         {upcomingInterviews.length === 0 ? (
-          <p className="text-gray-500">No upcoming interviews scheduled.</p>
+          <p className="text-muted-foreground">No upcoming interviews scheduled.</p>
         ) : (
           <div className="space-y-3">
             {upcomingInterviews.map((interview) => (
-              <div key={interview.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-control">
+              <div key={interview.id} className="flex items-center justify-between p-4 bg-muted rounded-control">
                 <div>
-                  <p className="font-medium text-gray-900">{interview.candidate}</p>
-                  <p className="text-sm text-gray-500">{interview.position}</p>
+                  <p className="font-medium text-foreground">{interview.candidate}</p>
+                  <p className="text-sm text-muted-foreground">{interview.position}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{new Date(interview.date).toLocaleDateString()} at {interview.time}</p>
+                  <p className="text-sm font-medium text-foreground">{new Date(interview.date).toLocaleDateString()} at {interview.time}</p>
                   <StatusPill value={interview.type} domain="interviewType" size="sm" />
                 </div>
               </div>
@@ -167,21 +210,29 @@ const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
       </div>
 
       {/* Pending Feedback */}
-      <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Pending Feedback</h3>
+      <div className="bg-card rounded-control border border-border border-t-2 border-t-gold-500 p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Pending Feedback</h3>
         {pendingFeedback.length === 0 ? (
-          <p className="text-gray-500">All feedback has been submitted.</p>
+          <p className="text-muted-foreground">All feedback has been submitted.</p>
         ) : (
           <div className="space-y-3">
             {pendingFeedback.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-yellow-50 rounded-control border border-yellow-200">
+              <div key={item.id} className="flex items-center justify-between p-4 bg-surface-gold rounded-control border border-border">
                 <div>
-                  <p className="font-medium text-gray-900">{item.candidate}</p>
-                  <p className="text-sm text-gray-500">{item.position} — {getEnumLabel('interviewType', item.type)}</p>
+                  <p className="font-medium text-foreground">{item.candidate}</p>
+                  <p className="text-sm text-muted-foreground">{item.position} — {getEnumLabel('interviewType', item.type)}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">Interviewed {new Date(item.interviewDate ?? '').toLocaleDateString()}</p>
-                  <button className="mt-1 text-sm font-medium text-gold-600 hover:text-gold-800">
+                  <p className="text-sm text-muted-foreground">Interviewed {new Date(item.interviewDate ?? '').toLocaleDateString()}</p>
+                  {/* This button carried no onClick. Recording feedback is the whole purpose of
+                      this screen and nothing else on it could do so, so the primary action did
+                      nothing at all. The form lives on the interviews page; it now has an address. */}
+                  <button
+                    onClick={() => {
+                      window.location.href = `/interviews?feedback=${encodeURIComponent(String(item.id))}`;
+                    }}
+                    className="mt-1 text-sm font-medium text-accent-gold hover:underline"
+                  >
                     Submit Feedback
                   </button>
                 </div>

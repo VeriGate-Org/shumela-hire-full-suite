@@ -13,6 +13,8 @@ import {
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 import { apiFetch } from '@/lib/api-fetch';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
 import { useAuth } from '@/contexts/AuthContext';
 import { DashboardWidget } from '../../dashboard';
 
@@ -104,14 +106,14 @@ function KpiTile({ label, value, icon: Icon, tone, href, onClick }: KpiTileProps
       type="button"
       onClick={handleClick}
       disabled={!isClickable}
-      className={`bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-4 text-left w-full transition-shadow ${
+      className={`bg-card rounded-control border border-border border-t-2 border-t-gold-500 p-4 text-left w-full transition-shadow ${
         isClickable ? 'hover:shadow-md cursor-pointer' : 'cursor-default'
       }`}
     >
       <div className="flex items-start justify-between">
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-wider text-gray-500">{label}</p>
-          <p className="mt-2 text-2xl font-semibold text-gray-900">{value}</p>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
+          <p className="mt-2 text-2xl font-semibold text-foreground">{value}</p>
         </div>
         <div className={`p-2 rounded-full ${toneClasses[tone]}`}>
           <Icon className="h-5 w-5" />
@@ -227,12 +229,12 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
 
   if (missingEmployeeRecord) {
     return (
-      <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-orange-500 p-6">
+      <div className="bg-card rounded-control border border-border border-t-2 border-t-orange-500 p-6">
         <div className="flex items-start gap-3">
           <ExclamationTriangleIcon className="h-5 w-5 text-orange-600 mt-0.5" />
           <div>
-            <p className="font-semibold text-gray-900">No employee record linked</p>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="font-semibold text-foreground">No employee record linked</p>
+            <p className="text-sm text-muted-foreground mt-1">
               Your line-manager dashboard relies on an Employee record to surface
               direct reports, pending approvals, and team data. Ask HR to link your
               user account to an employee profile.
@@ -248,19 +250,53 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
       <div className="space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-control border border-gray-200 p-4 animate-pulse h-24" />
+            <div key={i} className="bg-card rounded-control border border-border p-4 animate-pulse h-24" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-control border border-gray-200 p-6 animate-pulse h-64" />
-          <div className="bg-white rounded-control border border-gray-200 p-6 animate-pulse h-64" />
+          <div className="lg:col-span-2 bg-card rounded-control border border-border p-6 animate-pulse h-64" />
+          <div className="bg-card rounded-control border border-border p-6 animate-pulse h-64" />
         </div>
       </div>
     );
   }
 
+  const awaiting = pendingLeave.length + pendingOvertime.length;
+
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
+    <div className="space-y-4 max-w-full overflow-hidden">
+      <IdentityBand
+        eyebrow="Your team"
+        title="Line Manager"
+        subtitle={`${directReports.length} ${directReports.length === 1 ? 'direct report' : 'direct reports'} · ${teamAttendance.length} recorded today`}
+        figures={[
+          { label: 'Direct reports', value: directReports.length },
+          ...(awaiting > 0
+            ? [{ label: 'Awaiting you', value: awaiting, tone: 'warning' as const }]
+            : []),
+        ]}
+      />
+
+      {!loading && (
+        awaiting > 0 ? (
+          <DecisionBar
+            ask={`${awaiting} ${awaiting === 1 ? 'request is' : 'requests are'} waiting on you.`}
+            why={`${pendingLeave.length} leave · ${pendingOvertime.length} overtime. Nobody can plan around an unanswered request.`}
+            tone="owed"
+          >
+            <PrimaryAction onClick={() => (window.location.href = '/leave/approvals')}>
+              Review requests
+            </PrimaryAction>
+          </DecisionBar>
+        ) : (
+          <DecisionBar
+            ask="Nothing is waiting on you."
+            why="No leave or overtime requests are outstanding for your team."
+            tone="settled"
+          />
+        )
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <KpiTile
           label="Direct Reports"
@@ -315,7 +351,7 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
             size="medium"
           >
             {teamAttendance.length === 0 && directReports.length === 0 ? (
-              <div className="py-8 text-center text-sm text-gray-500">
+              <div className="py-8 text-center text-sm text-muted-foreground">
                 No team data available yet.
               </div>
             ) : (
@@ -328,13 +364,13 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
                   const tone = row.clockIn && !row.clockOut
                     ? 'bg-green-100 text-green-800'
                     : row.clockIn
-                      ? 'bg-gray-100 text-gray-700'
+                      ? 'bg-muted text-foreground'
                       : 'bg-yellow-100 text-yellow-800';
                   return (
                     <div key={row.id} className="flex items-center justify-between py-3">
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{name}</p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-sm font-medium text-foreground truncate">{name}</p>
+                        <p className="text-xs text-muted-foreground truncate">
                           {row.jobTitle || row.department || row.employeeId || ''}
                         </p>
                       </div>
@@ -355,7 +391,7 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
             size="medium"
           >
             {upcomingLeave.length === 0 ? (
-              <div className="py-8 text-center text-sm text-gray-500">
+              <div className="py-8 text-center text-sm text-muted-foreground">
                 No upcoming leave in the next 14 days.
               </div>
             ) : (
@@ -363,14 +399,14 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
                 {upcomingLeave.slice(0, 6).map((entry) => (
                   <div key={entry.id} className="flex items-center justify-between py-3">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {entry.employeeName || 'Unknown'}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {entry.leaveTypeName || 'Leave'} · {formatDate(entry.startDate)} → {formatDate(entry.endDate)}
                       </p>
                     </div>
-                    <span className="text-xs text-gray-700 font-medium">
+                    <span className="text-xs text-foreground font-medium">
                       {entry.totalDays ?? '—'} day(s)
                     </span>
                   </div>
@@ -388,7 +424,7 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
             size="small"
           >
             {pendingLeave.length === 0 && overtimeForTeam.length === 0 ? (
-              <div className="py-6 text-center text-sm text-gray-500">
+              <div className="py-6 text-center text-sm text-muted-foreground">
                 You&apos;re all caught up.
               </div>
             ) : (
@@ -397,14 +433,14 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
                   <button
                     key={leave.id}
                     onClick={() => router.push('/leave/approvals')}
-                    className="w-full text-left flex items-start gap-3 p-3 hover:bg-gray-50 rounded-control"
+                    className="w-full text-left flex items-start gap-3 p-3 hover:bg-muted rounded-control"
                   >
                     <ExclamationTriangleIcon className="h-4 w-4 text-gold-600 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         Leave: {leave.employeeName || 'Unknown'}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {leave.leaveTypeName || ''} · {formatDate(leave.startDate)} → {formatDate(leave.endDate)}
                       </p>
                     </div>
@@ -414,14 +450,14 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
                   <button
                     key={ot.id}
                     onClick={() => router.push('/time-attendance/overtime')}
-                    className="w-full text-left flex items-start gap-3 p-3 hover:bg-gray-50 rounded-control"
+                    className="w-full text-left flex items-start gap-3 p-3 hover:bg-muted rounded-control"
                   >
                     <ClockIcon className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         Overtime: {ot.employeeName || 'Unknown'}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {formatDate(ot.date)} · {ot.hours ?? '—'} hrs
                       </p>
                     </div>
@@ -463,7 +499,7 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
             size="small"
           >
             {directReports.length === 0 ? (
-              <div className="py-6 text-center text-sm text-gray-500">
+              <div className="py-6 text-center text-sm text-muted-foreground">
                 No direct reports assigned.
               </div>
             ) : (
@@ -472,14 +508,14 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
                   <button
                     key={emp.id}
                     onClick={() => router.push(`/employee/${emp.id}`)}
-                    className="w-full text-left flex items-center gap-3 p-2 hover:bg-gray-50 rounded-control"
+                    className="w-full text-left flex items-center gap-3 p-2 hover:bg-muted rounded-control"
                   >
                     <div className="h-8 w-8 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
                       {(emp.firstName?.[0] || '') + (emp.lastName?.[0] || '') || '?'}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">{fullName(emp)}</p>
-                      <p className="text-xs text-gray-500 truncate">{emp.jobTitle || emp.department || ''}</p>
+                      <p className="text-sm font-medium text-foreground truncate">{fullName(emp)}</p>
+                      <p className="text-xs text-muted-foreground truncate">{emp.jobTitle || emp.department || ''}</p>
                     </div>
                   </button>
                 ))}
@@ -496,17 +532,17 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
             <div className="space-y-2">
               <button
                 onClick={() => router.push('/engagement/recognition')}
-                className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-control border border-gray-200"
+                className="w-full flex items-center gap-3 p-3 hover:bg-muted rounded-control border border-border"
               >
                 <HandThumbUpIcon className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-medium text-gray-900">Send a kudos</span>
+                <span className="text-sm font-medium text-foreground">Send a kudos</span>
               </button>
               <button
                 onClick={() => router.push('/feed')}
-                className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-control border border-gray-200"
+                className="w-full flex items-center gap-3 p-3 hover:bg-muted rounded-control border border-border"
               >
                 <HandThumbUpIcon className="h-5 w-5 text-violet-600" />
-                <span className="text-sm font-medium text-gray-900">View team feed</span>
+                <span className="text-sm font-medium text-foreground">View team feed</span>
               </button>
             </div>
           </DashboardWidget>

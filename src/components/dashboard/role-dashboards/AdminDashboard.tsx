@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/api-fetch';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar from '@/components/record/DecisionBar';
 import { auditLogService } from '@/services/auditLogService';
 import { AuditLogEntry } from '@/types/workflow';
 import {
@@ -130,6 +132,9 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
   const [adminMetrics, setAdminMetrics] = useState<MetricItem[]>(defaultAdminMetrics);
   const [recentEvents, setRecentEvents] = useState<AuditLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  // The whole-set user count, read from totalElements on a size=1 page — a genuine total, and one
+  // of the few figures on any dashboard that was already sourced correctly.
+  const [userCount, setUserCount] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -139,7 +144,7 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
 
       try {
         const [dashboardResponse, events, usersResponse] = await Promise.allSettled([
-          apiFetch('/api/analytics/dashboard?role=ADMIN'),
+          apiFetch('/api/analytics/dashboard'),
           auditLogService.getRecentAuditLogs(10),
           apiFetch('/api/admin/users?page=0&size=1'),
         ]);
@@ -179,6 +184,7 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
         if (usersResponse.status === 'fulfilled' && usersResponse.value.ok) {
           const usersData = await usersResponse.value.json();
           if (typeof usersData?.totalElements === 'number') {
+            setUserCount(usersData.totalElements);
             setAdminMetrics(prev =>
               prev.map(m =>
                 m.id === 'total-users' ? { ...m, value: usersData.totalElements } : m
@@ -205,13 +211,13 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
   if (loading) {
     return (
       <div className="space-y-6 max-w-full overflow-hidden">
-        <div className="bg-white rounded-control border border-gray-200 p-6">
+        <div className="bg-card rounded-control border border-border p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-4 bg-muted rounded w-1/4"></div>
+            <div className="h-3 bg-muted rounded w-1/2"></div>
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="h-20 bg-gray-200 rounded"></div>
-              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="h-20 bg-muted rounded"></div>
+              <div className="h-20 bg-muted rounded"></div>
             </div>
           </div>
         </div>
@@ -220,7 +226,31 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
   }
 
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
+    <div className="space-y-4 max-w-full overflow-hidden">
+      <IdentityBand
+        eyebrow="System"
+        title="Admin"
+        subtitle={
+          userCount !== null
+            ? `${userCount} ${userCount === 1 ? 'user' : 'users'} · ${recentEvents.length} recent ${recentEvents.length === 1 ? 'event' : 'events'}`
+            : loading
+              ? 'Loading…'
+              : 'Counts unavailable'
+        }
+        figures={[
+          // Omitted rather than shown as 0 when the count did not load — a system reporting zero
+          // users reads as an outage, not as a missing figure.
+          ...(userCount !== null ? [{ label: 'Users', value: userCount }] : []),
+          { label: 'Recent events', value: recentEvents.length },
+        ]}
+      />
+
+      <DecisionBar
+        ask="Nothing needs attention."
+        why="Overnight jobs are reported in the system health panel below."
+        tone="settled"
+      />
+
       {/* Admin Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-full">
         {/* Main Admin Content */}
@@ -270,7 +300,7 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+                <div className="w-full h-64 flex items-center justify-center text-sm text-muted-foreground">
                   No system health data available
                 </div>
               )}
@@ -292,18 +322,18 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {recentEvents.length > 0 ? (
                   recentEvents.map((event) => (
-                    <div key={event.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-control">
+                    <div key={event.id} className="flex items-start gap-3 p-3 hover:bg-muted rounded-control">
                       <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${getEventColor(event.action)}`}></div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-900 truncate">
+                        <p className="text-sm text-foreground truncate">
                           {formatEnumValue(event.action)} — {formatEnumValue(event.entityType)}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">{getRelativeTime(event.timestamp)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{getRelativeTime(event.timestamp)}</p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="text-sm text-gray-500 text-center py-4">No recent events</div>
+                  <div className="text-sm text-muted-foreground text-center py-4">No recent events</div>
                 )}
               </div>
             </DashboardWidget>
