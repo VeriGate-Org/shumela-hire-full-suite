@@ -24,6 +24,14 @@ import java.util.stream.Collectors;
 @Transactional
 public class InterviewService {
 
+    /**
+     * Optional so a deployment with no retention policy is not a wiring failure, and so services
+     * constructed directly in unit tests do not need it. Guarded at every call site.
+     */
+    @Autowired(required = false)
+    private TalentPoolRetentionService talentPoolRetentionService;
+
+
     @Autowired
     private InterviewDataRepository interviewRepository;
 
@@ -69,6 +77,15 @@ public class InterviewService {
         validateInterviewScheduling(interview);
 
         Interview savedInterview = interviewRepository.save(interview);
+
+        // Being interviewed is engagement by any reading. Recorded here rather than at
+        // scheduleInterview because every path to a booked interview lands in this method.
+        if (talentPoolRetentionService != null
+                && savedInterview.getApplication() != null
+                && savedInterview.getApplication().getApplicant() != null) {
+            talentPoolRetentionService.recordEngagement(
+                    savedInterview.getApplication().getApplicant().getId(), "interview scheduled");
+        }
         
         auditLogService.logUserAction(
             createdBy,

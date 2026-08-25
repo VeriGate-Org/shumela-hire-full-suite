@@ -27,6 +27,13 @@ public class OfferService {
 
   @Autowired private OfferDataRepository offerRepository;
 
+  /**
+   * Optional so a deployment with no retention policy is not a wiring failure, and so services
+   * constructed directly in unit tests do not need it. Guarded at every call site.
+   */
+  @Autowired(required = false) private TalentPoolRetentionService talentPoolRetentionService;
+
+
   @Autowired private ApplicationDataRepository applicationRepository;
 
   @Autowired private ApplicantDataRepository applicantRepository;
@@ -263,6 +270,13 @@ public class OfferService {
         String.format("Offer %s sent to candidate", offer.getOfferNumber()));
 
     notificationService.notifyOfferExtended(savedOffer);
+
+    if (talentPoolRetentionService != null
+        && savedOffer.getApplication() != null
+        && savedOffer.getApplication().getApplicant() != null) {
+      talentPoolRetentionService.recordEngagement(
+          savedOffer.getApplication().getApplicant().getId(), "offer extended");
+    }
 
     return savedOffer;
   }

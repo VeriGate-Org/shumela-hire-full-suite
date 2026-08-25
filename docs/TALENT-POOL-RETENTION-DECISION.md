@@ -110,9 +110,41 @@ record. Harmless while nothing read it — and a real problem the moment retenti
 clock would have run from the day a candidate was added, ageing out people who were actively being
 engaged with.
 
+## What extends retention automatically
+
+Engagement is inferred from what a candidate actually does. Each of these extends retention on
+**every pool the candidate is in**, and clears any notice already sent — so somebody the
+organisation is actively hiring is never warned that their details are about to be deleted:
+
+| Event | Where |
+|---|---|
+| Submits an application | `ApplicationService.submitApplication` |
+| Shortlisted and advanced | `ShortlistingService` |
+| Interview booked | `InterviewService.createInterview` — every path to a booked interview lands there |
+| Offer extended | `OfferService` |
+| A recruiter records it by hand | `POST /api/talent-pools/entries/{id}/contact` |
+
+### Engagement is not correspondence
+
+**Sending a candidate an email does not count, and must not.** The retention notice is itself an
+outbound message: if correspondence counted as contact, the notice would push its own deadline out
+every night, nothing would ever be deleted, and every log line would say the policy was working.
+
+That is the one mistake in this design that would be invisible in production, so
+`theNoticeDoesNotResetItsOwnClock` asserts the notice path never touches the engagement path.
+
+### An entry already removed is left alone
+
+`removeEntry` is a soft delete. Its clock keeps running — a soft-deleted entry is still retained
+data — but re-engaging elsewhere does not silently restore retention on a pool somebody
+deliberately took the candidate out of.
+
 ## What is still not automatic
 
-Contact is recorded when somebody calls that endpoint. Nothing infers it from a candidate replying
-to an email, applying again, or being shortlisted. Those would each be reasonable signals and none
-of them is wired up — so a pool worked entirely outside the product will still age out on the date
-its entries were created.
+Nothing infers engagement from a **candidate replying to an email**. There is no inbound mail
+processing in the product, so the reply that the retention notice explicitly invites — "reply to
+this message and we will keep your details on file" — has to be actioned by a person calling the
+contact endpoint.
+
+That is the weakest point in the chain and worth knowing: the notice asks for a response the system
+cannot hear on its own.

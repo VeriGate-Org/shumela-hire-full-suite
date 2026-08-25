@@ -38,6 +38,13 @@ public class ShortlistingService {
 
     private static final Logger logger = LoggerFactory.getLogger(ShortlistingService.class);
 
+    /**
+     * Optional so a deployment with no retention policy is not a wiring failure, and so services
+     * constructed directly in unit tests do not need it. Guarded at every call site.
+     */
+    @Autowired(required = false)
+    private TalentPoolRetentionService talentPoolRetentionService;
+
     private static final double SKILLS_WEIGHT = 0.30;
     private static final double EXPERIENCE_WEIGHT = 0.25;
     private static final double EDUCATION_WEIGHT = 0.20;
@@ -366,6 +373,10 @@ public class ShortlistingService {
                     application.setStatus(ApplicationStatus.SCREENING);
                     applicationRepository.save(application);   // the change has to outlive the loop
                     notificationService.notifyApplicationShortlisted(application);
+                    if (talentPoolRetentionService != null && application.getApplicant() != null) {
+                        talentPoolRetentionService.recordEngagement(
+                                application.getApplicant().getId(), "shortlisted");
+                    }
                     advanced++;
                 }
                 // Keep the association whole on the way back out — see the note in

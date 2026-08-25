@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -141,7 +142,7 @@ class TalentPoolRetentionServiceTest {
     @Test
     @DisplayName("Retention falls back to when they were added")
     void retentionFallsBackToAddedAt() {
-        // Which is what actually happens today: nothing in the product writes lastContactedAt.
+        // The state of an entry nobody has engaged with since it was created.
         TalentPoolEntry e = new TalentPoolEntry();
         e.setAddedAt(LocalDateTime.of(2024, 1, 1, 9, 0));
 
@@ -238,6 +239,88 @@ class TalentPoolRetentionServiceTest {
 
         assertTrue(e.getRetainUntil().isAfter(TODAY.plusYears(1)));
         assertNull(e.getRetentionNoticeSentAt());
+    }
+
+    // ── Engagement inferred from what a candidate actually does ──────────────
+
+    @Test
+    @DisplayName("Engagement extends every pool the candidate is in")
+    void engagementExtendsAllPools() {
+        // A candidate is often in several pools. Extending only one would leave the others
+        // warning and deleting somebody the organisation is actively hiring.
+        TalentPoolEntry a = entry("e1", TODAY.minusDays(1), TODAY.minusDays(2).atStartOfDay());
+        TalentPoolEntry b = entry("e2", TODAY.minusDays(1), null);
+        when(entryRepository.findByApplicantId("applicant-e1")).thenReturn(List.of(a, b));
+
+        assertEquals(2, service.recordEngagement("applicant-e1", "submitted an application"));
+        assertTrue(a.getRetainUntil().isAfter(TODAY.plusYears(1)));
+        assertTrue(b.getRetainUntil().isAfter(TODAY.plusYears(1)));
+    }
+
+    @Test
+    @DisplayName("Engagement clears a notice already sent")
+    void engagementClearsTheWarning() {
+        // Otherwise a candidate who reapplies is still deleted at the end of a grace period that
+        // started before they did.
+        TalentPoolEntry a = entry("e1", TODAY.minusDays(1), TODAY.minusDays(2).atStartOfDay());
+        when(entryRepository.findByApplicantId("applicant-e1")).thenReturn(List.of(a));
+
+        service.recordEngagement("applicant-e1", "shortlisted");
+
+        assertNull(a.getRetentionNoticeSentAt());
+    }
+
+    @Test
+    @DisplayName("Sending a retention notice is not itself engagement")
+    void theNoticeDoesNotResetItsOwnClock() {
+        // The trap that would quietly disable the whole feature. If "we sent them an email" counted
+        // as contact, the notice would push its own deadline out on every run and nothing would
+        // ever be deleted — while every log line said the policy was working.
+        TalentPoolEntry e = entry("e1", TODAY.minusDays(1), null);
+        LocalDate before = e.getRetainUntil();
+
+        assertEquals(1, service.sendRetentionNotices(TODAY));
+
+        assertEquals(before, e.getRetainUntil());
+        assertNotNull(e.getRetentionNoticeSentAt());
+        verify(entryRepository, never()).findByApplicantId(anyString());
+    }
+
+    @Test
+    @DisplayName("An entry already removed from a pool is not resurrected by engagement elsewhere")
+    void removedEntriesAreLeftAlone() {
+        TalentPoolEntry removed = entry("e1", TODAY.minusDays(1), null);
+        removed.setRemovedAt(LocalDateTime.now().minusDays(5));
+        when(entryRepository.findByApplicantId("applicant-e1")).thenReturn(List.of(removed));
+
+        assertEquals(0, service.recordEngagement("applicant-e1", "submitted an application"));
+    }
+
+    @Test
+    @DisplayName("A failure to extend retention never breaks the thing the candidate was doing")
+    void engagementFailureIsSwallowed() {
+        // This runs inside application submission. A retention date that cannot be written must not
+        // fail somebody's job application.
+        when(entryRepository.findByApplicantId("applicant-e1"))
+                .thenThrow(new IllegalStateException("repository unavailable"));
+
+        assertEquals(0, service.recordEngagement("applicant-e1", "submitted an application"));
+    }
+
+    @Test
+    @DisplayName("Engagement does nothing while no period is configured")
+    void engagementRespectsTheSwitch() {
+        configure(0, 30, true);
+
+        assertEquals(0, service.recordEngagement("applicant-e1", "shortlisted"));
+        verify(entryRepository, never()).findByApplicantId(anyString());
+    }
+
+    @Test
+    @DisplayName("A missing applicant id is not an error")
+    void engagementWithoutAnApplicantId() {
+        assertEquals(0, service.recordEngagement(null, "shortlisted"));
+        assertEquals(0, service.recordEngagement("  ", "shortlisted"));
     }
 
     // ── Reaching entries that predate the policy ─────────────────────────────
