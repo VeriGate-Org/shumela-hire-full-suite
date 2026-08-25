@@ -73,14 +73,6 @@ export interface PublishingRequest {
   customSlug?: string;
 }
 
-export interface PublishingWizardStep {
-  id: string;
-  title: string;
-  description: string;
-  completed: boolean;
-  current: boolean;
-}
-
 export interface JobAdFilters {
   status?: JobAdStatus;
   channels?: PublishingChannel[];
@@ -175,26 +167,3 @@ export const DEFAULT_PUBLISHING_SETTINGS = {
   enableAnalytics: true
 };
 
-// Publishing wizard steps
-export const PUBLISHING_WIZARD_STEPS: Omit<PublishingWizardStep, 'completed' | 'current'>[] = [
-  {
-    id: 'details',
-    title: 'Job Details',
-    description: 'Review and edit job information'
-  },
-  {
-    id: 'targeting',
-    title: 'Publishing Channels',
-    description: 'Choose where to publish this job'
-  },
-  {
-    id: 'preview',
-    title: 'Preview',
-    description: 'Review how your job will appear'
-  },
-  {
-    id: 'publish',
-    title: 'Publish',
-    description: 'Make your job live'
-  }
-];
