@@ -96,7 +96,7 @@ export default function GrievancesPage() {
           <div className="flex gap-2 flex-wrap">
             {[undefined, 'FILED', 'UNDER_REVIEW', 'MEDIATION', 'RESOLVED', 'ESCALATED'].map((f) => (
               <button key={f || 'all'} onClick={() => { setFilter(f); setPage(0); }}
-                className={`px-3 py-1.5 text-sm rounded-lg ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
+                className={`px-3 py-1.5 text-sm rounded-lg ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700'}`}>
                 {f ? formatLabel(f) : 'All'}
               </button>
             ))}
@@ -108,7 +108,7 @@ export default function GrievancesPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : grievances.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 text-gray-500">
               <DocumentTextIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No grievances found</p>
             </div>
@@ -127,13 +127,13 @@ export default function GrievancesPage() {
                           {formatLabel(grievance.status)}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{grievance.description}</p>
+                      <p className="text-sm text-gray-600 mt-2">{grievance.description}</p>
                       {grievance.resolution && (
                         <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded text-sm text-green-800 dark:text-green-300">
                           <span className="font-medium">Resolution:</span> {grievance.resolution}
                         </div>
                       )}
-                      <div className="flex gap-4 text-xs text-gray-500 dark:text-gray-400 mt-2 flex-wrap">
+                      <div className="flex gap-4 text-xs text-gray-500 mt-2 flex-wrap">
                         <span>Filed: {new Date(grievance.filedDate).toLocaleDateString()}</span>
                         {grievance.assignedToName && <span>Assigned to: {grievance.assignedToName}</span>}
                         {grievance.resolvedDate && <span>Resolved: {new Date(grievance.resolvedDate).toLocaleDateString()}</span>}
@@ -179,7 +179,7 @@ export default function GrievancesPage() {
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select value={updateForm.status || ''}
                       onChange={(e) => setUpdateForm(prev => ({ ...prev, status: e.target.value }))}
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
@@ -191,7 +191,7 @@ export default function GrievancesPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resolution</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Resolution</label>
                     <textarea value={updateForm.resolution || ''} rows={4}
                       onChange={(e) => setUpdateForm(prev => ({ ...prev, resolution: e.target.value }))}
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -200,7 +200,7 @@ export default function GrievancesPage() {
                 </div>
                 <div className="flex justify-end gap-3 mt-6">
                   <button onClick={() => { setShowUpdateModal(false); setSelectedGrievance(null); setUpdateForm({}); }}
-                    className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                    className="px-4 py-2 text-sm text-gray-700 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
                     Cancel
                   </button>
                   <button onClick={handleUpdate}

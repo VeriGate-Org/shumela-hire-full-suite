@@ -131,7 +131,7 @@ export default function DisciplinaryCaseDetailPage() {
           {/* Back Link */}
           <Link
             href="/admin/labour-relations/disciplinary"
-            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:hover:text-white"
           >
             <ArrowLeftIcon className="w-4 h-4" />
             Back to Disciplinary Cases
@@ -151,7 +151,7 @@ export default function DisciplinaryCaseDetailPage() {
               <p className="text-gray-700 mb-4">{error}</p>
               <button
                 onClick={loadCase}
-                className="px-4 py-2 text-sm bg-gold-500 text-white rounded-lg hover:bg-gold-600"
+                className="px-4 py-2 text-sm bg-gold-500 text-cta-foreground rounded-lg hover:bg-gold-600"
               >
                 Retry
               </button>
@@ -380,7 +380,7 @@ export default function DisciplinaryCaseDetailPage() {
                       <button
                         onClick={handleUpdate}
                         disabled={saving}
-                        className="px-6 py-2 text-sm font-medium text-white bg-gold-500 rounded-lg hover:bg-gold-600 disabled:opacity-50"
+                        className="px-6 py-2 text-sm font-medium text-cta-foreground bg-gold-500 rounded-lg hover:bg-gold-600 disabled:opacity-50"
                       >
                         {saving ? 'Saving...' : 'Save Changes'}
                       </button>

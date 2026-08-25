@@ -69,10 +69,10 @@ const WIZARD_STEPS: WizardStep[] = [
 ];
 
 const inputClass =
-  'w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/30 focus:border-primary';
+  'w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 focus:ring-2 focus:ring-primary/30 focus:border-primary';
 
 const labelClass =
-  'block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-1.5';
+  'block text-xs font-medium text-gray-500 uppercase tracking-[0.05em] mb-1.5';
 
 interface CustomReportBuilderProps {
   className?: string;
@@ -207,7 +207,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
   const renderVisualization = () => {
     if (sampleData.length === 0) {
       return (
-        <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+        <div className="flex items-center justify-center h-64 text-gray-500">
           Add dimensions and metrics to see preview
         </div>
       );
@@ -253,7 +253,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
                   {[...reportConfig.dimensions, ...reportConfig.metrics].map(fieldId => {
                     const field = availableFields.find(f => f.id === fieldId);
                     return (
-                      <th key={fieldId} className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">
+                      <th key={fieldId} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-[0.05em]">
                         {field?.label}
                       </th>
                     );
@@ -264,7 +264,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
                 {sampleData.slice(0, 5).map((row, index) => (
                   <tr key={index}>
                     {[...reportConfig.dimensions, ...reportConfig.metrics].map(fieldId => (
-                      <td key={fieldId} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                      <td key={fieldId} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {row[fieldId]}
                       </td>
                     ))}
@@ -307,7 +307,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
       <div className="grid grid-cols-12 gap-6">
         {/* Field Library */}
         <div className="col-span-12 lg:col-span-3">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Available Fields</h4>
+          <h4 className="text-sm font-semibold text-gray-900 mb-3">Available Fields</h4>
 
           <div className="space-y-4">
             <div>
@@ -318,7 +318,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
                     key={field.id}
                     draggable
                     onDragStart={() => handleDragStart(field)}
-                    className="p-2 text-sm text-gray-600 dark:text-gray-400 bg-off-white dark:bg-gray-800 rounded-[2px] cursor-move hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="p-2 text-sm text-gray-600 bg-off-white dark:bg-gray-800 rounded-[2px] cursor-move hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     {field.label}
                   </div>
@@ -334,7 +334,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
                     key={field.id}
                     draggable
                     onDragStart={() => handleDragStart(field)}
-                    className="p-2 text-sm text-gray-600 dark:text-gray-400 bg-off-white dark:bg-gray-800 rounded-[2px] cursor-move hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="p-2 text-sm text-gray-600 bg-off-white dark:bg-gray-800 rounded-[2px] cursor-move hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     {field.label}
                   </div>
@@ -348,7 +348,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
         <div className="col-span-12 lg:col-span-9 space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Dimensions</h4>
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">Dimensions</h4>
               <div
                 className="min-h-24 p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-[2px]"
                 onDragOver={(e) => e.preventDefault()}
@@ -366,13 +366,13 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
                   );
                 })}
                 {reportConfig.dimensions.length === 0 && (
-                  <p className="text-gray-400 dark:text-gray-500 text-sm">Drag dimensions here</p>
+                  <p className="text-gray-400 text-sm">Drag dimensions here</p>
                 )}
               </div>
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Metrics</h4>
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">Metrics</h4>
               <div
                 className="min-h-24 p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-[2px]"
                 onDragOver={(e) => e.preventDefault()}
@@ -390,7 +390,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
                   );
                 })}
                 {reportConfig.metrics.length === 0 && (
-                  <p className="text-gray-400 dark:text-gray-500 text-sm">Drag metrics here</p>
+                  <p className="text-gray-400 text-sm">Drag metrics here</p>
                 )}
               </div>
             </div>
@@ -398,7 +398,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
 
           {/* Visualization Type */}
           <div>
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Visualization</h4>
+            <h4 className="text-sm font-semibold text-gray-900 mb-3">Visualization</h4>
             <div className="flex gap-2">
               {[
                 { id: 'table', label: 'Table', icon: TableCellsIcon },
@@ -412,7 +412,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
                   className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm transition-colors ${
                     reportConfig.visualization === viz.id
                       ? 'bg-cta text-deep-navy font-semibold'
-                      : 'bg-off-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      : 'bg-off-white dark:bg-gray-800 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <viz.icon className="w-4 h-4" />
@@ -425,7 +425,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
           {/* Filters */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Filters</h4>
+              <h4 className="text-sm font-semibold text-gray-900">Filters</h4>
               <button
                 onClick={addFilter}
                 className="flex items-center gap-1 px-3 py-1 text-sm text-primary hover:bg-primary/5 rounded-full transition-colors"
@@ -486,8 +486,8 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
   const renderPreviewStep = () => (
     <div>
       <div className="mb-4">
-        <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Report Preview</h4>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+        <h4 className="text-sm font-semibold text-gray-900 mb-2">Report Preview</h4>
+        <p className="text-xs text-gray-500">
           Preview based on sample data. Actual report will use live data.
         </p>
       </div>
@@ -507,7 +507,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
 
   const renderScheduleStep = () => (
     <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Schedule & Delivery</h4>
+      <h4 className="text-sm font-semibold text-gray-900">Schedule & Delivery</h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>Delivery Frequency</label>
@@ -553,7 +553,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
     <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
       <button
         onClick={handleBack}
-        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
       >
         Back
       </button>
@@ -596,10 +596,10 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
 function ReviewCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-3">
-      <div className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-[0.05em] mb-1">
+      <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-1">
         {label}
       </div>
-      <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+      <div className="text-sm font-medium text-gray-900 truncate">
         {value}
       </div>
     </div>

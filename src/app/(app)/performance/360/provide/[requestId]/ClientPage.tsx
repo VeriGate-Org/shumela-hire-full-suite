@@ -143,7 +143,7 @@ export default function ProvideFeedbackPage() {
             <div className="flex justify-center gap-4">
               <button
                 onClick={loadRequest}
-                className="px-4 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-600 text-sm"
+                className="px-4 py-2 bg-gold-500 text-cta-foreground rounded-lg hover:bg-gold-600 text-sm"
               >
                 Retry
               </button>
@@ -217,7 +217,7 @@ export default function ProvideFeedbackPage() {
                           onClick={() => setRatings((prev) => ({ ...prev, [category]: value }))}
                           className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                             ratings[category] === value
-                              ? 'bg-gold-500 text-white'
+                              ? 'bg-gold-500 text-cta-foreground'
                               : ratings[category] > 0 && ratings[category] >= value
                               ? 'bg-gold-100 text-gold-700'
                               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -287,7 +287,7 @@ export default function ProvideFeedbackPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-6 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-600 text-sm disabled:opacity-50"
+                className="px-6 py-2 bg-gold-500 text-cta-foreground rounded-lg hover:bg-gold-600 text-sm disabled:opacity-50"
               >
                 {submitting ? 'Submitting...' : 'Submit Feedback'}
               </button>

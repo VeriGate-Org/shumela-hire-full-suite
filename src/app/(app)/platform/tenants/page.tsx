@@ -96,7 +96,7 @@ export default function TenantsPage() {
             placeholder="Search tenants..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-[2px] border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-white dark:bg-charcoal dark:border-gray-700 dark:text-gray-100"
+            className="w-full pl-10 pr-4 py-2 rounded-[2px] border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-white dark:bg-charcoal dark:border-gray-700 dark:text-foreground"
           />
         </div>
 
@@ -105,11 +105,11 @@ export default function TenantsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Tenant</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Subdomain</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Plan</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Max Users</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Tenant</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Subdomain</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Plan</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Status</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Max Users</th>
               </tr>
             </thead>
             <tbody>
@@ -130,12 +130,12 @@ export default function TenantsPage() {
                           <BuildingOfficeIcon className="h-4 w-4 text-primary" />
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors">{tenant.name}</div>
+                          <div className="font-medium text-gray-900 group-hover:text-primary transition-colors">{tenant.name}</div>
                           <div className="text-xs text-gray-500">{tenant.contactEmail}</div>
                         </div>
                       </Link>
                     </td>
-                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400 font-mono text-xs">{tenant.subdomain}</td>
+                    <td className="py-3 px-4 text-gray-600 font-mono text-xs">{tenant.subdomain}</td>
                     <td className="py-3 px-4">
                       <span className={`inline-block px-2 py-0.5 rounded-[2px] text-xs font-medium ${PLAN_STYLES[tenant.plan] || 'bg-gray-50 text-gray-600'}`}>
                         {tenant.plan}
@@ -146,7 +146,7 @@ export default function TenantsPage() {
                         {tenant.status}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400">{tenant.maxUsers}</td>
+                    <td className="py-3 px-4 text-gray-600">{tenant.maxUsers}</td>
                   </tr>
                 ))
               )}
@@ -165,7 +165,7 @@ export default function TenantsPage() {
                 >
                   <ChevronLeftIcon className="h-4 w-4" />
                 </button>
-                <span className="text-xs text-gray-600 dark:text-gray-400">
+                <span className="text-xs text-gray-600">
                   Page {page + 1} of {totalPages}
                 </span>
                 <button

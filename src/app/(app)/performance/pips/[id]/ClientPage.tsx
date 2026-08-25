@@ -157,7 +157,7 @@ export default function PipDetailPage() {
             <div className="flex justify-center gap-4">
               <button
                 onClick={loadPip}
-                className="px-4 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-600 text-sm"
+                className="px-4 py-2 bg-gold-500 text-cta-foreground rounded-lg hover:bg-gold-600 text-sm"
               >
                 Retry
               </button>
@@ -263,7 +263,7 @@ export default function PipDetailPage() {
               <button
                 onClick={handleStatusUpdate}
                 disabled={updatingStatus}
-                className="px-6 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-600 text-sm disabled:opacity-50"
+                className="px-6 py-2 bg-gold-500 text-cta-foreground rounded-lg hover:bg-gold-600 text-sm disabled:opacity-50"
               >
                 {updatingStatus ? 'Updating...' : 'Update Status'}
               </button>
@@ -353,7 +353,7 @@ export default function PipDetailPage() {
                             <button
                               onClick={() => handleMilestoneUpdate(milestone.id)}
                               disabled={updatingMilestone === milestone.id}
-                              className="px-4 py-1.5 bg-gold-500 text-white rounded-lg hover:bg-gold-600 text-xs disabled:opacity-50"
+                              className="px-4 py-1.5 bg-gold-500 text-cta-foreground rounded-lg hover:bg-gold-600 text-xs disabled:opacity-50"
                             >
                               {updatingMilestone === milestone.id ? 'Updating...' : 'Update Milestone'}
                             </button>

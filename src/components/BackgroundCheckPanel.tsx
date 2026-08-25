@@ -299,7 +299,7 @@ export default function BackgroundCheckPanel({
           {!readOnly && !showInitForm && (
             <button
               onClick={() => setShowInitForm(true)}
-              className="px-4 py-2 bg-gold-500 text-white text-sm font-medium rounded-lg hover:bg-gold-600 transition-colors"
+              className="px-4 py-2 bg-gold-500 text-cta-foreground text-sm font-medium rounded-lg hover:bg-gold-600 transition-colors"
             >
               + New Check
             </button>
@@ -420,7 +420,7 @@ export default function BackgroundCheckPanel({
             <button
               onClick={handleInitiate}
               disabled={submitting}
-              className="px-5 py-2 bg-gold-500 text-white text-sm font-medium rounded-lg hover:bg-gold-600 disabled:opacity-50 transition-colors"
+              className="px-5 py-2 bg-gold-500 text-cta-foreground text-sm font-medium rounded-lg hover:bg-gold-600 disabled:opacity-50 transition-colors"
             >
               {submitting ? 'Initiating...' : 'Initiate Checks'}
             </button>

@@ -4,7 +4,7 @@
  */
 
 export const PILL_VARIANTS: Record<string, string> = {
-  gray: 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600',
+  gray: 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800 dark:border-gray-600',
   green: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-300 dark:border-green-700',
   red: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-900 dark:text-red-300 dark:border-red-700',
   yellow: 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-300 dark:border-yellow-700',
@@ -15,7 +15,7 @@ export const PILL_VARIANTS: Record<string, string> = {
   gold: 'bg-gold-100 text-gold-800 border-gold-300 dark:bg-gold-900 dark:text-gold-300 dark:border-gold-700',
   emerald: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700',
   indigo: 'bg-indigo-100 text-indigo-700 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-300 dark:border-indigo-700',
-  slate: 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600',
+  slate: 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:border-slate-600',
   amber: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900 dark:text-amber-300 dark:border-amber-700',
   greenSolid: 'bg-green-600 text-white border-green-600 dark:bg-green-700 dark:text-white dark:border-green-700',
   redSolid: 'bg-red-600 text-white border-red-600 dark:bg-red-700 dark:text-white dark:border-red-700',

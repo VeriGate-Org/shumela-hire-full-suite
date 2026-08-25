@@ -106,7 +106,7 @@ export default function DisciplinaryCasesPage() {
           <div className="flex gap-2 flex-wrap">
             {[undefined, 'OPEN', 'INVESTIGATION', 'HEARING_SCHEDULED', 'HEARING_COMPLETED', 'CLOSED'].map((f) => (
               <button key={f || 'all'} onClick={() => { setFilter(f); setPage(0); }}
-                className={`px-3 py-1.5 text-sm rounded-lg ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
+                className={`px-3 py-1.5 text-sm rounded-lg ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700'}`}>
                 {f ? formatLabel(f) : 'All'}
               </button>
             ))}
@@ -118,7 +118,7 @@ export default function DisciplinaryCasesPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : cases.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 text-gray-500">
               <ExclamationTriangleIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No disciplinary cases found</p>
             </div>
@@ -142,15 +142,15 @@ export default function DisciplinaryCasesPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{dc.offenceDescription}</p>
-                      <div className="flex gap-4 text-xs text-gray-500 dark:text-gray-400 mt-2 flex-wrap">
+                      <p className="text-sm text-gray-600 mt-2">{dc.offenceDescription}</p>
+                      <div className="flex gap-4 text-xs text-gray-500 mt-2 flex-wrap">
                         <span>Incident: {new Date(dc.incidentDate).toLocaleDateString()}</span>
                         {dc.hearingDate && <span>Hearing: {new Date(dc.hearingDate).toLocaleDateString()}</span>}
                         {dc.outcomeDate && <span>Outcome Date: {new Date(dc.outcomeDate).toLocaleDateString()}</span>}
                         <span>Created: {new Date(dc.createdAt).toLocaleDateString()}</span>
                       </div>
                       {dc.notes && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">Notes: {dc.notes}</p>
+                        <p className="text-xs text-gray-500 mt-2 italic">Notes: {dc.notes}</p>
                       )}
                     </div>
                     <div className="flex gap-2">
@@ -193,7 +193,7 @@ export default function DisciplinaryCasesPage() {
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select value={updateForm.status || ''}
                       onChange={(e) => setUpdateForm(prev => ({ ...prev, status: e.target.value }))}
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
@@ -205,13 +205,13 @@ export default function DisciplinaryCasesPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hearing Date</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Hearing Date</label>
                     <input type="date" value={updateForm.hearingDate || ''}
                       onChange={(e) => setUpdateForm(prev => ({ ...prev, hearingDate: e.target.value }))}
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Outcome</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Outcome</label>
                     <select value={updateForm.outcome || ''}
                       onChange={(e) => setUpdateForm(prev => ({ ...prev, outcome: e.target.value || undefined }))}
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
@@ -225,7 +225,7 @@ export default function DisciplinaryCasesPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
                     <textarea value={updateForm.notes || ''} rows={3}
                       onChange={(e) => setUpdateForm(prev => ({ ...prev, notes: e.target.value }))}
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -234,7 +234,7 @@ export default function DisciplinaryCasesPage() {
                 </div>
                 <div className="flex justify-end gap-3 mt-6">
                   <button onClick={() => { setShowUpdateModal(false); setSelectedCase(null); setUpdateForm({}); }}
-                    className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                    className="px-4 py-2 text-sm text-gray-700 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
                     Cancel
                   </button>
                   <button onClick={handleUpdate}

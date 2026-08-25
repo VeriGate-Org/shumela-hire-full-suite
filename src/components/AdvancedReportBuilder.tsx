@@ -171,7 +171,7 @@ const AdvancedReportBuilder: React.FC<AdvancedReportBuilderProps> = ({
               onClick={() => handleDatePresetChange(preset.value)}
               className={`px-3 py-1 text-sm rounded border ${
                 config.dateRange.preset === preset.value
-                  ? 'bg-gold-500 text-white border-gold-500'
+                  ? 'bg-gold-500 text-cta-foreground border-gold-500'
                   : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
               }`}
             >

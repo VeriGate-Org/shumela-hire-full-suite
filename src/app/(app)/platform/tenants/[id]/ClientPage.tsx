@@ -43,7 +43,7 @@ interface FeatureSummary {
 }
 
 const SOURCE_STYLES = {
-  PLAN_DEFAULT: 'bg-gray-50 text-gray-600 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
+  PLAN_DEFAULT: 'bg-gray-50 text-gray-600 border border-gray-200 dark:bg-gray-800 dark:border-gray-700',
   OVERRIDE: 'bg-primary/5 text-primary border border-primary/20',
 };
 
@@ -310,7 +310,7 @@ export default function TenantDetailPage() {
                       type="text"
                       value={infoForm[key as keyof typeof infoForm]}
                       onChange={(e) => setInfoForm(prev => ({ ...prev, [key]: e.target.value }))}
-                      className="w-full px-2.5 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-ring/30"
+                      className="w-full px-2.5 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-gray-800 text-gray-900 focus:outline-none focus:ring-2 focus:ring-ring/30"
                     />
                   </div>
                 ))}
@@ -320,7 +320,7 @@ export default function TenantDetailPage() {
                     value={infoForm.description}
                     onChange={(e) => setInfoForm(prev => ({ ...prev, description: e.target.value }))}
                     rows={3}
-                    className="w-full px-2.5 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-ring/30"
+                    className="w-full px-2.5 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-gray-800 text-gray-900 focus:outline-none focus:ring-2 focus:ring-ring/30"
                   />
                 </div>
               </div>
@@ -336,13 +336,13 @@ export default function TenantDetailPage() {
                 ].map(({ label, value }) => (
                   <div key={label}>
                     <div className="text-[10px] text-gray-400 uppercase tracking-[0.05em] mb-0.5">{label}</div>
-                    <div className="text-xs text-gray-900 dark:text-gray-100">{value}</div>
+                    <div className="text-xs text-gray-900">{value}</div>
                   </div>
                 ))}
                 {infoForm.description && (
                   <div className="col-span-full">
                     <div className="text-[10px] text-gray-400 uppercase tracking-[0.05em] mb-0.5">Description</div>
-                    <div className="text-xs text-gray-900 dark:text-gray-100">{infoForm.description}</div>
+                    <div className="text-xs text-gray-900">{infoForm.description}</div>
                   </div>
                 )}
               </div>
@@ -360,7 +360,7 @@ export default function TenantDetailPage() {
           ].map(stat => (
             <div key={stat.label} className="bg-white dark:bg-charcoal border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
               <div className="text-xs text-gray-500 uppercase tracking-[0.05em] mb-1">{stat.label}</div>
-              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{stat.value}</div>
+              <div className="text-sm font-medium text-gray-900">{stat.value}</div>
             </div>
           ))}
         </div>
@@ -378,10 +378,10 @@ export default function TenantDetailPage() {
                     {feature.enabled ? (
                       <CheckCircleIcon className="h-5 w-5 text-emerald-500" />
                     ) : (
-                      <XCircleIcon className="h-5 w-5 text-gray-300 dark:text-gray-600" />
+                      <XCircleIcon className="h-5 w-5 text-gray-300" />
                     )}
                     <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{feature.name}</div>
+                      <div className="text-sm font-medium text-gray-900">{feature.name}</div>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className={`inline-block px-1.5 py-0.5 rounded-[2px] text-[10px] font-medium ${SOURCE_STYLES[feature.source]}`}>
                           {feature.source === 'PLAN_DEFAULT' ? 'Plan Default' : 'Override'}

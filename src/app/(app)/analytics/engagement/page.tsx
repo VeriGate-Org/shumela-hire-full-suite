@@ -147,7 +147,7 @@ export default function EngagementAnalyticsPage() {
               </h3>
               <button onClick={() => setAiSentiment(null)} className="text-purple-400 hover:text-purple-600 text-sm">Dismiss</button>
             </div>
-            <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">{aiSentiment.executiveSummary}</p>
+            <p className="text-sm text-gray-700 mb-3">{aiSentiment.executiveSummary}</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
               <div className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
                 <p className="text-lg font-bold text-purple-700">{aiSentiment.overallSentiment}</p>
@@ -183,7 +183,7 @@ export default function EngagementAnalyticsPage() {
               </h3>
               <button onClick={() => setAiWorkforce(null)} className="text-indigo-400 hover:text-indigo-600 text-sm">Dismiss</button>
             </div>
-            <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">{aiWorkforce.overallHealthAssessment}</p>
+            <p className="text-sm text-gray-700 mb-3">{aiWorkforce.overallHealthAssessment}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {aiWorkforce.keyRisks?.length > 0 && (
                 <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">

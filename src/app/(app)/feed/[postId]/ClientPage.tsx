@@ -151,7 +151,7 @@ export default function PostDetailPage() {
       <PageWrapper title="Post" subtitle="Post details">
         <FeatureGate feature="SOCIAL_FEED">
           <div className="enterprise-card p-8 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-500">
               {error || 'Post not found.'}
             </p>
             <Link
@@ -174,7 +174,7 @@ export default function PostDetailPage() {
           {/* Back Link */}
           <Link
             href="/feed"
-            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-200"
           >
             <ArrowLeftIcon className="h-4 w-4" />
             Back to Feed
@@ -192,7 +192,7 @@ export default function PostDetailPage() {
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {post.authorName || 'Unknown'}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-gray-500">
                     {formatDate(post.publishedAt || post.createdAt)}
                   </p>
                 </div>
@@ -210,7 +210,7 @@ export default function PostDetailPage() {
                 {post.title}
               </h2>
             )}
-            <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+            <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
               {post.content}
             </div>
 
@@ -221,7 +221,7 @@ export default function PostDetailPage() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors ${
                   hasUserReacted('LIKE')
                     ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400'
+                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 {hasUserReacted('LIKE') ? (
@@ -239,7 +239,7 @@ export default function PostDetailPage() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors ${
                   hasUserReacted('CELEBRATE')
                     ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
-                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400'
+                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 {hasUserReacted('CELEBRATE') ? (
@@ -257,7 +257,7 @@ export default function PostDetailPage() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors ${
                   hasUserReacted('SUPPORT')
                     ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400'
+                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 {hasUserReacted('SUPPORT') ? (
@@ -302,7 +302,7 @@ export default function PostDetailPage() {
 
             {/* Comments List */}
             {post.comments.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+              <p className="text-sm text-gray-500 text-center py-4">
                 No comments yet. Be the first to comment!
               </p>
             ) : (
@@ -316,7 +316,7 @@ export default function PostDetailPage() {
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-xs font-semibold text-gray-600 dark:text-gray-300">
+                          <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-xs font-semibold text-gray-600">
                             {comment.authorName
                               ? comment.authorName.charAt(0).toUpperCase()
                               : '?'}
@@ -325,7 +325,7 @@ export default function PostDetailPage() {
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
                               {comment.authorName || 'Unknown'}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                            <p className="text-xs text-gray-500">
                               {timeAgo(comment.createdAt)}
                             </p>
                           </div>
@@ -340,7 +340,7 @@ export default function PostDetailPage() {
                           </button>
                         )}
                       </div>
-                      <p className="mt-2 text-sm text-gray-700 dark:text-gray-300 ml-9">
+                      <p className="mt-2 text-sm text-gray-700 ml-9">
                         {comment.content}
                       </p>
                     </div>

@@ -69,7 +69,7 @@ export default function DsarPage() {
           <div className="flex gap-2 flex-wrap">
             {[undefined, 'RECEIVED', 'IN_PROGRESS', 'COMPLETED', 'REJECTED'].map((f) => (
               <button key={f || 'all'} onClick={() => { setFilter(f); setPage(0); }}
-                className={`px-3 py-1.5 text-sm rounded-lg ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
+                className={`px-3 py-1.5 text-sm rounded-lg ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700'}`}>
                 {f ? formatEnumValue(f) : 'All'}
               </button>
             ))}
@@ -80,7 +80,7 @@ export default function DsarPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : requests.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 text-gray-500">
               <DocumentTextIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No data subject requests found</p>
             </div>
@@ -95,11 +95,11 @@ export default function DsarPage() {
                         <span className={`px-2 py-0.5 text-xs rounded-full ${typeBadge(req.requestType)}`}>{req.requestType}</span>
                         <span className={`px-2 py-0.5 text-xs rounded-full ${statusBadge(req.status)}`}>{req.status}</span>
                       </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{req.requesterEmail}</p>
+                      <p className="text-sm text-gray-500 mt-1">{req.requesterEmail}</p>
                       {req.description && (
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{req.description}</p>
+                        <p className="text-sm text-gray-600 mt-2">{req.description}</p>
                       )}
-                      <div className="flex gap-4 text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      <div className="flex gap-4 text-xs text-gray-500 mt-2">
                         <span>Created: {new Date(req.createdAt).toLocaleDateString()}</span>
                         {req.dueDate && <span>Due: {new Date(req.dueDate).toLocaleDateString()}</span>}
                       </div>

@@ -188,7 +188,7 @@ export default function FeaturesPage() {
         {showForm && (
           <div className="bg-white dark:bg-charcoal border border-gray-200 dark:border-gray-700 rounded-[2px] p-6 space-y-4">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <h3 className="text-sm font-medium text-gray-900">
                 {editingId ? 'Edit Feature' : 'New Feature'}
               </h3>
               <button onClick={resetForm} className="text-gray-400 hover:text-gray-600">
@@ -255,7 +255,7 @@ export default function FeaturesPage() {
                     className={`px-3 py-1.5 rounded-[2px] text-xs font-medium border transition-colors ${
                       form.includedPlans.includes(plan)
                         ? 'bg-primary text-white border-primary'
-                        : 'bg-white dark:bg-charcoal text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary'
+                        : 'bg-white dark:bg-charcoal text-gray-600 border-gray-200 dark:border-gray-700 hover:border-primary'
                     }`}
                   >
                     {plan}
@@ -275,7 +275,7 @@ export default function FeaturesPage() {
                   form.isActive ? 'translate-x-4' : 'translate-x-0'
                 }`} />
               </button>
-              <span className="text-sm text-gray-600 dark:text-gray-400">Active</span>
+              <span className="text-sm text-gray-600">Active</span>
             </div>
 
             <div className="flex gap-2 pt-2">
@@ -304,7 +304,7 @@ export default function FeaturesPage() {
             className={`px-3 py-1.5 rounded-[2px] text-xs font-medium border transition-colors ${
               categoryFilter === 'all'
                 ? 'bg-primary text-white border-primary'
-                : 'bg-white dark:bg-charcoal text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary'
+                : 'bg-white dark:bg-charcoal text-gray-600 border-gray-200 dark:border-gray-700 hover:border-primary'
             }`}
           >
             All ({features.length})
@@ -333,12 +333,12 @@ export default function FeaturesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Feature</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Code</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Category</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Plans</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Status</th>
-                <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Actions</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Feature</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Code</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Category</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Plans</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Status</th>
+                <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -355,13 +355,13 @@ export default function FeaturesPage() {
                   <tr key={feature.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                     <td className="py-3 px-4">
                       <Link href={`/platform/features/${feature.id}`} className="hover:text-primary transition-colors">
-                        <div className="font-medium text-gray-900 dark:text-gray-100">{feature.name}</div>
+                        <div className="font-medium text-gray-900">{feature.name}</div>
                         {feature.description && (
                           <div className="text-xs text-gray-500 mt-0.5 truncate max-w-xs">{feature.description}</div>
                         )}
                       </Link>
                     </td>
-                    <td className="py-3 px-4 font-mono text-xs text-gray-600 dark:text-gray-400">{feature.code}</td>
+                    <td className="py-3 px-4 font-mono text-xs text-gray-600">{feature.code}</td>
                     <td className="py-3 px-4">
                       <span className={`inline-block px-2 py-0.5 rounded-[2px] text-xs font-medium border ${CATEGORY_STYLES[feature.category] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
                         {CATEGORY_LABELS[feature.category] || feature.category}
@@ -370,7 +370,7 @@ export default function FeaturesPage() {
                     <td className="py-3 px-4">
                       <div className="flex gap-1 flex-wrap">
                         {feature.includedPlans?.split(',').map(plan => (
-                          <span key={plan} className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-[2px] text-[10px] font-medium">
+                          <span key={plan} className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 rounded-[2px] text-[10px] font-medium">
                             {plan}
                           </span>
                         ))}

@@ -468,7 +468,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
             <button
               type="button"
               onClick={addEducation}
-              className="px-3 py-1 bg-gold-500 text-white rounded-control text-sm hover:bg-gold-600"
+              className="px-3 py-1 bg-gold-500 text-cta-foreground rounded-control text-sm hover:bg-gold-600"
             >
               Add Education
             </button>
@@ -656,7 +656,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-gold-500 text-white rounded-control hover:bg-gold-600 disabled:opacity-50"
+            className="px-6 py-2 bg-gold-500 text-cta-foreground rounded-control hover:bg-gold-600 disabled:opacity-50"
           >
             {loading ? 'Saving...' : (applicantId ? 'Update Profile' : 'Create Profile')}
           </button>

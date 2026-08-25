@@ -133,7 +133,7 @@ export default function ApplicationStatusTracker({
                           ? 'bg-emerald-500 text-white'
                           : isCurrent
                             ? 'bg-cta text-deep-navy shadow-[0_0_0_3px_rgba(241,197,75,0.25)]'
-                            : 'border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500'
+                            : 'border-2 border-gray-200 dark:border-gray-600 text-gray-400'
                       }`}
                     >
                       {isCompleted ? (
@@ -148,7 +148,7 @@ export default function ApplicationStatusTracker({
                           ? 'text-emerald-600 dark:text-emerald-400 font-medium'
                           : isCurrent
                             ? 'text-foreground font-semibold'
-                            : 'text-gray-400 dark:text-gray-500'
+                            : 'text-gray-400'
                       }`}
                     >
                       {step.label}
@@ -205,7 +205,7 @@ export default function ApplicationStatusTracker({
             {[1, 2, 3, 4, 5].map(star => (
               <svg
                 key={star}
-                className={`w-4 h-4 ${star <= application.rating! ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 dark:text-gray-600'}`}
+                className={`w-4 h-4 ${star <= application.rating! ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'}`}
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >

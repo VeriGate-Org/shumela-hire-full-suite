@@ -84,7 +84,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
               className="h-8 w-8 rounded-full object-cover"
             />
           ) : (
-            <div className="h-8 w-8 bg-gold-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+            <div className="h-8 w-8 bg-gold-500 rounded-full flex items-center justify-center text-cta-foreground text-sm font-medium">
               {getInitials(currentUser.name)}
             </div>
           )}
@@ -132,7 +132,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
                     className="h-10 w-10 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="h-10 w-10 bg-gold-500 rounded-full flex items-center justify-center text-white font-medium">
+                  <div className="h-10 w-10 bg-gold-500 rounded-full flex items-center justify-center text-cta-foreground font-medium">
                     {getInitials(currentUser.name)}
                   </div>
                 )}

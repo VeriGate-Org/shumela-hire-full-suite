@@ -80,7 +80,7 @@ export default function ComplianceRemindersPage() {
             ].map((s) => (
               <div key={s.label} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 text-center">
                 <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{s.label}</p>
+                <p className="text-sm text-gray-500">{s.label}</p>
               </div>
             ))}
           </div>
@@ -89,7 +89,7 @@ export default function ComplianceRemindersPage() {
           <div className="flex gap-2 flex-wrap">
             {[undefined, 'PENDING', 'SENT', 'ACKNOWLEDGED', 'OVERDUE'].map((f) => (
               <button key={f || 'all'} onClick={() => { setFilter(f); setPage(0); }}
-                className={`px-3 py-1.5 text-sm rounded-lg ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
+                className={`px-3 py-1.5 text-sm rounded-lg ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700'}`}>
                 {f || 'All'}
               </button>
             ))}
@@ -101,7 +101,7 @@ export default function ComplianceRemindersPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : reminders.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 text-gray-500">
               <BellAlertIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No compliance reminders found</p>
             </div>
@@ -115,9 +115,9 @@ export default function ComplianceRemindersPage() {
                       <div>
                         <h4 className="font-medium text-gray-900 dark:text-white">{reminder.title}</h4>
                         {reminder.description && (
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{reminder.description}</p>
+                          <p className="text-sm text-gray-600 mt-1">{reminder.description}</p>
                         )}
-                        <div className="flex gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex gap-3 mt-2 text-xs text-gray-500">
                           <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700">{typeLabel(reminder.reminderType)}</span>
                           {reminder.employeeName && <span>Employee: {reminder.employeeName}</span>}
                           <span>Due: {new Date(reminder.dueDate).toLocaleDateString()}</span>

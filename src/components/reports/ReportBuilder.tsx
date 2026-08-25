@@ -93,10 +93,10 @@ const FILTER_OPERATORS = [
 ];
 
 const inputClass =
-  'w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/30 focus:border-primary';
+  'w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 focus:ring-2 focus:ring-primary/30 focus:border-primary';
 
 const labelClass =
-  'block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-1.5';
+  'block text-xs font-medium text-gray-500 uppercase tracking-[0.05em] mb-1.5';
 
 export default function ReportBuilder({
   availableFields,
@@ -280,8 +280,8 @@ export default function ReportBuilder({
 
       {/* Field Selection */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Select Fields to Include</h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+        <h3 className="text-sm font-semibold text-gray-900 mb-3">Select Fields to Include</h3>
+        <p className="text-xs text-gray-500 mb-4">
           Choose the data fields you want to include in your report
         </p>
       </div>
@@ -308,8 +308,8 @@ export default function ReportBuilder({
                   className="h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
                 />
                 <div className="ml-3">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{field.name}</div>
-                  <div className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-[0.05em]">{field.type}</div>
+                  <div className="text-sm font-medium text-gray-900">{field.name}</div>
+                  <div className="text-[10px] text-gray-400 uppercase tracking-[0.05em]">{field.type}</div>
                 </div>
               </label>
             ))}
@@ -323,8 +323,8 @@ export default function ReportBuilder({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Report Filters</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <h3 className="text-sm font-semibold text-gray-900">Report Filters</h3>
+          <p className="text-xs text-gray-500 mt-1">
             Add filters to refine your report data
           </p>
         </div>
@@ -337,7 +337,7 @@ export default function ReportBuilder({
       </div>
 
       {config.filters.length === 0 ? (
-        <div className="text-center py-12 text-gray-400 dark:text-gray-500">
+        <div className="text-center py-12 text-gray-400">
           <FunnelIcon className="w-10 h-10 mx-auto mb-3 opacity-40" />
           <p className="text-sm">No filters added yet</p>
           <p className="text-xs mt-1">Filters are optional — click &quot;Add Filter&quot; or proceed to the next step</p>
@@ -407,7 +407,7 @@ export default function ReportBuilder({
   const renderVisualizationStep = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Choose Visualization Type</h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-3">Choose Visualization Type</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {VISUALIZATION_TYPES.map((viz) => (
             <button
@@ -420,10 +420,10 @@ export default function ReportBuilder({
               }`}
             >
               <viz.icon className={`h-6 w-6 mb-2 ${
-                config.visualization.type === viz.type ? 'text-cta' : 'text-gray-400 dark:text-gray-500'
+                config.visualization.type === viz.type ? 'text-cta' : 'text-gray-400'
               }`} />
-              <div className="font-medium text-gray-900 dark:text-gray-100">{viz.name}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{viz.description}</div>
+              <div className="font-medium text-gray-900">{viz.name}</div>
+              <div className="text-xs text-gray-500 mt-1">{viz.description}</div>
             </button>
           ))}
         </div>
@@ -491,11 +491,11 @@ export default function ReportBuilder({
             }))}
             className="h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
           />
-          <span className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+          <span className="ml-2 text-sm font-medium text-gray-900">
             Enable automated report scheduling
           </span>
         </label>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-6">
+        <p className="text-xs text-gray-500 mt-1 ml-6">
           Automatically generate and send this report on a regular schedule
         </p>
       </div>
@@ -561,7 +561,7 @@ export default function ReportBuilder({
     <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
       <button
         onClick={handleBack}
-        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
       >
         <ArrowLeftIcon className="w-3.5 h-3.5" />
         Back
@@ -570,7 +570,7 @@ export default function ReportBuilder({
         <button
           onClick={() => onExport(config, 'csv')}
           disabled={!config.name.trim()}
-          className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <DocumentArrowDownIcon className="h-4 w-4" />
           Export
@@ -578,7 +578,7 @@ export default function ReportBuilder({
         <button
           onClick={() => onSave(config)}
           disabled={!config.name.trim()}
-          className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <BookmarkIcon className="h-4 w-4" />
           Save

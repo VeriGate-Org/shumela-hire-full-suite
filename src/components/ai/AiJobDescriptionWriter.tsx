@@ -167,15 +167,15 @@ export default function AiJobDescriptionWriter({ onApply, initialTitle, initialD
       {/* Result Preview */}
       {result && (
         <div className="border border-gray-200 dark:border-gray-700 rounded-control p-4 space-y-4 bg-gray-50 dark:bg-charcoal">
-          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">{result.title}</h4>
-          {result.intro && <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{result.intro}</p>}
+          <h4 className="text-lg font-bold text-gray-900">{result.title}</h4>
+          {result.intro && <p className="text-sm text-gray-700 leading-relaxed">{result.intro}</p>}
 
           {result.responsibilities && result.responsibilities.length > 0 && (
             <div>
-              <h5 className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-2">Responsibilities</h5>
+              <h5 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Responsibilities</h5>
               <ul className="space-y-1">
                 {result.responsibilities.map((r, i) => (
-                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                  <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                     <span className="text-violet-500 mt-1">&#8226;</span>{r}
                   </li>
                 ))}
@@ -185,10 +185,10 @@ export default function AiJobDescriptionWriter({ onApply, initialTitle, initialD
 
           {result.requirements && result.requirements.length > 0 && (
             <div>
-              <h5 className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-2">Requirements</h5>
+              <h5 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Requirements</h5>
               <ul className="space-y-1">
                 {result.requirements.map((r, i) => (
-                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                  <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                     <span className="text-violet-500 mt-1">&#8226;</span>{r}
                   </li>
                 ))}
@@ -198,10 +198,10 @@ export default function AiJobDescriptionWriter({ onApply, initialTitle, initialD
 
           {result.benefits && result.benefits.length > 0 && (
             <div>
-              <h5 className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-2">Benefits</h5>
+              <h5 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Benefits</h5>
               <ul className="space-y-1">
                 {result.benefits.map((b, i) => (
-                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                  <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                     <span className="text-violet-500 mt-1">&#8226;</span>{b}
                   </li>
                 ))}
@@ -220,8 +220,8 @@ export default function AiJobDescriptionWriter({ onApply, initialTitle, initialD
 
           {biasResult && (
             <div className={`border rounded-control p-3 ${biasResult.biasWarnings && biasResult.biasWarnings.length > 0 ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700/50' : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700/50'}`}>
-              <h5 className="text-xs font-semibold uppercase tracking-wider mb-1 text-gray-700 dark:text-gray-300">Bias Analysis</h5>
-              <p className="text-sm text-gray-700 dark:text-gray-300">{biasResult.overallAssessment}</p>
+              <h5 className="text-xs font-semibold uppercase tracking-wider mb-1 text-gray-700">Bias Analysis</h5>
+              <p className="text-sm text-gray-700">{biasResult.overallAssessment}</p>
               {biasResult.biasWarnings && biasResult.biasWarnings.map((w, i) => (
                 <p key={i} className="text-sm text-yellow-700 dark:text-yellow-200 mt-1">{w}</p>
               ))}
@@ -230,11 +230,11 @@ export default function AiJobDescriptionWriter({ onApply, initialTitle, initialD
 
           <div className="flex gap-2 pt-2">
             <button onClick={handleBiasCheck} disabled={biasLoading}
-              className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-control text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50">
+              className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-control text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50">
               {biasLoading ? 'Checking...' : 'Check for Bias'}
             </button>
             <button onClick={() => navigator.clipboard.writeText(JSON.stringify(result, null, 2))}
-              className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-control text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+              className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-control text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700">
               Copy JSON
             </button>
             {onApply && (
