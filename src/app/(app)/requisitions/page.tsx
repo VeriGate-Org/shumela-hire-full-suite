@@ -10,7 +10,6 @@ import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
 import DistributionStrip from '@/components/record/DistributionStrip';
 import FilterChips from '@/components/record/FilterChips';
-import RequisitionForm from '@/components/RequisitionForm';
 import { useToast } from '@/components/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
@@ -46,7 +45,6 @@ export default function RequisitionsPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [showNewRequisition, setShowNewRequisition] = useState(false);
 
   const filter = QUEUE_FILTERS.find((f) => f.key === activeFilter) ?? QUEUE_FILTERS[0];
 
@@ -199,7 +197,9 @@ export default function RequisitionsPage() {
               <PrimaryAction>Review the oldest</PrimaryAction>
             </Link>
           )}
-          <SecondaryAction onClick={() => setShowNewRequisition(true)}>New requisition</SecondaryAction>
+          <Link href="/requisitions/new">
+              <SecondaryAction>New requisition</SecondaryAction>
+            </Link>
         </DecisionBar>
       )}
 
@@ -385,18 +385,6 @@ export default function RequisitionsPage() {
         )}
       </section>
 
-      {showNewRequisition && (
-        <RequisitionForm
-          variant="modal"
-          onCancel={() => setShowNewRequisition(false)}
-          onSuccess={() => {
-            setShowNewRequisition(false);
-            loadRequisitions(currentPage, filter.statuses);
-            loadSummary();
-            toast('Requisition created', 'success');
-          }}
-        />
-      )}
     </PageWrapper>
   );
 }

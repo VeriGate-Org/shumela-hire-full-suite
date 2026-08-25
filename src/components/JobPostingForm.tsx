@@ -20,6 +20,12 @@ interface JobPostingFormProps {
   currentUserId?: string | number | null;
   onSuccess?: (jobPosting: { id: string | number; title: string; status: string }) => void;
   onCancel?: () => void;
+  /**
+   * Defaults to 'page'. It defaulted to 'modal', which was invisible while every caller passed the
+   * prop — and would have rendered an overlay on top of the new routes, which pass nothing.
+   * RequisitionForm already defaulted to 'page', which is why /requisitions/new worked and these
+   * would not have.
+   */
   variant?: 'page' | 'modal';
 }
 
@@ -95,7 +101,7 @@ const DEFAULT_JOB_POSTING_DATA: JobPostingData = {
   enforceCheckCompletion: false,
 };
 
-export default function JobPostingForm({ jobPostingId, initialData, currentUserId, onSuccess, onCancel, variant = 'modal' }: JobPostingFormProps) {
+export default function JobPostingForm({ jobPostingId, initialData, currentUserId, onSuccess, onCancel, variant = 'page' }: JobPostingFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { departments: DEPARTMENTS } = useDepartments();
