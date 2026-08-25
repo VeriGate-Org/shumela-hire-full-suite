@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import { CardSkeleton } from '@/components/LoadingComponents';
@@ -433,7 +434,13 @@ export default function InternalJobsBoard() {
 
   if (loading) {
     return (
-      <PageWrapper title="Internal Job Board" subtitle="Browse internal opportunities and advance your career" actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Internal opportunities"
+          title="Internal Job Board"
+          subtitle="Loading roles…"
+          actions={actions}
+        />
         <CardSkeleton count={6} />
       </PageWrapper>
     );
@@ -441,7 +448,13 @@ export default function InternalJobsBoard() {
 
   if (error && allJobs.length === 0) {
     return (
-      <PageWrapper title="Internal Job Board" subtitle="Browse internal opportunities and advance your career" actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Internal opportunities"
+          title="Internal Job Board"
+          subtitle="Counts unavailable"
+          actions={actions}
+        />
         <ErrorState
           title="Error Loading Jobs"
           message={error}
@@ -452,11 +465,35 @@ export default function InternalJobsBoard() {
   }
 
   return (
-    <PageWrapper
-      title="Internal Job Board"
-      subtitle="Browse internal opportunities and advance your career"
-      actions={actions}
-    >
+    <PageWrapper>
+      {/* Page header, not a record component under one — see #285. boardCounts is null when the
+          board endpoint did not answer; the subtitle says so rather than rendering zeroes, which
+          on this screen would read as "no internal roles are open". */}
+      <IdentityBand
+        eyebrow="Internal opportunities"
+        title="Internal Job Board"
+        subtitle={
+          boardCounts
+            ? `${boardCounts.open} ${boardCounts.open === 1 ? 'role' : 'roles'} open`
+            : 'Counts unavailable'
+        }
+        figures={
+          boardCounts
+            ? [
+                ...(boardCounts.closingSoon > 0
+                  ? [{ label: 'Closing soon', value: boardCounts.closingSoon, tone: 'warning' as const }]
+                  : []),
+                ...(boardCounts.alsoExternal > 0
+                  ? [{ label: 'Also advertised externally', value: boardCounts.alsoExternal }]
+                  : []),
+                ...(boardCounts.recentlyClosed > 0
+                  ? [{ label: 'Recently closed', value: boardCounts.recentlyClosed }]
+                  : []),
+              ]
+            : []
+        }
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* The two facts that decide whether somebody applies at all — both known long before the
             application form, where they currently first appear. */}

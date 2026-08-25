@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { useToast } from '@/components/Toast';
 import { apiFetchJson } from '@/lib/api-fetch';
 import { useAuth } from '@/contexts/AuthContext';
@@ -440,7 +441,8 @@ export default function TalentPoolsPage() {
 
   if (isLoading) {
     return (
-      <PageWrapper title="Talent Pools" subtitle="Build and manage reusable candidate pools">
+      <PageWrapper>
+        <IdentityBand eyebrow="Candidate pools" title="Talent Pools" subtitle="Loading…" />
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gold-500" />
         </div>
@@ -450,7 +452,8 @@ export default function TalentPoolsPage() {
 
   if (!hasAccess) {
     return (
-      <PageWrapper title="Access Denied" subtitle="You do not have permission to manage talent pools.">
+      <PageWrapper>
+        <IdentityBand eyebrow="Candidate pools" title="Talent Pools" subtitle="You do not have permission to manage talent pools." />
         <div className="bg-white rounded-[10px] border border-gray-200 p-8 text-center">
           <p className="text-gray-500 text-sm">
             Talent pools can be managed by administrators, HR managers, recruiters and hiring managers.
@@ -461,18 +464,48 @@ export default function TalentPoolsPage() {
   }
 
   return (
-    <PageWrapper
-      title="Talent Pools"
-      subtitle="Manage and track candidate talent pools for future hiring"
-      actions={
-        <button
-          onClick={openCreatePool}
-          className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 font-medium"
-        >
-          + New Pool
-        </button>
-      }
-    >
+    <PageWrapper>
+      {/* Page header, not a record component under one — see #285. The strip below covers pool
+          state (growing, stale, auto-adding); these figures cover the people held in them. */}
+      <IdentityBand
+        eyebrow="Candidate pools"
+        title="Talent Pools"
+        subtitle={
+          summary
+            ? `${summary.pools} ${summary.pools === 1 ? 'pool' : 'pools'} · ${summary.entriesHeld} ${summary.entriesHeld === 1 ? 'candidate' : 'candidates'} held`
+            : 'Counts unavailable'
+        }
+        figures={
+          summary
+            ? [
+                ...(summary.inactive > 0
+                  ? [{
+                      label: 'Inactive pools',
+                      value: summary.inactive,
+                      tone: 'warning' as const,
+                    }]
+                  : []),
+                // A pool's value is its freshness. Omitted rather than zeroed when there is
+                // nothing in any pool to measure.
+                ...(typeof summary.oldestMedianDays === 'number'
+                  ? [{
+                      label: 'Oldest pool median age',
+                      value: `${summary.oldestMedianDays} days`,
+                      tone: (summary.oldestMedianDays >= 365 ? 'critical' : undefined) as 'critical' | undefined,
+                    }]
+                  : []),
+              ]
+            : []
+        }
+        actions={
+          <button
+            onClick={openCreatePool}
+            className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 font-medium"
+          >
+            + New Pool
+          </button>
+        }
+      />
       {/* Talent pools are where you go hunting for someone who already applied, so
           natural-language search belongs here more than anywhere. The pool search box
           below is a literal filter on pool NAMES — a different thing entirely. */}

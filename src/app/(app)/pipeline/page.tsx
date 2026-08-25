@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import {
   BOARD_FILTERS,
@@ -913,7 +914,13 @@ export default function PipelinePage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Recruitment Pipeline" subtitle="Loading pipeline data..." actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Hiring pipeline"
+          title="Recruitment Pipeline"
+          subtitle="Loading pipeline data…"
+          actions={actions}
+        />
         <KanbanSkeleton />
       </PageWrapper>
     );
@@ -921,7 +928,13 @@ export default function PipelinePage() {
 
   if (error && applications.length === 0) {
     return (
-      <PageWrapper title="Recruitment Pipeline" subtitle="Track and manage candidates across all hiring stages" actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Hiring pipeline"
+          title="Recruitment Pipeline"
+          subtitle="Counts unavailable"
+          actions={actions}
+        />
         <ErrorState
           title="Failed to Load Pipeline"
           message={error}
@@ -932,11 +945,27 @@ export default function PipelinePage() {
   }
 
   return (
-    <PageWrapper
-      title="Recruitment Pipeline"
-      subtitle="Track and manage candidates across all hiring stages"
-      actions={actions}
-    >
+    <PageWrapper>
+      {/* Page header, not a record component under one — see #285. The stats bar below carries
+          the four pipeline measures; the band carries who is in it and what is stuck. */}
+      <IdentityBand
+        eyebrow="Hiring pipeline"
+        title="Recruitment Pipeline"
+        subtitle={`${pipelineMetrics.totalApplications} ${
+          pipelineMetrics.totalApplications === 1 ? 'candidate' : 'candidates'
+        } · ${pipelineMetrics.activeApplications} still moving`}
+        figures={[
+          { label: 'Active', value: pipelineMetrics.activeApplications },
+          {
+            label: 'Average time in pipeline',
+            value: `${pipelineMetrics.averageTimeToHire} days`,
+            tone: (pipelineMetrics.averageTimeToHire >= 60 ? 'warning' : undefined) as 'warning' | undefined,
+          },
+          { label: 'Conversion', value: `${pipelineMetrics.conversionRate}%` },
+        ]}
+        actions={actions}
+      />
+
       <div className="space-y-6">
         {/* Stats Bar */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">

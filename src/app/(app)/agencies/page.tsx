@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { useToast } from '@/components/Toast';
 import { apiFetchJson } from '@/lib/api-fetch';
 import { useAuth } from '@/contexts/AuthContext';
@@ -445,7 +446,8 @@ export default function AgenciesPage() {
 
   if (isLoading) {
     return (
-      <PageWrapper title="Recruitment Agencies" subtitle="Register and manage your recruitment agency partners">
+      <PageWrapper>
+        <IdentityBand eyebrow="Supplier panel" title="Recruitment Agencies" subtitle="Loading…" />
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gold-500" />
         </div>
@@ -455,7 +457,8 @@ export default function AgenciesPage() {
 
   if (!hasAccess) {
     return (
-      <PageWrapper title="Access Denied" subtitle="You do not have permission to manage agencies.">
+      <PageWrapper>
+        <IdentityBand eyebrow="Supplier panel" title="Recruitment Agencies" subtitle="You do not have permission to manage agencies." />
         <div className="bg-white rounded-[10px] border border-gray-200 p-8 text-center">
           <p className="text-gray-500 text-sm">
             Agencies can be managed by administrators, HR managers, and recruiters.
@@ -466,18 +469,51 @@ export default function AgenciesPage() {
   }
 
   return (
-    <PageWrapper
-      title="Recruitment Agencies"
-      subtitle="Register and manage your recruitment agency partners"
-      actions={
-        <button
-          onClick={openRegister}
-          className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 font-medium"
-        >
-          + Register Agency
-        </button>
-      }
-    >
+    <PageWrapper>
+      {/* The navy band is the page header on a queue screen, not a record component sitting under
+          one — see #285. Figures here are deliberately the ones the strip below does not carry:
+          the strip shows contract state, this shows what that state has cost. */}
+      <IdentityBand
+        eyebrow="Supplier panel"
+        title="Recruitment Agencies"
+        subtitle={
+          summary
+            ? `${summary.agencies} ${summary.agencies === 1 ? 'agency' : 'agencies'} · ${summary.totalSubmissions} ${summary.totalSubmissions === 1 ? 'submission' : 'submissions'}`
+            : 'Counts unavailable'
+        }
+        figures={
+          summary
+            ? [
+                {
+                  label: 'Awaiting review',
+                  value: summary.awaitingReview,
+                  tone: (summary.awaitingReview > 0 ? 'warning' : undefined) as 'warning' | undefined,
+                },
+                // The headline is not "two contracts lapsed" but how many candidates were put
+                // forward under contracts that had already ended.
+                ...(summary.submissionsOnLapsedContracts > 0
+                  ? [{
+                      label: 'Sent on lapsed contracts',
+                      value: summary.submissionsOnLapsedContracts,
+                      tone: 'critical' as const,
+                    }]
+                  : []),
+                // Omitted rather than shown as zero when nothing has been reviewed yet.
+                ...(typeof summary.medianReviewDays === 'number'
+                  ? [{ label: 'Median review', value: `${summary.medianReviewDays} days` }]
+                  : []),
+              ]
+            : []
+        }
+        actions={
+          <button
+            onClick={openRegister}
+            className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 font-medium"
+          >
+            + Register Agency
+          </button>
+        }
+      />
       {/* Where the panel actually stands. The headline is not "two contracts lapsed" but how many
           candidates have been put forward under contracts that had already ended. */}
       {summary && (

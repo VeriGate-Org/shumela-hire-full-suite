@@ -8,6 +8,7 @@ import { useDepartments } from '@/hooks/useDepartments';
 import { usePositionLevels } from '@/hooks/useLookups';
 import EmptyState from './EmptyState';
 import DistributionStrip from '@/components/record/DistributionStrip';
+import IdentityBand from '@/components/record/IdentityBand';
 import FilterChips from '@/components/record/FilterChips';
 import {
   QUEUE_FILTERS,
@@ -272,18 +273,49 @@ export default function SalaryRecommendationManager() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Salary Recommendations</h2>
-          <p className="text-sm text-gray-500 mt-1">Manage salary recommendation requests and approvals</p>
-        </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2 bg-gold-500 text-violet-950 text-sm font-medium rounded-control hover:bg-gold-600"
-        >
-          New Recommendation
-        </button>
-      </div>
+      {/* The queue's page header — see #285. This screen carried two: PageWrapper's, and a plain
+          h2 here. The page now passes no title, so this is the only one. Figures are the ones the
+          strip below does not carry: the strip splits the queue by stage, this says how long the
+          oldest has waited and how much money is on the table. */}
+      <IdentityBand
+        eyebrow="Pay decisions"
+        title="Salary Recommendations"
+        subtitle={
+          summary
+            ? `${summary.live} live · ${summary.awaitingReview + summary.awaitingApproval} waiting on somebody`
+            : 'Counts unavailable'
+        }
+        figures={
+          summary
+            ? [
+                ...(typeof summary.oldestWaitingDays === 'number'
+                  ? [{
+                      label: summary.oldestWaitingRef
+                        ? `Oldest wait (${summary.oldestWaitingRef})`
+                        : 'Oldest wait',
+                      value: `${summary.oldestWaitingDays} days`,
+                      tone: (summary.oldestWaitingDays >= 14 ? 'critical' : 'warning') as 'critical' | 'warning',
+                    }]
+                  : []),
+                ...(summary.aboveProposedBand > 0
+                  ? [{ label: 'Above proposed band', value: summary.aboveProposedBand, tone: 'warning' as const }]
+                  : []),
+                // Null, not R0, when no live recommendation carries a target — see queue.ts.
+                ...(summary.totalProposed !== null && summary.totalProposed !== undefined
+                  ? [{ label: 'Proposed', value: money(summary.totalProposed) ?? '—' }]
+                  : []),
+              ]
+            : []
+        }
+        actions={
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="px-4 py-2 bg-gold-500 text-violet-950 text-sm font-medium rounded-control hover:bg-gold-600"
+          >
+            New Recommendation
+          </button>
+        }
+      />
 
       {/* Load Error Banner */}
       {loadError && (
