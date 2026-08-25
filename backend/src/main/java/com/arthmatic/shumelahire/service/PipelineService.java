@@ -538,9 +538,12 @@ public class PipelineService {
     public Map<String, Object> getUserActivityStatistics(LocalDateTime startDate, LocalDateTime endDate) {
         List<Object[]> userData = pipelineTransitionRepository.getUserActivityStatistics(startDate, endDate);
         
-        Map<Long, Long> userActivity = new HashMap<>();
+        // createdBy is a String on PipelineTransition — every id in this codebase is. This cast
+        // was to Long, so the endpoint would have thrown ClassCastException the moment the
+        // repository returned real data instead of UnsupportedOperationException.
+        Map<String, Long> userActivity = new HashMap<>();
         for (Object[] row : userData) {
-            Long userId = (Long) row[0];
+            String userId = (String) row[0];
             Long count = (Long) row[1];
             userActivity.put(userId, count);
         }
