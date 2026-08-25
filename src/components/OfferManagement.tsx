@@ -7,7 +7,6 @@ import { useToast } from '@/components/Toast';
 import AiOfferPrediction from '@/components/ai/AiOfferPrediction';
 import { eSignatureService } from '@/services/eSignatureService';
 import { getEnumLabel } from '@/utils/enumLabels';
-import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
 import DistributionStrip from '@/components/record/DistributionStrip';
 import FilterChips from '@/components/record/FilterChips';
@@ -851,55 +850,6 @@ export default function OfferManagement() {
   return (
     <div className="space-y-6">
 
-      <IdentityBand
-        eyebrow="Offer pipeline"
-        title="Offers"
-        subtitle={
-          summary ? (
-            <>
-              {summary.total} offers · {summary.withCandidate} out with candidates
-              {committed !== null && (
-                <>
-                  {' · '}
-                  {formatCurrency(committed)} committed
-                  {summary.committedValueExcluded > 0 && (
-                    // Said out loud: an hourly offer cannot be annualised without contracted
-                    // hours, so the total describes most of the set rather than all of it.
-                    <> ({summary.committedValueExcluded} not annualisable)</>
-                  )}
-                </>
-              )}
-            </>
-          ) : (
-            'Counts unavailable'
-          )
-        }
-        figures={
-          summary
-            ? [
-                { label: 'Out with candidates', value: summary.withCandidate },
-                {
-                  label: 'Acceptance rate',
-                  // Accepted over offers that actually reached a decision, not over everything —
-                  // a dash where nothing has been decided, never 0%.
-                  value: acceptanceRate === null ? '—' : `${acceptanceRate}%`,
-                },
-                {
-                  label: 'Expiring in 7 days',
-                  value: summary.expiringSoon,
-                  tone: (summary.expiringImminently > 0 ? 'critical' : 'warning') as
-                    | 'critical'
-                    | 'warning',
-                },
-                {
-                  label: 'Lapsed unanswered',
-                  value: summary.lapsed,
-                  tone: (summary.lapsed > 0 ? 'critical' : undefined) as 'critical' | undefined,
-                },
-              ]
-            : []
-        }
-      />
 
       {summary && summary.expiringImminently > 0 && (
         <DecisionBar
@@ -936,6 +886,34 @@ export default function OfferManagement() {
           ]}
           footnote={
             <>
+              {/* The set total, committed value and acceptance rate are the three figures the
+                  buckets above cannot show — a whole-set count, an amount of money, and a ratio.
+                  They lived in the identity band until the band was removed from queue screens;
+                  they belong with the counts, not in a second page header. The total is the
+                  server's, not this page's ten rows. */}
+              {/* Each figure sits in its own element rather than running together as one string,
+                  so a reader's eye — and a test — can pick out a single value. */}
+              <span className="font-bold text-foreground">{summary.total} offers</span>
+              {committed !== null && (
+                <>
+                  {' · '}
+                  <span className="font-bold text-foreground">
+                    {formatCurrency(committed)} committed
+                  </span>
+                  {summary.committedValueExcluded > 0 && (
+                    // An hourly offer cannot be annualised without contracted hours, so the total
+                    // describes most of the set rather than all of it.
+                    <> ({summary.committedValueExcluded} not annualisable)</>
+                  )}
+                </>
+              )}
+              {' · '}
+              {/* A dash where nothing has been decided, never 0% — an undecided set is not a set
+                  that everyone refused. */}
+              <span className="font-bold text-foreground">
+                {acceptanceRate === null ? '—' : `${acceptanceRate}%`}
+              </span>{' '}
+              accepted of those decided.{' '}
               Expiring counts every offer actually with the candidate — sent, awaiting signature,
               signed and under negotiation alike.
               {summary.withoutExpiry > 0 && (
