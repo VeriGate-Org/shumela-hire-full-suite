@@ -481,7 +481,7 @@ export default function RecognitionPage() {
                   {leaderboard.map((entry, idx) => {
                     const rankClass =
                       idx === 0
-                        ? 'bg-cta text-foreground'
+                        ? 'bg-cta text-cta-foreground'
                         : idx === 1
                           ? 'bg-border text-foreground'
                           : idx === 2

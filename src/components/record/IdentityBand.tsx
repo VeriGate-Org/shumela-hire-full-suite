@@ -99,8 +99,11 @@ export default function IdentityBand({
                 ))}
               </dl>
             )}
+            {/* band-actions re-points page-level CTA classes at the --band-* palette. Callers pass
+                ordinary buttons here, but the plate is a fixed navy in both themes, so the page's
+                CTA ink is the plate's own colour in light mode — an invisible button. */}
             {actions && (
-              <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
+              <div className="band-actions flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
             )}
           </div>
         )}

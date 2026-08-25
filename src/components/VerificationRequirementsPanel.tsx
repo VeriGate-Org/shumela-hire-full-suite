@@ -227,7 +227,7 @@ export default function VerificationRequirementsPanel({
                 type="button"
                 onClick={save}
                 disabled={!dirty || enforcingNothing || saving}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-foreground font-semibold text-sm uppercase tracking-wider rounded-full transition-all hover:bg-cta-hover hover:border-cta-hover disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-cta-foreground font-semibold text-sm uppercase tracking-wider rounded-full transition-all hover:bg-cta-hover hover:border-cta-hover disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? 'Saving…' : 'Save requirements'}
               </button>

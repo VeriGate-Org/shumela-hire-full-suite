@@ -223,7 +223,7 @@ export default function IntegrationsPage() {
     <div className="flex items-center gap-3">
       <button
         onClick={loadIntegrations}
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold uppercase tracking-wider border-2 border-cta text-primary bg-transparent hover:bg-cta hover:text-foreground transition-all"
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold uppercase tracking-wider border-2 border-cta text-primary bg-transparent hover:bg-cta hover:text-cta-foreground transition-all"
       >
         <ArrowPathIcon className="w-4 h-4" />
         Refresh Status
@@ -440,7 +440,7 @@ export default function IntegrationsPage() {
                             className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 text-xs font-semibold uppercase tracking-wider leading-none transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                               linkedInStatus.connected
                                 ? 'border-accent-pink text-accent-pink hover:bg-idc-pink-50'
-                                : 'border-cta text-primary hover:bg-cta hover:text-foreground'
+                                : 'border-cta text-primary hover:bg-cta hover:text-cta-foreground'
                             }`}
                           >
                             <ArrowPathIcon className={`w-3.5 h-3.5 ${linkedInActionLoading ? 'animate-spin' : ''}`} />
@@ -461,7 +461,7 @@ export default function IntegrationsPage() {
                         </button>
                         <button
                           disabled={!integration.configured && integration.status !== 'connected'}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-cta text-xs font-semibold uppercase tracking-wider leading-none text-primary bg-transparent hover:bg-cta hover:text-foreground transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-cta text-xs font-semibold uppercase tracking-wider leading-none text-primary bg-transparent hover:bg-cta hover:text-cta-foreground transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           <ArrowPathIcon className="w-3.5 h-3.5" />
                           Sync Now

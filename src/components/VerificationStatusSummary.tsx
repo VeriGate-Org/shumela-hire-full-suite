@@ -191,7 +191,7 @@ export default function VerificationStatusSummary({
       {noneStarted && onInitiateChecks && (
         <button
           onClick={onInitiateChecks}
-          className="mt-3 w-full text-xs font-semibold uppercase tracking-wider text-center py-2 rounded-full border-2 border-cta bg-transparent text-cta-foreground hover:bg-cta hover:text-foreground transition-colors"
+          className="mt-3 w-full text-xs font-semibold uppercase tracking-wider text-center py-2 rounded-full border-2 border-cta bg-transparent text-cta-foreground hover:bg-cta hover:text-cta-foreground transition-colors"
         >
           Initiate Verification Checks
         </button>

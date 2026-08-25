@@ -325,7 +325,7 @@ export default function PayslipsPage() {
                     </button>
                     <button
                       onClick={() => handleDownload(heroPayslip.month)}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-button bg-cta text-foreground text-xs font-bold uppercase tracking-wider hover:bg-cta-hover transition-colors shadow-sm"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-button bg-cta text-cta-foreground text-xs font-bold uppercase tracking-wider hover:bg-cta-hover transition-colors shadow-sm"
                     >
                       <DocumentArrowDownIcon className="w-4 h-4" />
                       Download PDF
@@ -559,7 +559,7 @@ export default function PayslipsPage() {
                   onClick={() => {
                     if (selectedPayslip) handleDownload(selectedPayslip.month);
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button bg-cta text-foreground text-xs font-bold uppercase tracking-wider hover:bg-cta-hover transition-colors shadow-sm"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button bg-cta text-cta-foreground text-xs font-bold uppercase tracking-wider hover:bg-cta-hover transition-colors shadow-sm"
                 >
                   <ArrowDownTrayIcon className="w-4 h-4" />
                   Download PDF
