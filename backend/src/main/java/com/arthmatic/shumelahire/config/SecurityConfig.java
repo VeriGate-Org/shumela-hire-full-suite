@@ -157,7 +157,7 @@ public class SecurityConfig {
 
                 // Application management endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/applications/manage/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")
-                .requestMatchers(new AntPathRequestMatcher("/api/applications/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT", "EMPLOYEE")
+                .requestMatchers(new AntPathRequestMatcher("/api/applications/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER", "APPLICANT", "EMPLOYEE")
                 .requestMatchers(new AntPathRequestMatcher("/api/applicants/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT", "EMPLOYEE")
 
                 // Internal jobs

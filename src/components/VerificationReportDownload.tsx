@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { DocumentArrowDownIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import {
+  ApiError,
   verificationReportService,
   hasDownloadableReport,
   VerificationCheck,
@@ -39,15 +40,19 @@ export default function VerificationReportDownload({
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [forbidden, setForbidden] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       setChecks(await verificationReportService.getChecksForApplication(applicationId));
       setError(null);
-    } catch {
-      // Verification is an optional module. Failing to reach it is not an error worth shouting
-      // about on a candidate record — it just means there is nothing to show here.
+      setForbidden(false);
+    } catch (err: unknown) {
+      // "None have been run" and "you are not allowed to see these" are different facts and must
+      // not render the same. An interviewer opening a shared candidate link is refused this
+      // endpoint by design; telling them no checks exist would be false.
+      setForbidden(err instanceof ApiError && err.status === 403);
       setChecks([]);
     } finally {
       setLoading(false);
@@ -79,7 +84,7 @@ export default function VerificationReportDownload({
     );
   }
 
-  if (checks.length === 0 && hideWhenEmpty) return null;
+  if (checks.length === 0 && !forbidden && hideWhenEmpty) return null;
 
   return (
     <div>
@@ -94,7 +99,11 @@ export default function VerificationReportDownload({
         </div>
       )}
 
-      {checks.length === 0 ? (
+      {forbidden ? (
+        <p className="text-sm text-muted-foreground">
+          Verification results are not available to your role.
+        </p>
+      ) : checks.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           No verification checks have been run for this candidate yet.
         </p>

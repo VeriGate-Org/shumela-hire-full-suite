@@ -35,9 +35,14 @@ class ApplicationAuthorisationTest {
     /**
      * Everyone who may reach any application endpoint. Per-endpoint narrowing is the annotation's
      * job: management operations withhold APPLICANT and EMPLOYEE by themselves.
+     *
+     * <p>INTERVIEWER was added so a panel member can open the candidate link a hiring manager sends
+     * them. It is admitted on the single-record read and on no write route — InterviewerRecordAccessTest
+     * pins that second half, which is the half that matters.
      */
     private static final Set<String> EXPECTED_URL_RULE =
-            Set.of("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT", "EMPLOYEE");
+            Set.of("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER",
+                   "APPLICANT", "EMPLOYEE");
 
     /** The applicant-facing set: apply, see your own, withdraw, check eligibility. */
     private static final Set<String> SELF_SERVICE =
