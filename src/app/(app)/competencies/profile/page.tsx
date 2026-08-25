@@ -61,7 +61,7 @@ export default function CompetencyProfilePage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : searched && competencies.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 text-gray-500">
               <AcademicCapIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No competency assessments found for this employee</p>
             </div>
@@ -79,26 +79,26 @@ export default function CompetencyProfilePage() {
                       <div>
                         <h4 className="font-medium text-gray-900 dark:text-white">{comp.competencyName}</h4>
                         {comp.category && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400">{comp.category}</span>
+                          <span className="text-xs text-gray-500">{comp.category}</span>
                         )}
                       </div>
                       <div className="text-right">
                         <span className={`text-lg font-bold ${getLevelColor(comp.currentLevel, comp.targetLevel)}`}>
                           {comp.currentLevel}
                         </span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400"> / {comp.targetLevel}</span>
+                        <span className="text-sm text-gray-500"> / {comp.targetLevel}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs text-gray-500 dark:text-gray-400 w-16">Current:</span>
+                      <span className="text-xs text-gray-500 w-16">Current:</span>
                       <div className="flex gap-1">{getLevelBar(comp.currentLevel)}</div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500 dark:text-gray-400 w-16">Target:</span>
+                      <span className="text-xs text-gray-500 w-16">Target:</span>
                       <div className="flex gap-1">{getLevelBar(comp.targetLevel)}</div>
                     </div>
                     {comp.assessorName && (
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                      <p className="text-xs text-gray-400 mt-2">
                         Assessed by {comp.assessorName} {comp.assessedAt && `on ${new Date(comp.assessedAt).toLocaleDateString()}`}
                       </p>
                     )}

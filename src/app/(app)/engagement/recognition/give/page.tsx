@@ -70,13 +70,13 @@ export default function GiveRecognitionPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Your Employee ID</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Your Employee ID</label>
                   <input type="text" required value={formData.fromEmployeeId}
                     onChange={(e) => setFormData({ ...formData, fromEmployeeId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recognize Employee ID</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Recognize Employee ID</label>
                   <input type="text" required value={formData.toEmployeeId}
                     onChange={(e) => setFormData({ ...formData, toEmployeeId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
@@ -84,7 +84,7 @@ export default function GiveRecognitionPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {categories.map((cat) => (
                     <label key={cat.value}
@@ -97,7 +97,7 @@ export default function GiveRecognitionPage() {
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="mt-1 mr-3" />
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white text-sm">{cat.label}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{cat.description}</p>
+                        <p className="text-xs text-gray-500">{cat.description}</p>
                       </div>
                     </label>
                   ))}
@@ -105,7 +105,7 @@ export default function GiveRecognitionPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Message</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
                 <textarea required rows={4} value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder="Share what this person did and why it matters..."
@@ -114,7 +114,7 @@ export default function GiveRecognitionPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Points</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Points</label>
                   <input type="number" min="1" max="100" value={formData.points}
                     onChange={(e) => setFormData({ ...formData, points: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
@@ -124,14 +124,14 @@ export default function GiveRecognitionPage() {
                     <input type="checkbox" checked={formData.isPublic}
                       onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
                       className="mr-2 h-4 w-4 text-blue-600 rounded" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Share publicly on the recognition wall</span>
+                    <span className="text-sm text-gray-700">Share publicly on the recognition wall</span>
                   </label>
                 </div>
               </div>
 
               <div className="flex justify-end gap-3">
                 <button type="button" onClick={() => router.back()}
-                  className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                  className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
                   Cancel
                 </button>
                 <button type="submit" disabled={submitting || !formData.category}

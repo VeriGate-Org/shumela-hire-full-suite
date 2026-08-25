@@ -221,7 +221,7 @@ export default function ScheduledReportsPage() {
           </Link>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-600 transition-colors text-sm font-medium"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-cta-foreground rounded-lg hover:bg-gold-600 transition-colors text-sm font-medium"
           >
             <PlusIcon className="h-4 w-4" />
             New Schedule
@@ -337,7 +337,7 @@ export default function ScheduledReportsPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-600 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-cta-foreground rounded-lg hover:bg-gold-600 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? (
                     <>
@@ -381,7 +381,7 @@ export default function ScheduledReportsPage() {
               </p>
               <button
                 onClick={() => setShowForm(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-600 transition-colors text-sm font-medium"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-cta-foreground rounded-lg hover:bg-gold-600 transition-colors text-sm font-medium"
               >
                 <PlusIcon className="h-4 w-4" />
                 Create First Schedule

@@ -108,7 +108,7 @@ export default function PipelineFunnel({ funnelData, stages, onStageClick }: Pip
               </div>
               
               {/* Stage percentage indicator */}
-              <div className="absolute -top-2 -right-2 bg-gold-500 text-white text-xs rounded-full w-8 h-8 flex items-center justify-center font-medium">
+              <div className="absolute -top-2 -right-2 bg-gold-500 text-cta-foreground text-xs rounded-full w-8 h-8 flex items-center justify-center font-medium">
                 {((stage.count / (funnelStages[0]?.count || 1)) * 100).toFixed(0)}%
               </div>
             </div>

@@ -46,13 +46,13 @@ const WIZARD_STEPS: WizardStep[] = [
 ];
 
 const inputClass =
-  'w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/30 focus:border-primary';
+  'w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 focus:ring-2 focus:ring-primary/30 focus:border-primary';
 
 const labelClass =
-  'block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-1.5';
+  'block text-xs font-medium text-gray-500 uppercase tracking-[0.05em] mb-1.5';
 
 const errorInputClass =
-  'w-full px-3 py-2 text-sm border border-red-300 dark:border-red-500 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-300 focus:border-red-400';
+  'w-full px-3 py-2 text-sm border border-red-300 dark:border-red-500 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 focus:ring-2 focus:ring-red-300 focus:border-red-400';
 
 const DEFAULT_REQUISITION_DATA: RequisitionFormData = {
   jobTitle: '',
@@ -395,7 +395,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
   const renderCompensationStep = () => (
     <div className="space-y-5">
       <div>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm text-gray-600 mb-4">
           Specify the salary range for this position. This step is optional — you can skip it and add later.
         </p>
       </div>
@@ -458,7 +458,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
         {errors.description && (
           <p role="alert" className="mt-1 text-xs text-red-600">{errors.description}</p>
         )}
-        <p className="mt-1.5 text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-[0.05em]">
+        <p className="mt-1.5 text-[10px] text-gray-400 uppercase tracking-[0.05em]">
           Required for submission. You can save as draft without a description.
         </p>
       </div>
@@ -488,10 +488,10 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
 
       {formData.description && (
         <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
-          <div className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-[0.05em] mb-2">
+          <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-2">
             Description Preview
           </div>
-          <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
+          <div className="text-sm text-gray-700 whitespace-pre-wrap line-clamp-6">
             {formData.description}
           </div>
         </div>
@@ -526,7 +526,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
     <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
       <button
         onClick={handleBack}
-        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
       >
         <ArrowLeftIcon className="w-3.5 h-3.5" />
         Back
@@ -535,7 +535,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
         <button
           onClick={() => { void draft.saveDraftToBackend(); }}
           disabled={isSubmitting || draft.isSavingToBackend}
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <BookmarkIcon className="w-3.5 h-3.5" />
           {draft.isSavingToBackend ? 'Saving...' : 'Save Draft'}
@@ -575,10 +575,10 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
 function ReviewCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-3">
-      <div className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-[0.05em] mb-1">
+      <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-1">
         {label}
       </div>
-      <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+      <div className="text-sm font-medium text-gray-900 truncate">
         {value}
       </div>
     </div>

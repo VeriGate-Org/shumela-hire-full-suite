@@ -20,7 +20,9 @@
     "cap:build": "CAPACITOR_BUILD=true next build && npx cap sync",
     "cap:ios": "npx cap open ios",
     "cap:android": "npx cap open android",
-    "cap:sync": "npx cap sync"
+    "cap:sync": "npx cap sync",
+    "audit:contrast": "node scripts/contrast-audit/audit.js && node scripts/contrast-audit/rootcause.js",
+    "audit:contrast:static": "node scripts/contrast-audit/static-audit.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.2.0",

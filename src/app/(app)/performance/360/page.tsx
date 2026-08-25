@@ -161,7 +161,7 @@ export default function FeedbackPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : requests.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 text-gray-500">
               <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No feedback requests found</p>
             </div>
@@ -170,37 +170,37 @@ export default function FeedbackPage() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Employee</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Requester</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Due Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Created</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Requester</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Due Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {requests.map((req) => (
                     <tr key={req.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{req.employeeName}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{req.requesterName}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{req.requesterName}</td>
                       <td className="px-6 py-4 text-sm">
                         <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{req.feedbackType}</span>
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <span className={`px-2 py-1 text-xs rounded-full ${statusBadge(req.status)}`}>{req.status}</span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
+                      <td className="px-6 py-4 text-sm text-gray-600">
                         {req.dueDate ? new Date(req.dueDate).toLocaleDateString() : '-'}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                      <td className="px-6 py-4 text-sm text-gray-500">
                         {new Date(req.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-sm">
                         {req.status === 'PENDING' && (
                           <Link
                             href={`/performance/360/provide/${req.id}`}
-                            className="px-3 py-1.5 bg-gold-500 text-white rounded-lg hover:bg-gold-600 text-xs font-medium"
+                            className="px-3 py-1.5 bg-gold-500 text-cta-foreground rounded-lg hover:bg-gold-600 text-xs font-medium"
                           >
                             Provide Feedback
                           </Link>
@@ -221,19 +221,19 @@ export default function FeedbackPage() {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Request 360 Feedback</h3>
               <form onSubmit={handleCreate} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee ID (to evaluate)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID (to evaluate)</label>
                   <input type="text" required value={formData.employeeId}
                     onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Requester ID</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Requester ID</label>
                   <input type="text" required value={formData.requesterId}
                     onChange={(e) => setFormData({ ...formData, requesterId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Feedback Type</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Feedback Type</label>
                   <select value={formData.feedbackType}
                     onChange={(e) => setFormData({ ...formData, feedbackType: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
@@ -241,7 +241,7 @@ export default function FeedbackPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
                   <input type="date" value={formData.dueDate}
                     onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />

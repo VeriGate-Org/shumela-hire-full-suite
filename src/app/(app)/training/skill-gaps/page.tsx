@@ -99,7 +99,7 @@ export default function SkillGapsPage() {
                   className={`px-4 py-2 rounded-lg text-sm font-medium ${
                     viewMode === 'employee'
                       ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700'
                   }`}
                 >
                   Employee View
@@ -109,7 +109,7 @@ export default function SkillGapsPage() {
                   className={`px-4 py-2 rounded-lg text-sm font-medium ${
                     viewMode === 'department'
                       ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700'
                   }`}
                 >
                   Department View
@@ -152,7 +152,7 @@ export default function SkillGapsPage() {
 
           {/* No Gaps */}
           {!loading && searched && gaps.length === 0 && (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 text-gray-500">
               <AcademicCapIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No skill gaps found. All competencies are at or above target levels.</p>
             </div>
@@ -181,22 +181,22 @@ export default function SkillGapsPage() {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-900">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Competency
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Category
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Current
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Target
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Gap
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Gap Indicator
                       </th>
                     </tr>
@@ -209,12 +209,12 @@ export default function SkillGapsPage() {
                             {gap.competencyName}
                           </div>
                           {gap.frameworkName && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="text-xs text-gray-500">
                               {gap.frameworkName}
                             </div>
                           )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {gap.category || '-'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900 dark:text-white">
@@ -261,7 +261,7 @@ export default function SkillGapsPage() {
                 {aiInsights.overallAssessment && (
                   <div>
                     <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Overall Assessment</h4>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">{aiInsights.overallAssessment}</p>
+                    <p className="text-sm text-gray-700">{aiInsights.overallAssessment}</p>
                   </div>
                 )}
 
@@ -274,7 +274,7 @@ export default function SkillGapsPage() {
                       </h4>
                       <ol className="list-decimal list-inside space-y-1">
                         {aiInsights.priorityActions.map((action, i) => (
-                          <li key={i} className="text-sm text-gray-700 dark:text-gray-300">{action}</li>
+                          <li key={i} className="text-sm text-gray-700">{action}</li>
                         ))}
                       </ol>
                     </div>
@@ -329,14 +329,14 @@ export default function SkillGapsPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-sm font-medium text-gray-900 dark:text-white">{item.activity}</span>
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-gray-700 text-gray-600">
                                 {item.method}
                               </span>
                               {item.duration && (
-                                <span className="text-xs text-gray-500 dark:text-gray-400">{item.duration}</span>
+                                <span className="text-xs text-gray-500">{item.duration}</span>
                               )}
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            <p className="text-xs text-gray-500 mt-0.5">
                               <span className="font-medium">{item.competency}</span>
                               {item.rationale && <> &mdash; {item.rationale}</>}
                             </p>
@@ -367,7 +367,7 @@ export default function SkillGapsPage() {
                         <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                           {rec.courseTitle}
                         </h4>
-                        <div className="mt-1 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                        <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
                           {rec.category && <span>{rec.category}</span>}
                           {rec.deliveryMethod && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700">

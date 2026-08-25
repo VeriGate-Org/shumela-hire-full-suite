@@ -113,10 +113,10 @@ export default function AttendanceAnalyticsPage() {
               </h3>
               <button onClick={() => setAiAnomalies(null)} className="text-purple-400 hover:text-purple-600 text-sm">Dismiss</button>
             </div>
-            <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">{aiAnomalies.overallAssessment}</p>
+            <p className="text-sm text-gray-700 mb-3">{aiAnomalies.overallAssessment}</p>
             {aiAnomalies.anomalies?.length > 0 && (
               <div className="mb-3">
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detected Anomalies</h4>
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Detected Anomalies</h4>
                 <div className="space-y-2">
                   {aiAnomalies.anomalies.map((a, i) => {
                     const severityColors: Record<string, string> = {
@@ -131,8 +131,8 @@ export default function AttendanceAnalyticsPage() {
                           {a.severity}
                         </span>
                         <div>
-                          <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{a.anomalyType} — {a.employeeName}</p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">{a.description}</p>
+                          <p className="text-sm font-medium text-gray-800">{a.anomalyType} — {a.employeeName}</p>
+                          <p className="text-xs text-gray-600">{a.description}</p>
                           {a.suggestedAction && <p className="text-xs text-gray-500 mt-1">Action: {a.suggestedAction}</p>}
                         </div>
                       </div>
@@ -145,7 +145,7 @@ export default function AttendanceAnalyticsPage() {
               {aiAnomalies.fatigueWarnings?.length > 0 && (
                 <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
                   <h4 className="text-sm font-medium text-red-700 dark:text-red-400 mb-1">Fatigue Warnings</h4>
-                  <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                  <ul className="text-xs text-gray-600 space-y-1">
                     {aiAnomalies.fatigueWarnings.map((w, i) => <li key={i}>- {w}</li>)}
                   </ul>
                 </div>
@@ -153,7 +153,7 @@ export default function AttendanceAnalyticsPage() {
               {aiAnomalies.policyViolations?.length > 0 && (
                 <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
                   <h4 className="text-sm font-medium text-amber-700 dark:text-amber-400 mb-1">Policy Violations</h4>
-                  <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                  <ul className="text-xs text-gray-600 space-y-1">
                     {aiAnomalies.policyViolations.map((v, i) => <li key={i}>- {v}</li>)}
                   </ul>
                 </div>

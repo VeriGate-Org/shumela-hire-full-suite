@@ -68,13 +68,13 @@ const WIZARD_STEPS: WizardStep[] = [
 ];
 
 const inputClass =
-  'w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/30 focus:border-primary';
+  'w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 focus:ring-2 focus:ring-primary/30 focus:border-primary';
 
 const errorInputClass =
-  'w-full px-3 py-2 text-sm border border-red-300 dark:border-red-500 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-300 focus:border-red-400';
+  'w-full px-3 py-2 text-sm border border-red-300 dark:border-red-500 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 focus:ring-2 focus:ring-red-300 focus:border-red-400';
 
 const labelClass =
-  'block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-1.5';
+  'block text-xs font-medium text-gray-500 uppercase tracking-[0.05em] mb-1.5';
 
 const DEFAULT_JOB_POSTING_DATA: JobPostingData = {
   title: '',
@@ -448,7 +448,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
           onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
           className={inputClass}
         />
-        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-[0.05em]">Leave empty for no deadline</p>
+        <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-[0.05em]">Leave empty for no deadline</p>
       </div>
 
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
@@ -459,7 +459,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
             onChange={(e) => handleInputChange('remoteWorkAllowed', e.target.checked)}
             className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
           />
-          <span className="text-sm text-gray-700 dark:text-gray-300">Remote work allowed</span>
+          <span className="text-sm text-gray-700">Remote work allowed</span>
         </label>
 
         <label className={checkboxClass}>
@@ -469,7 +469,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
             onChange={(e) => handleInputChange('travelRequired', e.target.checked)}
             className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
           />
-          <span className="text-sm text-gray-700 dark:text-gray-300">Travel required</span>
+          <span className="text-sm text-gray-700">Travel required</span>
         </label>
 
         <label className={checkboxClass}>
@@ -479,7 +479,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
             onChange={(e) => handleInputChange('featured', e.target.checked)}
             className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
           />
-          <span className="text-sm text-gray-700 dark:text-gray-300">Featured position</span>
+          <span className="text-sm text-gray-700">Featured position</span>
         </label>
 
         <label className={checkboxClass}>
@@ -489,7 +489,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
             onChange={(e) => handleInputChange('urgent', e.target.checked)}
             className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
           />
-          <span className="text-sm text-gray-700 dark:text-gray-300">Urgent hiring</span>
+          <span className="text-sm text-gray-700">Urgent hiring</span>
         </label>
       </div>
     </div>
@@ -542,7 +542,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
         />
         <div className="flex justify-between mt-1">
           {errors.description && <p role="alert" className="text-xs text-red-600">{errors.description}</p>}
-          <p className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto uppercase tracking-[0.05em]">
+          <p className="text-[10px] text-gray-400 ml-auto uppercase tracking-[0.05em]">
             {formData.description.length} characters (minimum 100)
           </p>
         </div>
@@ -598,9 +598,9 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
       <div className="border-t border-gray-200 dark:border-gray-700 pt-5">
         <label className={labelClass}>Verification required before hire</label>
         {catalogueLoading ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">Loading check types…</p>
+          <p className="text-sm text-gray-500">Loading check types…</p>
         ) : checkTypes.length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500">
             No verification provider is configured. This can be set later on the vacancy.
           </p>
         ) : (
@@ -625,9 +625,9 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
                       aria-label={ct.name}
                     />
                     <span className="min-w-0">
-                      <span className="block text-sm font-medium text-gray-900 dark:text-gray-100">{ct.name}</span>
+                      <span className="block text-sm font-medium text-gray-900">{ct.name}</span>
                       {ct.turnaround && (
-                        <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">{ct.turnaround}</span>
+                        <span className="block text-xs text-gray-500 mt-0.5">{ct.turnaround}</span>
                       )}
                     </span>
                   </label>
@@ -645,10 +645,10 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
                 aria-label="Block progression until every required check is clear"
               />
               <span>
-                <span className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+                <span className="block text-sm font-medium text-gray-900">
                   Block progression until every required check is clear
                 </span>
-                <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                <span className="block text-xs text-gray-500 mt-0.5">
                   {selectedCheckTypes.length === 0
                     ? 'Select at least one check to enable this.'
                     : 'Candidates cannot pass Background Check until each selected check comes back clear.'}
@@ -710,8 +710,8 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
       </div>
 
       <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
-        <div className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-[0.05em] mb-1">Salary Range Preview</div>
-        <p className="text-sm text-gray-700 dark:text-gray-300">
+        <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-1">Salary Range Preview</div>
+        <p className="text-sm text-gray-700">
           {formData.salaryMin || formData.salaryMax ? (
             <>
               {formData.salaryMin && formData.salaryMax
@@ -745,7 +745,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
         />
         <div className="flex justify-between mt-1">
           {errors.seoTitle && <p role="alert" className="text-xs text-red-600">{errors.seoTitle}</p>}
-          <p className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto uppercase tracking-[0.05em]">
+          <p className="text-[10px] text-gray-400 ml-auto uppercase tracking-[0.05em]">
             {formData.seoTitle.length}/60
           </p>
         </div>
@@ -765,7 +765,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
         />
         <div className="flex justify-between mt-1">
           {errors.seoDescription && <p role="alert" className="text-xs text-red-600">{errors.seoDescription}</p>}
-          <p className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto uppercase tracking-[0.05em]">
+          <p className="text-[10px] text-gray-400 ml-auto uppercase tracking-[0.05em]">
             {formData.seoDescription.length}/160
           </p>
         </div>
@@ -841,10 +841,10 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
 
         {formData.description && (
           <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
-            <div className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-[0.05em] mb-2">
+            <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-2">
               Description Preview
             </div>
-            <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
+            <div className="text-sm text-gray-700 whitespace-pre-wrap line-clamp-6">
               {formData.description}
             </div>
           </div>
@@ -868,7 +868,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
     <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
       <button
         onClick={handleBack}
-        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
       >
         <ArrowLeftIcon className="w-3.5 h-3.5" />
         Back
@@ -886,7 +886,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
           <button
             onClick={() => { void draft.saveDraftToBackend(); }}
             disabled={loading || draft.isSavingToBackend}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <BookmarkIcon className="w-3.5 h-3.5" />
             {draft.isSavingToBackend ? 'Saving...' : 'Save Draft'}
@@ -915,7 +915,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cta mx-auto mb-4" />
-          <p className="text-sm text-gray-500 dark:text-gray-400">Loading job posting...</p>
+          <p className="text-sm text-gray-500">Loading job posting...</p>
         </div>
       </div>
     );
@@ -945,10 +945,10 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
 function ReviewCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-3">
-      <div className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-[0.05em] mb-1">
+      <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-1">
         {label}
       </div>
-      <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+      <div className="text-sm font-medium text-gray-900 truncate">
         {value}
       </div>
     </div>

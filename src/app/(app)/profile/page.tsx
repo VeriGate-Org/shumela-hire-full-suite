@@ -269,7 +269,7 @@ export default function ProfilePage() {
         {/* Profile Header */}
         <div className="enterprise-card p-6">
           <div className="flex items-center gap-5">
-            <div className="h-20 w-20 bg-cta rounded-full flex items-center justify-center text-white text-2xl font-bold shrink-0">
+            <div className="h-20 w-20 bg-cta rounded-full flex items-center justify-center text-cta-foreground text-2xl font-bold shrink-0">
               {getInitials(profileData.fullName)}
             </div>
             <div className="min-w-0">

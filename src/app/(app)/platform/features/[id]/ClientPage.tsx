@@ -132,13 +132,13 @@ export default function FeatureDetailPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div>
               <div className="text-xs text-gray-500 uppercase tracking-[0.05em] mb-1">Category</div>
-              <div className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">{feature.category}</div>
+              <div className="text-sm font-medium text-gray-900 capitalize">{feature.category}</div>
             </div>
             <div>
               <div className="text-xs text-gray-500 uppercase tracking-[0.05em] mb-1">Status</div>
               <div className="flex items-center gap-1.5">
                 <span className={`w-2 h-2 rounded-full ${feature.active ? 'bg-emerald-500' : 'bg-gray-300'}`} />
-                <span className="text-sm text-gray-900 dark:text-gray-100">{feature.active ? 'Active' : 'Inactive'}</span>
+                <span className="text-sm text-gray-900">{feature.active ? 'Active' : 'Inactive'}</span>
               </div>
             </div>
             <div>
@@ -153,11 +153,11 @@ export default function FeatureDetailPage() {
             </div>
             <div>
               <div className="text-xs text-gray-500 uppercase tracking-[0.05em] mb-1">Adoption</div>
-              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{enabledCount} / {tenants.length} tenants</div>
+              <div className="text-sm font-medium text-gray-900">{enabledCount} / {tenants.length} tenants</div>
             </div>
           </div>
           {feature.description && (
-            <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{feature.description}</p>
+            <p className="mt-4 text-sm text-gray-600 leading-relaxed">{feature.description}</p>
           )}
         </div>
 
@@ -170,10 +170,10 @@ export default function FeatureDetailPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Tenant</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Plan</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Status</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 uppercase text-xs tracking-[0.05em]">Source</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Tenant</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Plan</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Status</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-[0.05em]">Source</th>
                 </tr>
               </thead>
               <tbody>
@@ -185,7 +185,7 @@ export default function FeatureDetailPage() {
                   tenants.map(tenant => (
                     <tr key={tenant.id} className="border-b border-gray-100 dark:border-gray-800">
                       <td className="py-3 px-4">
-                        <Link href={`/platform/tenants/${tenant.id}`} className="font-medium text-gray-900 dark:text-gray-100 hover:text-primary transition-colors">
+                        <Link href={`/platform/tenants/${tenant.id}`} className="font-medium text-gray-900 hover:text-primary transition-colors">
                           {tenant.name}
                         </Link>
                       </td>

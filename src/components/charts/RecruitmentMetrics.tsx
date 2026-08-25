@@ -126,7 +126,7 @@ const PipelineFunnelChart: React.FC<PipelineFunnelProps> = ({
               </div>
               <div className="flex-1 bg-gray-100 rounded-full h-8 relative">
                 <div
-                  className="bg-gold-500 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium transition-all duration-1000 ease-out"
+                  className="bg-gold-500 h-8 rounded-full flex items-center justify-center text-cta-foreground text-sm font-medium transition-all duration-1000 ease-out"
                   style={{ width: `${width}%` }}
                 >
                   {stage.count}

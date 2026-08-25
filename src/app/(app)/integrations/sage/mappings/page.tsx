@@ -319,7 +319,7 @@ export default function SageFieldMappingsPage() {
 
                 <button
                   onClick={handleSave}
-                  className="px-6 py-2 text-sm font-medium text-white bg-gold-500 rounded-lg hover:bg-gold-600 transition-colors"
+                  className="px-6 py-2 text-sm font-medium text-cta-foreground bg-gold-500 rounded-lg hover:bg-gold-600 transition-colors"
                 >
                   Save Mappings
                 </button>

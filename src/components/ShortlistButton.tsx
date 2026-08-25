@@ -130,7 +130,7 @@ export default function ShortlistButton({
         disabled={saving}
         aria-pressed={isShortlisted}
         className={`${base} px-5 py-2.5 text-[0.8125rem] uppercase tracking-wider rounded-full shadow-sm hover:shadow-md hover:-translate-y-px ${
-          isShortlisted ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-cta text-cta-foreground hover:bg-cta-hover'
+          isShortlisted ? 'bg-green-600 text-cta-foreground hover:bg-green-700' : 'bg-cta text-cta-foreground hover:bg-cta-hover'
         } ${className}`}
       >
         <Icon className="w-4 h-4" />

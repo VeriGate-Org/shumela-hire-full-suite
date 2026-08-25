@@ -38,7 +38,7 @@ export default function ConsentsPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : consents.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 text-gray-500">
               <ShieldCheckIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No consent records found</p>
             </div>
@@ -47,19 +47,19 @@ export default function ConsentsPage() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Employee</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Purpose</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {consents.map((consent) => (
                     <tr key={consent.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{consent.employeeName}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{consent.consentType}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate">{consent.purpose}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{consent.consentType}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">{consent.purpose}</td>
                       <td className="px-6 py-4 text-sm">
                         {consent.isGranted ? (
                           <span className="flex items-center gap-1 text-green-600">
@@ -71,7 +71,7 @@ export default function ConsentsPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                      <td className="px-6 py-4 text-sm text-gray-500">
                         {consent.isGranted && consent.grantedAt
                           ? new Date(consent.grantedAt).toLocaleDateString()
                           : consent.withdrawnAt ? new Date(consent.withdrawnAt).toLocaleDateString() : '-'}

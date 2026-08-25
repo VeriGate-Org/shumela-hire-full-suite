@@ -134,7 +134,7 @@ export default function WizardShell({
                     ? 'bg-emerald-500 text-white'
                     : isCurrent
                       ? 'bg-cta text-deep-navy shadow-[0_0_0_4px_rgba(241,197,75,0.2)]'
-                      : 'border-2 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
+                      : 'border-2 border-gray-300 dark:border-gray-600 text-gray-400'
                 }`}
               >
                 {isCompleted ? (
@@ -149,14 +149,14 @@ export default function WizardShell({
                     isCompleted
                       ? 'text-emerald-600 dark:text-emerald-400'
                       : isCurrent
-                        ? 'text-gray-900 dark:text-gray-100'
-                        : 'text-gray-400 dark:text-gray-500'
+                        ? 'text-gray-900'
+                        : 'text-gray-400'
                   }`}
                 >
                   {step.label}
                 </div>
                 {step.description && (
-                  <div className="text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap">
+                  <div className="text-[10px] text-gray-400 whitespace-nowrap">
                     {step.description}
                   </div>
                 )}
@@ -183,7 +183,7 @@ export default function WizardShell({
         {!isFirst && (
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             <ArrowLeftIcon className="w-3.5 h-3.5" />
             Back
@@ -222,20 +222,20 @@ export default function WizardShell({
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div>
-          <h2 className="text-base font-bold tracking-[-0.02em] text-gray-900 dark:text-gray-100">
+          <h2 className="text-base font-bold tracking-[-0.02em] text-gray-900">
             {title}
           </h2>
           {subtitle && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{subtitle}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>
           )}
         </div>
         <div className="flex items-center gap-3">
           {statusIndicator && (
-            <span className="italic text-[10px] text-gray-400 dark:text-gray-500">
+            <span className="italic text-[10px] text-gray-400">
               {statusIndicator}
             </span>
           )}
-          <span className="text-xs text-gray-400 dark:text-gray-500">
+          <span className="text-xs text-gray-400">
             Step {currentStep + 1} of {steps.length}
           </span>
           {isModal && onClose && (

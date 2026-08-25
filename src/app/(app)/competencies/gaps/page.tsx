@@ -121,7 +121,7 @@ export default function SkillGapsPage() {
                 <button
                   onClick={handleEmployeeSearch}
                   disabled={loading}
-                  className="px-4 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-600 text-sm disabled:opacity-50"
+                  className="px-4 py-2 bg-gold-500 text-cta-foreground rounded-lg hover:bg-gold-600 text-sm disabled:opacity-50"
                 >
                   Search
                 </button>
