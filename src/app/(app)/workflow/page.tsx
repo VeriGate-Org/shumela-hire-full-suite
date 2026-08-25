@@ -10,10 +10,8 @@ import {
   WorkflowBuilder,
   WorkflowManager,
   WorkflowLibrary,
-  ApprovalCenter,
   WorkflowDefinition,
-  WorkflowExecution,
-  ApprovalRequest
+  WorkflowExecution
 } from '@/components/workflow';
 import {
   Cog6ToothIcon,
@@ -64,7 +62,6 @@ export default function WorkflowPage() {
   const [activeView, setActiveView] = useState<'manager' | 'builder' | 'library' | 'approvals'>('manager');
   const [workflows, setWorkflows] = useState<WorkflowDefinition[]>([]);
   const [executions, setExecutions] = useState<WorkflowExecution[]>([]);
-  const [approvalRequests, setApprovalRequests] = useState<ApprovalRequest[]>([]);
   const [availableUsers, setAvailableUsers] = useState<{ id: string; name: string; email: string; role: string }[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowDefinition | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -275,69 +272,9 @@ export default function WorkflowPage() {
     toast(`Test run started for "${workflow.name}" (demo mode)`, 'info');
   };
 
-  // Approval actions (local-only — no backend approval system yet)
-  const handleApprove = (requestId: string, comment?: string) => {
-    setApprovalRequests(prev => prev.map(req => {
-      if (req.id === requestId) {
-        const approval = {
-          approverId: user?.id || 'current-user',
-          approverName: user?.name || 'Current User',
-          decision: 'approved' as const,
-          comment,
-          timestamp: new Date().toISOString(),
-        };
-        return {
-          ...req,
-          status: 'approved' as const,
-          approvals: [...req.approvals, approval],
-        };
-      }
-      return req;
-    }));
-  };
-
-  const handleReject = (requestId: string, comment: string) => {
-    setApprovalRequests(prev => prev.map(req => {
-      if (req.id === requestId) {
-        const approval = {
-          approverId: user?.id || 'current-user',
-          approverName: user?.name || 'Current User',
-          decision: 'rejected' as const,
-          comment,
-          timestamp: new Date().toISOString(),
-        };
-        return {
-          ...req,
-          status: 'rejected' as const,
-          approvals: [...req.approvals, approval],
-        };
-      }
-      return req;
-    }));
-  };
-
-  const handleAddComment = (requestId: string, comment: string) => {
-    setApprovalRequests(prev => prev.map(req => {
-      if (req.id === requestId) {
-        const newComment = {
-          id: `comment-${Date.now()}`,
-          authorId: user?.id || 'current-user',
-          authorName: user?.name || 'Current User',
-          content: comment,
-          timestamp: new Date().toISOString(),
-        };
-        return {
-          ...req,
-          comments: [...req.comments, newComment],
-        };
-      }
-      return req;
-    }));
-  };
-
-  const handleViewApprovalDetails = (request: ApprovalRequest) => {
-    toast(`Viewing approval: ${request.workflowName}`, 'info');
-  };
+  // The three approval handlers that lived here mapped over an array nothing ever populated, so
+  // approving and rejecting changed nothing. Approvals now have a real queue at /approvals, backed
+  // by GET /api/approvals/pending, and each item is actioned on its own record.
 
   if (!user) {
     return (
@@ -521,14 +458,21 @@ export default function WorkflowPage() {
           )}
 
           {activeView === 'approvals' && (
-            <ApprovalCenter
-              requests={approvalRequests}
-              currentUserId={user.id}
-              onApprove={handleApprove}
-              onReject={handleReject}
-              onAddComment={handleAddComment}
-              onViewDetails={handleViewApprovalDetails}
-            />
+            <div className="enterprise-card">
+              <div className="px-6 py-8 text-center">
+                <h2 className="text-lg font-bold text-foreground">Approvals have moved</h2>
+                <p className="mt-2 text-sm text-muted-foreground max-w-prose mx-auto">
+                  What is waiting for approval — requisitions, job adverts and salary
+                  recommendations — is now one queue, ordered by how long each item has waited.
+                </p>
+                <a
+                  href="/approvals"
+                  className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-cta text-cta-foreground text-xs font-extrabold uppercase tracking-[0.07em] hover:opacity-90 transition-opacity"
+                >
+                  Open the approval queue
+                </a>
+              </div>
+            </div>
           )}
         </div>
       </div>

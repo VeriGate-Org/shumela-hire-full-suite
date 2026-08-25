@@ -191,6 +191,42 @@ function handler(event) {
 ")
         });
 
+        // ── CloudFront Function: rewrite /job-postings/<id> to the shell ────
+        // Same issue and same fix as RequisitionsDetailRewriteFunction above:
+        // /job-postings/[id] only pre-renders one placeholder ("_"), so any
+        // real posting id 403s straight from S3 on a direct load or refresh.
+        // Like /requisitions/*, this behavior's path pattern also covers a
+        // real static page — /job-postings/new — so that one case is
+        // special-cased to the normal extensionless->.html rewrite instead.
+        var jobPostingsDetailRewriteFn = new Function(this, "JobPostingsDetailRewriteFunction", new FunctionProps
+        {
+            FunctionName = $"{config.Prefix}-job-postings-detail-rewrite",
+            Comment = "Rewrites /job-postings/<id> to the static shell so S3 always has the object",
+            Code = FunctionCode.FromInline(@"
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+
+    // /job-postings/new is a real static page, not a dynamic [id].
+    if (uri === '/job-postings/new' || uri.indexOf('/job-postings/new/') === 0) {
+        if (uri.indexOf('.') === -1) {
+            if (uri.endsWith('/')) uri = uri.slice(0, -1);
+            request.uri = uri + '.html';
+        }
+        return request;
+    }
+
+    // Everything else under /job-postings/* is the [id] detail page — only
+    // one placeholder (""_"") was ever pre-rendered, so always serve it.
+    var isPage = uri.indexOf('.') === -1 || uri.slice(-5) === '.html';
+    if (isPage) {
+        request.uri = '/job-postings/_.html';
+    }
+    return request;
+}
+")
+        });
+
         // ── CloudFront Function: rewrite /apply/<id> to the static shell ────
         // Same issue and same fix as JobsDetailRewriteFunction above:
         // /apply/[requisitionId] only pre-renders one placeholder ("_"), so
@@ -424,6 +460,26 @@ function handler(event) {
                         new FunctionAssociation
                         {
                             Function = requisitionsDetailRewriteFn,
+                            EventType = FunctionEventType.VIEWER_REQUEST
+                        }
+                    }
+                },
+                // Job posting approval/publishing record → same technique, see
+                // comment above on JobPostingsDetailRewriteFunction. Does not
+                // affect bare /job-postings or /job-postings/new, which stay on
+                // the default behavior.
+                ["/job-postings/*"] = new BehaviorOptions
+                {
+                    Origin = s3Origin,
+                    ViewerProtocolPolicy = ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    Compress = true,
+                    CachePolicy = CachePolicy.CACHING_OPTIMIZED,
+                    AllowedMethods = AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+                    FunctionAssociations = new[]
+                    {
+                        new FunctionAssociation
+                        {
+                            Function = jobPostingsDetailRewriteFn,
                             EventType = FunctionEventType.VIEWER_REQUEST
                         }
                     }

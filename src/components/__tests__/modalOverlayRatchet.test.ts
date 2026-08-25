@@ -89,7 +89,8 @@ const LEGACY = [
   'components/templates/DocumentTemplateEditor.tsx',
   'components/templates/TemplateEditor.tsx',
   'components/templates/TemplateList.tsx',
-  'components/workflow/ApprovalCenter.tsx',
+  // components/workflow/ApprovalCenter.tsx was deleted — it rendered a permanently empty approval
+  // queue from state nothing populated. The queue now lives at /approvals over a real endpoint.
 ];
 
 function tsxFilesUnder(dir: string): string[] {
