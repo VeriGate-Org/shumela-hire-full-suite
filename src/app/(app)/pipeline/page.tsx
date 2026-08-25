@@ -1282,10 +1282,16 @@ export default function PipelinePage() {
                             isSelected ? 'border-primary shadow-[0_0_0_2px_rgba(5,82,126,0.2)]' : 'border-border'
                           }`}
                         >
-                          {/* Checkbox - visible on hover or when selected */}
+                          {/* Checkbox - visible on hover, on focus, or when selected.
+                              It was revealed by group-hover alone, which does not fire for a
+                              keyboard user: the control was in the tab order the whole time, so
+                              focus landed on something invisible. Worse than being unreachable,
+                              because the page appears to swallow the Tab key. focus-within is
+                              already used a few lines below for the shortlist button. */}
                           <input
                             type="checkbox"
                             checked={isSelected}
+                            aria-label={`Select ${application.candidate.firstName} ${application.candidate.lastName}`}
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e) => {
                               const next = new Set(selectedIds);
@@ -1294,14 +1300,27 @@ export default function PipelinePage() {
                               setSelectedIds(next);
                             }}
                             className={`absolute top-2.5 right-2.5 w-4 h-4 rounded border-2 border-border accent-primary transition-opacity ${
-                              isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                              isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus:opacity-100'
                             }`}
                           />
 
-                          {/* Candidate name */}
-                          <div className="font-bold text-sm text-foreground mb-0.5 pr-6">
+                          {/* Candidate name — and the card's primary action.
+                              Opening a candidate was an onClick on the card div with no tabIndex,
+                              role or key handler, so the whole board was mouse-only: a keyboard or
+                              screen-reader user could read every card and open none of them. A real
+                              button carries Enter and Space for free. The card keeps its own
+                              onClick, so clicking anywhere on it still works with a mouse. */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedApplication(application);
+                            }}
+                            className="block text-left font-bold text-sm text-foreground mb-0.5 pr-6 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                          >
                             {application.candidate.firstName} {application.candidate.lastName}
-                          </div>
+                            <span className="sr-only"> — open candidate details</span>
+                          </button>
 
                           {/* Position */}
                           <div className="text-xs text-muted-foreground font-medium leading-snug mb-2.5">
@@ -1583,6 +1602,10 @@ export default function PipelinePage() {
                               onClick={() => setSelectedApplication(application)}
                               className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-primary transition-all"
                               title="View details"
+                              // The button was reachable but anonymous: an icon with a title and no
+                              // text reads as "View details" on every row, so a screen-reader user
+                              // hears the same label twenty times and cannot tell the rows apart.
+                              aria-label={`View details for ${application.candidate.firstName} ${application.candidate.lastName}`}
                             >
                               <EyeIcon className="w-[18px] h-[18px]" />
                             </button>
