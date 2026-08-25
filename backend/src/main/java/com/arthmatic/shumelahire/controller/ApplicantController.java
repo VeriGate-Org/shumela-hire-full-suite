@@ -145,13 +145,14 @@ public class ApplicantController {
      * themselves newest first. An applicant who has never applied returns {@code total: 0} with an
      * empty list — distinguishable from a 404, which means the applicant does not exist.
      *
-     * <p>Restricted to staff roles. The read is by applicant id with no ownership check, so
-     * including {@code APPLICANT} here would let any signed-in candidate walk ids and read other
-     * people's application histories. Self-service already has its own route to a candidate's own
-     * applications and should keep it.
+     * <p>Staff, or the applicant themselves. This was staff-only, and the reason given was that the
+     * read is by applicant id with no ownership check — true when it was written, and the reason a
+     * candidate could not see their own history through it. {@code ApplicantAccess} is that missing
+     * check, so the endpoint no longer has to choose between being useful and being safe: a
+     * candidate reaches their own record and no other.
      */
     @GetMapping("/{id}/application-summary")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    @PreAuthorize("@applicantAccess.maySee(authentication, #id)")
     public ResponseEntity<?> getApplicationSummary(@PathVariable String id) {
         try {
             return ResponseEntity.ok(applicantService.getApplicationSummary(id));
