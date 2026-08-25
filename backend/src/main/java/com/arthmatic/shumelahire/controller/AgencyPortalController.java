@@ -25,10 +25,26 @@ public class AgencyPortalController {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
+    /**
+     * Every agency on the panel.
+     *
+     * <p>Now returns {@link com.arthmatic.shumelahire.dto.AgencyResponse}: contract state computed
+     * against today, and the placement rate that previously required one dashboard call per agency.
+     */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getAllAgencies() {
-        return ResponseEntity.ok(agencyPortalService.getAllAgencies());
+        return ResponseEntity.ok(agencyPortalService.getAllAgenciesDetailed());
+    }
+
+    /**
+     * Counts across the whole panel.
+     * GET /api/agencies/summary
+     */
+    @GetMapping("/summary")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    public ResponseEntity<?> summary() {
+        return ResponseEntity.ok(agencyPortalService.summary());
     }
 
     @GetMapping("/{id}")

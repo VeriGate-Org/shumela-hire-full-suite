@@ -5,6 +5,8 @@ import PageWrapper from '@/components/PageWrapper';
 import ApplicantProfile from '@/components/ApplicantProfile';
 import { useTheme } from '@/contexts/ThemeContext';
 import { apiFetch } from '@/lib/api-fetch';
+import DistributionStrip from '@/components/record/DistributionStrip';
+import FilterChips from '@/components/record/FilterChips';
 import {
   UserGroupIcon,
   MagnifyingGlassIcon,
@@ -14,15 +16,27 @@ import {
   EnvelopeIcon,
   PhoneIcon,
 } from '@heroicons/react/24/outline';
+import {
+  APPLICANT_FILTERS,
+  APPLICANT_SORTS,
+  ApplicantRow,
+  ApplicantSummary,
+  ApplicationSummary,
+  documentCount,
+  filterCount,
+  historyLabel,
+  isApplicantSummary,
+  isApplicationSummary,
+  lastAppliedLabel,
+  matchesFilter,
+  skillList,
+  sortFor,
+  stateOf,
+  STATE_LABELS,
+  summaryIds,
+} from './queue';
 
-interface Applicant {
-  id: number;
-  name: string;
-  surname: string;
-  email: string;
-  phone?: string;
-  createdAt: string;
-}
+type Applicant = ApplicantRow;
 
 const PAGE_SIZE = 20;
 
@@ -36,7 +50,7 @@ function formatDate(dateString: string): string {
 
 export default function ApplicantsPage() {
   const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
-  const [selectedApplicantId, setSelectedApplicantId] = useState<number | undefined>();
+  const [selectedApplicantId, setSelectedApplicantId] = useState<string | number | undefined>();
   const { setCurrentRole } = useTheme();
 
   const [applicants, setApplicants] = useState<Applicant[]>([]);
@@ -45,10 +59,20 @@ export default function ApplicantsPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  // Counts by application status, straight from the API. The three tiles beside "Total Applicants"
-  // used to be arithmetic on the total — "Shortlisted" was literally Math.ceil(total * 0.4) — so
-  // they moved when the total moved and were never anybody's data.
-  const [statusCounts, setStatusCounts] = useState<Record<string, number> | null>(null);
+  // Counts describing every applicant on file, from GET /api/applicants/summary.
+  //
+  // What stood here was a row of tiles reading In Screening, At Interview and Hired, all three
+  // taken from /api/applications/manage/statistics — they counted *applications*, under a total
+  // that counts *people*. "Hired 34" meant thirty-four applications at HIRED, not thirty-four
+  // people hired, and nothing on the page distinguished the two. (Before that they were arithmetic
+  // on the total: "Shortlisted" was literally Math.ceil(total * 0.4).)
+  const [summary, setSummary] = useState<ApplicantSummary | null>(null);
+  // Application history for the rows on screen, keyed by applicant id — one batch call per page
+  // rather than one request per row.
+  const [histories, setHistories] = useState<Record<string, ApplicationSummary>>({});
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortKey, setSortKey] = useState('createdAt-desc');
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -57,25 +81,30 @@ export default function ApplicantsPage() {
     setCurrentRole('RECRUITER');
   }, [setCurrentRole]);
 
-  const loadApplicants = useCallback(async (page: number, search: string) => {
+  const loadApplicants = useCallback(async (page: number, search: string, sort: string) => {
     setLoading(true);
+    setHistoryLoaded(false);
+    const ordering = sortFor(sort);
+    let loadedRows: Applicant[] = [];
     try {
       const params = new URLSearchParams();
       params.append('page', String(page));
       params.append('size', String(PAGE_SIZE));
-      params.append('sort', 'createdAt');
-      params.append('direction', 'desc');
+      params.append('sort', ordering.sort);
+      params.append('direction', ordering.direction);
       if (search) params.append('search', search);
 
       const response = await apiFetch(`/api/applicants?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
         if (data.content) {
+          loadedRows = data.content;
           setApplicants(data.content);
           setTotalPages(data.totalPages ?? 0);
           setTotalElements(data.totalElements ?? 0);
         } else {
           const list = Array.isArray(data) ? data : [];
+          loadedRows = list;
           setApplicants(list);
           setTotalPages(1);
           setTotalElements(list.length);
@@ -93,30 +122,83 @@ export default function ApplicantsPage() {
       setLoading(false);
     }
 
+    // Whole-set counts. Deliberately a separate call from the list: the list is paged, so counting
+    // from it would describe a page and label the result a total — the defect being fixed here.
     try {
-      const statsResponse = await apiFetch('/api/applications/manage/statistics');
-      if (statsResponse.ok) {
-        const stats = await statsResponse.json();
-        setStatusCounts(stats?.statusDistribution ?? null);
+      const summaryResponse = await apiFetch('/api/applicants/summary');
+      if (summaryResponse.ok) {
+        const payload = await summaryResponse.json();
+        // Guarded rather than trusted: an error body is an object too, and reading .registered off
+        // it would render a strip of zeroes that looks like a real and empty tenant.
+        setSummary(isApplicantSummary(payload) ? payload : null);
+      } else {
+        setSummary(null);
       }
     } catch {
-      // Leave the tiles showing "--" rather than a number nobody can account for.
+      // Leave the strip saying the figures are unavailable rather than showing zeroes.
+      setSummary(null);
+    }
+
+    // Application history for the rows on screen — one batch call, not one per row. The server
+    // caps the batch and rejects an over-long one rather than truncating, so summaryIds caps too.
+    const ids = summaryIds(loadedRows);
+    if (ids.length === 0) {
+      setHistories({});
+      setHistoryLoaded(true);
+      return;
+    }
+    try {
+      const historyResponse = await apiFetch(
+        `/api/applicants/application-summaries?applicantIds=${ids.map(encodeURIComponent).join(',')}`,
+      );
+      if (historyResponse.ok) {
+        const payload = await historyResponse.json();
+        const valid: Record<string, ApplicationSummary> = {};
+        if (payload && typeof payload === 'object') {
+          for (const [id, entry] of Object.entries(payload)) {
+            // An entry that is not a summary is dropped rather than coerced. A row with no history
+            // reads "History unavailable", which is true; a zeroed one would claim they have never
+            // applied, which may not be.
+            if (isApplicationSummary(entry)) valid[id] = entry;
+          }
+        }
+        setHistories(valid);
+        setHistoryLoaded(true);
+      } else {
+        setHistories({});
+        setHistoryLoaded(false);
+      }
+    } catch {
+      setHistories({});
+      setHistoryLoaded(false);
     }
   }, []);
 
   useEffect(() => {
     if (view === 'list') {
-      loadApplicants(currentPage, searchTerm);
+      loadApplicants(currentPage, searchTerm, sortKey);
     }
-  }, [view, currentPage, loadApplicants]);
+  }, [view, currentPage, sortKey, loadApplicants]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setCurrentPage(0);
-      loadApplicants(0, value);
+      loadApplicants(0, value, sortKey);
     }, 400);
+  };
+
+  // The sort dropdown offered four options and carried no onChange handler at all: choosing
+  // "Name A-Z" did nothing, and gave no sign that it had done nothing. Every option in
+  // APPLICANT_SORTS maps to a sort/direction pair the API accepts, so all four now work.
+  const handleSortChange = (key: string) => {
+    setSortKey(key);
+    setCurrentPage(0);
+  };
+
+  const handleFilterChange = (key: string) => {
+    setStatusFilter(key);
   };
 
   const handleCreateNew = () => {
@@ -125,7 +207,7 @@ export default function ApplicantsPage() {
     window.scrollTo(0, 0);
   };
 
-  const handleEdit = (applicantId: number) => {
+  const handleEdit = (applicantId: string | number) => {
     setSelectedApplicantId(applicantId);
     setView('edit');
     window.scrollTo(0, 0);
@@ -138,7 +220,7 @@ export default function ApplicantsPage() {
 
   const handleSave = () => {
     setView('list');
-    loadApplicants(currentPage, searchTerm);
+    loadApplicants(currentPage, searchTerm, sortKey);
   };
 
   const getPageTitle = () => {
@@ -156,6 +238,13 @@ export default function ApplicantsPage() {
       default: return 'Browse and manage applicant profiles with comprehensive tracking.';
     }
   };
+
+  // Filtering happens on the loaded page, not on the server: GET /api/applicants has no history
+  // filter, so this narrows what is on screen. The chip counts are whole-set and say so — a count
+  // that described only the page would be the exact defect this page is being fixed for.
+  const visibleApplicants = applicants.filter((applicant) =>
+    matchesFilter(statusFilter, histories[String(applicant.id)]),
+  );
 
   const actions = view === 'list' ? (
     <div className="flex items-center gap-3 flex-wrap">
@@ -191,75 +280,72 @@ export default function ApplicantsPage() {
       <div className="space-y-6">
         {view === 'list' && (
           <>
-            {/* Stats Bar */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
-                  <UserGroupIcon className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
-                    {totalElements}
-                  </div>
-                  <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">
-                    Total Applicants
-                  </div>
-                </div>
+            {/* Where the candidate base actually sits.
+                Every figure here counts people, and they come from one endpoint so they cannot
+                disagree with each other. The tiles this replaces counted applications under a
+                total that counted applicants. */}
+            {summary ? (
+              <DistributionStrip
+                buckets={[
+                  {
+                    label: 'Registered, never applied',
+                    count: summary.neverApplied,
+                    detail: 'Profile created, nothing submitted',
+                  },
+                  {
+                    label: 'Applied once',
+                    count: summary.appliedOnce,
+                    detail: 'One application, ever',
+                  },
+                  {
+                    label: 'Repeat applicants',
+                    count: summary.repeatApplicants,
+                    detail: 'Two or more',
+                    tone: 'positive',
+                  },
+                  {
+                    label: 'In process now',
+                    count: summary.inProcessNow,
+                    detail: 'At least one live application',
+                  },
+                  {
+                    label: 'Previously hired',
+                    count: summary.previouslyHired,
+                    detail: 'Hired at least once',
+                    tone: 'positive',
+                  },
+                ]}
+                footnote={
+                  <>
+                    Counts people, not applications, across all{' '}
+                    <b className="font-bold text-foreground">{summary.registered}</b> applicants on
+                    file — the first three account for every one of them.{' '}
+                    <b className="font-bold text-foreground">{summary.applicationsRecorded}</b>{' '}
+                    applications counted.
+                    {summary.orphanedApplications > 0 && (
+                      <>
+                        {' '}
+                        <span className="text-error">
+                          {summary.orphanedApplications} application
+                          {summary.orphanedApplications === 1 ? '' : 's'} belong to applicants no
+                          longer on file and are excluded from the segments above.
+                        </span>
+                      </>
+                    )}
+                  </>
+                }
+              />
+            ) : (
+              <div className="enterprise-card p-5">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Candidate base figures unavailable.{' '}
+                  <span className="text-muted-foreground/70">
+                    Showing {totalElements} applicant{totalElements !== 1 ? 's' : ''} matching the
+                    current search. Page counts are not totals, so no breakdown is shown.
+                  </span>
+                </p>
               </div>
-
-              <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
-                    {statusCounts === null ? '--' : (statusCounts.SCREENING ?? 0)}
-                  </div>
-                  <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">
-                    In Screening
-                  </div>
-                </div>
-              </div>
-
-              <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
-                    {statusCounts === null
-                      ? '--'
-                      : (statusCounts.INTERVIEW_SCHEDULED ?? 0) + (statusCounts.INTERVIEW_COMPLETED ?? 0)}
-                  </div>
-                  <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">
-                    At Interview
-                  </div>
-                </div>
-              </div>
-
-              <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
-                    {statusCounts === null ? '--' : (statusCounts.HIRED ?? 0)}
-                  </div>
-                  <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">
-                    Hired
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
 
             {/* Filter Bar */}
             <div className="enterprise-card p-4">
@@ -286,19 +372,42 @@ export default function ApplicantsPage() {
                   {loading && <span className="ml-2 text-muted-foreground/60">(loading...)</span>}
                 </p>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground">Sort by:</span>
+                  <label className="text-muted-foreground" htmlFor="applicant-sort">
+                    Sort by:
+                  </label>
+                  {/* This control had no onChange handler: all four options were inert. */}
                   <select
+                    id="applicant-sort"
                     className="py-1 px-2 border border-border rounded-control text-sm font-medium bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
-                    defaultValue="createdAt-desc"
+                    value={sortKey}
+                    onChange={(e) => handleSortChange(e.target.value)}
                   >
-                    <option value="createdAt-desc">Newest first</option>
-                    <option value="createdAt-asc">Oldest first</option>
-                    <option value="name-asc">Name A-Z</option>
-                    <option value="name-desc">Name Z-A</option>
+                    {APPLICANT_SORTS.map((option) => (
+                      <option key={option.key} value={option.key}>
+                        {option.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
             </div>
+
+            <FilterChips
+              chips={APPLICANT_FILTERS.map((filter) => ({
+                key: filter.key,
+                label: filter.label,
+                count: filterCount(summary, filter.key) ?? undefined,
+              }))}
+              activeKey={statusFilter}
+              onChange={handleFilterChange}
+              aria-label="Filter applicants by history"
+              note={
+                <>
+                  Counts are of the whole base; filtering applies to this page
+                  {historyLoaded ? '' : ' once history loads'}
+                </>
+              }
+            />
 
             {/* Applicants list */}
             {loading && applicants.length === 0 ? (
@@ -353,7 +462,13 @@ export default function ApplicantsPage() {
                           Contact
                         </th>
                         <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
-                          Created
+                          Skills
+                        </th>
+                        <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                          Application history
+                        </th>
+                        <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                          Registered
                         </th>
                         <th className="px-4 lg:px-6 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                           Actions
@@ -361,11 +476,17 @@ export default function ApplicantsPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {applicants.map((applicant, idx) => {
+                      {visibleApplicants.map((applicant, idx) => {
                         const avatarColors = [
                           'bg-violet-600', 'bg-idc-pink-600', 'bg-teal-600', 'bg-gold-600',
                         ];
                         const colorClass = avatarColors[idx % avatarColors.length];
+                        const summaryForRow = histories[String(applicant.id)];
+                        const history = historyLabel(summaryForRow);
+                        const state = stateOf(summaryForRow);
+                        const lastApplied = lastAppliedLabel(summaryForRow);
+                        const skills = skillList(applicant);
+                        const docs = documentCount(applicant);
 
                         return (
                           <tr
@@ -401,7 +522,50 @@ export default function ApplicantsPage() {
                                 </div>
                               )}
                             </td>
-                            <td className="px-4 lg:px-6 py-3 whitespace-nowrap text-sm text-muted-foreground">
+                            <td className="px-4 lg:px-6 py-3 align-top max-w-[15rem]">
+                              {skills.length > 0 ? (
+                                <div className="flex flex-wrap gap-1">
+                                  {skills.slice(0, 3).map((skill) => (
+                                    <span
+                                      key={skill}
+                                      className="inline-block px-2 py-0.5 rounded-full bg-muted text-[0.6875rem] font-semibold text-muted-foreground"
+                                    >
+                                      {skill}
+                                    </span>
+                                  ))}
+                                  {skills.length > 3 && (
+                                    <span className="text-[0.6875rem] font-semibold text-muted-foreground/70 self-center">
+                                      +{skills.length - 3}
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-xs text-muted-foreground/60">None recorded</span>
+                              )}
+                              {docs !== null && docs > 0 && (
+                                <p className="text-[0.6875rem] text-muted-foreground/70 mt-1">
+                                  {docs} document{docs === 1 ? '' : 's'}
+                                </p>
+                              )}
+                            </td>
+                            <td className="px-4 lg:px-6 py-3 align-top whitespace-nowrap">
+                              {history ? (
+                                <>
+                                  <p className="text-sm font-semibold text-foreground">{history}</p>
+                                  <p className="text-xs text-muted-foreground mt-0.5">
+                                    {STATE_LABELS[state]}
+                                    {lastApplied && ` · last ${lastApplied}`}
+                                  </p>
+                                </>
+                              ) : (
+                                // Not "never applied" — the batch call did not answer for this row,
+                                // and saying so is the only honest option.
+                                <span className="text-xs text-muted-foreground/60">
+                                  History unavailable
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 lg:px-6 py-3 whitespace-nowrap text-sm text-muted-foreground align-top">
                               {formatDate(applicant.createdAt)}
                             </td>
                             <td className="px-4 lg:px-6 py-3 whitespace-nowrap text-right">

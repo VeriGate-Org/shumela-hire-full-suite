@@ -1,5 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.dto.TalentPoolResponse;
+import com.arthmatic.shumelahire.dto.TalentPoolSummaryResponse;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.repository.TalentPoolEntryDataRepository;
@@ -42,6 +44,39 @@ public class TalentPoolService {
 
     public List<TalentPool> getAllPools() {
         return talentPoolRepository.findAll();
+    }
+
+    /**
+     * Every pool, described by what is actually in it.
+     *
+     * <p>Replaces returning the raw entity from {@code GET /api/talent-pools}, which carried nothing
+     * about a pool's contents at all — no count, no ages, no source split. The front end had been
+     * declaring {@code entryCount} and guarding it against the {@code undefined} it always was.
+     *
+     * <p>One read of every entry, grouped by pool, rather than one query per pool. At seven pools
+     * either would do; the grouped read is the one that stays sensible as pools are added.
+     */
+    public List<TalentPoolResponse> getAllPoolsDetailed() {
+        LocalDateTime now = LocalDateTime.now();
+
+        Map<String, List<TalentPoolEntry>> entriesByPool = talentPoolEntryRepository.findAll().stream()
+                .filter(entry -> entry.getTalentPool() != null && entry.getTalentPool().getId() != null)
+                .collect(Collectors.groupingBy(entry -> entry.getTalentPool().getId()));
+
+        return talentPoolRepository.findAll().stream()
+                .map(pool -> TalentPoolResponse.from(
+                        pool, entriesByPool.getOrDefault(pool.getId(), List.of()), now))
+                .toList();
+    }
+
+    /**
+     * Counts across every pool.
+     *
+     * <p>Derived from the same {@link #getAllPoolsDetailed()} objects the list is built from, so the
+     * strip and the rows beneath it cannot disagree about what "stale" means.
+     */
+    public TalentPoolSummaryResponse summary() {
+        return TalentPoolSummaryResponse.from(getAllPoolsDetailed());
     }
 
     public TalentPool getPool(String id) {
