@@ -143,7 +143,7 @@ export default function RequisitionsPage() {
   const onYou = onYouCount(summary, user?.role);
 
   return (
-    <PageWrapper title="Requisitions" subtitle="Headcount requests and their approval">
+    <PageWrapper>
       <IdentityBand
         eyebrow="Approval queue"
         title="Requisitions"

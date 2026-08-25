@@ -253,14 +253,6 @@ export default function InterviewsPage() {
     }
   };
 
-  const getPageSubtitle = () => {
-    switch (view) {
-      case 'feedback': return 'Submit structured, auditable feedback for completed interviews.';
-      case 'calendar': return 'Schedule interviews, track progress, and submit candidate feedback';
-      default: return 'What is stalled, what is today, and what is still ahead';
-    }
-  };
-
   const getCandidateFullName = (interview: Interview) => {
     const name = interview.application?.applicant?.name ?? '';
     const surname = interview.application?.applicant?.surname ?? '';
@@ -286,7 +278,7 @@ export default function InterviewsPage() {
   );
 
   return (
-    <PageWrapper title={getPageTitle()} subtitle={getPageSubtitle()} actions={scheduleButton}>
+    <PageWrapper>
       <div className="space-y-6">
 
         {/* Interview question generation belongs where interviews are arranged. The component
@@ -300,8 +292,11 @@ export default function InterviewsPage() {
         </AiAssistPanel>
 
         <IdentityBand
+          actions={scheduleButton}
           eyebrow="Interview schedule"
-          title="Interviews"
+          // The band renders in all three views, so the title has to follow the view or the
+          // feedback and calendar screens both announce themselves as "Interviews".
+          title={getPageTitle()}
           subtitle={
             summary
               ? `${summary.total} ${summary.total === 1 ? 'interview' : 'interviews'} on record`

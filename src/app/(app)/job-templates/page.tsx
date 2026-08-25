@@ -188,11 +188,7 @@ const JobTemplatesPage: React.FC = () => {
   );
 
   return (
-    <PageWrapper
-      title="Job Templates"
-      subtitle="Create and manage reusable job description templates"
-      actions={actions}
-    >
+    <PageWrapper>
       {/* Stats error */}
       {statsError && (
         <ErrorState
@@ -203,6 +199,7 @@ const JobTemplatesPage: React.FC = () => {
       )}
 
       <IdentityBand
+        actions={actions}
         eyebrow="Job ad template library"
         title="Job Templates"
         subtitle={

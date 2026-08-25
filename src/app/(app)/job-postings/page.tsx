@@ -441,14 +441,6 @@ export default function JobPostingsPage() {
     URL.revokeObjectURL(url);
   };
 
-  // The workflow view opens with its own identity band, which names the record and the
-  // posting. A PageWrapper header above it repeated the same thing in weaker words, so the
-  // view supplies no title and PageWrapper renders no header block for it.
-  const getPageTitle = () => (view === 'workflow' ? undefined : 'Job Postings');
-
-  const getPageSubtitle = () =>
-    view === 'workflow' ? undefined : 'Create, review, and publish job postings with full workflow controls.';
-
   const pageActions = view === 'list' ? (
     <div className="flex items-center gap-3 flex-wrap">
       <button
@@ -484,11 +476,7 @@ export default function JobPostingsPage() {
   };
 
   return (
-    <PageWrapper
-      title={getPageTitle()}
-      subtitle={getPageSubtitle()}
-      actions={pageActions}
-    >
+    <PageWrapper>
       <div className="space-y-6">
         {view === 'list' && (
           <div>
@@ -499,6 +487,7 @@ export default function JobPostingsPage() {
             )}
 
             <IdentityBand
+              actions={pageActions}
               eyebrow="Advert queue"
               title="Job Postings"
               subtitle={

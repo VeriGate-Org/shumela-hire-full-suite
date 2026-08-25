@@ -358,13 +358,10 @@ export default function ApplicationsPage() {
   }
 
   return (
-    <PageWrapper
-      title="Application Management"
-      subtitle="Review, screen and manage candidate applications"
-      actions={actions}
-    >
+    <PageWrapper>
       <div className="space-y-4">
         <IdentityBand
+          actions={actions}
           eyebrow="Application triage"
           title="Applications"
           subtitle={
