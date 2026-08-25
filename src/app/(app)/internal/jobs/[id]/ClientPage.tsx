@@ -5,12 +5,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
 import EmptyState from '@/components/EmptyState';
 import Link from 'next/link';
 import {
   ArrowLeftIcon,
   ShareIcon,
-  BookmarkIcon,
+  LinkIcon,
   MapPinIcon,
   BriefcaseIcon,
   BuildingOfficeIcon,
@@ -177,23 +179,26 @@ export default function InternalJobDetailPage() {
     <div className="flex items-center gap-2">
       <button
         onClick={handleShare}
-        className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-full text-sm hover:bg-gray-50 transition-colors"
+        className="inline-flex items-center px-3 py-2 border border-border rounded-full text-sm hover:bg-muted transition-colors"
       >
         <ShareIcon className="w-4 h-4 mr-1.5" />
         Share
       </button>
+      {/* This says "Copy Link" and copies a link, but wore a bookmark icon — which promises
+          saving the role for later, a feature this product does not have. The icon now matches
+          the label. */}
       <button
         onClick={() => {
           navigator.clipboard.writeText(window.location.href);
-          toast('Job URL copied to clipboard', 'success');
+          toast('Link copied to clipboard', 'success');
         }}
-        className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-full text-sm hover:bg-gray-50 transition-colors"
+        className="inline-flex items-center px-3 py-2 border border-border rounded-full text-sm hover:bg-muted transition-colors"
       >
-        <BookmarkIcon className="w-4 h-4 mr-1.5" />
+        <LinkIcon className="w-4 h-4 mr-1.5" />
         Copy Link
       </button>
       <Link href="/internal/jobs">
-        <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+        <button className="inline-flex items-center px-3 py-2 border border-border rounded-full text-sm text-muted-foreground hover:bg-muted transition-colors">
           <ArrowLeftIcon className="w-4 h-4 mr-1.5" />
           Back
         </button>
@@ -203,7 +208,13 @@ export default function InternalJobDetailPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Job Details" subtitle="Loading..." actions={headerActions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Internal opportunity"
+          title="Job details"
+          subtitle="Loading…"
+          actions={headerActions}
+        />
         <div className="flex items-center justify-center py-16">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
         </div>
@@ -213,7 +224,13 @@ export default function InternalJobDetailPage() {
 
   if (error || !job) {
     return (
-      <PageWrapper title="Job Not Found" actions={headerActions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Internal opportunity"
+          title="Job not found"
+          subtitle="This advert may have been closed or removed."
+          actions={headerActions}
+        />
         <EmptyState
           icon={ExclamationTriangleIcon}
           title="Job Not Found"
@@ -261,18 +278,43 @@ export default function InternalJobDetailPage() {
     );
   };
 
+  const closingSoon = Boolean(
+    job.closingDate &&
+      (new Date(job.closingDate).getTime() - Date.now()) / 86_400_000 <= 7,
+  );
+
   return (
-    <PageWrapper
-      title={job.title}
-      subtitle={[job.department, job.location, job.employmentType].filter(Boolean).join(' · ')}
-      actions={headerActions}
-    >
-      <div className="space-y-6">
-        {/* Job Header Card */}
-        <div className="bg-white rounded-control shadow border border-gray-200 p-6">
+    <PageWrapper>
+      {/* The band is the page header — see #285. The card that used to sit beneath it repeated
+          the same title, department, location and employment type the header already carried. */}
+      <IdentityBand
+        eyebrow={job.channelExternal ? 'Open role' : 'Internal opportunity'}
+        title={job.title}
+        subtitle={[job.department, job.location, job.employmentType].filter(Boolean).join(' · ') || 'Details not recorded'}
+        figures={[
+          ...(job.closingDate
+            ? [{
+                label: 'Closes',
+                value: new Date(job.closingDate).toLocaleDateString('en-ZA', {
+                  day: 'numeric', month: 'short', year: 'numeric',
+                }),
+                tone: (closingSoon ? 'warning' : undefined) as 'warning' | undefined,
+              }]
+            : []),
+          // Omitted rather than shown as R0 when no range was captured — a role advertised at
+          // zero rands is a different statement from one advertised without a range.
+          ...(job.salaryRangeMin || job.salaryRangeMax
+            ? [{ label: 'Salary', value: formatSalaryRange(job.salaryRangeMin, job.salaryRangeMax) }]
+            : []),
+        ]}
+        actions={headerActions}
+      />
+
+      <div className="space-y-4">
+        <div className="enterprise-card p-6">
           <JobBadges />
 
-          <div className="mt-4 flex flex-wrap items-center gap-6 text-sm text-gray-600">
+          <div className="mt-4 flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
             {job.companyName && (
               <div className="flex items-center">
                 <BuildingOfficeIcon className="w-4 h-4 mr-1.5" />
@@ -314,21 +356,20 @@ export default function InternalJobDetailPage() {
           )}
         </div>
 
-        {/* Apply Now */}
+        {/* Apply is the decision this page exists for, so it uses the bar the rest of the
+            product uses for exactly that, rather than a bespoke gold panel. */}
         {isActive && (
-          <div className="bg-gold-50 border border-gold-200 rounded-control p-6 flex items-center justify-between">
-            <div>
-              <p className="font-medium text-gray-900">Ready to apply?</p>
-              <p className="text-sm text-gray-600">As an internal candidate, you have priority access to this opportunity.</p>
-            </div>
-            <button
-              onClick={handleApply}
-              className="inline-flex items-center px-6 py-2.5 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider transition-colors"
-            >
-              <PaperAirplaneIcon className="w-4 h-4 mr-2" />
-              Apply Now
-            </button>
-          </div>
+          <DecisionBar
+            ask="Ready to apply?"
+            why={
+              job.channelExternal
+                ? 'This role is open to external candidates too.'
+                : 'As an internal candidate you have priority access to this opportunity.'
+            }
+            tone={closingSoon ? 'owed' : 'settled'}
+          >
+            <PrimaryAction onClick={handleApply}>Apply now</PrimaryAction>
+          </DecisionBar>
         )}
 
         {/* Expired Notice */}
@@ -344,22 +385,22 @@ export default function InternalJobDetailPage() {
         )}
 
         {/* Job Description */}
-        <div className="bg-white rounded-control shadow border border-gray-200 p-6">
-          <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Job Description</h3>
+        <div className="bg-card rounded-control shadow border border-border p-6">
+          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Job Description</h3>
           <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: job.htmlBody }} />
         </div>
 
         {/* Internal Application Benefits */}
-        <div className="bg-white rounded-control shadow border border-gray-200 p-6">
-          <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Internal Application Benefits</h3>
+        <div className="bg-card rounded-control shadow border border-border p-6">
+          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Internal Application Benefits</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-start">
               <div className="w-8 h-8 bg-gold-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <UserGroupIcon className="w-4 h-4 text-gold-600" />
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900">Priority Consideration</p>
-                <p className="text-sm text-gray-500">Internal candidates receive priority in the review process</p>
+                <p className="text-sm font-medium text-foreground">Priority Consideration</p>
+                <p className="text-sm text-muted-foreground">Internal candidates receive priority in the review process</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -367,8 +408,8 @@ export default function InternalJobDetailPage() {
                 <ClockIcon className="w-4 h-4 text-green-600" />
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900">Faster Process</p>
-                <p className="text-sm text-gray-500">Streamlined application and interview process</p>
+                <p className="text-sm font-medium text-foreground">Faster Process</p>
+                <p className="text-sm text-muted-foreground">Streamlined application and interview process</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -376,8 +417,8 @@ export default function InternalJobDetailPage() {
                 <BuildingOfficeIcon className="w-4 h-4 text-purple-600" />
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900">Career Development</p>
-                <p className="text-sm text-gray-500">Opportunity for growth within the organisation</p>
+                <p className="text-sm font-medium text-foreground">Career Development</p>
+                <p className="text-sm text-muted-foreground">Opportunity for growth within the organisation</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -385,8 +426,8 @@ export default function InternalJobDetailPage() {
                 <EyeIcon className="w-4 h-4 text-orange-600" />
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900">Company Knowledge</p>
-                <p className="text-sm text-gray-500">Your existing company knowledge is valued</p>
+                <p className="text-sm font-medium text-foreground">Company Knowledge</p>
+                <p className="text-sm text-muted-foreground">Your existing company knowledge is valued</p>
               </div>
             </div>
           </div>
@@ -394,19 +435,26 @@ export default function InternalJobDetailPage() {
 
         {/* Job Stats */}
         {(job.applicationCount !== undefined || job.viewCount !== undefined) && (
-          <div className="bg-white rounded-control shadow border border-gray-200 p-6">
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Application Statistics</h3>
+          <div className="bg-card rounded-control shadow border border-border p-6">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Interest</h3>
             <div className="grid grid-cols-2 gap-4">
               {job.viewCount !== undefined && (
                 <div className="text-center">
                   <div className="text-2xl font-bold text-gold-600">{job.viewCount}</div>
-                  <div className="text-sm text-gray-500">Total Views</div>
+                  {/* Every page load of this advert, not every person. JobPostingService
+                      increments on each getJobPostingBySlug with no session or IP dedup, and
+                      carries a TODO saying so — one candidate refreshing five times is five
+                      views. Labelled as page views rather than an audience figure. */}
+                  <div className="text-sm text-muted-foreground">Page views</div>
+                  <div className="text-[0.6875rem] text-muted-foreground/70 mt-0.5">
+                    Includes repeat visits
+                  </div>
                 </div>
               )}
               {job.applicationCount !== undefined && (
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600">{job.applicationCount}</div>
-                  <div className="text-sm text-gray-500">Applications</div>
+                  <div className="text-sm text-muted-foreground">Applications</div>
                 </div>
               )}
             </div>
