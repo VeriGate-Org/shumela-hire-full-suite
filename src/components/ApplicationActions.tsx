@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import Modal from '@/components/Modal';
 import { useAuth } from '@/contexts/AuthContext';
-import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { apiFetch } from '@/lib/api-fetch';
 
 interface ApplicationActionsProps {
@@ -29,150 +29,103 @@ interface DeleteConfirmationProps {
 
 function WithdrawModal({ isOpen, onClose, onConfirm, isSubmitting }: WithdrawModalProps) {
   const [reason, setReason] = useState('');
-  const focusTrapRef = useFocusTrap(isOpen, onClose);
-
-  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (reason.trim()) {
-      onConfirm(reason.trim());
-    }
+    if (reason.trim()) onConfirm(reason.trim());
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div
-        ref={focusTrapRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="withdraw-modal-title"
-        className="bg-white rounded-control p-6 w-full max-w-md"
-      >
-        <div className="flex items-center mb-4">
-          <div className="bg-yellow-100 rounded-full p-2 mr-3">
-            <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.598 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h3 id="withdraw-modal-title" className="text-lg font-semibold text-gray-900">Withdraw Application</h3>
-        </div>
-        
-        <form onSubmit={handleSubmit}>
-          <p className="text-gray-600 mb-4">
-            Are you sure you want to withdraw this application? This action cannot be undone, 
-            but you may reapply for the position later.
-          </p>
-          
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Reason for withdrawal <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="Please provide a reason for withdrawing your application..."
-              className="w-full p-3 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
-              rows={3}
-              maxLength={500}
-              required
-            />
-            <div className="text-sm text-gray-500 mt-1">
-              {reason.length}/500 characters
-            </div>
-          </div>
-          
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-control hover:bg-gray-300 disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting || !reason.trim()}
-              className="px-4 py-2 bg-yellow-600 text-white rounded-control hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {isSubmitting && (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              )}
-              {isSubmitting ? 'Withdrawing...' : 'Withdraw Application'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title="Withdraw application"
+      subtitle="You may reapply for this position later."
+      size="sm"
+      // Typed text is worth a question before a stray backdrop click throws it away.
+      dirty={reason.trim().length > 0}
+      onRequestClose={() =>
+        window.confirm('Discard the reason you have written and close?')
+      }
+      footer={
+        <>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="rounded-full border border-border px-4 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-foreground disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="withdraw-form"
+            disabled={isSubmitting || !reason.trim()}
+            className="inline-flex items-center gap-2 rounded-full bg-warning px-4 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isSubmitting && <span className="h-3 w-3 animate-spin rounded-full border-b-2 border-white" />}
+            {isSubmitting ? 'Withdrawing…' : 'Withdraw application'}
+          </button>
+        </>
+      }
+    >
+      <form id="withdraw-form" onSubmit={handleSubmit}>
+        <p className="mb-4 text-sm text-muted-foreground">
+          This cannot be undone. The application is closed and the recruiter is notified.
+        </p>
+        <label htmlFor="withdraw-reason" className="mb-2 block text-sm font-medium text-foreground">
+          Reason for withdrawal <span className="text-error">*</span>
+        </label>
+        <textarea
+          id="withdraw-reason"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Why are you withdrawing?"
+          className="w-full rounded-control border border-border p-3 text-sm focus:border-transparent focus:ring-2 focus:ring-primary/50"
+          rows={3}
+          maxLength={500}
+          required
+        />
+        <div className="mt-1 text-xs text-muted-foreground">{reason.length}/500 characters</div>
+      </form>
+    </Modal>
   );
 }
 
 function DeleteConfirmation({ isOpen, onClose, onConfirm, isDeleting }: DeleteConfirmationProps) {
-  const focusTrapRef = useFocusTrap(isOpen, onClose);
-
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div
-        ref={focusTrapRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="delete-modal-title"
-        className="bg-white rounded-control p-6 w-full max-w-md"
-      >
-        <div className="flex items-center mb-4">
-          <div className="bg-red-100 rounded-full p-2 mr-3">
-            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </div>
-          <h3 id="delete-modal-title" className="text-lg font-semibold text-gray-900">Delete Application</h3>
-        </div>
-        
-        <p className="text-gray-600 mb-6">
-          Are you sure you want to permanently delete this application? This action cannot be undone, 
-          and all associated data including documents and screening answers will be removed.
-        </p>
-        
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-700">
-                <strong>Warning:</strong> This is a permanent action that cannot be reversed.
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex justify-end gap-3">
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title="Delete this application?"
+      subtitle="Documents and screening answers go with it."
+      size="sm"
+      footer={
+        <>
           <button
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-control hover:bg-gray-300 disabled:opacity-50"
+            className="rounded-full border border-border px-4 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-foreground disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={isDeleting}
-            className="px-4 py-2 bg-red-600 text-white rounded-control hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="inline-flex items-center gap-2 rounded-full bg-error px-4 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isDeleting && (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            )}
-            {isDeleting ? 'Deleting...' : 'Delete Application'}
+            {isDeleting && <span className="h-3 w-3 animate-spin rounded-full border-b-2 border-white" />}
+            {isDeleting ? 'Deleting…' : 'Delete application'}
           </button>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    >
+      <p className="text-sm text-muted-foreground">
+        This is permanent. Everything attached to the application — uploaded documents, screening
+        answers, interview feedback — is removed with it and cannot be recovered.
+      </p>
+    </Modal>
   );
 }
 
