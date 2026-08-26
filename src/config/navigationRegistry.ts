@@ -7,6 +7,7 @@ import {
   UsersIcon,
   Squares2X2Icon,
   ClipboardDocumentListIcon,
+  CheckCircleIcon,
   AcademicCapIcon,
   GlobeAltIcon,
   ShieldCheckIcon,
@@ -106,6 +107,13 @@ export const navigationRegistry: NavigationEntry[] = [
   // Scheduling — interviews, offers, compensation
   { id: 'interviews', label: 'Interviews', href: '/interviews', icon: CalendarIcon, iconSolid: CalendarIconSolid, section: 'recruitment', requiredPermissions: ['view_interviews'], requiredFeature: 'RECRUITMENT' },
   { id: 'offers', label: 'Offers', href: '/offers', icon: CurrencyDollarIcon, section: 'recruitment', requiredPermissions: ['manage_offers'], requiredFeature: 'RECRUITMENT' },
+  // One queue over every approval this person holds authority for. The page existed from #317
+  // and had no way in: it was reachable only by typing the URL, or through the Workflow screen's
+  // Approvals tab. A queue nobody can find is a queue nobody works.
+  //
+  // view_approvals is granted to exactly the five roles the endpoint admits, so the menu entry and
+  // GET /api/approvals/pending cannot disagree about who this is for.
+  { id: 'approvals', label: 'Approvals', href: '/approvals', icon: CheckCircleIcon, section: 'recruitment', requiredPermissions: ['view_approvals'], requiredFeature: 'RECRUITMENT' },
   { id: 'salary-recommendations', label: 'Salary Recommendations', href: '/salary-recommendations', icon: CurrencyDollarIcon, section: 'recruitment', requiredPermissions: ['view_salary_data'], requiredFeature: 'RECRUITMENT' },
 
   // HR Core — leave, time & attendance, employee self-service
