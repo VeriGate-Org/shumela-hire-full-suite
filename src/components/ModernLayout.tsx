@@ -11,12 +11,23 @@ import { Bars3Icon, QuestionMarkCircleIcon, SunIcon, MoonIcon, ComputerDesktopIc
 import { useTheme } from '@/contexts/ThemeContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import RoleSwitcher from './RoleSwitcher';
+import { usePageHeading } from '@/contexts/PageHeadingContext';
 
+/**
+ * The application chrome: top bar, sidebar, footer and the shortcuts overlay.
+ *
+ * <p>This is mounted once by the app layout and must stay mounted. It used to be rendered by
+ * PageWrapper, which meant every page rendered its own copy — so each navigation unmounted the
+ * whole shell and built a new one. Measured on a production build: a fresh <aside> node per click,
+ * the previous one detached. Nothing reloaded, but the sidebar was rebuilt every time, which
+ * collapsed its open groups, reset its scroll position and replayed its transition. It read as a
+ * full page refresh because visually it was indistinguishable from one.
+ *
+ * <p>The page's own heading block is NOT here — that belongs to the page and should change with
+ * it. Only the title travels up, for the breadcrumb, via PageHeadingContext.
+ */
 interface ModernLayoutProps {
   children: ReactNode;
-  title?: string;
-  subtitle?: string;
-  actions?: ReactNode;
 }
 
 /** Shown when the tenant has no logo, and when the one it has fails to load. */
@@ -33,12 +44,8 @@ function ProductMark({ logoText }: { logoText?: string }) {
   );
 }
 
-const ModernLayout: React.FC<ModernLayoutProps> = ({
-  children,
-  title,
-  subtitle,
-  actions
-}) => {
+const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
+  const { title } = usePageHeading();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
@@ -143,26 +150,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
         ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-[260px]'}
       `}>
         <main className="min-h-[calc(100vh-3.5rem)]" style={{ padding: 'var(--density-padding)' }}>
-          {(title || subtitle || actions) && (
-            <section className="enterprise-card border-l-4 border-l-cta p-4 md:p-5 mb-4">
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div className="min-w-0">
-                  {title && (
-                    <h1 className="text-xl md:text-2xl font-bold text-foreground truncate">{title}</h1>
-                  )}
-                  {subtitle && (
-                    <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
-                  )}
-                </div>
-                {actions && (
-                  <div className="shrink-0 flex flex-wrap gap-2 items-center">{actions}</div>
-                )}
-              </div>
-            </section>
-          )}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--density-gap)' }}>
-            {children}
-          </div>
+          {children}
         </main>
 
         <footer className="border-t border-border bg-surface-navy">
