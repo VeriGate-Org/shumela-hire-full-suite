@@ -103,11 +103,14 @@ export default function SsoGroupMappingTable() {
         <div className="flex items-start gap-3">
           <UserGroupIcon className="w-5 h-5 text-violet-600 mt-0.5" />
           <div>
-            <h4 className="text-sm font-medium text-violet-900">Active Directory Group Mappings</h4>
+            <h4 className="text-sm font-medium text-violet-900">What these are for</h4>
+            {/* This panel used to state that group membership determines a role at sign-in and
+                that the configured default applies otherwise. Neither is true today — see the
+                notice above this table — and a confident wrong sentence beside a correction is
+                worse than either on its own. */}
             <p className="text-sm text-violet-700 mt-1">
-              Map AD security groups to ShumelaHire roles. When a user signs in via SSO,
-              their AD group membership determines their role in the system.
-              If no mapping matches, the default role from the SSO configuration is used.
+              A record of which directory group is intended to grant which role. Once the sign-in
+              path reads them, this is where that intent will be set.
             </p>
           </div>
         </div>

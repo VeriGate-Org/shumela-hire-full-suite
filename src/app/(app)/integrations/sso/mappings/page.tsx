@@ -4,6 +4,7 @@ import React from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import SsoGroupMappingTable from '@/components/integrations/SsoGroupMappingTable';
+import SsoRoleResolutionNotice from '@/components/integrations/SsoRoleResolutionNotice';
 import {
   ShieldCheckIcon,
   ArrowLeftIcon,
@@ -43,10 +44,13 @@ export default function SsoMappingsPage() {
       }
     >
       <PageWrapper
-        title="AD Group Mappings"
-        subtitle="Map Active Directory security groups to ShumelaHire application roles"
+        title="Directory group mappings"
+        subtitle="Which directory group gets which role here"
         actions={actions}
       >
+        {/* First, because someone arriving to grant access needs to know the mappings below are
+            not yet what grants it. */}
+        <SsoRoleResolutionNotice />
         <SsoGroupMappingTable />
       </PageWrapper>
     </FeatureGate>

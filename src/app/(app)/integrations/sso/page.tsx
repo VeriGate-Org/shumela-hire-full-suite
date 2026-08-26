@@ -77,8 +77,8 @@ export default function SsoConfigPage() {
       }
     >
       <PageWrapper
-        title="SSO Configuration"
-        subtitle="Configure single sign-on with your organisation's identity provider"
+        title="Active Directory SSO"
+        subtitle="Staff sign in with their existing directory account instead of a separate password."
         actions={actions}
       >
         <div className="space-y-6">

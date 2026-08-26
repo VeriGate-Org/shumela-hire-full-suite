@@ -66,8 +66,8 @@ export default function SageDashboardPage() {
   return (
     <FeatureGate feature="SAGE_300_PEOPLE">
       <PageWrapper
-        title="Sage 300 People Integration"
-        subtitle="Configure and monitor the bi-directional sync between ShumelaHire and Sage 300 People"
+        title="Sage 300 People"
+        subtitle="When an offer is accepted, ShumelaHire creates that person in Sage with their salary and tax details."
         actions={actions}
       >
         {loading ? (
