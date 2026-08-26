@@ -279,11 +279,14 @@ export default function AdminPermissionsPage() {
   // ─── Loading skeleton (matches mock skeleton layout) ───
   if (loading) {
     return (
-      <PageWrapper
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Matrix"
         title="Roles & Permissions"
         subtitle="Manage access roles and permissions"
         actions={actions}
-      >
+      />
+
         <div className="space-y-6">
           {/* Skeleton Stats Bar */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -338,11 +341,14 @@ export default function AdminPermissionsPage() {
   // ─── Error state ───
   if (loadError) {
     return (
-      <PageWrapper
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Matrix"
         title="Roles & Permissions"
         subtitle="Manage access roles and permissions"
         actions={actions}
-      >
+      />
+
         <div className="enterprise-card p-8 text-center">
           <ExclamationTriangleIcon className="w-12 h-12 text-accent-pink mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load permission data</h3>

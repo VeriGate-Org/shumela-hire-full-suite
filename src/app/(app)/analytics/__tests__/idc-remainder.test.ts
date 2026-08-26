@@ -71,12 +71,17 @@ describe('executive reports', () => {
     expect(text).toContain('AiReportNarrative');
   });
 
-  it('kept the band out of the error state', () => {
-    // The band belongs on the loaded page. It briefly landed on the loadError branch instead,
-    // which would have shown figures from a fetch that failed.
+  it('shows no figures in the error state', () => {
+    // This asserted the error branch had no band at all, which was over-specified: the band
+    // belongs there, so the page keeps one header in every state rather than swapping a gold card
+    // for a navy one when the data arrives.
+    //
+    // What it was really guarding is narrower and still right — the band must not carry figures
+    // from a fetch that failed, which is what the first version of this page did.
     const text = code(EXECUTIVE);
-    const errorBranch = text.slice(text.indexOf('if (loadError)'), text.indexOf('if (loadError)') + 400);
+    const branch = text.slice(text.indexOf('if (loadError)'), text.indexOf('if (loadError)') + 700);
 
-    expect(errorBranch).not.toContain('IdentityBand');
+    expect(branch).toContain('IdentityBand');
+    expect(branch).not.toContain('figures=');
   });
 });

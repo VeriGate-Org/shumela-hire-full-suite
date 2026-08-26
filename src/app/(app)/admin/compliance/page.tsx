@@ -56,7 +56,13 @@ export default function ComplianceDashboardPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="POPIA Compliance" subtitle="Manage consents, data subject access requests, and regulatory compliance">
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Casework"
+        title="POPIA Compliance"
+        subtitle="Manage consents, data subject access requests, and regulatory compliance"
+      />
+
         {/* Skeleton Quick Links */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {[...Array(4)].map((_, i) => (

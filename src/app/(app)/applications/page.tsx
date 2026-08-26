@@ -361,7 +361,14 @@ export default function ApplicationsPage() {
 
   if (loading && applications.length === 0 && !error) {
     return (
-      <PageWrapper title="Applications" subtitle="Loading applications..." actions={actions}>
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Application triage"
+        title="Applications"
+        subtitle="Loading applications..."
+        actions={actions}
+      />
+
         <div className="enterprise-card overflow-hidden">
           <TableSkeleton rows={8} columns={7} />
         </div>
@@ -371,7 +378,14 @@ export default function ApplicationsPage() {
 
   if (error && applications.length === 0) {
     return (
-      <PageWrapper title="Applications" subtitle="Browse and track all job applications" actions={actions}>
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Application triage"
+        title="Applications"
+        subtitle="Browse and track all job applications"
+        actions={actions}
+      />
+
         <ErrorState
           title="Unable to load applications"
           message={error}
