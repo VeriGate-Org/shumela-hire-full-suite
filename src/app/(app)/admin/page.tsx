@@ -6,10 +6,12 @@ import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar from '@/components/record/DecisionBar';
 import { apiFetch } from '@/lib/api-fetch';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFeatureGate } from '@/contexts/FeatureGateContext';
 import { complianceService } from '@/services/complianceService';
 import { departmentService } from '@/services/departmentService';
 import {
   ConsoleTile,
+  area,
   complianceDetail,
   countDetail,
   orderTiles,
@@ -37,59 +39,31 @@ export default function AdminConsolePage() {
   const [overdue, setOverdue] = useState(0);
   const [loading, setLoading] = useState(true);
   const { hasPermission } = useAuth();
+  const { isFeatureEnabled } = useFeatureGate();
 
   const load = useCallback(async () => {
     setLoading(true);
 
-    // Each source is read independently. One failure narrows its own tile to "could not be read"
-    // rather than emptying the console — an administration home that goes blank because one
-    // endpoint is down is worse than one that says which part it cannot see.
-    // A source is only read when this viewer may see the tile it feeds. An HR Manager has no
-    // business issuing a request to /api/admin/roles, and a 403 in the console would report as
-    // "could not be read" when the truth is "not yours to read".
+    // Only what this viewer may see is read. An HR manager has no business issuing a request to
+    // /api/admin/roles, and a 403 would report as "could not be read" when the truth is "not yours
+    // to read".
+    const may = (id: string) => {
+      const a = area(id);
+      return hasPermission(a.permission) && (!a.feature || isFeatureEnabled(a.feature));
+    };
     const skip = Promise.reject(new Error('not permitted'));
-    const [requests, departments, documents, roles, policies] = await Promise.allSettled([
-      hasPermission('manage_compliance')
-        ? complianceService.getAllDsars(undefined, 0, DSAR_SCAN) : skip,
-      hasPermission('manage_departments') ? departmentService.getAll() : skip,
-      hasPermission('manage_company_documents')
-        ? apiFetch('/api/company-documents/all').then((r) => (r.ok ? r.json() : Promise.reject()))
-        : skip,
-      hasPermission('manage_permissions')
-        ? apiFetch('/api/admin/roles').then((r) => (r.ok ? r.json() : Promise.reject())) : skip,
-      hasPermission('manage_company_documents')
-        ? apiFetch('/api/admin/retention-policies').then((r) => (r.ok ? r.json() : Promise.reject()))
-        : skip,
-    ]);
+    const get = (id: string, url: string) =>
+      may(id) ? apiFetch(url).then((r) => (r.ok ? r.json() : Promise.reject())) : skip;
 
-    const built: ConsoleTile[] = [];
-
-    if (requests.status === 'fulfilled') {
-      const page = requests.value;
-      const rows = Array.isArray(page?.content) ? page.content : [];
-      const total = typeof page?.totalElements === 'number' ? page.totalElements : rows.length;
-      const { detail, state } = complianceDetail(rows, total > DSAR_SCAN);
-      setOverdue(overdueRequests(rows).length);
-      built.push({
-        id: 'compliance',
-        permission: 'manage_compliance',
-        label: 'Compliance',
-        href: '/admin/compliance',
-        description: 'POPIA consents, data-subject requests and retention reminders',
-        detail,
-        state,
-      });
-    } else {
-      built.push({
-        id: 'compliance',
-        permission: 'manage_compliance',
-        label: 'Compliance',
-        href: '/admin/compliance',
-        description: 'POPIA consents, data-subject requests and retention reminders',
-        detail: null,
-        state: 'unknown',
-      });
-    }
+    const [requests, departments, documents, roles, policies, customFields] =
+      await Promise.allSettled([
+        may('compliance') ? complianceService.getAllDsars(undefined, 0, DSAR_SCAN) : skip,
+        may('departments') ? departmentService.getAll() : skip,
+        get('company-documents', '/api/company-documents/all'),
+        get('permissions', '/api/admin/roles'),
+        get('retention', '/api/admin/retention-policies'),
+        get('custom-fields', '/api/custom-fields'),
+      ]);
 
     const count = (result: PromiseSettledResult<unknown>): number | null => {
       if (result.status !== 'fulfilled') return null;
@@ -99,71 +73,37 @@ export default function AdminConsolePage() {
       return Array.isArray(content) ? content.length : null;
     };
 
-    const departmentCount = countDetail(count(departments), 'department', 'departments');
-    built.push({
-      id: 'departments',
-      permission: 'manage_departments',
-      label: 'Departments',
-      href: '/admin/departments',
-      description: 'The organisational units vacancies are raised against',
-      ...departmentCount,
-    });
+    const built: ConsoleTile[] = [];
 
-    const documentCount = countDetail(count(documents), 'document', 'documents');
-    built.push({
-      id: 'company-documents',
-      permission: 'manage_company_documents',
-      label: 'Company documents',
-      href: '/admin/company-documents',
-      description: 'Policies staff acknowledge',
-      ...documentCount,
-    });
+    if (requests.status === 'fulfilled') {
+      const page = requests.value;
+      const rows = Array.isArray(page?.content) ? page.content : [];
+      const total = typeof page?.totalElements === 'number' ? page.totalElements : rows.length;
+      setOverdue(overdueRequests(rows).length);
+      built.push({ ...area('compliance'), ...complianceDetail(rows, total > DSAR_SCAN) });
+    } else {
+      built.push({ ...area('compliance'), detail: null, state: 'unknown' });
+    }
 
-    const roleCount = countDetail(count(roles), 'role', 'roles');
-    built.push({
-      id: 'permissions',
-      permission: 'manage_permissions',
-      label: 'Role permissions',
-      href: '/admin/permissions',
-      description: 'What each role may see and do',
-      ...roleCount,
-    });
+    built.push({ ...area('departments'), ...countDetail(count(departments), 'department', 'departments') });
+    built.push({ ...area('company-documents'), ...countDetail(count(documents), 'document', 'documents') });
+    built.push({ ...area('permissions'), ...countDetail(count(roles), 'role', 'roles') });
+    built.push({ ...area('retention'), ...countDetail(count(policies), 'policy', 'policies') });
+    built.push({ ...area('custom-fields'), ...countDetail(count(customFields), 'field', 'fields') });
 
-    const policyCount = countDetail(count(policies), 'policy', 'policies');
-    built.push({
-      id: 'retention',
-      permission: 'manage_company_documents',
-      label: 'Document retention',
-      href: '/admin/document-retention',
-      description: 'How long each document type is kept before disposal',
-      ...policyCount,
-    });
+    // Three areas carry no figure by design. The audit log's size says nothing about whether
+    // anything is wrong, and branding and templates are either set up or they are not — none is
+    // worth a request this page would not otherwise make.
+    built.push({ ...area('audit-logs'), detail: null, state: 'settled' });
+    built.push({ ...area('document-templates'), detail: null, state: 'settled' });
+    built.push({ ...area('branding'), detail: null, state: 'settled' });
 
-    // Two areas carry no figure by design. The audit log's size says nothing about whether
-    // anything is wrong, and branding is either set or it is not — neither is worth a request.
-    built.push({
-      id: 'audit-logs',
-      permission: 'view_audit_logs',
-      label: 'Audit log',
-      href: '/admin/audit-logs',
-      description: 'Every recorded action, append-only',
-      detail: null,
-      state: 'settled',
-    });
-    built.push({
-      id: 'branding',
-      permission: 'manage_permissions',
-      label: 'Branding',
-      href: '/admin/branding',
-      description: 'Logo and colours applied across the tenant',
-      detail: null,
-      state: 'settled',
-    });
-
-    // Filtered last, so a tile's figure is never computed for somebody who will not see it.
-    setTiles(orderTiles(built.filter((tile) => hasPermission(tile.permission))));
+    // Filtered on both gates, the same two the sidebar entries applied before this console
+    // replaced them. A tile is a door, and a door to a page this tenant does not license — or this
+    // person may not open — is worse than no tile.
+    setTiles(orderTiles(built.filter((tile) => may(tile.id))));
     setLoading(false);
-  }, [hasPermission]);
+  }, [hasPermission, isFeatureEnabled]);
 
   useEffect(() => {
     void load();

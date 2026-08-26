@@ -187,22 +187,17 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'report-export', label: 'Standard extracts', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT', allowedRoles: ['ADMIN', 'HR_MANAGER'] },
 
   // Administration
-  // The front door. Seventeen admin pages existed and none of them was one — and administration
-  // is the area where the useful question is "is anything wrong", which no individual page answers.
+  // The only administration entry. Nine individual ones sat beside it, listing the same pages the
+  // console already tiles — and the sidebar cannot say which of them needs attention, which is the
+  // question this area is opened with. The console can, and orders them by it.
+  //
+  // Every page they led to has a tile, so nothing became unreachable. The reachability test proves
+  // that rather than trusting it.
   // Not gated on manage_permissions, which is ADMIN-only: four of the seven areas this console
   // gathers — departments, compliance, company documents and retention — are reachable by an
   // HR_MANAGER too, and the DSAR breach count is most relevant to whoever owns compliance. Each
   // tile still respects its own permission, so the two roles see different consoles.
   { id: 'admin-console', label: 'Administration', href: '/admin', icon: Cog6ToothIcon, section: 'administration', requiredPermissions: ['view_admin_console'] },
-  { id: 'permissions', label: 'Role Permissions', href: '/admin/permissions', icon: ShieldCheckIcon, section: 'administration', requiredPermissions: ['manage_permissions'] },
-  { id: 'audit-logs', label: 'Audit Logs', href: '/admin/audit-logs', icon: ClipboardDocumentListIcon, section: 'administration', requiredPermissions: ['view_audit_logs'] },
-  { id: 'departments', label: 'Departments', href: '/admin/departments', icon: BuildingOfficeIcon, section: 'administration', requiredPermissions: ['manage_departments'] },
-  { id: 'compliance', label: 'Compliance', href: '/admin/compliance', icon: ExclamationTriangleIcon, section: 'administration', requiredPermissions: ['manage_compliance'], requiredFeature: 'POPIA_COMPLIANCE' },
-  { id: 'branding', label: 'Branding', href: '/admin/branding', icon: SwatchIcon, section: 'administration', requiredPermissions: ['manage_permissions'], requiredFeature: 'CUSTOM_BRANDING' },
-  { id: 'document-templates', label: 'Document Templates', href: '/admin/document-templates', icon: DocumentDuplicateIcon, section: 'administration', requiredPermissions: ['manage_permissions'], requiredFeature: 'DOCUMENT_TEMPLATES' },
-  { id: 'company-documents-admin', label: 'Company Documents', href: '/admin/company-documents', icon: FolderIcon, section: 'administration', requiredPermissions: ['manage_company_documents'], requiredFeature: 'COMPANY_DOCUMENTS' },
-  { id: 'document-retention', label: 'Document Retention', href: '/admin/document-retention', icon: ClockIcon, section: 'administration', requiredPermissions: ['manage_company_documents'], requiredFeature: 'DOCUMENT_RETENTION' },
-  { id: 'custom-fields', label: 'Custom Fields', href: '/settings/custom-fields', icon: AdjustmentsHorizontalIcon, section: 'administration', requiredPermissions: ['custom_fields:manage'] },
 
   // Integrations (moved from system + workflow)
   { id: 'integrations', label: 'Integrations', href: '/integrations', icon: GlobeAltIcon, section: 'integrations', requiredPermissions: ['manage_integrations'] },

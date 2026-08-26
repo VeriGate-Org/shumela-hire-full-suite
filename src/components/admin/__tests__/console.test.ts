@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {
+  ADMIN_AREAS,
   ConsoleTile,
   OMITTED,
   complianceDetail,
@@ -171,17 +172,25 @@ describe('the console is offered to both roles that can use it', () => {
 
   it('shows each role only the areas it can reach', () => {
     // An HR Manager seeing a Role Permissions tile would be sent to a refusal.
+    expect(read('app', '(app)', 'admin', 'page.tsx')).toContain('built.filter((tile) => may(tile.id))');
+  });
+
+  it('applies the feature gate as well as the permission', () => {
+    // The sidebar entries these tiles replaced were feature-gated. Without carrying that across, a
+    // tenant that does not license POPIA compliance or document retention would be shown a door to
+    // a page it had never had an entry for.
     const page = read('app', '(app)', 'admin', 'page.tsx');
 
-    expect(page).toContain('hasPermission(tile.permission)');
+    expect(page).toContain('isFeatureEnabled(a.feature)');
+    expect(ADMIN_AREAS.filter((a) => a.feature).length).toBeGreaterThanOrEqual(5);
   });
 
   it('does not request what the viewer may not see', () => {
     // A 403 here would report as "could not be read" when the truth is "not yours to read".
     const page = read('app', '(app)', 'admin', 'page.tsx');
 
-    expect(page).toContain("hasPermission('manage_permissions')");
-    expect(page).toContain("hasPermission('manage_compliance')");
+    expect(page).toContain("may('compliance') ?");
+    expect(page).toContain('may(id) ? apiFetch(url)');
   });
 });
 

@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { navigationRegistry } from '@/config/navigationRegistry';
+import { ADMIN_AREAS } from '@/components/admin/console';
 import { rolePermissions } from '@/config/permissions';
 import type { UserRole } from '@/contexts/AuthContext';
 
@@ -12,19 +13,33 @@ function rolesWithPermissions(requiredPermissions: string[]): UserRole[] {
   );
 }
 
+/**
+ * Roles who can reach a route, whether it is offered by the sidebar or by the admin console.
+ *
+ * <p>Nine administration entries were removed from the sidebar in favour of the console, which
+ * tiles the same pages. The alignment between who is offered a route and what the backend permits
+ * has to follow the areas rather than disappear with the entries — so an id is looked up in both
+ * places.
+ */
 function expectNavRoles(navId: string, expected: UserRole[]) {
   const entry = navigationRegistry.find((item) => item.id === navId);
-  expect(entry).toBeDefined();
+  const tile = ADMIN_AREAS.find((a) => a.id === navId);
+  expect(entry ?? tile).toBeDefined();
 
-  let actual = rolesWithPermissions(entry!.requiredPermissions);
+  if (!entry) {
+    expect(rolesWithPermissions([tile!.permission]).sort()).toEqual([...expected].sort());
+    return;
+  }
+
+  let actual = rolesWithPermissions(entry.requiredPermissions);
   // allowedRoles is a UI-only allow-list on top of the permission check —
   // e.g. talent-pools/agencies share view_applicants with 'applicants' but
   // are deliberately pinned to a narrower role set so that granting a role
   // view_applicants for Applicants' sake doesn't silently also unlock
   // these two. Without this, the test would only ever see the permission
   // side and miss that narrowing entirely.
-  if (entry!.allowedRoles) {
-    const allowed = new Set(entry!.allowedRoles);
+  if (entry.allowedRoles) {
+    const allowed = new Set(entry.allowedRoles);
     actual = actual.filter((role) => allowed.has(role));
   }
   actual = actual.sort();
