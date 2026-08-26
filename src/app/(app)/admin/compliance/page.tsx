@@ -362,7 +362,7 @@ function DsarTable({ dsarStats }: { dsarStats: Record<string, any> }) {
   const typeBadgeConfig: Record<string, string> = {
     access: 'bg-icon-bg-navy text-primary',
     deletion: 'bg-icon-bg-pink text-accent-pink',
-    rectification: 'bg-icon-bg-gold text-accent-gold',
+    rectification: 'bg-icon-bg-gold text-accent-gold-on-tint',
     portability: 'bg-icon-bg-teal text-accent-teal',
   };
 

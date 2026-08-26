@@ -146,7 +146,7 @@ export default function AdminPermissionsPage() {
       blue: 'bg-icon-bg-navy text-accent-navy',
       green: 'bg-icon-bg-teal text-accent-teal',
       purple: 'bg-icon-bg-navy text-accent-navy',
-      yellow: 'bg-icon-bg-gold text-accent-gold',
+      yellow: 'bg-icon-bg-gold text-accent-gold-on-tint',
       gray: 'bg-icon-bg-navy text-accent-navy',
     };
     return styles[color] || styles.gray;
@@ -435,7 +435,7 @@ export default function AdminPermissionsPage() {
           </div>
 
           <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
               <KeyIcon className="w-6 h-6" />
             </div>
             <div>
@@ -532,7 +532,7 @@ export default function AdminPermissionsPage() {
                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-button text-xs font-semibold tracking-wide ${
                     role.isSystem
                       ? 'bg-surface-navy text-accent-navy'
-                      : 'bg-surface-gold text-accent-gold'
+                      : 'bg-surface-gold text-accent-gold-on-tint'
                   }`}>
                     {role.isSystem && <LockClosedIcon className="w-3 h-3" />}
                     {role.isSystem ? 'System' : 'Custom'}
@@ -697,7 +697,7 @@ export default function AdminPermissionsPage() {
                                   : userRole.color === 'green'
                                     ? 'bg-surface-teal text-accent-teal'
                                     : userRole.color === 'yellow'
-                                      ? 'bg-surface-gold text-accent-gold'
+                                      ? 'bg-surface-gold text-accent-gold-on-tint'
                                       : userRole.color === 'red'
                                         ? 'bg-surface-pink text-accent-pink'
                                         : 'bg-surface-navy text-accent-navy'

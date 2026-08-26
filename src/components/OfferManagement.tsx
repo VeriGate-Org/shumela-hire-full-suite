@@ -164,7 +164,7 @@ const SALARY_FREQUENCIES = ['ANNUALLY', 'MONTHLY', 'HOURLY'];
 const AVATAR_COLORS = [
   { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
   { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
-  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold' },
+  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
   { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
 ];
 
@@ -203,7 +203,7 @@ function getStatusBadge(status: string): { className: string; label: string } {
     case 'SIGNED':
       return { className: 'bg-icon-bg-teal text-accent-teal', label: 'Signed' };
     case 'UNDER_NEGOTIATION':
-      return { className: 'bg-icon-bg-gold text-accent-gold', label: 'Negotiating' };
+      return { className: 'bg-icon-bg-gold text-accent-gold-on-tint', label: 'Negotiating' };
     case 'ACCEPTED':
       return { className: 'bg-success-bg text-emerald-800', label: 'Accepted' };
     case 'DECLINED':
@@ -1104,7 +1104,7 @@ export default function OfferManagement() {
                         </span>
                       )}
                       {offer.negotiationRounds > 0 && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[0.688rem] font-semibold bg-icon-bg-gold text-accent-gold border border-gold-200">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[0.688rem] font-semibold bg-icon-bg-gold text-accent-gold-on-tint border border-gold-200">
                           Round {offer.negotiationRounds}
                         </span>
                       )}
@@ -1127,7 +1127,7 @@ export default function OfferManagement() {
                       <div
                         className={`rounded-control px-3.5 py-2.5 mb-3.5 text-[0.813rem] ${
                           expiryTone(offer) === 'critical'
-                            ? 'bg-error-bg text-error'
+                            ? 'bg-error-bg text-error-on-tint'
                             : 'bg-warning-bg text-amber-800'
                         }`}
                       >
@@ -1310,7 +1310,7 @@ export default function OfferManagement() {
               </div>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-colors"
               >
                 <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -1529,7 +1529,7 @@ id="offer-notice"
               </h2>
               <button
                 onClick={() => setShowActionModal(false)}
-                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-colors"
               >
                 <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -1614,7 +1614,7 @@ id="offer-notice"
               <h2 className="text-lg font-bold text-foreground">Generate Offer Letter</h2>
               <button
                 onClick={() => { setShowLetterModal(false); setLetterOffer(null); }}
-                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-colors"
               >
                 <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -1696,7 +1696,7 @@ id="offer-notice"
               </div>
               <button
                 onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); setPayrollError(null); }}
-                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-colors"
               >
                 <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -1798,7 +1798,7 @@ id="offer-notice"
               <h2 className="text-lg font-bold text-foreground">Send for E-Signature</h2>
               <button
                 onClick={() => { setShowESignModal(false); setESignOffer(null); }}
-                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-colors"
               >
                 <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
                   <line x1="18" y1="6" x2="6" y2="18" />

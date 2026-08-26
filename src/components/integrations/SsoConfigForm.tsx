@@ -464,7 +464,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
                     </span>
                   </td>
                   <td className="px-6 py-3.5">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-bg text-success">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-bg text-success-on-tint">
                       Active
                     </span>
                   </td>

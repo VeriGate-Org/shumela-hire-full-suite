@@ -42,14 +42,14 @@ populated tables and charts are under-sampled. Dynamic (`[id]`) routes are not v
 
 ## Findings
 
-**2,389 failures across 136 of 150 routes** after the fixes in this branch.
+**2,089 failures across 137 of 151 routes** after the fixes described below.
 
 | Severity | Count |
 |---|---|
 | Invisible (<1.5:1) | 147 |
-| Severe (1.5–2.5:1) | 394 |
-| Poor (2.5–3:1) | 490 |
-| Below AA (3–4.5:1) | 1,358 |
+| Severe (1.5–2.5:1) | 375 |
+| Poor (2.5–3:1) | 492 |
+| Below AA (3–4.5:1) | 1,075 |
 
 117 distinct colour pairs, but only **eight mechanisms** produce them. Symptoms are not the unit of
 work; causes are.
@@ -59,11 +59,11 @@ work; causes are.
 | R8 | Inherited ink on a surface that changed under it | 938 | 129 | 1.08 |
 | R3 | Raw palette colour (`text-white`, `text-red-800`) on a token surface | 754 | 134 | 1.00 |
 | R2 | Hard-coded hex (`text-[#0F172A]`) — cannot follow the theme | 182 | 14 | 1.00 |
-| R7 | `muted-foreground` below AA on its own surface | 140 | 26 | 2.45 |
+| R7 | `muted-foreground` below AA on its own surface | ~~140~~ **1** | 1 | 2.45 |
 | R6 | Opacity applied to already-low-contrast ink | 126 | 30 | 1.50 |
 | R5 | Gold ink on a pale surface | 123 | 115 | 1.51 |
 | R9 | Other | 93 | 32 | 1.27 |
-| R4 | Status ink on its own tint (`success` on `success-bg`) | 33 | 7 | 1.93 |
+| R4 | Status ink on its own tint (`success` on `success-bg`) | ~~33~~ **17** | 4 | 3.76 |
 
 ### Two structural traps
 
@@ -92,7 +92,8 @@ Measured, not assumed — the audit was re-run after each change:
 |---|---|---|---|
 | Baseline | 2,616 | 163 | 54 |
 | After removing the double-flip | 2,627 | 147 | 38 |
-| After the gold fills | **2,389** | 147 | 38 |
+| After the gold fills | 2,389 | 147 | 38 |
+| After the five-token pass (R7 + R4) | **2,089** | 147 | 38 |
 
 Note the middle row: removing the double-flip **did not reduce the total**. It fixed the
 catastrophic cases, but most of those 161 failures were merely low-contrast greys, which survive
@@ -113,8 +114,29 @@ mechanisms cannot be done mechanically:
   it is used. Darkening the token fixes 140 failures at once and changes the look of the app, which
   is a design call.
 
-Highest value next, in order: **R7** (one token, 140 failures), then **R4** (four tokens, 33), then
-**R5** (gold wordmark on pale surfaces, 115 routes).
+**R7 and R4 are now done** — see the token pass below. Highest value next is **R5**, the gold
+wordmark on pale surfaces (121 failures, 116 routes), which is a brand decision rather than a bug.
+
+### The five-token pass
+
+`--muted-foreground` moved `#64748B` → `#617188` in light mode: three points per channel, visually
+indistinguishable, and it clears AA on all three surfaces it lands on (worst 4.54:1). That one
+token accounted for **140 failures**.
+
+Status inks got dedicated *on-tint* tokens rather than darkening the base hues, because
+`--success` and friends also colour dots, borders and chart fills where the bright hue is right and
+the 4.5:1 text rule does not apply:
+
+| token | light | on its tint |
+|---|---|---|
+| `--success-on-tint` | `#16813E` | 4.50 (was 2.07) |
+| `--warning-on-tint` | `#966107` | 4.70 (was 1.93) |
+| `--error-on-tint` | `#BF3636` | 4.51 (was 3.08) |
+| `--accent-gold-on-tint` | `#8A6D21` | 4.51 (was 2.05) |
+
+In dark mode the tints are already dark, so these alias the base hues rather than inventing a
+second set. 145 call sites were re-pointed — only where ink and tint are stated on the same
+element, so nothing is inferred.
 
 ## Regression guard
 

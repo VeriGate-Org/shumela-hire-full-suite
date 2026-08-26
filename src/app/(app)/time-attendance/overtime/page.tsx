@@ -239,7 +239,7 @@ export default function OvertimePage() {
             <div className="enterprise-card overflow-hidden">
               <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                 <h2 className="text-lg font-bold text-foreground">Log Overtime</h2>
-                <button onClick={() => setShowForm(false)} className="w-9 h-9 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors">
+                <button onClick={() => setShowForm(false)} className="w-9 h-9 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-colors">
                   <XMarkIcon className="w-5 h-5" />
                 </button>
               </div>

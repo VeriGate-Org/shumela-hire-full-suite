@@ -278,7 +278,7 @@ export default function BrandingPage() {
                       handleLogoRemove();
                     }}
                     disabled={uploading}
-                    className="w-7 h-7 rounded-full flex items-center justify-center bg-error-bg text-error hover:bg-error hover:text-white transition-all duration-200 disabled:opacity-50 flex-shrink-0"
+                    className="w-7 h-7 rounded-full flex items-center justify-center bg-error-bg text-error-on-tint hover:bg-error hover:text-white transition-all duration-200 disabled:opacity-50 flex-shrink-0"
                     title="Remove file"
                   >
                     <TrashIcon className="w-3.5 h-3.5" />

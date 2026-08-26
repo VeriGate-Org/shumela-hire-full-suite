@@ -125,8 +125,8 @@ const DocumentTemplateList: React.FC<DocumentTemplateListProps> = ({ onEdit, onC
     CONTRACT: 'bg-surface-teal text-accent-teal',
     REJECTION_EMAIL: 'bg-surface-pink text-accent-pink',
     WELCOME_EMAIL: 'bg-surface-teal text-accent-teal',
-    NDA: 'bg-surface-gold text-accent-gold',
-    PROBATION_LETTER: 'bg-surface-gold text-accent-gold',
+    NDA: 'bg-surface-gold text-accent-gold-on-tint',
+    PROBATION_LETTER: 'bg-surface-gold text-accent-gold-on-tint',
     CONFIRMATION_LETTER: 'bg-surface-navy text-accent-navy',
   };
 
@@ -189,7 +189,7 @@ const DocumentTemplateList: React.FC<DocumentTemplateListProps> = ({ onEdit, onC
             </div>
           </div>
           <div className="enterprise-card flex items-center gap-4 p-5">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-gold text-accent-gold flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center shrink-0">
               <ClockIcon className="h-6 w-6" />
             </div>
             <div>
@@ -326,7 +326,7 @@ const DocumentTemplateList: React.FC<DocumentTemplateListProps> = ({ onEdit, onC
                             Archived
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-bg text-success">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-bg text-success-on-tint">
                             <span className="w-1.5 h-1.5 rounded-full bg-current" />
                             Active
                           </span>
@@ -374,7 +374,7 @@ const DocumentTemplateList: React.FC<DocumentTemplateListProps> = ({ onEdit, onC
                           </button>
                           <button
                             onClick={() => setDeleteTarget(t)}
-                            className="w-8 h-8 inline-flex items-center justify-center rounded-control border border-border bg-card text-muted-foreground hover:border-error hover:text-error hover:bg-error-bg transition-all"
+                            className="w-8 h-8 inline-flex items-center justify-center rounded-control border border-border bg-card text-muted-foreground hover:border-error hover:text-error-on-tint hover:bg-error-bg transition-all"
                             aria-label={`Delete template ${t.name}`}
                             title="Delete"
                           >

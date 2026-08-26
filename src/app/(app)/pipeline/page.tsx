@@ -90,7 +90,7 @@ const STAGE_GROUPS = [
     id: 'screening',
     displayName: 'Screening',
     order: 2,
-    color: 'bg-icon-bg-gold text-accent-gold border-border',
+    color: 'bg-icon-bg-gold text-accent-gold-on-tint border-border',
     icon: EyeIcon,
     description: 'Resume and initial screening',
     backendStages: ['INITIAL_SCREENING', 'PHONE_SCREENING'],
@@ -1008,7 +1008,7 @@ export default function PipelinePage() {
           {[
             { icon: UserGroupIcon, label: 'Total Candidates', value: pipelineMetrics.totalApplications, iconColor: 'text-accent-navy', iconBg: 'bg-icon-bg-navy' },
             { icon: ClockIcon, label: 'Avg Time in Pipeline', value: `${pipelineMetrics.averageTimeToHire}d`, iconColor: 'text-accent-teal', iconBg: 'bg-icon-bg-teal' },
-            { icon: ChartBarIcon, label: 'Conversion Rate', value: `${pipelineMetrics.conversionRate}%`, iconColor: 'text-accent-gold', iconBg: 'bg-icon-bg-gold' },
+            { icon: ChartBarIcon, label: 'Conversion Rate', value: `${pipelineMetrics.conversionRate}%`, iconColor: 'text-accent-gold-on-tint', iconBg: 'bg-icon-bg-gold' },
             { icon: CheckCircleIcon, label: 'Active Applications', value: pipelineMetrics.activeApplications, iconColor: 'text-accent-pink', iconBg: 'bg-icon-bg-pink' },
           ].map((metric) => (
             <div key={metric.label} className="enterprise-card p-5 hover:-translate-y-px transition-all">
@@ -1188,7 +1188,7 @@ export default function PipelinePage() {
             applied: 'bg-icon-bg-navy text-accent-navy',
             screening: 'bg-violet-100 text-violet-600',
             interviews: 'bg-sky-100 text-sky-500',
-            checks: 'bg-icon-bg-gold text-accent-gold',
+            checks: 'bg-icon-bg-gold text-accent-gold-on-tint',
             offer: 'bg-orange-100 text-orange-500',
             accepted: 'bg-green-100 text-green-600',
             hired: 'bg-green-100 text-green-600',
@@ -1416,7 +1416,7 @@ export default function PipelinePage() {
             applied: 'bg-surface-navy text-primary',
             screening: 'bg-violet-100 text-violet-600',
             interviews: 'bg-sky-100 text-sky-500',
-            checks: 'bg-surface-gold text-accent-gold',
+            checks: 'bg-surface-gold text-accent-gold-on-tint',
             offer: 'bg-orange-100 text-orange-500',
             accepted: 'bg-green-100 text-green-600',
             hired: 'bg-green-100 text-green-600',
@@ -1456,7 +1456,7 @@ export default function PipelinePage() {
                     const currentStageGroup = STAGE_GROUPS.find(s => s.id === application.currentStage);
                     const avatarBg = avatarColors[rowIdx % avatarColors.length];
                     const progressScore = Math.round(application.progress);
-                    const scoreClass = progressScore >= 80 ? 'bg-surface-teal text-accent-teal' : progressScore >= 60 ? 'bg-surface-gold text-accent-gold' : 'bg-surface-pink text-accent-pink';
+                    const scoreClass = progressScore >= 80 ? 'bg-surface-teal text-accent-teal' : progressScore >= 60 ? 'bg-surface-gold text-accent-gold-on-tint' : 'bg-surface-pink text-accent-pink';
 
                     return (
                       <tr

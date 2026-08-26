@@ -177,7 +177,7 @@ export default function ShiftSchedulingPage() {
     if (hex === '#047469' || hex === '#008c7f' || hex.includes('047469') || hex.includes('teal'))
       return 'bg-surface-teal text-accent-teal border border-icon-bg-teal';
     if (hex === '#d4a832' || hex === '#f1c54b' || hex.includes('d4a8') || hex.includes('gold') || hex.includes('f59e'))
-      return 'bg-surface-gold text-accent-gold border border-icon-bg-gold';
+      return 'bg-surface-gold text-accent-gold-on-tint border border-icon-bg-gold';
     if (hex === '#05527e' || hex.includes('0552') || hex.includes('navy'))
       return 'bg-surface-navy text-accent-navy border border-icon-bg-navy';
     if (hex === '#d63050' || hex.includes('d630') || hex.includes('pink') || hex.includes('ef44'))
@@ -224,7 +224,7 @@ export default function ShiftSchedulingPage() {
 
             {/* Unassigned */}
             <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center">
+              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
                 <ExclamationCircleIcon className="w-6 h-6" />
               </div>
               <div>

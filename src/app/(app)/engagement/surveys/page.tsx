@@ -315,7 +315,7 @@ export default function SurveysPage() {
                                   Activate
                                 </button>
                                 <button onClick={() => handleDelete(survey.id)} title="Delete"
-                                  className="p-1.5 rounded-full text-muted-foreground hover:bg-error-bg hover:text-destructive transition-colors">
+                                  className="p-1.5 rounded-full text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-colors">
                                   <TrashIcon className="h-4 w-4" />
                                 </button>
                               </>
@@ -323,7 +323,7 @@ export default function SurveysPage() {
                             {survey.status === 'ACTIVE' && (
                               <>
                                 <button onClick={() => handleClose(survey.id)} title="Close Survey"
-                                  className="p-1.5 rounded-full text-muted-foreground hover:bg-warning-bg hover:text-warning transition-colors">
+                                  className="p-1.5 rounded-full text-muted-foreground hover:bg-warning-bg hover:text-warning-on-tint transition-colors">
                                   <StopIcon className="h-4 w-4" />
                                 </button>
                                 <Link href={`/engagement/surveys/${survey.id}/results`} title="View Results"

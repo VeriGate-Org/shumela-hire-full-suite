@@ -94,7 +94,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 const ICON_COLOR_CYCLE = [
   { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
   { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
-  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold' },
+  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
   { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
 ] as const;
 

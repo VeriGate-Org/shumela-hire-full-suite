@@ -260,7 +260,7 @@ export default function TimeAttendancePage() {
       >
         <div className="space-y-6">
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-error-bg border border-error/20 rounded-control text-sm text-error dark:bg-red-950/30 dark:border-red-800 dark:text-red-400">
+            <div className="flex items-center gap-2 p-3 bg-error-bg border border-error/20 rounded-control text-sm text-error-on-tint dark:bg-red-950/30 dark:border-red-800 dark:text-red-400">
               <ExclamationTriangleIcon className="w-5 h-5 flex-shrink-0" /> {error}
             </div>
           )}

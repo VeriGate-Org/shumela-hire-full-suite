@@ -397,7 +397,7 @@ export default function EmployeePortalPage() {
   const quickActions = [
     { label: 'Request Leave', href: '/leave/request', icon: CalendarDaysIcon, iconBg: 'bg-icon-bg-navy', iconColor: 'text-accent-navy' },
     { label: 'My Documents', href: '/employee/documents', icon: DocumentTextIcon, iconBg: 'bg-icon-bg-teal', iconColor: 'text-accent-teal' },
-    { label: 'Internal Jobs', href: '/internal/jobs', icon: BriefcaseIcon, iconBg: 'bg-icon-bg-gold', iconColor: 'text-accent-gold' },
+    { label: 'Internal Jobs', href: '/internal/jobs', icon: BriefcaseIcon, iconBg: 'bg-icon-bg-gold', iconColor: 'text-accent-gold-on-tint' },
     { label: 'Training Courses', href: '/training/courses', icon: AcademicCapIcon, iconBg: 'bg-icon-bg-navy', iconColor: 'text-accent-navy' },
     { label: 'Give Recognition', href: '/engagement/recognition/give', icon: HandThumbUpIcon, iconBg: 'bg-icon-bg-teal', iconColor: 'text-accent-teal' },
     { label: 'Edit Profile', href: '/employee/profile/edit', icon: PencilSquareIcon, iconBg: 'bg-icon-bg-pink', iconColor: 'text-accent-pink' },
@@ -737,7 +737,7 @@ export default function EmployeePortalPage() {
               {/* D. Quick Actions */}
               <div className="enterprise-card p-6">
                 <div className="flex items-center gap-2.5 mb-5">
-                  <div className="w-8 h-8 rounded-control bg-icon-bg-gold text-accent-gold flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-control bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
                     <LightBulbIcon className="w-[18px] h-[18px]" />
                   </div>
                   <span className="text-base font-bold text-foreground">Quick Actions</span>
@@ -915,7 +915,7 @@ export default function EmployeePortalPage() {
               <div className="enterprise-card p-6">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-control bg-icon-bg-gold text-accent-gold flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-control bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
                       <BriefcaseIcon className="w-[18px] h-[18px]" />
                     </div>
                     <span className="text-base font-bold text-foreground">Career Opportunities</span>
@@ -964,13 +964,13 @@ export default function EmployeePortalPage() {
                 <div className="enterprise-card p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-control bg-icon-bg-gold text-accent-gold flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-control bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
                         <StarIcon className="w-[18px] h-[18px]" />
                       </div>
                       <span className="text-base font-bold text-foreground">Recognition</span>
                     </div>
                     {totalPoints > 0 && (
-                      <span className="text-xs font-medium text-accent-gold bg-surface-gold px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <span className="text-xs font-medium text-accent-gold-on-tint bg-surface-gold px-2.5 py-1 rounded-full flex items-center gap-1">
                         <StarIcon className="w-3 h-3" />
                         {totalPoints} pts
                       </span>
@@ -983,7 +983,7 @@ export default function EmployeePortalPage() {
                     <div className="flex flex-col gap-4">
                       {recognitions.map((rec, idx) => {
                         const iconColorClasses = [
-                          { bg: 'bg-icon-bg-gold', text: 'text-accent-gold' },
+                          { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
                           { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
                           { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
                         ];

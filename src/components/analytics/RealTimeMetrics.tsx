@@ -199,7 +199,7 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
             onClick={toggleLiveUpdates}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-button text-sm font-semibold transition-colors ${
               isLive
-                ? 'bg-success-bg text-success hover:opacity-80'
+                ? 'bg-success-bg text-success-on-tint hover:opacity-80'
                 : 'bg-background text-muted-foreground hover:opacity-80'
             }`}
           >
@@ -230,8 +230,8 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
                     {change.direction !== 'neutral' && (
                       <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-button text-xs font-bold ${
                         change.direction === 'up'
-                          ? 'text-success bg-success-bg'
-                          : 'text-error bg-error-bg'
+                          ? 'text-success-on-tint bg-success-bg'
+                          : 'text-error-on-tint bg-error-bg'
                       }`}>
                         {change.direction === 'up' ? (
                           <ArrowTrendingUpIcon className="w-3 h-3" />

@@ -153,9 +153,9 @@ export default function TrainingPage() {
     const baseClasses = "px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider";
     switch (status) {
       case 'completed':
-        return `${baseClasses} bg-success-bg text-success`;
+        return `${baseClasses} bg-success-bg text-success-on-tint`;
       case 'in-progress':
-        return `${baseClasses} bg-warning-bg text-warning`;
+        return `${baseClasses} bg-warning-bg text-warning-on-tint`;
       default:
         return `${baseClasses} bg-muted text-muted-foreground`;
     }
@@ -184,7 +184,7 @@ export default function TrainingPage() {
       case 'leadership':
         return `${base} bg-icon-bg-teal text-accent-teal`;
       case 'compliance':
-        return `${base} bg-icon-bg-gold text-accent-gold`;
+        return `${base} bg-icon-bg-gold text-accent-gold-on-tint`;
       case 'diversity':
       case 'interviewing':
         return `${base} bg-icon-bg-pink text-accent-pink`;
@@ -280,7 +280,7 @@ export default function TrainingPage() {
             </div>
 
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-icon-bg-gold text-accent-gold">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-icon-bg-gold text-accent-gold-on-tint">
                 <TrophyIcon className="w-6 h-6" />
               </div>
               <div>
@@ -575,7 +575,7 @@ export default function TrainingPage() {
                                 {module.dueDate ? new Date(module.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '--'}
                               </td>
                               <td className="px-5 py-3.5">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-bg text-success">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-bg text-success-on-tint">
                                   {module.rating >= 4.5 ? '92%' : module.rating >= 4 ? '85%' : '78%'}
                                 </span>
                               </td>
@@ -621,7 +621,7 @@ export default function TrainingPage() {
                     systems: 'bg-icon-bg-navy text-accent-navy',
                     recruitment: 'bg-icon-bg-navy text-accent-navy',
                     interviewing: 'bg-icon-bg-pink text-accent-pink',
-                    compliance: 'bg-icon-bg-gold text-accent-gold',
+                    compliance: 'bg-icon-bg-gold text-accent-gold-on-tint',
                     diversity: 'bg-icon-bg-teal text-accent-teal',
                     leadership: 'bg-icon-bg-teal text-accent-teal',
                   };
@@ -647,8 +647,8 @@ export default function TrainingPage() {
                         {/* Status badge */}
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.6875rem] font-bold uppercase tracking-wider ${
                           certStatus === 'valid'
-                            ? 'bg-success-bg text-success'
-                            : 'bg-warning-bg text-warning'
+                            ? 'bg-success-bg text-success-on-tint'
+                            : 'bg-warning-bg text-warning-on-tint'
                         }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${certStatus === 'valid' ? 'bg-success' : 'bg-warning'}`} />
                           {certStatus === 'valid' ? 'Completed' : 'Pending'}

@@ -15,7 +15,7 @@
   --secondary: #F8FAFC;
   --secondary-foreground: #0F172A;
   --muted: #F8FAFC;
-  --muted-foreground: #64748B;
+  --muted-foreground: #617188;
   --accent: #F8FAFC;
   --accent-foreground: #0F172A;
   --destructive: #EF4444;
@@ -31,6 +31,14 @@
   --success-bg: #DCFCE7;
   --warning: #F59E0B;
   --warning-bg: #FEF3C7;
+
+  /* Ink for text on a status TINT (--success-bg and friends). The base hues above are 2.0-3.1:1
+     on their own tints — fine for a dot or a border, unreadable as a label. Kept separate so
+     darkening the label does not dull every chart fill that shares the token. */
+  --success-on-tint: #16813E;
+  --warning-on-tint: #966107;
+  --error-on-tint: #BF3636;
+  --accent-gold-on-tint: #8A6D21;
 
   /* Sidebar */
   --sidebar-bg: #0B1929;
@@ -180,6 +188,11 @@
   --success-bg: #0D3D2A;
   --warning: #FBBF24;
   --warning-bg: #3D2E0A;
+
+  --success-on-tint: var(--success);
+  --warning-on-tint: var(--warning);
+  --error-on-tint: var(--error);
+  --accent-gold-on-tint: var(--accent-gold);
 
   --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.3), 0 2px 5px rgba(0, 0, 0, 0.2);

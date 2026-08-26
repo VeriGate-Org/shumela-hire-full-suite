@@ -392,7 +392,7 @@ export default function EmployeeDocumentsPage() {
     if (t.includes('qualification') || t.includes('degree') || t.includes('diploma'))
       return 'bg-icon-bg-teal text-accent-teal';
     if (t.includes('certificate') || t.includes('cert'))
-      return 'bg-icon-bg-gold text-accent-gold';
+      return 'bg-icon-bg-gold text-accent-gold-on-tint';
     if (t.includes('contract') || t.includes('agreement'))
       return 'bg-purple-100 text-purple-700';
     if (t.includes('medical') || t.includes('health'))
@@ -583,7 +583,7 @@ export default function EmployeeDocumentsPage() {
                 <ArrowDownTrayIcon className="w-4 h-4" /> Download ZIP
               </button>
               <button onClick={() => setShowDeleteConfirm(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold text-destructive bg-error-bg rounded-button hover:bg-red-200 transition-colors">
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold text-error-on-tint bg-error-bg rounded-button hover:bg-red-200 transition-colors">
                 <TrashIcon className="w-4 h-4" /> Delete
               </button>
               <button onClick={() => setSelectedIds(new Set())}
@@ -621,7 +621,7 @@ export default function EmployeeDocumentsPage() {
                 onClick={() => setStatusFilter(statusFilter === 'expiring' ? 'all' : 'expiring')}
                 className={`enterprise-card flex items-center gap-4 p-5 text-left transition-all hover:-translate-y-px border-l-[3px] border-l-warning ${statusFilter === 'expiring' ? 'ring-2 ring-warning' : ''}`}
               >
-                <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
                   <ExclamationTriangleIcon className="w-6 h-6" />
                 </div>
                 <div>
@@ -985,9 +985,9 @@ export default function EmployeeDocumentsPage() {
                           {/* Status */}
                           <td className="px-4 py-3 align-middle">
                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-button text-[0.6875rem] font-semibold ${
-                              expiryStatus === 'expired' ? 'bg-error-bg text-destructive' :
-                              expiryStatus === 'expiring' ? 'bg-warning-bg text-warning' :
-                              'bg-success-bg text-success'
+                              expiryStatus === 'expired' ? 'bg-error-bg text-error-on-tint' :
+                              expiryStatus === 'expiring' ? 'bg-warning-bg text-warning-on-tint' :
+                              'bg-success-bg text-success-on-tint'
                             }`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${
                                 expiryStatus === 'expired' ? 'bg-destructive' :

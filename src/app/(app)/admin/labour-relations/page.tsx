@@ -149,7 +149,7 @@ export default function LabourRelationsDashboardPage() {
                   <h2 className="text-lg font-bold text-foreground">AI Case Analysis</h2>
                   <button
                     onClick={() => setShowCaseModal(false)}
-                    className="w-9 h-9 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-all duration-200"
+                    className="w-9 h-9 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-all duration-200"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
@@ -471,7 +471,7 @@ export default function LabourRelationsDashboardPage() {
                                 </div>
                               </div>
                               <div className="flex items-center gap-2 shrink-0">
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-button text-xs font-semibold bg-icon-bg-gold text-accent-gold">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-button text-xs font-semibold bg-icon-bg-gold text-accent-gold-on-tint">
                                   <span className="w-1.5 h-1.5 rounded-full bg-warning" />
                                   Hearing
                                 </span>

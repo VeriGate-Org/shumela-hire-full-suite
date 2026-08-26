@@ -189,7 +189,7 @@ const RecruiterDashboard: React.FC = () => {
             {needsAttention.map((item) => (
               <span
                 key={item.key}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-gold text-accent-gold text-xs font-semibold"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-gold text-accent-gold-on-tint text-xs font-semibold"
               >
                 {item.label}
                 <b className="tabular-nums">{item.count}</b>

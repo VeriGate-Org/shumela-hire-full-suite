@@ -90,7 +90,7 @@ export function DestructiveAction(props: React.ButtonHTMLAttributes<HTMLButtonEl
     <button
       type="button"
       {...rest}
-      className={`rounded-full border border-error/40 bg-transparent px-[18px] py-2.5 text-xs font-extrabold uppercase tracking-[0.07em] text-error transition-colors hover:bg-error-bg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`rounded-full border border-error/40 bg-transparent px-[18px] py-2.5 text-xs font-extrabold uppercase tracking-[0.07em] text-error-on-tint transition-colors hover:bg-error-bg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     />
   );
 }

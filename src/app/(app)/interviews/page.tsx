@@ -615,11 +615,11 @@ export default function InterviewsPage() {
                               <span
                                 className={`inline-flex items-center px-2.5 py-1 rounded-full text-[0.6875rem] font-semibold ${
                                   state === 'awaiting-write-up'
-                                    ? 'bg-error-bg text-error'
+                                    ? 'bg-error-bg text-error-on-tint'
                                     : state === 'slot-passed'
-                                      ? 'bg-warning-bg text-warning'
+                                      ? 'bg-warning-bg text-warning-on-tint'
                                       : state === 'written-up'
-                                        ? 'bg-success-bg text-success'
+                                        ? 'bg-success-bg text-success-on-tint'
                                         : 'bg-muted/40 text-muted-foreground'
                                 }`}
                               >

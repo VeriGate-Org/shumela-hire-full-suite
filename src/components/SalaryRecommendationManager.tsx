@@ -248,7 +248,7 @@ export default function SalaryRecommendationManager() {
     if (canReturn(rec as unknown as RecommendationRow)) {
       actions.push(
         <button key="return" onClick={() => setShowReturnModal({ id: rec.id })} disabled={isLoading}
-          className="text-xs px-2 py-1 bg-surface-gold text-accent-gold border border-border rounded-control hover:opacity-80 disabled:opacity-50">
+          className="text-xs px-2 py-1 bg-surface-gold text-accent-gold-on-tint border border-border rounded-control hover:opacity-80 disabled:opacity-50">
           Return
         </button>
       );

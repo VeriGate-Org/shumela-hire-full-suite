@@ -33,7 +33,7 @@ type TabFilter = 'all' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE';
 const AVATAR_PALETTE = [
   { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
   { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
-  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold' },
+  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
   { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
 ];
 
@@ -299,7 +299,7 @@ export default function OnboardingChecklistsPage() {
 
               {/* Avg Days to Complete */}
               <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-gold text-accent-gold flex items-center justify-center">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
                   <ClockIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div>
@@ -579,7 +579,7 @@ export default function OnboardingChecklistsPage() {
                       setShowNewForm(false);
                       setNewForm({ employeeId: '', templateId: '' });
                     }}
-                    className="w-9 h-9 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+                    className="w-9 h-9 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-colors"
                   >
                     <XMarkIcon className="w-[18px] h-[18px]" />
                   </button>

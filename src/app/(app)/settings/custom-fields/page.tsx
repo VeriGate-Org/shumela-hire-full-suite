@@ -48,7 +48,7 @@ const ENTITY_ICONS: Record<EntityType, React.ComponentType<React.SVGProps<SVGSVG
 const TYPE_BADGE_CLASSES: Record<string, string> = {
   TEXT: 'bg-surface-navy text-accent-navy',
   NUMBER: 'bg-surface-teal text-accent-teal',
-  DATE: 'bg-surface-gold text-accent-gold',
+  DATE: 'bg-surface-gold text-accent-gold-on-tint',
   SELECT: 'bg-surface-pink text-accent-pink',
   BOOLEAN: 'bg-surface-teal text-accent-teal',
   TEXTAREA: 'bg-surface-navy text-accent-navy',
@@ -57,7 +57,7 @@ const TYPE_BADGE_CLASSES: Record<string, string> = {
 /* ===== Field icon color map ===== */
 const FIELD_ICON_CLASSES: Record<string, string> = {
   TEXT: 'bg-icon-bg-navy text-accent-navy',
-  NUMBER: 'bg-icon-bg-gold text-accent-gold',
+  NUMBER: 'bg-icon-bg-gold text-accent-gold-on-tint',
   DATE: 'bg-icon-bg-teal text-accent-teal',
   SELECT: 'bg-icon-bg-pink text-accent-pink',
   BOOLEAN: 'bg-icon-bg-teal text-accent-teal',
@@ -109,7 +109,7 @@ function StatCard({
   const iconBgMap = {
     navy: 'bg-icon-bg-navy text-accent-navy',
     teal: 'bg-icon-bg-teal text-accent-teal',
-    gold: 'bg-icon-bg-gold text-accent-gold',
+    gold: 'bg-icon-bg-gold text-accent-gold-on-tint',
     pink: 'bg-icon-bg-pink text-accent-pink',
   };
   return (

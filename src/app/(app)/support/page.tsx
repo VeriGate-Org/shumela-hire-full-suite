@@ -226,7 +226,7 @@ const KB_CATEGORIES: KBCategory[] = [
     key: 'email-calendar',
     title: 'Email & Calendar',
     articles: 5,
-    colorClass: 'bg-icon-bg-gold text-accent-gold',
+    colorClass: 'bg-icon-bg-gold text-accent-gold-on-tint',
     icon: (
       <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -289,7 +289,7 @@ function getStatusBadge(status: string, label: string) {
   const map: Record<string, string> = {
     open: 'bg-surface-navy text-accent-navy',
     'in-progress': 'bg-icon-bg-teal text-accent-teal',
-    resolved: 'bg-success-bg text-success',
+    resolved: 'bg-success-bg text-success-on-tint',
     closed: 'bg-background text-muted-foreground',
   };
   const dotMap: Record<string, string> = {
@@ -310,10 +310,10 @@ function getStatusBadge(status: string, label: string) {
 
 function getPriorityBadge(priority: string, label: string) {
   const map: Record<string, string> = {
-    low: 'bg-success-bg text-success',
-    medium: 'bg-warning-bg text-warning',
-    high: 'bg-error-bg text-error',
-    critical: 'bg-error-bg text-error',
+    low: 'bg-success-bg text-success-on-tint',
+    medium: 'bg-warning-bg text-warning-on-tint',
+    high: 'bg-error-bg text-error-on-tint',
+    critical: 'bg-error-bg text-error-on-tint',
   };
   const dotMap: Record<string, string> = {
     low: 'bg-success',
@@ -338,7 +338,7 @@ function getTimelineDotClass(type: TimelineEntry['type']) {
     case 'assigned':
       return 'bg-icon-bg-teal text-accent-teal';
     case 'comment':
-      return 'bg-icon-bg-gold text-accent-gold';
+      return 'bg-icon-bg-gold text-accent-gold-on-tint';
     default:
       return 'bg-muted text-muted-foreground';
   }
@@ -668,7 +668,7 @@ export default function SupportPage() {
 
           {/* Resolved This Month */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
               <CheckCircleIcon className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
@@ -1127,7 +1127,7 @@ export default function SupportPage() {
               <h2 className="text-lg font-bold text-foreground">Ticket Details</h2>
               <button
                 onClick={handleCloseDetail}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-colors"
               >
                 <XMarkIcon className="w-[18px] h-[18px]" />
               </button>

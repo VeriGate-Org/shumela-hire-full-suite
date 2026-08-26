@@ -121,8 +121,8 @@ export default function PipsPage() {
 
   const milestoneIconBg = (status: string) => {
     switch (status) {
-      case 'MET': return 'bg-success-bg text-success';
-      case 'MISSED': return 'bg-warning-bg text-warning';
+      case 'MET': return 'bg-success-bg text-success-on-tint';
+      case 'MISSED': return 'bg-warning-bg text-warning-on-tint';
       case 'PENDING':
       default: return 'bg-icon-bg-navy text-primary';
     }
@@ -159,7 +159,7 @@ export default function PipsPage() {
   // Avatar color rotation
   const avatarColors = [
     { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
-    { bg: 'bg-icon-bg-gold', text: 'text-accent-gold' },
+    { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
     { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
     { bg: 'bg-icon-bg-navy', text: 'text-primary' },
   ];
@@ -257,7 +257,7 @@ export default function PipsPage() {
                   <h2 className="text-lg font-bold text-foreground">Create Performance Improvement Plan</h2>
                   <button
                     onClick={() => setShowCreateForm(false)}
-                    className="w-9 h-9 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+                    className="w-9 h-9 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-colors"
                   >
                     <XMarkIcon className="w-[18px] h-[18px]" />
                   </button>
@@ -304,7 +304,7 @@ export default function PipsPage() {
                           <div key={i} className="relative bg-background border border-border rounded-control p-4">
                             {milestones.length > 1 && (
                               <button onClick={() => removeMilestone(i)}
-                                className="absolute top-3 right-3 w-7 h-7 rounded-full bg-error-bg text-error flex items-center justify-center hover:bg-error hover:text-white transition-colors"
+                                className="absolute top-3 right-3 w-7 h-7 rounded-full bg-error-bg text-error-on-tint flex items-center justify-center hover:bg-error hover:text-white transition-colors"
                               >
                                 <XMarkIcon className="w-3.5 h-3.5" />
                               </button>

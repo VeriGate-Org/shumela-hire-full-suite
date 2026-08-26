@@ -409,7 +409,7 @@ export default function TrainingAdminPage() {
                               <td className="px-4 py-3 text-[0.8125rem]">
                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.6875rem] font-semibold ${
                                   course.isActive
-                                    ? 'bg-success-bg text-success'
+                                    ? 'bg-success-bg text-success-on-tint'
                                     : 'bg-muted text-muted-foreground'
                                 }`}>
                                   <span className={`w-1.5 h-1.5 rounded-full ${course.isActive ? 'bg-success' : 'bg-muted-foreground'}`} />
@@ -432,7 +432,7 @@ export default function TrainingAdminPage() {
                                   </button>
                                   <button
                                     onClick={() => handleDeleteCourse(course.id)}
-                                    className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-destructive transition-all cursor-pointer"
+                                    className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-all cursor-pointer"
                                     title="Archive"
                                   >
                                     <TrashIcon className="w-4 h-4" />
@@ -619,8 +619,8 @@ export default function TrainingAdminPage() {
                                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.6875rem] font-semibold ${
                                     session.status === 'OPEN' ? 'bg-icon-bg-navy text-accent-navy' :
                                     session.status === 'PLANNED' ? 'bg-icon-bg-navy text-accent-navy' :
-                                    session.status === 'COMPLETED' ? 'bg-success-bg text-success' :
-                                    session.status === 'CANCELLED' ? 'bg-error-bg text-destructive' :
+                                    session.status === 'COMPLETED' ? 'bg-success-bg text-success-on-tint' :
+                                    session.status === 'CANCELLED' ? 'bg-error-bg text-error-on-tint' :
                                     'bg-muted text-muted-foreground'
                                   }`}>
                                     <span className={`w-1.5 h-1.5 rounded-full ${

@@ -669,14 +669,14 @@ export default function JobPostingsPage() {
                         <span
                           className={`inline-flex items-center gap-1 px-2.5 py-[3px] rounded-full text-[0.6875rem] font-bold uppercase tracking-wider ${
                             stateOf(jobPosting) === 'past-deadline'
-                              ? 'bg-error-bg text-error'
+                              ? 'bg-error-bg text-error-on-tint'
                               : jobPosting.statusCssClass
                           }`}
                         >
                           {STATE_LABELS[stateOf(jobPosting)]}
                         </span>
                         {jobPosting.featured && (
-                          <span className="inline-flex items-center px-2.5 py-[3px] rounded-full text-[0.6875rem] font-bold uppercase tracking-wider bg-surface-gold text-accent-gold">
+                          <span className="inline-flex items-center px-2.5 py-[3px] rounded-full text-[0.6875rem] font-bold uppercase tracking-wider bg-surface-gold text-accent-gold-on-tint">
                             Featured
                           </span>
                         )}
