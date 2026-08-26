@@ -526,7 +526,16 @@
     font-weight: 700;
   }
 
-  /* Sidebar navigation — dark navy (matches mock) */
+  /* Sidebar navigation — dark navy (matches mock)
+   *
+   * Every row carries a rail on its leading edge: blue when you are pointing at it, gold when it
+   * is where you are. Hover and active were previously a 4% and a 5% white wash, which is a
+   * difference of one percentage point — so the menu could not really show you where you were.
+   *
+   * The rail is an inset box-shadow rather than a border-left. A border widens the box, so every
+   * label would shift 3px sideways as the pointer crossed it unless the padding compensated on
+   * every state. A shadow paints inside the existing box and moves nothing.
+   */
   .sidebar-link {
     display: block;
     padding: 10px 20px 10px 56px;
@@ -534,18 +543,27 @@
     font-weight: 500;
     color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
-    transition: color 0.15s ease, background-color 0.15s ease;
+    box-shadow: inset 3px 0 0 transparent;
+    transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     cursor: pointer;
   }
 
-  .sidebar-link:hover {
+  /* Keyboard focus gets the same rail as the pointer: the sidebar had no focus state at all. */
+  .sidebar-link:hover,
+  .sidebar-link:focus-visible {
     color: rgba(255, 255, 255, 0.9);
     background-color: rgba(255, 255, 255, 0.04);
+    box-shadow: inset 3px 0 0 var(--sidebar-link-color);
   }
 
-  .sidebar-link-active {
+  /* Listed after the hover rule, and matching its specificity, so pointing at the page you are
+     already on does not replace the gold rail with the blue one. */
+  .sidebar-link-active,
+  .sidebar-link-active:hover,
+  .sidebar-link-active:focus-visible {
     color: var(--sidebar-link-color);
     background-color: rgba(255, 255, 255, 0.05);
+    box-shadow: inset 3px 0 0 var(--cta);
   }
 
   .sidebar-group-header {
@@ -557,13 +575,16 @@
     font-weight: 500;
     color: rgba(255, 255, 255, 0.85);
     cursor: pointer;
-    transition: color 0.15s ease, background-color 0.15s ease;
+    box-shadow: inset 3px 0 0 transparent;
+    transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     user-select: none;
   }
 
-  .sidebar-group-header:hover {
+  .sidebar-group-header:hover,
+  .sidebar-group-header:focus-visible {
     color: #ffffff;
     background-color: rgba(255, 255, 255, 0.04);
+    box-shadow: inset 3px 0 0 var(--sidebar-link-color);
   }
 
   .sidebar-single-link {
@@ -575,17 +596,64 @@
     font-weight: 500;
     color: var(--sidebar-link-color);
     text-decoration: none;
-    transition: color 0.15s ease, background-color 0.15s ease;
+    box-shadow: inset 3px 0 0 transparent;
+    transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     cursor: pointer;
   }
 
-  .sidebar-single-link:hover {
+  .sidebar-single-link:hover,
+  .sidebar-single-link:focus-visible {
     color: #93C5FD;
     background-color: rgba(255, 255, 255, 0.04);
+    box-shadow: inset 3px 0 0 var(--sidebar-link-color);
   }
 
-  .sidebar-single-link-active {
+  .sidebar-single-link-active,
+  .sidebar-single-link-active:hover,
+  .sidebar-single-link-active:focus-visible {
     color: var(--sidebar-link-color);
+    background-color: rgba(255, 255, 255, 0.05);
+    box-shadow: inset 3px 0 0 var(--cta);
+  }
+
+  /* Rail items — the nine sections, always on screen.
+   *
+   * Same rail language as the rows in the panel: blue where you point, gold where you are. The
+   * indicator has to be the shadow rather than a border for the same reason it does there — a
+   * border would resize the box and nudge the icon off-centre on hover.
+   */
+  .rail-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 44px;
+    color: rgba(255, 255, 255, 0.55);
+    box-shadow: inset 3px 0 0 transparent;
+    transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+  }
+
+  .rail-item:hover,
+  .rail-item:focus-visible {
+    color: rgba(255, 255, 255, 0.92);
+    background-color: rgba(255, 255, 255, 0.05);
+    box-shadow: inset 3px 0 0 var(--sidebar-link-color);
+    outline: none;
+  }
+
+  /* Which section's panel is showing — weaker than "where you are", stronger than nothing. */
+  .rail-item-open {
+    color: rgba(255, 255, 255, 0.92);
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .rail-item-active,
+  .rail-item-active:hover,
+  .rail-item-active:focus-visible {
+    color: var(--cta);
+    background-color: rgba(255, 255, 255, 0.07);
+    box-shadow: inset 3px 0 0 var(--cta);
   }
 
   .sidebar-divider {
