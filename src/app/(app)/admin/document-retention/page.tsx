@@ -194,11 +194,12 @@ export default function DocumentRetentionPage() {
 
   return (
     <FeatureGate feature="DOCUMENT_RETENTION">
-      <PageWrapper actions={ <div className="flex items-center gap-3"> <button onClick={handlePreview} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button text-[0.8125rem] font-semibold uppercase tracking-wider border border-border bg-card text-foreground hover:bg-surface-navy hover:border-primary hover:text-primary transition-all duration-200"> <EyeIcon className="w-4 h-4" /> Preview Impact </button> <button onClick={openCreate} className="btn-cta inline-flex items-center gap-2"> <PlusIcon className="w-4 h-4" /> Create Policy </button> </div> }>
+      <PageWrapper>
       <IdentityBand
         eyebrow="Register"
         title="Document Retention Policies"
         subtitle="How long each document type is kept before disposal"
+      actions={ <div className="flex items-center gap-3"> <button onClick={handlePreview} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button text-[0.8125rem] font-semibold uppercase tracking-wider border border-border bg-card text-foreground hover:bg-surface-navy hover:border-primary hover:text-primary transition-all duration-200"> <EyeIcon className="w-4 h-4" /> Preview Impact </button> <button onClick={openCreate} className="btn-cta inline-flex items-center gap-2"> <PlusIcon className="w-4 h-4" /> Create Policy </button> </div> }
       />
 
         {/* ====== CREATE / EDIT MODAL ====== */}

@@ -199,11 +199,12 @@ export default function AdminDepartmentsPage() {
   }
 
   return (
-    <PageWrapper actions={actions}>
+    <PageWrapper>
       <IdentityBand
         eyebrow="Register"
         title="Departments"
         subtitle="The organisational units vacancies are raised against"
+      actions={actions}
       />
 
       <div className="space-y-6">

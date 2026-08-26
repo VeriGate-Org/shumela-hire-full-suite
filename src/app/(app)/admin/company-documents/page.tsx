@@ -191,11 +191,12 @@ export default function AdminCompanyDocumentsPage() {
 
   return (
     <FeatureGate feature="COMPANY_DOCUMENTS">
-      <PageWrapper actions={ <button onClick={() => setShowUpload(true)} className="btn-cta inline-flex items-center gap-2"> <ArrowUpTrayIcon className="w-4 h-4" /> Upload Document </button> }>
+      <PageWrapper>
       <IdentityBand
         eyebrow="Register"
         title="Company Documents"
         subtitle="Policies staff acknowledge"
+      actions={ <button onClick={() => setShowUpload(true)} className="btn-cta inline-flex items-center gap-2"> <ArrowUpTrayIcon className="w-4 h-4" /> Upload Document </button> }
       />
 
         {/* Upload Modal */}

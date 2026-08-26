@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import RecruiterDashboard, { RecruiterDashboardFilters } from '@/components/RecruiterDashboard';
+import RecruiterDashboard from '@/components/RecruiterDashboard';
 import PageWrapper from '@/components/PageWrapper';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -36,8 +36,11 @@ export default function RecruiterDashboardPage() {
     );
   }
 
+  // The filters used to be PageWrapper's actions, which rendered them in a header card above the
+  // band — so the page carried two headers, the second of them empty apart from a control. They
+  // belong on the band, which is the header, and RecruiterDashboard puts them there.
   return (
-    <PageWrapper actions={<RecruiterDashboardFilters />}>
+    <PageWrapper>
       <RecruiterDashboard />
     </PageWrapper>
   );

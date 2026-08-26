@@ -431,11 +431,12 @@ export default function AuditLogsPage() {
   }
 
   return (
-    <PageWrapper actions={actions}>
+    <PageWrapper>
       <IdentityBand
         eyebrow="Ledger"
         title="Audit Logs"
         subtitle="Every recorded action, append-only"
+      actions={actions}
       />
 
       <div className="space-y-6">

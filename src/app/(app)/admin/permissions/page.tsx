@@ -360,11 +360,12 @@ export default function AdminPermissionsPage() {
   }
 
   return (
-    <PageWrapper actions={actions}>
+    <PageWrapper>
       <IdentityBand
         eyebrow="Matrix"
         title="Roles & Permissions"
         subtitle="What each role may see and do"
+      actions={actions}
       />
 
       <div className="space-y-6">
