@@ -257,6 +257,10 @@ jobs:
           NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ steps.cdk-outputs.outputs.user_pool_client_id }}
           NEXT_PUBLIC_COGNITO_DOMAIN: ${{ steps.cdk-outputs.outputs.cognito_domain }}
           NEXT_PUBLIC_REGION: ${{ inputs.aws-region }}
+          # The account menu shows which build you are looking at. A tag deploy passes the release
+          # tag; anything else passes the commit, which the UI shortens. Unset means the menu shows
+          # nothing at all, which is the honest answer for a local build.
+          NEXT_PUBLIC_APP_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
         run: |
           npm ci
           npm run build

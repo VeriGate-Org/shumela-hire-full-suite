@@ -1,8 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import {
+  ArrowRightOnRectangleIcon,
+  ChevronDownIcon,
+  Cog6ToothIcon,
+  QuestionMarkCircleIcon,
+  UserIcon,
+} from '@heroicons/react/24/outline';
+import HeaderPopover from '@/components/chrome/HeaderPopover';
+import { appVersion } from '@/lib/app-version';
 import { UserRole, ROLE_DISPLAY_NAMES, useAuth } from '../contexts/AuthContext';
 
 interface UserProfileProps {
@@ -14,216 +23,149 @@ interface UserProfileProps {
   };
 }
 
+const MENU_ITEMS = [
+  { label: 'Profile', href: '/profile', icon: UserIcon },
+  { label: 'Settings', href: '/settings', icon: Cog6ToothIcon },
+  { label: 'Help centre', href: '/help', icon: QuestionMarkCircleIcon },
+];
+
 const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { logout } = useAuth();
   const router = useRouter();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const close = useCallback(() => setIsOpen(false), []);
 
-  const getInitials = (name: string) => {
-    return name
+  const getInitials = (name: string) =>
+    name
       .split(' ')
       .map(n => n[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
-  };
 
   // Show loading skeleton when user data hasn't resolved yet
   if (!user) {
     return (
       <div className="flex items-center space-x-3 p-2">
         <div className="flex-shrink-0">
-          <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
+          <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
         </div>
-        <div className="hidden md:block flex-1 min-w-0 space-y-1.5">
-          <div className="h-3.5 w-24 bg-gray-200 rounded animate-pulse" />
-          <div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
+        <div className="hidden min-w-0 flex-1 space-y-1.5 md:block">
+          <div className="h-3.5 w-24 animate-pulse rounded bg-muted" />
+          <div className="h-3 w-16 animate-pulse rounded bg-muted" />
         </div>
       </div>
     );
   }
 
   const currentUser = user;
+  const roleName = ROLE_DISPLAY_NAMES[currentUser.role as UserRole] || currentUser.role;
+  const version = appVersion();
 
-  const menuItems = [
-    {
-      label: 'Profile',
-      href: '/profile',
-      icon: '👤',
-      description: 'View and edit your profile'
-    },
-    {
-      label: 'Settings',
-      href: '/settings',
-      icon: '⚙️',
-      description: 'Manage your preferences'
-    },
-    {
-      label: 'Help Center',
-      href: '/help',
-      icon: '❓',
-      description: 'Get help and support'
-    }
-  ];
+  const avatar = (size: string, text: string) =>
+    currentUser.avatar ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={currentUser.avatar}
+        alt=""
+        className={`${size} rounded-full object-cover`}
+      />
+    ) : (
+      <div
+        className={`${size} ${text} flex items-center justify-center rounded-full bg-cta font-semibold text-cta-foreground`}
+        aria-hidden="true"
+      >
+        {getInitials(currentUser.name)}
+      </div>
+    );
 
   return (
     <div className="relative">
-      {/* Profile Button */}
       <button
+        ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        aria-haspopup="true"
-        className="flex items-center space-x-3 text-left p-2 rounded-control hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:ring-offset-2 transition-colors"
+        aria-haspopup="menu"
+        className="flex items-center gap-2 rounded-control p-1 pr-2 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
-        {/* Avatar */}
-        <div className="flex-shrink-0">
-          {currentUser.avatar ? (
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.name}
-              className="h-8 w-8 rounded-full object-cover"
-            />
-          ) : (
-            <div className="h-8 w-8 bg-gold-500 rounded-full flex items-center justify-center text-cta-foreground text-sm font-medium">
-              {getInitials(currentUser.name)}
-            </div>
-          )}
-        </div>
+        {avatar('h-8 w-8', 'text-sm')}
 
-        {/* User Info - Hidden on mobile */}
-        <div className="hidden md:block flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">
+        <span className="hidden min-w-0 md:block">
+          <span className="block truncate text-sm font-medium text-foreground">
             {currentUser.name}
-          </p>
-          <p className="text-xs text-gray-500 truncate">
-            {ROLE_DISPLAY_NAMES[currentUser.role as UserRole] || currentUser.role}
-          </p>
-        </div>
-
-        {/* Dropdown Arrow */}
-        <div className="flex-shrink-0 hidden md:block">
-          <span className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}>
-            ▼
           </span>
-        </div>
+          <span className="block truncate text-xs text-muted-foreground">{roleName}</span>
+        </span>
+
+        <ChevronDownIcon
+          className={`hidden h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform md:block ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+          aria-hidden="true"
+        />
       </button>
 
-      {/* Dropdown Menu */}
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
-
-          {/* Menu Panel */}
-          <div
-            role="menu"
-            className="absolute right-0 mt-2 w-80 bg-white rounded-control shadow-lg border border-gray-200 z-50 overflow-hidden"
-          >
-            {/* User Info Header */}
-            <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-              <div className="flex items-center space-x-3">
-                {currentUser.avatar ? (
-                  <img
-                    src={currentUser.avatar}
-                    alt={currentUser.name}
-                    className="h-10 w-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="h-10 w-10 bg-gold-500 rounded-full flex items-center justify-center text-cta-foreground font-medium">
-                    {getInitials(currentUser.name)}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {currentUser.name}
-                  </p>
-                  <p className="text-sm text-gray-500 truncate">
-                    {currentUser.email}
-                  </p>
-                  <p className="text-xs text-gray-400 truncate">
-                    {ROLE_DISPLAY_NAMES[currentUser.role as UserRole] || currentUser.role}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Menu Items */}
-            <div className="py-1">
-              {menuItems.map((item, index) => (
-                <Link
-                  key={index}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  role="menuitem"
-                  className="block px-4 py-3 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-start space-x-3">
-                    <span className="text-lg flex-shrink-0 mt-0.5">
-                      {item.icon}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900">
-                        {item.label}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {item.description}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {/* Divider */}
-            <div className="border-t border-gray-200"></div>
-
-            {/* Sign Out */}
-            <div className="py-1">
-              <button
-                onClick={async () => {
-                  setIsOpen(false);
-                  await logout();
-                  router.push('/login');
-                }}
-                role="menuitem"
-                className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                  </svg>
-                  <div>
-                    <p className="text-sm font-medium text-red-600">
-                      Sign Out
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Sign out of your account
-                    </p>
-                  </div>
-                </div>
-              </button>
-            </div>
-
-            {/* Footer */}
-            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>Version 2.1.0</span>
-                <div className="flex items-center space-x-3">
-                  <Link href="/privacy" className="hover:text-gray-700">
-                    Privacy
-                  </Link>
-                  <Link href="/terms" className="hover:text-gray-700">
-                    Terms
-                  </Link>
-                </div>
-              </div>
+      <HeaderPopover
+        open={isOpen}
+        onClose={close}
+        label="Account"
+        as="menu"
+        width="w-72"
+        triggerRef={triggerRef}
+        header={
+          <div className="flex items-center gap-3 px-4 py-3">
+            {avatar('h-10 w-10', 'text-sm')}
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-foreground">{currentUser.name}</p>
+              <p className="break-all text-xs text-muted-foreground">{currentUser.email}</p>
+              <p className="text-xs text-muted-foreground">{roleName}</p>
             </div>
           </div>
-        </>
-      )}
+        }
+        footer={
+          <div className="flex items-center justify-between px-4 py-2 text-xs text-muted-foreground">
+            {/* Absent rather than wrong. This read "Version 2.1.0" for as long as it has existed:
+                package.json says 0.1.0 and production was on v2.7.0. It is now the release tag the
+                build was cut from, and nothing at all when that is unknown. */}
+            <span className="font-mono">{version ? `v${version.replace(/^v/, '')}` : ''}</span>
+            <span className="flex items-center gap-3">
+              <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
+              <Link href="/terms" className="hover:text-foreground">Terms</Link>
+            </span>
+          </div>
+        }
+      >
+        <div className="py-1">
+          {MENU_ITEMS.map(({ label, href, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={close}
+              role="menuitem"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+            >
+              <Icon className="h-5 w-5 flex-shrink-0 text-muted-foreground" aria-hidden="true" />
+              {label}
+            </Link>
+          ))}
+        </div>
+
+        <div className="border-t border-border py-1">
+          <button
+            onClick={async () => {
+              close();
+              await logout();
+              router.push('/login');
+            }}
+            role="menuitem"
+            className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-error transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+          >
+            <ArrowRightOnRectangleIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+            Sign out
+          </button>
+        </div>
+      </HeaderPopover>
     </div>
   );
 };

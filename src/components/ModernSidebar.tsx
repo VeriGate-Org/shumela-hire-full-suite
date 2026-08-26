@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useFeatureGate } from '@/contexts/FeatureGateContext';
 import { useTenant } from '@/contexts/TenantContext';
+import TenantLogo from './chrome/TenantLogo';
 import { navigationRegistry, sectionLabels, NavSection, NavigationEntry, SECTION_ORDER, SECTION_ICONS, SINGLE_LINK_SECTIONS, getHiddenSectionsForRole } from '@/config/navigationRegistry';
 import { FEATURE_MINIMUM_PLAN } from '@/config/featurePlanMap';
 import {
@@ -21,6 +22,16 @@ interface SidebarNavItem extends NavigationEntry {
 interface ModernSidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+}
+
+/** The product wordmark, used when there is no tenant logo and when one fails to load. */
+function ShumelaHireWordmark() {
+  return (
+    <span className="font-extrabold text-xl tracking-[-0.03em]">
+      <span style={{ color: '#F1C54B' }}>Shumela</span>
+      <span style={{ color: '#5B9BD5' }}>Hire</span>
+    </span>
+  );
 }
 
 const ModernSidebar: React.FC<ModernSidebarProps> = ({
@@ -246,12 +257,10 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       {!isCollapsed && (
         <div className="px-5 pt-6 pb-2">
           {isWhiteLabelled && branding?.logoUrl ? (
-            <img src={branding.logoUrl} alt="Organization logo" className="h-8 w-auto max-w-[180px] object-contain" />
+            // The sidebar is #0B1929 in both themes, so the plate is unconditional here.
+            <TenantLogo src={branding.logoUrl} plate="always" fallback={<ShumelaHireWordmark />} />
           ) : (
-            <span className="font-extrabold text-xl tracking-[-0.03em]">
-              <span style={{ color: '#F1C54B' }}>Shumela</span>
-              <span style={{ color: '#5B9BD5' }}>Hire</span>
-            </span>
+            <ShumelaHireWordmark />
           )}
         </div>
       )}
