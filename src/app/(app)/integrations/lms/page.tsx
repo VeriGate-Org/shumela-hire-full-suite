@@ -134,7 +134,10 @@ export default function LmsIntegrationPage() {
 
   return (
     <FeatureGate feature="LMS_INTEGRATION">
-      <PageWrapper title="LMS Integration" subtitle="Connect and sync with your Learning Management System">
+      <PageWrapper
+        title="Learning management"
+        subtitle="Course completions come back from your LMS, so a person's training record here matches what they have actually finished."
+      >
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500" />
