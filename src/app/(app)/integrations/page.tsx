@@ -1,29 +1,25 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
-import EmptyState from '@/components/EmptyState';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
+import DistributionStrip from '@/components/record/DistributionStrip';
 import { apiFetch } from '@/lib/api-fetch';
-import {
-  CheckCircleIcon,
-  XCircleIcon,
-  CogIcon,
-  LinkIcon,
-  ExclamationTriangleIcon,
-  ArrowPathIcon,
-  DocumentCheckIcon,
-  BriefcaseIcon,
-  ChatBubbleLeftRightIcon,
-  EnvelopeIcon,
-  CalendarDaysIcon,
-  MegaphoneIcon,
-  GlobeAltIcon,
-  BuildingOfficeIcon,
-} from '@heroicons/react/24/outline';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useToast } from '@/components/Toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { linkedInSocialService, LinkedInConnectionStatus } from '@/services/linkedInSocialService';
+import {
+  CONNECTOR_META,
+  UNLISTED_CONNECTORS,
+  connectorState,
+  STATE_LABEL,
+  type ConnectorState,
+  type ConnectorMeta,
+} from './catalogue';
 
 interface Integration {
   id: string;
@@ -33,213 +29,143 @@ interface Integration {
   status: 'connected' | 'disconnected' | 'error';
 }
 
-const INTEGRATION_META: Record<string, { description: string; icon: React.ElementType; features: string[] }> = {
-  'docusign': {
-    description: 'E-signature solution for offer letters and employment contracts.',
-    icon: DocumentCheckIcon,
-    features: ['Offer signing', 'Envelope tracking', 'Webhook events'],
-  },
-  'linkedin': {
-    description: 'Professional networking platform for job posting and candidate sourcing.',
-    icon: BriefcaseIcon,
-    features: ['Job posting', 'Candidate sourcing', 'Analytics', 'Social posting'],
-  },
-  'indeed': {
-    description: 'Global job search engine and recruitment platform.',
-    icon: GlobeAltIcon,
-    features: ['Job posting', 'Resume search', 'Sponsored jobs'],
-  },
-  'pnet': {
-    description: 'South African job board for local recruitment.',
-    icon: BuildingOfficeIcon,
-    features: ['Job posting', 'XML feed', 'Local reach'],
-  },
-  'career-junction': {
-    description: 'South African career and recruitment platform.',
-    icon: MegaphoneIcon,
-    features: ['Job posting', 'Candidate matching', 'Local reach'],
-  },
-  'ms-teams': {
-    description: 'Microsoft Teams notifications for hiring events and interview updates.',
-    icon: ChatBubbleLeftRightIcon,
-    features: ['Notifications', 'Adaptive cards', 'Team updates'],
-  },
-  'outlook': {
-    description: 'Outlook Calendar integration for interview scheduling.',
-    icon: CalendarDaysIcon,
-    features: ['Calendar events', 'Interview invites', 'Rescheduling'],
-  },
-  'aws-ses': {
-    description: 'AWS Simple Email Service for transactional email delivery.',
-    icon: EnvelopeIcon,
-    features: ['Email delivery', 'Templates', 'Delivery tracking'],
-  },
-  'sage': {
-    description: 'Sage 300 People payroll integration for new employee registration.',
-    icon: CogIcon,
-    features: ['Employee registration', 'Salary setup', 'Tax configuration', 'Auto-sync on offer acceptance'],
-  },
+interface Row {
+  id: string;
+  name: string;
+  category: string;
+  state: ConnectorState;
+  meta: ConnectorMeta;
+}
+
+const FALLBACK: Integration[] = [
+  { id: 'docusign', name: 'DocuSign', category: 'E-Signature', configured: true, status: 'connected' },
+  { id: 'linkedin', name: 'LinkedIn Jobs', category: 'Job Boards', configured: false, status: 'disconnected' },
+  { id: 'indeed', name: 'Indeed', category: 'Job Boards', configured: false, status: 'disconnected' },
+  { id: 'pnet', name: 'PNet', category: 'Job Boards', configured: false, status: 'disconnected' },
+  { id: 'career-junction', name: 'CareerJunction', category: 'Job Boards', configured: false, status: 'disconnected' },
+  { id: 'ms-teams', name: 'Microsoft Teams', category: 'Communication', configured: false, status: 'disconnected' },
+  { id: 'outlook', name: 'Outlook Calendar', category: 'Communication', configured: false, status: 'disconnected' },
+  { id: 'aws-ses', name: 'AWS SES', category: 'Email', configured: false, status: 'disconnected' },
+  { id: 'sage', name: 'Sage 300 People', category: 'Payroll', configured: true, status: 'connected' },
+];
+
+const STATE_PILL: Record<ConnectorState, string> = {
+  live: 'border-accent-teal/45 bg-accent-teal/10 text-accent-teal',
+  failing: 'border-error/40 bg-error/10 text-error',
+  available: 'border-border bg-muted text-muted-foreground',
+  unlisted: 'border-cta/45 bg-cta/12 text-accent-gold-on-tint',
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  'all': 'All Integrations',
-  'Job Boards': 'Job Boards',
-  'Communication': 'Communication',
-  'E-Signature': 'E-Signature',
-  'Email': 'Email',
-  'Payroll': 'Payroll',
-};
-
-/* Rotating icon-background colours to match the mock's 4-colour scheme */
-const ICON_COLOR_CYCLE = [
-  { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
-  { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
-  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
-  { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
-] as const;
+const GROUPS: { state: ConnectorState; heading: (n: number) => string }[] = [
+  { state: 'failing', heading: (n) => `Failing · ${n} — these need you` },
+  { state: 'live', heading: (n) => `Live · ${n}` },
+  { state: 'available', heading: (n) => `Available · ${n} — nothing is wrong with these` },
+  {
+    state: 'unlisted',
+    heading: (n) => `Not in the hub · ${n} — these have working screens and were never listed here`,
+  },
+];
 
 export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [linkedInStatus, setLinkedInStatus] = useState<LinkedInConnectionStatus | null>(null);
-  const [linkedInActionLoading, setLinkedInActionLoading] = useState(false);
+  const [linkedInBusy, setLinkedInBusy] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const hasAccess = user?.role === 'ADMIN' || user?.role === 'HR_MANAGER';
 
   const loadLinkedInStatus = useCallback(async () => {
     try {
-      const status = await linkedInSocialService.getStatus();
-      setLinkedInStatus(status);
+      setLinkedInStatus(await linkedInSocialService.getStatus());
     } catch {
-      // LinkedIn social not enabled — ignore
+      // LinkedIn social posting is optional — absence is not an error worth showing.
+    }
+  }, []);
+
+  const loadIntegrations = useCallback(async () => {
+    setLoading(true);
+    try {
+      setError(null);
+      const response = await apiFetch('/api/integrations/status');
+      setIntegrations(await response.json());
+    } catch {
+      // The shape of the catalogue is known even when the service is not reachable, so the page
+      // still lists what exists rather than showing nothing.
+      setIntegrations(FALLBACK);
+      setError('Showing the known connectors — their current state could not be read.');
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     loadIntegrations();
     loadLinkedInStatus();
-  }, [loadLinkedInStatus]);
+  }, [loadIntegrations, loadLinkedInStatus]);
 
   useEffect(() => {
-    const linkedInParam = searchParams.get('linkedin');
-    if (linkedInParam === 'success') {
-      toast('LinkedIn company page connected successfully', 'success');
+    const param = searchParams.get('linkedin');
+    if (param === 'success') {
+      toast('LinkedIn company page connected', 'success');
       loadLinkedInStatus();
-    } else if (linkedInParam === 'error') {
-      toast('Failed to connect LinkedIn company page', 'error');
+    } else if (param === 'error') {
+      toast('LinkedIn could not be connected. Try signing in again.', 'error');
     }
   }, [searchParams, toast, loadLinkedInStatus]);
 
-  const loadIntegrations = async () => {
-    setLoading(true);
-    try {
-      const response = await apiFetch('/api/integrations/status');
-      const data = await response.json();
-      setIntegrations(data);
-    } catch {
-      // Fallback to static data if API unavailable
-      setIntegrations([
-        { id: 'docusign', name: 'DocuSign', category: 'E-Signature', configured: true, status: 'connected' },
-        { id: 'linkedin', name: 'LinkedIn Jobs', category: 'Job Boards', configured: false, status: 'disconnected' },
-        { id: 'indeed', name: 'Indeed', category: 'Job Boards', configured: false, status: 'disconnected' },
-        { id: 'pnet', name: 'PNet', category: 'Job Boards', configured: false, status: 'disconnected' },
-        { id: 'career-junction', name: 'CareerJunction', category: 'Job Boards', configured: false, status: 'disconnected' },
-        { id: 'ms-teams', name: 'Microsoft Teams', category: 'Communication', configured: false, status: 'disconnected' },
-        { id: 'outlook', name: 'Outlook Calendar', category: 'Communication', configured: false, status: 'disconnected' },
-        { id: 'aws-ses', name: 'AWS SES', category: 'Email', configured: false, status: 'disconnected' },
-        { id: 'sage', name: 'Sage 300 People', category: 'Payroll', configured: true, status: 'connected' },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const rows: Row[] = useMemo(() => {
+    const fromApi = integrations.map((i) => ({
+      id: i.id,
+      name: i.name,
+      category: i.category,
+      state: connectorState(i.status),
+      meta: CONNECTOR_META[i.id] ?? { does: '', destinations: [] },
+    }));
+    const unlisted = UNLISTED_CONNECTORS.map((u) => ({
+      id: u.id,
+      name: u.name,
+      category: u.category,
+      state: 'unlisted' as const,
+      meta: u.meta,
+    }));
+    return [...fromApi, ...unlisted];
+  }, [integrations]);
 
-  const categories = ['all', ...new Set(integrations.map(i => i.category))];
+  const count = (s: ConnectorState) => rows.filter((r) => r.state === s).length;
+  const live = count('live');
+  const failing = count('failing');
+  const available = count('available');
+  const unlisted = count('unlisted');
 
-  const filteredIntegrations = integrations.filter(integration => {
-    const matchesCategory = selectedCategory === 'all' || integration.category === selectedCategory;
-    const matchesSearch = integration.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (INTEGRATION_META[integration.id]?.description || '').toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'connected':
-        return <CheckCircleIcon className="w-5 h-5 text-green-500" />;
-      case 'error':
-        return <ExclamationTriangleIcon className="w-5 h-5 text-red-500" />;
-      default:
-        return <XCircleIcon className="w-5 h-5 text-gray-400" />;
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
-    switch (status) {
-      case 'connected':
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case 'error':
-        return `${baseClasses} bg-red-100 text-red-800`;
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-    }
-  };
-
-  const connectedCount = integrations.filter(i => i.status === 'connected').length;
-  const errorCount = integrations.filter(i => i.status === 'error').length;
-
-  /* ---- Status pill with coloured dot (matches mock) ---- */
-  const getConnectionPill = (status: string) => {
-    if (status === 'connected') {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide bg-teal-50 text-accent-teal">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent-teal" />
-          Connected
-        </span>
-      );
-    }
-    if (status === 'error') {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide bg-idc-pink-50 text-accent-pink">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent-pink" />
-          Error
-        </span>
-      );
-    }
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide bg-gray-100 text-muted-foreground">
-        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
-        Disconnected
-      </span>
-    );
-  };
+  // The most useful thing this page can say is where a working connector's settings actually
+  // are, because until now it said nothing and the screens were unreachable.
+  const withHiddenScreens = rows.filter(
+    (r) => (r.state === 'live' || r.state === 'unlisted') && r.meta.destinations.length > 0,
+  );
 
   const actions = (
-    <div className="flex items-center gap-3">
-      <button
-        onClick={loadIntegrations}
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold uppercase tracking-wider border-2 border-cta text-primary bg-transparent hover:bg-cta hover:text-cta-foreground transition-all"
-      >
-        <ArrowPathIcon className="w-4 h-4" />
-        Refresh Status
-      </button>
-    </div>
+    <button
+      onClick={loadIntegrations}
+      /* On the identity band, not on the page. The band is a fixed navy in both themes, so
+         --cta-on-surface is the plate's own colour in light mode — an invisible button. The band
+         carries --band-accent for exactly this. */
+      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button border-2 border-band-accent text-band-accent bg-transparent hover:bg-band-accent hover:text-cta-foreground font-semibold text-sm uppercase tracking-[0.05em] transition-colors"
+    >
+      <ArrowPathIcon className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+      Recheck
+    </button>
   );
 
   if (!hasAccess) {
     return (
-      <PageWrapper
-        title="Access Denied"
-        subtitle="You do not have permission to manage integrations"
-      >
-        <div className="bg-card rounded-card shadow-sm p-8 text-center border border-border">
+      <PageWrapper title="Integrations" subtitle="You do not have permission to manage integrations">
+        <div className="enterprise-card p-8 text-center">
           <p className="text-sm text-muted-foreground">
-            Integrations can be managed by administrators and HR managers.
+            Integrations are managed by administrators and HR managers.
           </p>
         </div>
       </PageWrapper>
@@ -247,308 +173,237 @@ export default function IntegrationsPage() {
   }
 
   return (
-    <PageWrapper
-      title="Integrations Hub"
-      subtitle="Manage external system connections"
-      actions={actions}
-    >
-      <div className="space-y-6">
+    <PageWrapper>
+      <IdentityBand
+        actions={actions}
+        eyebrow="Integrations"
+        title={unlisted > 0 ? `${rows.length - unlisted} in the hub. ${rows.length} in the app.` : 'Integrations'}
+        subtitle={
+          loading
+            ? 'Reading current state…'
+            : 'Status is read from configuration, not from live traffic'
+        }
+        figures={[
+          { label: 'Live', value: live, tone: 'positive' },
+          { label: 'Available', value: available },
+          { label: 'Failing', value: failing, tone: (failing > 0 ? 'critical' : undefined) as 'critical' | undefined },
+        ]}
+      />
 
-        {/* ===== Stats Bar (4-column) ===== */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {/* Total Integrations */}
-          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4 transition-all hover:shadow-md hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 bg-icon-bg-navy">
-              <LinkIcon className="w-6 h-6 text-accent-navy" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-2xl font-extrabold leading-tight text-foreground">{integrations.length}</p>
-              <p className="text-[0.8125rem] text-muted-foreground font-medium mt-0.5">Total Integrations</p>
-            </div>
-          </div>
+      {error && (
+        /* The catalogue still renders from the known list, so this is a caveat on the page and
+           not a replacement for it. A full-height error block here would hide nine usable rows. */
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-cta/40 bg-cta/10 px-4 py-3">
+          <p className="text-sm text-foreground">
+            <b className="font-bold">Current state could not be read.</b>{' '}
+            <span className="text-muted-foreground">Everything below is the known connector list, not live status.</span>
+          </p>
+          <button
+            onClick={loadIntegrations}
+            className="text-xs font-bold uppercase tracking-[0.06em] text-cta-on-surface hover:underline underline-offset-2"
+          >
+            Try again
+          </button>
+        </div>
+      )}
 
-          {/* Connected */}
-          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4 transition-all hover:shadow-md hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 bg-icon-bg-teal">
-              <CheckCircleIcon className="w-6 h-6 text-accent-teal" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-2xl font-extrabold leading-tight text-foreground">{connectedCount}</p>
-              <p className="text-[0.8125rem] text-muted-foreground font-medium mt-0.5">Connected</p>
-            </div>
-          </div>
+      {!loading && withHiddenScreens.length > 0 && (
+        <DecisionBar
+          ask={
+            failing > 0
+              ? `${failing} ${failing === 1 ? 'connector is' : 'connectors are'} configured but unreachable.`
+              : `${withHiddenScreens[0].name} is set up, and the screens that run it are not reachable from here.`
+          }
+          why={
+            failing > 0
+              ? 'A configured connector that cannot be reached fails silently — nothing on this page ran, and nobody was told.'
+              : `Its settings live under a URL this page has never linked to. ${withHiddenScreens.length} of the ${rows.length} connectors have screens that were only reachable by knowing the address.`
+          }
+          tone={failing > 0 ? 'stopped' : 'owed'}
+        >
+          <PrimaryAction onClick={() => router.push(withHiddenScreens[0].meta.destinations[0].href)}>
+            Open {withHiddenScreens[0].name}
+          </PrimaryAction>
+          <SecondaryAction onClick={loadIntegrations}>Recheck all</SecondaryAction>
+        </DecisionBar>
+      )}
 
-          {/* Last Sync */}
-          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4 transition-all hover:shadow-md hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 bg-icon-bg-gold">
-              <ArrowPathIcon className="w-6 h-6 text-accent-gold" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-2xl font-extrabold leading-tight text-foreground">--</p>
-              <p className="text-[0.8125rem] text-muted-foreground font-medium mt-0.5">Last Sync</p>
-            </div>
-          </div>
+      <DistributionStrip
+        buckets={[
+          { label: 'Live', count: live, detail: 'Configured and reachable', tone: 'positive' },
+          { label: 'Available', count: available, detail: 'Not set up — not a fault' },
+          {
+            label: 'Failing',
+            count: failing,
+            detail: 'Configured but unreachable',
+            tone: (failing > 0 ? 'critical' : undefined) as 'critical' | undefined,
+          },
+          {
+            label: 'Not in the hub',
+            count: unlisted,
+            detail: "Have screens, aren't listed",
+            tone: (unlisted > 0 ? 'warning' : undefined) as 'warning' | undefined,
+          },
+        ]}
+        footnote={
+          <>
+            <b className="font-bold text-foreground">Available is the normal state of an unused connector.</b>{' '}
+            A tenant that has not switched on job boards is not broken.
+          </>
+        }
+      />
 
-          {/* Errors */}
-          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4 transition-all hover:shadow-md hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 bg-icon-bg-pink">
-              <ExclamationTriangleIcon className="w-6 h-6 text-accent-pink" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-2xl font-extrabold leading-tight text-foreground">{errorCount}</p>
-              <p className="text-[0.8125rem] text-muted-foreground font-medium mt-0.5">Sync Errors</p>
-            </div>
-          </div>
+      <section className="enterprise-card overflow-hidden">
+        <div className="flex items-baseline justify-between gap-3 px-5 py-4 border-b border-border">
+          <h2 className="text-sm font-bold text-foreground">Connections</h2>
+          <span className="text-xs text-muted-foreground">Sorted by what each one needs from you</span>
         </div>
 
-        {/* ===== Search & Filter Bar ===== */}
-        <div className="bg-card border border-border rounded-card shadow-sm p-5">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Search integrations..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-border rounded-control bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-cta/60 focus:border-primary transition"
-              />
-            </div>
-            <div className="flex gap-2 overflow-x-auto">
-              {categories.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-full whitespace-nowrap text-xs font-semibold tracking-wide transition-all ${
-                    selectedCategory === cat
-                      ? 'bg-primary text-primary-foreground border border-primary'
-                      : 'bg-transparent text-muted-foreground border border-border hover:border-primary hover:text-primary'
-                  }`}
-                >
-                  {CATEGORY_LABELS[cat] || cat}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ===== Integration Cards Grid (2-column) ===== */}
         {loading ? (
-          /* Skeleton loader matching mock layout */
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {[0, 1, 2, 3].map(i => (
-              <div key={i} className="bg-card border border-border rounded-card shadow-sm p-6 animate-pulse">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-card bg-gray-200" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-3/5" />
-                    <div className="h-3 bg-gray-200 rounded w-4/5" />
-                  </div>
-                  <div className="h-5 w-20 bg-gray-200 rounded-full" />
-                </div>
-                <div className="h-px bg-border my-4" />
-                <div className="space-y-3 mb-4">
-                  <div className="h-3 bg-gray-200 rounded w-1/2" />
-                  <div className="h-3 bg-gray-200 rounded w-2/5" />
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-3.5 bg-gray-200 rounded w-20" />
-                  <div className="h-8 bg-gray-200 rounded-full w-24" />
-                </div>
-              </div>
+          <div className="p-5 space-y-3" aria-busy="true">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-11 rounded-control bg-muted animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {filteredIntegrations.map((integration, idx) => {
-              const meta = INTEGRATION_META[integration.id] || { description: '', icon: LinkIcon, features: [] };
-              const IconComponent = meta.icon;
-              const colorSet = ICON_COLOR_CYCLE[idx % ICON_COLOR_CYCLE.length];
-
-              return (
-                <div
-                  key={integration.id}
-                  className="bg-card border border-border rounded-card shadow-sm p-6 transition-all hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5"
-                >
-                  {/* Card Header */}
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className={`w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 ${colorSet.bg}`}>
-                      <IconComponent className={`w-6 h-6 ${colorSet.text}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-bold text-foreground leading-snug">{integration.name}</h3>
-                      <p className="text-[0.8125rem] text-muted-foreground font-medium leading-snug">{meta.description.split('.')[0]}</p>
-                    </div>
-                    {getConnectionPill(integration.status)}
-                  </div>
-
-                  {/* Divider */}
-                  <div className="h-px bg-border my-4" />
-
-                  {/* Meta Rows */}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-[0.8125rem] text-muted-foreground">
-                      <ArrowPathIcon className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>Last sync: {integration.status === 'connected' ? 'Recently' : 'Never'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[0.8125rem] text-muted-foreground">
-                      {getStatusIcon(integration.status)}
-                      <span>
-                        {integration.status === 'connected' ? 'Active' : integration.status === 'error' ? 'Requires attention' : 'Not configured'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Features (compact tags) */}
-                  {meta.features.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {meta.features.map(feature => (
-                        <span key={feature} className="px-2 py-0.5 bg-gray-100 text-muted-foreground rounded text-[0.6875rem] font-medium">
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Card Actions */}
-                  <div className="flex items-center gap-3">
-                    {/* LinkedIn special handling */}
-                    {integration.id === 'linkedin' && linkedInStatus ? (
-                      <>
-                        <button className="text-[0.8125rem] font-semibold text-primary uppercase tracking-wider hover:text-cta-hover transition-colors">
-                          Configure
-                        </button>
-                        {user?.role === 'ADMIN' ? (
-                          <button
-                            disabled={linkedInActionLoading}
-                            onClick={async () => {
-                              setLinkedInActionLoading(true);
-                              try {
-                                if (linkedInStatus.connected) {
-                                  await linkedInSocialService.disconnect();
-                                  toast('LinkedIn disconnected', 'success');
-                                  await loadLinkedInStatus();
-                                } else {
-                                  const authUrl = await linkedInSocialService.getAuthUrl();
-                                  window.location.href = authUrl;
-                                }
-                              } catch {
-                                toast('Failed to update LinkedIn connection', 'error');
-                              } finally {
-                                setLinkedInActionLoading(false);
-                              }
-                            }}
-                            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 text-xs font-semibold uppercase tracking-wider leading-none transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
-                              linkedInStatus.connected
-                                ? 'border-accent-pink text-accent-pink hover:bg-idc-pink-50'
-                                : 'border-cta text-primary hover:bg-cta hover:text-cta-foreground'
-                            }`}
-                          >
-                            <ArrowPathIcon className={`w-3.5 h-3.5 ${linkedInActionLoading ? 'animate-spin' : ''}`} />
-                            {linkedInActionLoading ? 'Loading...' : linkedInStatus.connected ? 'Disconnect' : 'Connect'}
-                          </button>
-                        ) : (
-                          <span className={`text-xs font-medium ${
-                            linkedInStatus.connected ? 'text-accent-teal' : 'text-muted-foreground'
-                          }`}>
-                            {linkedInStatus.connected ? `Connected: ${linkedInStatus.organizationName}` : 'Not connected'}
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <button className="text-[0.8125rem] font-semibold text-primary uppercase tracking-wider hover:text-cta-hover transition-colors">
-                          Configure
-                        </button>
-                        <button
-                          disabled={!integration.configured && integration.status !== 'connected'}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-cta text-xs font-semibold uppercase tracking-wider leading-none text-primary bg-transparent hover:bg-cta hover:text-cta-foreground transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          <ArrowPathIcon className="w-3.5 h-3.5" />
-                          Sync Now
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {filteredIntegrations.length === 0 && !loading && (
-          <EmptyState
-            icon={LinkIcon}
-            title="No integrations found"
-            description="Try adjusting your search or filter criteria."
-          />
-        )}
-
-        {/* ===== Sync Health Timeline ===== */}
-        {!loading && connectedCount > 0 && (
-          <div className="bg-card border border-border rounded-card shadow-sm p-6">
-            {/* Timeline Header */}
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
-                <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-                </svg>
-                Sync Health Timeline
-              </h2>
-              <div className="flex items-center gap-4 text-[0.8125rem] text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-accent-teal" />
-                  Success
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-accent-pink" />
-                  Error
-                </span>
-              </div>
-            </div>
-
-            {/* Timeline Track */}
-            <div className="relative py-2">
-              {/* Horizontal line */}
-              <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-border -translate-y-1/2 z-0" />
-
-              {/* Timeline Events */}
-              <div className="relative z-[1] flex justify-between">
-                {integrations
-                  .filter(i => i.status === 'connected' || i.status === 'error')
-                  .slice(0, 7)
-                  .map((integration, eIdx) => {
-                    const isError = integration.status === 'error';
-                    return (
-                      <div key={`tl-${integration.id}-${eIdx}`} className="group flex flex-col items-center gap-2 flex-1 cursor-default relative">
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-foreground text-card px-3 py-2 rounded-control text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                          {integration.name} - {isError ? 'Sync error' : 'Sync completed'}
-                          <span className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-foreground" />
-                        </div>
-                        {/* Dot */}
-                        <div
-                          className={`w-4 h-4 rounded-full border-[3px] border-card transition-transform hover:scale-[1.3] ${
-                            isError
-                              ? 'bg-accent-pink shadow-[0_0_0_2px_var(--accent-pink)]'
-                              : 'bg-accent-teal shadow-[0_0_0_2px_var(--accent-teal)]'
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[720px]">
+              <thead>
+                <tr className="bg-muted">
+                  {['Connection', 'What it does', 'State', 'Where it goes'].map((h, i) => (
+                    <th
+                      key={h}
+                      className={`px-4 py-2.5 text-[0.625rem] font-bold uppercase tracking-[0.12em] text-muted-foreground ${
+                        i === 3 ? 'text-right' : 'text-left'
+                      }`}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {GROUPS.map(({ state, heading }) => {
+                  const group = rows.filter((r) => r.state === state);
+                  if (group.length === 0) return null;
+                  return (
+                    <React.Fragment key={state}>
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className={`px-4 py-2 bg-muted border-y border-border text-[0.625rem] font-bold uppercase tracking-[0.12em] ${
+                            state === 'unlisted' ? 'text-accent-gold-on-tint' : 'text-muted-foreground'
                           }`}
-                        />
-                        {/* Label */}
-                        <span className="text-[0.6875rem] font-semibold text-muted-foreground text-center leading-tight max-w-[80px]">
-                          {integration.name.length > 12 ? integration.name.slice(0, 12) + '...' : integration.name}
-                        </span>
-                        {/* Time */}
-                        <span className="text-[0.625rem] text-muted-foreground font-medium text-center">
-                          Recently
-                        </span>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
+                        >
+                          {heading(group.length)}
+                        </td>
+                      </tr>
+                      {group.map((row) => (
+                        <tr key={row.id} className="border-b border-border last:border-0 hover:bg-accent transition-colors">
+                          <td className="px-4 py-3 whitespace-nowrap align-top">
+                            <div className="font-bold text-foreground">{row.name}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">{row.category}</div>
+                          </td>
+                          <td className="px-4 py-3 text-muted-foreground align-top">{row.meta.does}</td>
+                          <td className="px-4 py-3 align-top">
+                            <span
+                              className={`inline-block px-2.5 py-1 rounded-full border text-[0.625rem] font-bold uppercase tracking-[0.06em] whitespace-nowrap ${STATE_PILL[row.state]}`}
+                            >
+                              {STATE_LABEL[row.state]}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right align-top whitespace-nowrap">
+                            {row.id === 'linkedin' && linkedInStatus ? (
+                              <LinkedInAction
+                                status={linkedInStatus}
+                                busy={linkedInBusy}
+                                canConnect={user?.role === 'ADMIN'}
+                                onChange={async () => {
+                                  setLinkedInBusy(true);
+                                  try {
+                                    if (linkedInStatus.connected) {
+                                      await linkedInSocialService.disconnect();
+                                      toast('LinkedIn disconnected', 'success');
+                                      await loadLinkedInStatus();
+                                    } else {
+                                      window.location.href = await linkedInSocialService.getAuthUrl();
+                                    }
+                                  } catch {
+                                    toast('LinkedIn could not be updated. Try again.', 'error');
+                                  } finally {
+                                    setLinkedInBusy(false);
+                                  }
+                                }}
+                              />
+                            ) : row.meta.destinations.length > 0 ? (
+                              <span className="inline-flex items-center gap-1.5">
+                                {row.meta.destinations.map((d, i) => (
+                                  <React.Fragment key={d.href}>
+                                    {i > 0 && (
+                                      <span aria-hidden="true" className="text-muted-foreground">
+                                        ·
+                                      </span>
+                                    )}
+                                    <Link
+                                      href={d.href}
+                                      className="text-xs font-bold text-primary hover:underline underline-offset-2"
+                                    >
+                                      {d.label}
+                                    </Link>
+                                  </React.Fragment>
+                                ))}
+                              </span>
+                            ) : (
+                              // No screen exists. Saying so beats a button that does nothing.
+                              <span className="text-xs text-muted-foreground">{row.meta.blocked ?? '—'}</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
-      </div>
+      </section>
     </PageWrapper>
+  );
+}
+
+function LinkedInAction({
+  status,
+  busy,
+  canConnect,
+  onChange,
+}: {
+  status: LinkedInConnectionStatus;
+  busy: boolean;
+  canConnect: boolean;
+  onChange: () => void;
+}) {
+  // Connecting grants posting rights on the company page, so it is an administrator's call.
+  // A non-admin sees the state rather than a control they cannot use.
+  if (!canConnect) {
+    return (
+      <span className="text-xs text-muted-foreground">
+        {status.connected ? `Connected — ${status.organizationName}` : 'Not connected'}
+      </span>
+    );
+  }
+  return (
+    <button
+      onClick={onChange}
+      disabled={busy}
+      className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 text-xs font-semibold uppercase tracking-[0.06em] transition-colors disabled:opacity-40 ${
+        status.connected
+          ? 'border-error/50 text-error hover:bg-error/10'
+          : 'border-cta text-cta-on-surface hover:bg-cta hover:text-cta-foreground'
+      }`}
+    >
+      <ArrowPathIcon className={`w-3.5 h-3.5 ${busy ? 'animate-spin' : ''}`} />
+      {busy ? 'Working…' : status.connected ? 'Disconnect' : 'Connect'}
+    </button>
   );
 }

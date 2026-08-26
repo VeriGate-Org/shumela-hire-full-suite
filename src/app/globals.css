@@ -88,7 +88,9 @@
   --band-foreground: #FFFFFF;
   --band-strong: rgba(255, 255, 255, 0.90);
   --band-muted: rgba(255, 255, 255, 0.62);
-  --band-faint: rgba(255, 255, 255, 0.42);
+  /* 0.42 measured 3.68:1 on the plate. These carry the figure labels — "Live", "Failing" —
+     which name the numbers beside them, so they are content and need AA, not decoration. */
+  --band-faint: rgba(255, 255, 255, 0.50);
   --band-dim: rgba(255, 255, 255, 0.30);
   --band-fill: rgba(255, 255, 255, 0.055);
   --band-line: rgba(255, 255, 255, 0.11);
