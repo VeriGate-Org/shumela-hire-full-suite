@@ -100,4 +100,19 @@ public class PermissionService {
     public boolean roleHasPermission(User.Role role, String permissionId) {
         return getPermissionsForRole(role).contains(permissionId);
     }
+
+    /** The permission that can appoint and demote administrators. */
+    public static final String ADMIN_ROLES_PERMISSION = "admin_roles";
+
+    /**
+     * Can this role change who administers the tenant?
+     *
+     * <p>Derived from the permission map rather than listing role names, so a role granted
+     * {@code admin_roles} later is counted without anyone remembering to update a second list. That
+     * matters because the caller uses this to decide whether a demotion would leave nobody able to
+     * appoint an administrator — a lockout no one can undo from inside the product.
+     */
+    public boolean canAdministerRoles(User.Role role) {
+        return role != null && roleHasPermission(role, ADMIN_ROLES_PERMISSION);
+    }
 }
