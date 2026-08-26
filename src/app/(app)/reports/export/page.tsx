@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar from '@/components/record/DecisionBar';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { reportExportService, ReportExportJob } from '@/services/reportExportService';
@@ -38,6 +40,12 @@ export default function ReportExportPage() {
   const [exporting, setExporting] = useState(false);
   const [selectedReport, setSelectedReport] = useState('');
   const [selectedFormat, setSelectedFormat] = useState('PDF');
+
+  // Counted from the jobs themselves rather than tracked alongside them, so the band cannot
+  // disagree with the list underneath it.
+  const running = jobs.filter((j) => j.status === 'PROCESSING' || j.status === 'QUEUED').length;
+  const ready = jobs.filter((j) => j.status === 'COMPLETED').length;
+  const failed = jobs.filter((j) => j.status === 'FAILED').length;
 
   // TODO: Get from auth context
   const employeeId = 1;
@@ -89,18 +97,43 @@ export default function ReportExportPage() {
 
   return (
     <FeatureGate feature="REPORT_EXPORT">
-      <PageWrapper
-        title="Report Export"
-        subtitle="Generate and download HR reports"
-      >
-        <div className="space-y-6">
+      <PageWrapper>
+        <div className="space-y-4">
+          <IdentityBand
+            eyebrow="Reporting"
+            title="Export"
+            subtitle={`${REPORT_TYPES.length} standard extracts, as ${FORMAT_OPTIONS.map((f) => f.label).join(', ')}`}
+            figures={[
+              {
+                label: 'Running',
+                value: running,
+                tone: (running > 0 ? 'warning' : undefined) as 'warning' | undefined,
+              },
+              { label: 'Ready', value: ready },
+              ...(failed > 0
+                ? [{ label: 'Failed', value: failed, tone: 'critical' as const }]
+                : []),
+            ]}
+          />
+
+          {/*
+            An export is a job that takes time and can fail, so its state belongs at the top rather
+            than only in the row it eventually becomes.
+          */}
+          {running > 0 && (
+            <DecisionBar
+              ask={`${running} ${running === 1 ? 'export is' : 'exports are'} being generated.`}
+              why="They will appear in the history below when they are ready."
+              tone="owed"
+            />
+          )}
           {/* Export Form */}
-          <div className="bg-white rounded-lg shadow border p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Generate New Report</h3>
+          <div className="bg-card rounded-lg shadow border p-6">
+            <h3 className="text-sm font-semibold text-foreground mb-4">Generate New Report</h3>
 
             {/* Report Type Selection */}
             <div className="mb-4">
-              <label className="block text-xs font-medium text-gray-700 mb-2">Select Report Type</label>
+              <label className="block text-xs font-medium text-foreground mb-2">Select Report Type</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {REPORT_TYPES.map(report => (
                   <button
@@ -110,11 +143,11 @@ export default function ReportExportPage() {
                     className={`text-left p-3 rounded-lg border-2 transition-colors ${
                       selectedReport === report.value
                         ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-border hover:border-border'
                     }`}
                   >
-                    <p className="text-sm font-medium text-gray-900">{report.label}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{report.description}</p>
+                    <p className="text-sm font-medium text-foreground">{report.label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{report.description}</p>
                   </button>
                 ))}
               </div>
@@ -122,7 +155,7 @@ export default function ReportExportPage() {
 
             {/* Format Selection */}
             <div className="mb-4">
-              <label className="block text-xs font-medium text-gray-700 mb-2">Export Format</label>
+              <label className="block text-xs font-medium text-foreground mb-2">Export Format</label>
               <div className="flex gap-3">
                 {FORMAT_OPTIONS.map(format => (
                   <button
@@ -132,7 +165,7 @@ export default function ReportExportPage() {
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-colors ${
                       selectedFormat === format.value
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                        : 'border-border text-muted-foreground hover:border-border'
                     }`}
                   >
                     {format.label}
@@ -162,31 +195,31 @@ export default function ReportExportPage() {
           </div>
 
           {/* Export History */}
-          <div className="bg-white rounded-lg shadow border">
+          <div className="bg-card rounded-lg shadow border">
             <div className="px-6 py-4 border-b">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-900">Export History</h3>
+                <h3 className="text-sm font-semibold text-foreground">Export History</h3>
                 <button onClick={loadJobs} className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
                   <ArrowPathIcon className="w-3.5 h-3.5" /> Refresh
                 </button>
               </div>
             </div>
             {loading ? (
-              <div className="text-center py-8 text-gray-500">Loading export history...</div>
+              <div className="text-center py-8 text-muted-foreground">Loading export history...</div>
             ) : jobs.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
                 No exports yet. Generate your first report above.
               </div>
             ) : (
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-muted">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Report</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Format</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Report</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Format</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Size</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Created</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -194,14 +227,14 @@ export default function ReportExportPage() {
                     const status = statusConfig[job.status] || statusConfig.QUEUED;
                     const StatusIcon = status.icon;
                     return (
-                      <tr key={job.id} className="hover:bg-gray-50">
+                      <tr key={job.id} className="hover:bg-muted">
                         <td className="px-4 py-3 text-sm">
-                          <p className="font-medium text-gray-900">
+                          <p className="font-medium text-foreground">
                             {REPORT_TYPES.find(r => r.value === job.reportType)?.label || job.reportType}
                           </p>
                         </td>
                         <td className="px-4 py-3 text-sm">
-                          <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                          <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-muted text-foreground">
                             {job.format}
                           </span>
                         </td>
@@ -211,10 +244,10 @@ export default function ReportExportPage() {
                             <span className="text-xs font-medium">{status.label}</span>
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">
+                        <td className="px-4 py-3 text-sm text-muted-foreground">
                           {formatFileSize(job.fileSize)}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">
+                        <td className="px-4 py-3 text-sm text-muted-foreground">
                           {new Date(job.createdAt).toLocaleString('en-ZA')}
                         </td>
                         <td className="px-4 py-3 text-sm text-right">

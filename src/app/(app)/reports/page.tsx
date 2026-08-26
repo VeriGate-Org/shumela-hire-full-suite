@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import {
   ReportBuilder,
   ReportLibrary,
@@ -362,6 +363,28 @@ export default function ReportsPage() {
     }
   }, [schedules, savedReports, handleRunReport]);
 
+  /**
+   * When a schedule last produced something.
+   *
+   * <p>Read from the results rather than the schedules: a schedule says when it is <em>meant</em>
+   * to run, and this band figure is about whether it did.
+   */
+  const lastRunLabel = (() => {
+    const stamps = reportResults
+      .map((r) => (r as { generatedAt?: string }).generatedAt)
+      .filter((value): value is string => Boolean(value))
+      .map((value) => new Date(value).getTime())
+      .filter((value) => !Number.isNaN(value));
+
+    if (stamps.length === 0) return 'Never';
+    return new Date(Math.max(...stamps)).toLocaleString('en-ZA', {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  })();
+
   const tabs = [
     { id: 'create' as const, name: 'Create Report', icon: PlusIcon, count: undefined },
     { id: 'library' as const, name: 'Library', icon: BookOpenIcon, count: savedReports.length },
@@ -370,7 +393,24 @@ export default function ReportsPage() {
   ];
 
   return (
-    <PageWrapper title="Reports" subtitle="Build, schedule, and manage organisational reports">
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Reporting"
+        title="Reports"
+        subtitle="Build one now, or manage what already runs"
+        figures={[
+          { label: 'Saved', value: savedReports.length },
+          {
+            label: 'Scheduled',
+            value: schedules.length === 0
+              ? 'None'
+              : `${schedules.filter((s) => s.enabled).length} active`,
+          },
+          // Absent is not zero: a schedule that has never run and one that ran at 06:00 are
+          // different states, and "Never" says which this is.
+          { label: 'Last run', value: lastRunLabel },
+        ]}
+      />
       <div className="space-y-6">
 
         {/* Stat Cards Grid */}

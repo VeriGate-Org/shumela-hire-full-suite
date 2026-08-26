@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { SecondaryAction } from '@/components/record/DecisionBar';
 import {
   AdvancedAnalyticsDashboard,
   RealTimeMetrics,
@@ -20,20 +22,15 @@ import {
 } from '@heroicons/react/24/outline';
 
 // Filter configuration for analytics
-const analyticsFilters: FilterConfig[] = [
-  {
-    id: 'department',
-    label: 'Department',
-    type: 'select',
-    options: [
-      { value: 'engineering', label: 'Engineering' },
-      { value: 'product', label: 'Product' },
-      { value: 'design', label: 'Design' },
-      { value: 'marketing', label: 'Marketing' },
-      { value: 'sales', label: 'Sales' },
-    ],
-    placeholder: 'Select department',
-  },
+/**
+ * The filters other than department.
+ *
+ * <p>Department is built at run time from the tenant's own departments — see
+ * {@code departmentFilter} below. It used to be a hardcoded list of Engineering, Product, Design,
+ * Marketing and Sales, so a tenant whose departments are none of those was offered five filters
+ * that matched nothing.
+ */
+const staticFilters: FilterConfig[] = [
   {
     id: 'position_level',
     label: 'Position Level',
@@ -82,6 +79,16 @@ const analyticsFilters: FilterConfig[] = [
   },
 ];
 
+/** The department filter, over the names this tenant actually uses. */
+function departmentFilter(names: string[]): FilterConfig {
+  return {
+    id: 'department',
+    label: 'Department',
+    type: 'select',
+    options: names.map((name) => ({ value: name, label: name })),
+  };
+}
+
 const timeRangeOptions = [
   { key: 'week' as const, label: '7 Days' },
   { key: 'month' as const, label: '30 Days' },
@@ -99,6 +106,18 @@ export default function AnalyticsPage() {
   const [selectedTimeRange, setSelectedTimeRange] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
   const [showFilters, setShowFilters] = useState(false);
   const [insights, setInsights] = useState<Insight[]>([]);
+  const [departments, setDepartments] = useState<string[]>([]);
+  const [kpiValues, setKpiValues] = useState<Record<string, number | undefined>>({});
+
+  // The department the filter bar is set to, or none. Read out of filterValues rather than kept
+  // alongside them, so the two cannot disagree about what is selected.
+  const selectedDepartment =
+    (filterValues.find((f) => f.id === 'department')?.value as string | undefined) || '';
+
+  const analyticsFilters: FilterConfig[] = [
+    departmentFilter(departments),
+    ...staticFilters,
+  ];
   const [insightsLoading, setInsightsLoading] = useState(true);
   const { setCurrentRole } = useTheme();
 
@@ -119,10 +138,19 @@ export default function AnalyticsPage() {
   const loadInsights = useCallback(async () => {
     setInsightsLoading(true);
     try {
-      const res = await apiFetch('/api/analytics/kpis');
+      // /api/analytics/kpis takes a department and was called without one, so the tiles ignored
+      // the filter while the charts below obeyed it — the same bar governing half a page.
+      const res = await apiFetch(
+        `/api/analytics/kpis${selectedDepartment ? `?department=${encodeURIComponent(selectedDepartment)}` : ''}`,
+      );
       if (!res.ok) throw new Error('Failed to load KPIs');
       const json = await res.json();
       const kpis = json.kpis ?? {};
+      setKpiValues(
+        Object.fromEntries(
+          Object.entries(kpis).map(([key, kpi]) => [key, (kpi as { value?: number }).value]),
+        ),
+      );
       const derived: Insight[] = [];
 
       const interviewConversion = kpis['interview_conversion_rate']?.value;
@@ -181,11 +209,43 @@ export default function AnalyticsPage() {
     } finally {
       setInsightsLoading(false);
     }
-  }, []);
+  }, [selectedDepartment]);
 
   useEffect(() => {
     loadInsights();
   }, [loadInsights]);
+
+  useEffect(() => {
+    // A filter offering departments this tenant does not have is worse than no filter: it looks
+    // like it narrowed something and returns nothing.
+    (async () => {
+      try {
+        const res = await apiFetch('/api/departments/names');
+        const names = res.ok ? await res.json() : [];
+        setDepartments(Array.isArray(names) ? names : []);
+      } catch {
+        setDepartments([]);
+      }
+    })();
+  }, []);
+
+  /**
+   * The two or three figures somebody would repeat in a sentence about this screen.
+   *
+   * <p>Taken from the KPIs already fetched, so the band cannot disagree with the tiles beneath it.
+   * A KPI the endpoint did not return is shown as absent rather than as zero.
+   */
+  const bandFigures = [
+    { key: 'open_requisitions', label: 'Open roles' },
+    { key: 'active_candidates', label: 'In pipeline' },
+    { key: 'time_to_fill', label: 'Time to fill', suffix: ' days' },
+  ].map(({ key, label, suffix }) => {
+    const value = kpiValues[key];
+    return {
+      label,
+      value: value === undefined || value === null ? 'Not reported' : `${value}${suffix ?? ''}`,
+    };
+  });
 
   const handleExportCSV = async () => {
     try {
@@ -225,12 +285,37 @@ export default function AnalyticsPage() {
   );
 
   return (
-    <PageWrapper
-      title="Analytics Dashboard"
-      subtitle="Recruitment performance insights"
-      actions={actions}
-    >
-      <div className="space-y-6">
+    <PageWrapper actions={actions}>
+      <div className="space-y-4">
+        <IdentityBand
+          eyebrow="Recruitment"
+          title="Analytics"
+          subtitle={
+            selectedDepartment
+              ? `${selectedDepartment} · measured today`
+              : 'Across every department · measured today'
+          }
+          figures={bandFigures}
+        />
+
+        {/*
+          Which filter reaches what, said rather than implied.
+
+          Department now narrows the figures above and the charts below. Position level, source and
+          date range are not accepted by /api/analytics/kpis — those figures are a snapshot of
+          today — so they narrow the charts only. A bar that silently governs half a page is worse
+          than one that governs less and says so.
+        */}
+        <DecisionBar
+          ask={selectedDepartment ? `Showing ${selectedDepartment}` : 'Showing every department'}
+          why="Department narrows everything on this page. The other filters narrow the charts below; the figures above are today's."
+          tone="settled"
+        >
+          {selectedDepartment && (
+            <SecondaryAction onClick={handleFilterReset}>Show all departments</SecondaryAction>
+          )}
+        </DecisionBar>
+
         {/* Time range bar — pill toggle group + filter button */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex gap-1 bg-card border border-border rounded-button p-1">
