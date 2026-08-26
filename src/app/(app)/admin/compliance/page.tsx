@@ -147,11 +147,11 @@ export default function ComplianceDashboardPage() {
         {/* Reminders */}
         <Link href="/admin/compliance/reminders" className="enterprise-card p-5 flex items-center gap-4 transition-all duration-200 hover:shadow-md hover:-translate-y-px cursor-pointer">
           <div className="flex-shrink-0 w-[52px] h-[52px] rounded-xl bg-icon-bg-gold flex items-center justify-center">
-            <BellAlertIcon className="h-6 w-6 text-accent-gold" />
+            <BellAlertIcon className="h-6 w-6 text-accent-gold-on-tint" />
           </div>
           <div>
             <div className="font-bold text-sm text-foreground mb-0.5">Reminders</div>
-            <div className="text-2xl font-extrabold leading-tight text-accent-gold">{reminderStats.pending || 0}</div>
+            <div className="text-2xl font-extrabold leading-tight text-accent-gold-on-tint">{reminderStats.pending || 0}</div>
             <div className="text-xs text-muted-foreground">Pending</div>
           </div>
         </Link>
@@ -233,7 +233,7 @@ export default function ComplianceDashboardPage() {
                       <div className="w-3 h-3 rounded-sm bg-accent-gold" />
                       <span className="text-sm font-medium text-foreground">Expired Consents</span>
                     </div>
-                    <span className="text-base font-bold text-accent-gold">{expired > 0 ? expired : 0}</span>
+                    <span className="text-base font-bold text-accent-gold-on-tint">{expired > 0 ? expired : 0}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
@@ -374,7 +374,7 @@ function DsarTable({ dsarStats }: { dsarStats: Record<string, any> }) {
 
   const slaColorMap: Record<string, string> = {
     ok: 'text-accent-teal',
-    warn: 'text-accent-gold',
+    warn: 'text-accent-gold-on-tint',
     critical: 'text-accent-pink',
   };
 

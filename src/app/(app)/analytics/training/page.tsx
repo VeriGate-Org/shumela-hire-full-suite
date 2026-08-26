@@ -87,7 +87,7 @@ export default function TrainingAnalyticsPage() {
                 { label: 'Total Courses', value: summary.totalCourses, colorClass: 'text-accent-navy' },
                 { label: 'Active Courses', value: summary.activeCourses, colorClass: 'text-accent-teal' },
                 { label: 'Total Enrollments', value: summary.totalEnrollments?.toLocaleString(), colorClass: 'text-primary' },
-                { label: 'Completion Rate', value: `${summary.completionRate}%`, colorClass: 'text-accent-gold' },
+                { label: 'Completion Rate', value: `${summary.completionRate}%`, colorClass: 'text-accent-gold-on-tint' },
                 { label: 'Average Score', value: `${summary.averageScore}%`, colorClass: 'text-accent-navy' },
                 { label: 'Training Hours', value: summary.totalTrainingHours?.toLocaleString(), colorClass: 'text-primary' },
                 { label: 'Spend YTD', value: `R${summary.trainingSpendYTD?.toLocaleString()}`, colorClass: 'text-accent-pink' },
@@ -153,7 +153,7 @@ export default function TrainingAnalyticsPage() {
                           <td className="py-2 text-foreground max-w-[160px] truncate">{course.courseName}</td>
                           <td className="py-2 text-right text-accent-navy">{course.enrollments}</td>
                           <td className="py-2 text-right">
-                            <span className={course.completionRate >= 80 ? 'text-accent-teal' : 'text-accent-gold'}>
+                            <span className={course.completionRate >= 80 ? 'text-accent-teal' : 'text-accent-gold-on-tint'}>
                               {course.completionRate}%
                             </span>
                           </td>

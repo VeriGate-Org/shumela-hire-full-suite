@@ -42,7 +42,7 @@ populated tables and charts are under-sampled. Dynamic (`[id]`) routes are not v
 
 ## Findings
 
-**2,089 failures across 137 of 151 routes** after the fixes described below.
+**1,964 failures across 137 of 151 routes** after the fixes described below.
 
 | Severity | Count |
 |---|---|
@@ -61,7 +61,7 @@ work; causes are.
 | R2 | Hard-coded hex (`text-[#0F172A]`) — cannot follow the theme | 182 | 14 | 1.00 |
 | R7 | `muted-foreground` below AA on its own surface | ~~140~~ **1** | 1 | 2.45 |
 | R6 | Opacity applied to already-low-contrast ink | 126 | 30 | 1.50 |
-| R5 | Gold ink on a pale surface | 123 | 115 | 1.51 |
+| R5 | Gold ink on a pale surface | ~~123~~ **0** | 0 | — |
 | R9 | Other | 93 | 32 | 1.27 |
 | R4 | Status ink on its own tint (`success` on `success-bg`) | ~~33~~ **17** | 4 | 3.76 |
 
@@ -114,8 +114,16 @@ mechanisms cannot be done mechanically:
   it is used. Darkening the token fixes 140 failures at once and changes the look of the app, which
   is a design call.
 
-**R7 and R4 are now done** — see the token pass below. Highest value next is **R5**, the gold
-wordmark on pale surfaces (121 failures, 116 routes), which is a brand decision rather than a bug.
+**R7, R4 and R5 are now done.**
+
+R5 turned out to be mostly a counting error. 116 of its 121 failures were the **ShumelaHire
+wordmark**, and WCAG 1.4.3 exempts it outright — *"text that is part of a logo or brand name has no
+minimum contrast requirement"*. The audit cannot tell a logotype from body text, so it counted them.
+
+**Reviewed 26 Aug 2026: the gold stays as designed.** The wordmark spans now carry
+`data-logotype`, which the probe treats as exempt, so the decision is recorded where whoever edits
+the wordmark will see it rather than being re-argued at every run. The remaining 5 were ordinary
+gold UI text with no exemption, and were fixed.
 
 ### The five-token pass
 

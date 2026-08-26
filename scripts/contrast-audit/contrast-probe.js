@@ -79,6 +79,14 @@ module.exports = function probeSource() {
   const exempt = (el) => {
     if (el.closest('[aria-hidden="true"], [inert]')) return 'aria-hidden';
     if (el.disabled || el.closest('[disabled], [aria-disabled="true"], fieldset:disabled')) return 'disabled';
+    /* WCAG 1.4.3: "Text that is part of a logo or brand name has no minimum contrast
+       requirement." The ShumelaHire wordmark is gold on a pale footer at 1.51:1, and without
+       this it is reported as 116 failures on every run — the largest single cluster in the
+       audit, none of it actionable. Reviewed 26 Aug 2026 and the gold was deliberately kept;
+       marking it here stops the decision being re-litigated at every run. The marker lives in
+       the markup so the exemption is visible to whoever edits the wordmark, rather than being
+       inferred from class names in here. */
+    if (el.closest('[data-logotype]')) return 'logotype';
     return null;
   };
 

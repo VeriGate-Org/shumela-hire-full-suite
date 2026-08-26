@@ -79,7 +79,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onClose }) 
           <div className="flex items-center space-x-3">
             <img src="/icons/shumelahire-icon.svg" alt="ShumelaHire" className="w-7 h-7" />
             <h2 className="text-sm font-extrabold tracking-[-0.03em]">
-              <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
+              <span data-logotype className="text-primary">Shumela</span><span data-logotype className="text-cta">Hire</span>
             </h2>
           </div>
           <button
