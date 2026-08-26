@@ -19,32 +19,32 @@ const CATEGORY_BADGE: Record<string, string> = {
   Technical: 'bg-icon-bg-navy text-primary',
   'Compliance & Safety': 'bg-icon-bg-pink text-accent-pink',
   Communication: 'bg-icon-bg-teal text-accent-teal',
-  'Problem Solving': 'bg-icon-bg-gold text-accent-gold',
-  Leadership: 'bg-icon-bg-gold text-accent-gold',
-  Financial: 'bg-icon-bg-gold text-accent-gold',
+  'Problem Solving': 'bg-icon-bg-gold text-accent-gold-on-tint',
+  Leadership: 'bg-icon-bg-gold text-accent-gold-on-tint',
+  Financial: 'bg-icon-bg-gold text-accent-gold-on-tint',
 };
 
 const ICON_BG: Record<string, string> = {
   Technical: 'bg-icon-bg-navy text-primary',
   'Compliance & Safety': 'bg-icon-bg-pink text-accent-pink',
   Communication: 'bg-icon-bg-teal text-accent-teal',
-  'Problem Solving': 'bg-icon-bg-gold text-accent-gold',
-  Leadership: 'bg-icon-bg-gold text-accent-gold',
-  Financial: 'bg-icon-bg-gold text-accent-gold',
+  'Problem Solving': 'bg-icon-bg-gold text-accent-gold-on-tint',
+  Leadership: 'bg-icon-bg-gold text-accent-gold-on-tint',
+  Financial: 'bg-icon-bg-gold text-accent-gold-on-tint',
 };
 
 // Cycle through icon-bg colours per-framework when category not available
 const ICON_CYCLE = [
   'bg-icon-bg-navy text-primary',
   'bg-icon-bg-teal text-accent-teal',
-  'bg-icon-bg-gold text-accent-gold',
+  'bg-icon-bg-gold text-accent-gold-on-tint',
   'bg-icon-bg-pink text-accent-pink',
 ];
 
 const BADGE_CYCLE = [
   'bg-icon-bg-navy text-primary',
   'bg-icon-bg-teal text-accent-teal',
-  'bg-icon-bg-gold text-accent-gold',
+  'bg-icon-bg-gold text-accent-gold-on-tint',
   'bg-icon-bg-pink text-accent-pink',
 ];
 
@@ -229,7 +229,7 @@ export default function CompetenciesPage() {
 
                 {/* Profiles Assessed (derived: active frameworks) */}
                 <div className="enterprise-card p-5 flex items-center gap-4 transition hover:-translate-y-px">
-                  <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center shrink-0">
                     <UserGroupIcon className="w-6 h-6" />
                   </div>
                   <div>

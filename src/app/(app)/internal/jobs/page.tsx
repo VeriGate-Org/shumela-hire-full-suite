@@ -262,7 +262,7 @@ export default function InternalJobsBoard() {
             Also open to external candidates
           </span>
         ) : isInternal ? (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-surface-gold text-accent-gold">
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-surface-gold text-accent-gold-on-tint">
             <UserGroupIcon className="w-3 h-3 mr-1" />
             Colleagues only
           </span>

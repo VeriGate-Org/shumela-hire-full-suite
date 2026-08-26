@@ -221,14 +221,14 @@ export default function ReviewsListPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[0.8125rem] text-muted-foreground font-medium">Completed:</span>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-button text-xs font-bold uppercase tracking-wide bg-success-bg text-success">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-button text-xs font-bold uppercase tracking-wide bg-success-bg text-success-on-tint">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                       {stats.completed}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[0.8125rem] text-muted-foreground font-medium">Pending:</span>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-button text-xs font-bold uppercase tracking-wide bg-warning-bg text-warning">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-button text-xs font-bold uppercase tracking-wide bg-warning-bg text-warning-on-tint">
                       {stats.pending}
                     </span>
                   </div>
@@ -256,7 +256,7 @@ export default function ReviewsListPage() {
                 {/* Stages Row */}
                 <div className="flex items-center gap-0 flex-wrap">
                   <div className={`flex items-center gap-2 text-[0.8125rem] font-semibold ${stats.completed > 0 ? 'text-success' : 'text-muted-foreground'}`}>
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs shrink-0 ${stats.completed > 0 ? 'bg-success-bg text-success' : 'bg-muted text-muted-foreground'}`}>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs shrink-0 ${stats.completed > 0 ? 'bg-success-bg text-success-on-tint' : 'bg-muted text-muted-foreground'}`}>
                       {stats.completed > 0 ? (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                       ) : '1'}

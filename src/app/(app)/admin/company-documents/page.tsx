@@ -45,16 +45,16 @@ const CATEGORY_BADGE_STYLES: Record<string, string> = {
   POLICY: 'bg-icon-bg-navy text-accent-navy',
   HANDBOOK: 'bg-icon-bg-teal text-accent-teal',
   PROCEDURE: 'bg-icon-bg-teal text-accent-teal',
-  FORM: 'bg-icon-bg-gold text-accent-gold',
+  FORM: 'bg-icon-bg-gold text-accent-gold-on-tint',
   TEMPLATE: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
   ANNOUNCEMENT: 'bg-icon-bg-pink text-accent-pink',
 };
 
 function getFileTypeStyle(filename: string): string {
   const ext = filename?.split('.').pop()?.toLowerCase();
-  if (ext === 'pdf') return 'bg-error-bg text-error';
+  if (ext === 'pdf') return 'bg-error-bg text-error-on-tint';
   if (ext === 'doc' || ext === 'docx') return 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400';
-  if (ext === 'xls' || ext === 'xlsx') return 'bg-success-bg text-success';
+  if (ext === 'xls' || ext === 'xlsx') return 'bg-success-bg text-success-on-tint';
   return 'bg-surface-navy text-accent-navy';
 }
 
@@ -352,7 +352,7 @@ export default function AdminCompanyDocumentsPage() {
                 </div>
               </div>
               <div className="enterprise-card flex items-center gap-4 p-5 hover:-translate-y-px transition-transform">
-                <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 bg-icon-bg-gold text-accent-gold">
+                <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 bg-icon-bg-gold text-accent-gold-on-tint">
                   <ClockIcon className="w-6 h-6" />
                 </div>
                 <div>
@@ -548,7 +548,7 @@ export default function AdminCompanyDocumentsPage() {
                               )}
                               <button
                                 onClick={() => setDeleteId(doc.id)}
-                                className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-all"
+                                className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-all"
                                 title="Delete"
                               >
                                 <TrashIcon className="w-4 h-4" />

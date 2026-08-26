@@ -639,7 +639,7 @@ export default function MessagesPage() {
             <h2 className="text-lg font-bold text-foreground">New Message</h2>
             <button
               onClick={closeCompose}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-colors"
             >
               <XMarkIcon className="w-[18px] h-[18px]" />
             </button>
@@ -667,7 +667,7 @@ export default function MessagesPage() {
                     {r.name}
                     <button
                       onClick={() => removeRecipient(r.name)}
-                      className="w-4 h-4 rounded-full flex items-center justify-center text-primary hover:bg-error-bg hover:text-error transition-colors ml-0.5"
+                      className="w-4 h-4 rounded-full flex items-center justify-center text-primary hover:bg-error-bg hover:text-error-on-tint transition-colors ml-0.5"
                     >
                       <XMarkIcon className="w-2.5 h-2.5" />
                     </button>

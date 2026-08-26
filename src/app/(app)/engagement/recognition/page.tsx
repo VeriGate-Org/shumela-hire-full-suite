@@ -46,7 +46,7 @@ const CATEGORY_STYLES: Record<string, string> = {
   TEAMWORK: 'bg-icon-bg-navy text-accent-navy',
   INNOVATION: 'bg-icon-bg-teal text-accent-teal',
   CUSTOMER_SERVICE: 'bg-surface-teal text-accent-teal border border-icon-bg-teal',
-  LEADERSHIP: 'bg-icon-bg-gold text-accent-gold',
+  LEADERSHIP: 'bg-icon-bg-gold text-accent-gold-on-tint',
   GOING_ABOVE: 'bg-icon-bg-pink text-accent-pink',
   EXCELLENCE: 'bg-icon-bg-pink text-accent-pink',
   SERVICE: 'bg-surface-teal text-accent-teal border border-icon-bg-teal',
@@ -485,7 +485,7 @@ export default function RecognitionPage() {
                         : idx === 1
                           ? 'bg-border text-foreground'
                           : idx === 2
-                            ? 'bg-icon-bg-gold text-accent-gold'
+                            ? 'bg-icon-bg-gold text-accent-gold-on-tint'
                             : 'bg-background text-muted-foreground';
 
                     return (

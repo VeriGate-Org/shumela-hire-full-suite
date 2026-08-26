@@ -159,7 +159,7 @@ export default function DocumentRetentionPage() {
     const styles: Record<string, string> = {
       DELETE: 'bg-icon-bg-pink text-accent-pink',
       ARCHIVE: 'bg-icon-bg-navy text-accent-navy',
-      NOTIFY: 'bg-icon-bg-gold text-accent-gold',
+      NOTIFY: 'bg-icon-bg-gold text-accent-gold-on-tint',
     };
     return (
       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-button text-[0.6875rem] font-semibold uppercase tracking-wide ${styles[action] || 'bg-muted text-muted-foreground'}`}>
@@ -479,7 +479,7 @@ export default function DocumentRetentionPage() {
               {/* Archive Policies */}
               <div className="enterprise-card p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
                 <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
                   </div>
                   <div>
@@ -581,7 +581,7 @@ export default function DocumentRetentionPage() {
                             <div className={`flex-shrink-0 w-9 h-9 rounded-control flex items-center justify-center ${
                               policy.action === 'DELETE' ? 'bg-icon-bg-pink text-accent-pink' :
                               policy.action === 'ARCHIVE' ? 'bg-icon-bg-navy text-accent-navy' :
-                              'bg-icon-bg-gold text-accent-gold'
+                              'bg-icon-bg-gold text-accent-gold-on-tint'
                             }`}>
                               <ClockIcon className="w-[18px] h-[18px]" />
                             </div>
@@ -616,7 +616,7 @@ export default function DocumentRetentionPage() {
                             <button
                               onClick={() => setDeleteId(policy.id)}
                               title="Delete Policy"
-                              className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-all duration-200"
+                              className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error-on-tint transition-all duration-200"
                             >
                               <TrashIcon className="w-4 h-4" />
                             </button>

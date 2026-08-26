@@ -139,7 +139,7 @@ export default function MyDevelopmentPage() {
               {[
                 { icon: DocumentTextIcon, label: 'Total Plans', value: idps.length, iconColor: 'text-accent-navy', iconBg: 'bg-icon-bg-navy' },
                 { icon: CheckCircleIcon, label: 'Completion Rate', value: `${progress}%`, iconColor: 'text-accent-teal', iconBg: 'bg-icon-bg-teal' },
-                { icon: AcademicCapIcon, label: 'Goals Achieved', value: completedGoals, iconColor: 'text-accent-gold', iconBg: 'bg-icon-bg-gold' },
+                { icon: AcademicCapIcon, label: 'Goals Achieved', value: completedGoals, iconColor: 'text-accent-gold-on-tint', iconBg: 'bg-icon-bg-gold' },
                 { icon: ClockIcon, label: 'In Progress', value: inProgressGoals, iconColor: 'text-accent-pink', iconBg: 'bg-icon-bg-pink' },
               ].map((metric) => (
                 <div key={metric.label} className="enterprise-card p-5 hover:-translate-y-px transition-all">
@@ -258,7 +258,7 @@ export default function MyDevelopmentPage() {
                         goal.status === 'COMPLETED'
                           ? 'bg-icon-bg-teal text-accent-teal'
                           : goal.status === 'IN_PROGRESS'
-                            ? 'bg-icon-bg-gold text-accent-gold'
+                            ? 'bg-icon-bg-gold text-accent-gold-on-tint'
                             : goal.status === 'CANCELLED'
                               ? 'bg-icon-bg-pink text-accent-pink'
                               : 'bg-icon-bg-navy text-accent-navy'
@@ -324,7 +324,7 @@ export default function MyDevelopmentPage() {
                       </span>
                     )}
                     {activeIdp.goals.filter(g => g.linkedCertificationId).length > 0 && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-button text-[0.6875rem] font-semibold tracking-wide bg-icon-bg-gold text-accent-gold">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-button text-[0.6875rem] font-semibold tracking-wide bg-icon-bg-gold text-accent-gold-on-tint">
                         {activeIdp.goals.filter(g => g.linkedCertificationId).length} Certification{activeIdp.goals.filter(g => g.linkedCertificationId).length !== 1 ? 's' : ''}
                       </span>
                     )}
@@ -398,7 +398,7 @@ export default function MyDevelopmentPage() {
                             goal.status === 'COMPLETED'
                               ? 'bg-icon-bg-teal text-accent-teal'
                               : goal.status === 'IN_PROGRESS'
-                                ? 'bg-icon-bg-gold text-accent-gold'
+                                ? 'bg-icon-bg-gold text-accent-gold-on-tint'
                                 : goal.status === 'CANCELLED'
                                   ? 'bg-icon-bg-pink text-accent-pink'
                                   : 'bg-icon-bg-navy text-accent-navy'
@@ -436,7 +436,7 @@ export default function MyDevelopmentPage() {
                           </span>
                         )}
                         {plan.goals.filter(g => g.linkedCertificationId).length > 0 && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-button text-[0.6875rem] font-semibold tracking-wide bg-icon-bg-gold text-accent-gold">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-button text-[0.6875rem] font-semibold tracking-wide bg-icon-bg-gold text-accent-gold-on-tint">
                             Certification
                           </span>
                         )}

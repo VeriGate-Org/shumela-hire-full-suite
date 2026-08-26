@@ -114,7 +114,7 @@ export default function SsoConfigPage() {
             </div>
 
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-              <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
                 <CheckBadgeIcon className="w-6 h-6" />
               </div>
               <div>

@@ -53,7 +53,7 @@ function initials(emp: DirectReport): string {
 const AVATAR_PALETTES = [
   { bg: 'bg-icon-bg-navy', text: 'text-accent-navy', solid: 'bg-accent-navy' },
   { bg: 'bg-icon-bg-teal', text: 'text-accent-teal', solid: 'bg-accent-teal' },
-  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold', solid: 'bg-accent-gold' },
+  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint', solid: 'bg-accent-gold' },
   { bg: 'bg-icon-bg-pink', text: 'text-accent-pink', solid: 'bg-accent-pink' },
 ] as const;
 
@@ -67,7 +67,7 @@ function statusBadge(status?: string) {
   const upper = status.toUpperCase();
   let classes = 'bg-surface-teal text-accent-teal'; // default: active
   if (upper === 'ON_LEAVE' || upper === 'ON LEAVE')
-    classes = 'bg-surface-gold text-accent-gold';
+    classes = 'bg-surface-gold text-accent-gold-on-tint';
   if (upper === 'TERMINATED' || upper === 'INACTIVE')
     classes = 'bg-surface-pink text-accent-pink';
 
@@ -111,7 +111,7 @@ function StatCard({
   const iconBgMap = {
     navy: 'bg-icon-bg-navy text-accent-navy',
     teal: 'bg-icon-bg-teal text-accent-teal',
-    gold: 'bg-icon-bg-gold text-accent-gold',
+    gold: 'bg-icon-bg-gold text-accent-gold-on-tint',
     pink: 'bg-icon-bg-pink text-accent-pink',
   };
   return (

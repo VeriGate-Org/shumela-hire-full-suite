@@ -327,7 +327,7 @@ export default function AnalyticsPage() {
                 {/* Gold accent bar at top */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-accent-gold" />
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-9 h-9 rounded-full bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
                     <ExclamationTriangleIcon className="w-[18px] h-[18px]" />
                   </div>
                   <h3 className="text-[0.9375rem] font-bold text-foreground">Areas for Improvement</h3>

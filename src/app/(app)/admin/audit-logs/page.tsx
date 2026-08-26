@@ -462,7 +462,7 @@ export default function AuditLogsPage() {
 
           {/* Warnings (Critical Events) */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
               <ExclamationTriangleIcon className="w-6 h-6" />
             </div>
             <div>
@@ -746,7 +746,7 @@ export default function AuditLogsPage() {
                       // Severity badge colors matching mock (pill with dot)
                       const severityStyles: Record<string, string> = {
                         info: 'bg-icon-bg-navy text-accent-navy',
-                        warning: 'bg-icon-bg-gold text-accent-gold',
+                        warning: 'bg-icon-bg-gold text-accent-gold-on-tint',
                         error: 'bg-icon-bg-pink text-accent-pink',
                         critical: 'bg-icon-bg-pink text-accent-pink',
                       };
@@ -761,7 +761,7 @@ export default function AuditLogsPage() {
                       const avatarColors = [
                         { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
                         { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
-                        { bg: 'bg-icon-bg-gold', text: 'text-accent-gold' },
+                        { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
                         { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
                       ];
                       const avatarColor = avatarColors[idx % avatarColors.length];
@@ -933,7 +933,7 @@ export default function AuditLogsPage() {
                           const sev = row.value as 'info' | 'warning' | 'error' | 'critical';
                           const styles: Record<string, string> = {
                             info: 'bg-icon-bg-navy text-accent-navy',
-                            warning: 'bg-icon-bg-gold text-accent-gold',
+                            warning: 'bg-icon-bg-gold text-accent-gold-on-tint',
                             error: 'bg-icon-bg-pink text-accent-pink',
                             critical: 'bg-icon-bg-pink text-accent-pink',
                           };

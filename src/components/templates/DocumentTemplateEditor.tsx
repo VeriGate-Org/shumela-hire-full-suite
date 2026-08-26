@@ -168,7 +168,7 @@ const DocumentTemplateEditor: React.FC<DocumentTemplateEditorProps> = ({
   return (
     <div className="space-y-6">
       {error && (
-        <div className="bg-error-bg border border-error/30 rounded-card p-4 text-sm text-error">
+        <div className="bg-error-bg border border-error/30 rounded-card p-4 text-sm text-error-on-tint">
           {error}
         </div>
       )}
@@ -202,7 +202,7 @@ const DocumentTemplateEditor: React.FC<DocumentTemplateEditorProps> = ({
               <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${
                 template.isArchived
                   ? 'bg-surface-navy text-muted-foreground'
-                  : 'bg-success-bg text-success'
+                  : 'bg-success-bg text-success-on-tint'
               }`}>
                 <span className="w-1.5 h-1.5 rounded-full bg-current" />
                 {template.isArchived ? 'Archived' : 'Active'}

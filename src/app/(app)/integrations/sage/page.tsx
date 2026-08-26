@@ -174,7 +174,7 @@ export default function SageDashboardPage() {
 
               {/* Test Success Rate */}
               <div className="enterprise-card p-5 flex items-start gap-4">
-                <div className="w-11 h-11 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+                <div className="w-11 h-11 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
                   <SignalIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div>
@@ -270,7 +270,7 @@ export default function SageDashboardPage() {
                             <span
                               className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
                                 connector.isActive
-                                  ? 'bg-success-bg text-success'
+                                  ? 'bg-success-bg text-success-on-tint'
                                   : 'bg-muted text-muted-foreground'
                               }`}
                             >
@@ -350,7 +350,7 @@ export default function SageDashboardPage() {
                         href="/integrations/sage/logs"
                         className="flex items-center gap-3 rounded-control border border-border p-4 hover:bg-surface-navy transition-colors group"
                       >
-                        <div className="w-10 h-10 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
                           <ClipboardDocumentListIcon className="w-5 h-5" />
                         </div>
                         <div>
@@ -459,7 +459,7 @@ export default function SageDashboardPage() {
                                   ? 'bg-surface-teal text-accent-teal'
                                   : log.direction === 'INBOUND' || log.direction === 'PULL'
                                     ? 'bg-surface-navy text-accent-navy'
-                                    : 'bg-surface-gold text-accent-gold'
+                                    : 'bg-surface-gold text-accent-gold-on-tint'
                               }`}
                             >
                               {log.direction === 'OUTBOUND' || log.direction === 'PUSH' ? (

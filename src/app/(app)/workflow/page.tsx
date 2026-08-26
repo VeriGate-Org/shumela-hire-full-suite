@@ -398,7 +398,7 @@ export default function WorkflowPage() {
             </div>
 
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-0.5 transition-transform">
-              <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
                 <ShieldCheckIcon className="w-6 h-6" />
               </div>
               <div>
@@ -504,7 +504,7 @@ export default function WorkflowPage() {
                   selectedExecution.status === 'completed' ? 'bg-surface-teal text-accent-teal' :
                   selectedExecution.status === 'failed' ? 'bg-icon-bg-pink text-accent-pink' :
                   selectedExecution.status === 'running' ? 'bg-icon-bg-navy text-accent-navy' :
-                  'bg-icon-bg-gold text-accent-gold'
+                  'bg-icon-bg-gold text-accent-gold-on-tint'
                 }`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${
                     selectedExecution.status === 'completed' ? 'bg-accent-teal' :

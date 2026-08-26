@@ -425,7 +425,7 @@ export default function SettingsPage() {
                         <td className="px-4 py-3.5 text-sm text-foreground border-b border-border">
                           {session.lastActive}
                           {session.current && (
-                            <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.6875rem] font-bold bg-success-bg text-success">
+                            <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.6875rem] font-bold bg-success-bg text-success-on-tint">
                               Current
                             </span>
                           )}

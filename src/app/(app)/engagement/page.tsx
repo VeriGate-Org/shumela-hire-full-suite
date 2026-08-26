@@ -40,7 +40,7 @@ const AVATAR_STYLES = [
 ];
 
 const RANK_STYLES: Record<number, string> = {
-  1: 'bg-icon-bg-gold text-accent-gold',
+  1: 'bg-icon-bg-gold text-accent-gold-on-tint',
   2: 'bg-icon-bg-navy text-accent-navy',
   3: 'bg-icon-bg-teal text-accent-teal',
 };
@@ -55,7 +55,7 @@ const PROGRESS_COLORS = [
 const CATEGORY_STYLES: Record<string, string> = {
   TEAMWORK: 'bg-icon-bg-teal text-accent-teal',
   LEADERSHIP: 'bg-icon-bg-navy text-accent-navy',
-  INNOVATION: 'bg-icon-bg-gold text-accent-gold',
+  INNOVATION: 'bg-icon-bg-gold text-accent-gold-on-tint',
   SAFETY: 'bg-icon-bg-pink text-accent-pink',
   SERVICE_EXCELLENCE: 'bg-surface-navy text-accent-navy',
   CUSTOMER_SERVICE: 'bg-surface-navy text-accent-navy',
@@ -64,7 +64,7 @@ const CATEGORY_STYLES: Record<string, string> = {
 const WELLNESS_ICON_STYLES = [
   'bg-icon-bg-teal text-accent-teal',
   'bg-icon-bg-navy text-accent-navy',
-  'bg-icon-bg-gold text-accent-gold',
+  'bg-icon-bg-gold text-accent-gold-on-tint',
   'bg-icon-bg-pink text-accent-pink',
 ];
 
@@ -315,7 +315,7 @@ export default function EngagementDashboardPage() {
                           {/* Title + status */}
                           <div className="flex items-center justify-between mb-2">
                             <span className="font-semibold text-[0.9375rem] text-foreground">{survey.title}</span>
-                            <span className="px-2 py-0.5 text-xs font-semibold rounded-button bg-success-bg text-success">Active</span>
+                            <span className="px-2 py-0.5 text-xs font-semibold rounded-button bg-success-bg text-success-on-tint">Active</span>
                           </div>
 
                           {/* Meta row */}
@@ -535,7 +535,7 @@ export default function EngagementDashboardPage() {
                             {program.currentParticipants}{program.maxParticipants ? `/${program.maxParticipants}` : ''} enrolled
                           </div>
                           <div className="mt-2">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-button text-[0.6875rem] font-semibold bg-success-bg text-success">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-button text-[0.6875rem] font-semibold bg-success-bg text-success-on-tint">
                               {program.programType}
                             </span>
                           </div>
