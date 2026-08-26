@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -24,17 +25,40 @@ import java.util.Optional;
  * may read is not a neutral one. Authority is now read from the user record and the parameter is
  * gone.
  *
- * <p>An unknown or unset level is <b>zero</b>, which yields no offers. That is deliberately the
- * safe direction: someone who should see offers and does not will say so, whereas someone who
- * should not see them and does will not.
+ * <p><b>An unset level falls back to the role's default; an explicit one always wins.</b> Nobody
+ * had a level, so no offer ever reached the approval queue — the mechanism was correct and inert.
+ * The defaults below match what the code already calls the two levels: {@code OfferService} sets
+ * {@code approvalLevelRequired} to 1 for "manager approval" and 2 for "senior management", above a
+ * configured threshold.
+ *
+ * <p>An earlier version of this note said authority is never derived from a role, on the grounds
+ * that a role says what somebody does rather than what they may commit the organisation to. That
+ * still holds for the <em>grant</em> — which is why an explicit level, including zero, overrides
+ * the default and is never quietly widened by a role change. The default only decides what happens
+ * before an administrator has said anything.
+ *
+ * <p>An unknown user, an unreadable record or an unresolvable principal is still <b>zero</b>. That
+ * is the safe direction: someone who should see offers and does not will say so, whereas someone
+ * who should not see them and does will not.
  */
 @Component("approvalAuthority")
 public class ApprovalAuthority {
 
     private static final Logger logger = LoggerFactory.getLogger(ApprovalAuthority.class);
 
-    /** Granted to nobody by default. Authority is assigned, never assumed. */
+    /** No authority. An explicit zero means the same and is never overridden by a role default. */
     public static final int NONE = 0;
+
+    /**
+     * What each role may approve before an administrator says otherwise.
+     *
+     * <p>Roles absent from this map default to {@link #NONE}: a recruiter or hiring manager raises
+     * offers and salary reviews, and does not approve them.
+     */
+    private static final Map<User.Role, Integer> ROLE_DEFAULTS = Map.of(
+            User.Role.ADMIN, 2,
+            User.Role.EXECUTIVE, 2,
+            User.Role.HR_MANAGER, 1);
 
     private final UserDataRepository userRepository;
 
@@ -58,9 +82,14 @@ public class ApprovalAuthority {
                 return NONE;
             }
             Integer level = user.get().getApprovalLevel();
+            if (level == null) {
+                // Nothing granted yet, so the role decides. An administrator setting a level —
+                // including zero — replaces this permanently.
+                return ROLE_DEFAULTS.getOrDefault(user.get().getRole(), NONE);
+            }
             // A negative level is meaningless and would be a data error rather than a grant of
             // negative authority; it is floored rather than trusted.
-            return level == null ? NONE : Math.max(NONE, level);
+            return Math.max(NONE, level);
         } catch (Exception e) {
             // Failing closed matters more than failing loudly here: this decides what somebody is
             // shown, and an unreadable user record must not widen it.

@@ -196,6 +196,7 @@ const RecruiterDashboard: React.FC = () => {
               ]
             : []
         }
+      actions={<RecruiterDashboardFilters />}
       />
 
       {/* The page says what is wrong before it says anything else. A dashboard should be boring

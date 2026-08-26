@@ -370,7 +370,7 @@ export default function ExecutiveReportsPage() {
   }
 
   return (
-    <PageWrapper actions={actions}>
+    <PageWrapper>
       <div className="space-y-4">
         <IdentityBand
           eyebrow="Executive"
@@ -393,7 +393,8 @@ export default function ExecutiveReportsPage() {
               tone: (performanceAlerts.length > 0 ? 'warning' : undefined) as 'warning' | undefined,
             },
           ]}
-        />
+        actions={actions}
+      />
 
         {/*
           Which control governs what. The period narrows the alerts and the department pipeline —

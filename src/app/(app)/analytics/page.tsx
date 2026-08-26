@@ -285,7 +285,7 @@ export default function AnalyticsPage() {
   );
 
   return (
-    <PageWrapper actions={actions}>
+    <PageWrapper>
       <div className="space-y-4">
         <IdentityBand
           eyebrow="Recruitment"
@@ -296,7 +296,8 @@ export default function AnalyticsPage() {
               : 'Across every department · measured today'
           }
           figures={bandFigures}
-        />
+        actions={actions}
+      />
 
         {/*
           Which filter reaches what, said rather than implied.

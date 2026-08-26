@@ -6,6 +6,8 @@ import com.arthmatic.shumelahire.dto.compliance.DataSubjectRequestResponse;
 import com.arthmatic.shumelahire.service.compliance.ConsentService;
 import com.arthmatic.shumelahire.service.compliance.DataSubjectRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.arthmatic.shumelahire.security.ActorEmail;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -77,6 +79,44 @@ public class PopiaComplianceController {
         try {
             DataSubjectRequestResponse dsar = dsarService.createRequest(
                     requesterName, requesterEmail, requestType, description);
+            return ResponseEntity.status(HttpStatus.CREATED).body(dsar);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Raise a data-subject request about yourself.
+     * POST /api/compliance/popia/dsar/mine?requestType=ERASURE
+     *
+     * <p>The rest of this controller is staff-only, so a candidate who wanted their demographics
+     * erased had to ask somebody to log it for them — POPIA gives the data subject the right to
+     * request, and the only screen where they manage their consent could not exercise it.
+     *
+     * <p><b>The requester is taken from the token, never from a parameter.</b> The staff endpoint
+     * above accepts requesterName and requesterEmail because staff log requests on behalf of
+     * others; accepting them here would let anybody raise an erasure request in somebody else's
+     * name, which is a deletion request against another person's record.
+     *
+     * <p>The method-level rule replaces the class-level one rather than adding to it — that is how
+     * Spring composes them, and it is the whole reason this can sit on a staff-only controller.
+     */
+    @PostMapping("/dsar/mine")
+    @PreAuthorize("hasAnyRole('APPLICANT', 'EMPLOYEE', 'ADMIN', 'HR_MANAGER')")
+    public ResponseEntity<?> createOwnDsar(@RequestParam String requestType,
+                                           @RequestParam(required = false) String description,
+                                           Authentication requester) {
+        String email = ActorEmail.of(requester);
+        if (email == null || email.isBlank()) {
+            // No identity, no request. Falling back to a parameter here is exactly the hole this
+            // endpoint exists to avoid.
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Could not establish who is asking"));
+        }
+
+        try {
+            DataSubjectRequestResponse dsar = dsarService.createRequest(
+                    email, email, requestType, description);
             return ResponseEntity.status(HttpStatus.CREATED).body(dsar);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
