@@ -1,145 +1,125 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import PageWrapper from '../PageWrapper';
+import { PageHeadingProvider, usePageHeading } from '@/contexts/PageHeadingContext';
 
-// Mock aws-amplify/auth
-jest.mock('aws-amplify/auth', () => ({
-  signIn: jest.fn(),
-  signOut: jest.fn(),
-  fetchAuthSession: jest.fn(),
-  getCurrentUser: jest.fn(),
-  fetchUserAttributes: jest.fn(),
-}));
+/**
+ * PageWrapper renders a page's heading and its content — and, importantly, nothing else.
+ *
+ * <p>It used to render ModernLayout, so every page carried its own sidebar, top bar and footer and
+ * each navigation rebuilt the lot. The shell now belongs to the app layout. These tests hold that
+ * boundary: the props are unchanged, but the chrome must not come back.
+ */
 
-// Mock aws-amplify
-jest.mock('aws-amplify', () => ({
-  Amplify: {
-    configure: jest.fn(),
-  },
-}));
-
-// Mock amplify-config
-jest.mock('@/lib/amplify-config', () => ({
-  isCognitoConfigured: false,
-  configureAmplify: jest.fn(),
-}));
-
-// Mock next/navigation
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
-    back: jest.fn(),
-  }),
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn(), prefetch: jest.fn(), back: jest.fn() }),
   usePathname: () => '/dashboard',
   useSearchParams: () => new URLSearchParams(),
 }));
 
-// Mock next/link
 jest.mock('next/link', () => {
   return function MockLink({ children, href, ...props }: { children: React.ReactNode; href: string }) {
     return <a href={href} {...props}>{children}</a>;
   };
 });
 
-// Mock the ModernLayout component to isolate PageWrapper testing
-jest.mock('@/components/ModernLayout', () => {
-  return function MockModernLayout({
-    children,
-    title,
-    subtitle,
-    actions,
-  }: {
-    children: React.ReactNode;
-    title?: string;
-    subtitle?: string;
-    actions?: React.ReactNode;
-  }) {
-    return (
-      <div data-testid="modern-layout">
-        {title && <h1 data-testid="layout-title">{title}</h1>}
-        {subtitle && <p data-testid="layout-subtitle">{subtitle}</p>}
-        {actions && <div data-testid="layout-actions">{actions}</div>}
-        <div data-testid="layout-children">{children}</div>
-      </div>
-    );
-  };
-});
+/** Reports whatever title PageWrapper published upward for the breadcrumb. */
+function TitleSpy() {
+  const { title } = usePageHeading();
+  return <span data-testid="published-title">{title ?? '(none)'}</span>;
+}
 
 function renderPageWrapper(props: React.ComponentProps<typeof PageWrapper>) {
   return render(
-    <PageWrapper {...props} />
+    <PageHeadingProvider>
+      <TitleSpy />
+      <PageWrapper {...props} />
+    </PageHeadingProvider>,
   );
 }
 
 describe('PageWrapper', () => {
-  it('renders title and subtitle', async () => {
+  it('renders title and subtitle', () => {
     renderPageWrapper({
       title: 'Job Listings',
       subtitle: 'Manage all open positions',
       children: <div>Content</div>,
     });
 
-    expect(await screen.findByTestId('layout-title')).toHaveTextContent('Job Listings');
-    expect(screen.getByTestId('layout-subtitle')).toHaveTextContent('Manage all open positions');
+    expect(screen.getByRole('heading', { name: 'Job Listings' })).toBeInTheDocument();
+    expect(screen.getByText('Manage all open positions')).toBeInTheDocument();
   });
 
-  it('renders children content', async () => {
-    renderPageWrapper({
-      children: <div data-testid="page-content">Main page content</div>,
-    });
+  it('renders children content', () => {
+    renderPageWrapper({ children: <div data-testid="page-content">Main page content</div> });
 
-    const children = await screen.findByTestId('layout-children');
-    expect(children).toBeInTheDocument();
     expect(screen.getByTestId('page-content')).toHaveTextContent('Main page content');
   });
 
-  it('renders actions when provided', async () => {
+  it('renders actions when provided', () => {
     renderPageWrapper({
       title: 'Dashboard',
       actions: <button>Add New</button>,
       children: <div>Content</div>,
     });
 
-    const actionsContainer = await screen.findByTestId('layout-actions');
-    expect(actionsContainer).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add New' })).toBeInTheDocument();
   });
 
-  it('does not render actions container when no actions are provided', async () => {
-    renderPageWrapper({
-      title: 'Reports',
-      children: <div>Report content</div>,
-    });
+  it('renders no heading block at all when there is nothing to put in it', () => {
+    const { container } = renderPageWrapper({ children: <div>Content</div> });
 
-    await screen.findByTestId('layout-title');
-    expect(screen.queryByTestId('layout-actions')).not.toBeInTheDocument();
+    expect(container.querySelector('section')).toBeNull();
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
   });
 
-  it('does not render title or subtitle when none provided', async () => {
-    renderPageWrapper({
-      children: <div>Content</div>,
-    });
-
-    await screen.findByTestId('layout-children');
-    expect(screen.queryByTestId('layout-title')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('layout-subtitle')).not.toBeInTheDocument();
-  });
-
-  it('passes ModernLayout the correct props structure', async () => {
-    renderPageWrapper({
+  it('does not render the application chrome — that belongs to the layout', () => {
+    const { container } = renderPageWrapper({
       title: 'Interviews',
       subtitle: 'Upcoming interview schedule',
-      actions: <span>Filter button</span>,
       children: <div>Interview list</div>,
     });
 
-    const layout = await screen.findByTestId('modern-layout');
-    expect(layout).toBeInTheDocument();
-    expect(screen.getByTestId('layout-title')).toHaveTextContent('Interviews');
-    expect(screen.getByTestId('layout-subtitle')).toHaveTextContent('Upcoming interview schedule');
-    expect(screen.getByText('Filter button')).toBeInTheDocument();
-    expect(screen.getByText('Interview list')).toBeInTheDocument();
+    // A page rendering its own sidebar is what made every navigation rebuild the shell.
+    expect(container.querySelector('aside')).toBeNull();
+    expect(container.querySelector('header')).toBeNull();
+    expect(container.querySelector('footer')).toBeNull();
+    expect(container.querySelector('main')).toBeNull();
+  });
+
+  it('publishes its title upward for the breadcrumb', () => {
+    renderPageWrapper({ title: 'Interviews', children: <div>Interview list</div> });
+
+    expect(screen.getByTestId('published-title')).toHaveTextContent('Interviews');
+  });
+
+  it('publishes nothing when the page has no title', () => {
+    renderPageWrapper({ children: <div>Content</div> });
+
+    expect(screen.getByTestId('published-title')).toHaveTextContent('(none)');
+  });
+
+  it('clears the published title when the page goes away', () => {
+    const { unmount } = render(
+      <PageHeadingProvider>
+        <TitleSpy />
+        <PageWrapper title="Interviews">
+          <div>Interview list</div>
+        </PageWrapper>
+      </PageHeadingProvider>,
+    );
+    expect(screen.getByTestId('published-title')).toHaveTextContent('Interviews');
+
+    // Without this, a page with no title of its own would inherit the previous page's breadcrumb.
+    unmount();
+    render(
+      <PageHeadingProvider>
+        <TitleSpy />
+        <PageWrapper>
+          <div>Other content</div>
+        </PageWrapper>
+      </PageHeadingProvider>,
+    );
+    expect(screen.getByTestId('published-title')).toHaveTextContent('(none)');
   });
 });

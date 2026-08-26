@@ -9,6 +9,8 @@ import { LookupsProvider } from '@/contexts/LookupsContext';
 import { FeatureGateProvider } from '@/contexts/FeatureGateContext';
 import { ToastProvider } from '@/components/Toast';
 import { useTenantBranding } from '@/hooks/useTenantBranding';
+import { PageHeadingProvider } from '@/contexts/PageHeadingContext';
+import ModernLayout from '@/components/ModernLayout';
 
 function BrandingApplier({ children }: { children: React.ReactNode }) {
   useTenantBranding();
@@ -70,7 +72,12 @@ export default function AppLayout({
                 <ToastProvider>
                   <BrandingApplier>
                     <LayoutProvider>
-                      {children}
+                      {/* The chrome is mounted here, once, so it survives navigation. Rendering it
+                          from PageWrapper meant every page brought its own and each route change
+                          rebuilt the sidebar from scratch. */}
+                      <PageHeadingProvider>
+                        <ModernLayout>{children}</ModernLayout>
+                      </PageHeadingProvider>
                     </LayoutProvider>
                   </BrandingApplier>
                 </ToastProvider>
