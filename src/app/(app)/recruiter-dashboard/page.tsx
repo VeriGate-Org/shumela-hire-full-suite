@@ -37,11 +37,7 @@ export default function RecruiterDashboardPage() {
   }
 
   return (
-    <PageWrapper
-      title="Recruiter Dashboard"
-      subtitle="Analytics and insights for recruitment performance"
-      actions={<RecruiterDashboardFilters />}
-    >
+    <PageWrapper actions={<RecruiterDashboardFilters />}>
       <RecruiterDashboard />
     </PageWrapper>
   );
