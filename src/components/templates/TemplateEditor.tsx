@@ -388,7 +388,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-cta-foreground disabled:opacity-50 uppercase tracking-wider transition-colors"
+              className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta-on-surface bg-transparent hover:bg-cta hover:text-cta-foreground disabled:opacity-50 uppercase tracking-wider transition-colors"
             >
               {saving ? (
                 <>

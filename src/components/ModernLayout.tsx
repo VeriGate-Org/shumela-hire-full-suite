@@ -60,7 +60,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
                   <img src="/icons/shumelahire-icon.svg" alt="ShumelaHire" className="h-8 w-8" />
                   {!branding?.logoText && (
                     <span className="font-extrabold text-sm tracking-[-0.03em] hidden sm:block">
-                      <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
+                      <span data-logotype className="text-primary">Shumela</span><span data-logotype className="text-cta">Hire</span>
                     </span>
                   )}
                 </>
@@ -164,7 +164,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
 
         <footer className="border-t border-border bg-surface-navy">
           <div className="px-6 py-4 flex flex-col sm:flex-row justify-between items-center text-xs text-muted-foreground">
-            <p>&copy; 2026 <span className="text-primary">Shumela</span><span className="text-cta">Hire</span></p>
+            <p>&copy; 2026 <span data-logotype className="text-primary">Shumela</span><span data-logotype className="text-cta">Hire</span></p>
             <div className="flex gap-4 mt-2 sm:mt-0">
               <Link href="/privacy" className="idc-link">Privacy</Link>
               <Link href="/terms" className="idc-link">Terms</Link>
