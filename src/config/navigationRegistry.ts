@@ -165,6 +165,19 @@ export const navigationRegistry: NavigationEntry[] = [
   // tenant that had legitimately licensed the Analytics module.
   { id: 'analytics', label: 'Analytics', href: '/analytics', icon: ChartBarIcon, iconSolid: ChartBarIconSolid, section: 'analytics', requiredPermissions: ['view_analytics'] },
   { id: 'hr-analytics', label: 'HR Analytics', href: '/analytics/hr-overview', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  // The five HR analytics screens. All were built, all are wired to endpoints that exist, and
+  // none was in this list — so nobody could reach them. Gated exactly as HR Analytics above,
+  // because they are the same module and the same data.
+  { id: 'attendance-analytics', label: 'Attendance Analytics', href: '/analytics/attendance', icon: ClockIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'engagement-analytics', label: 'Engagement Analytics', href: '/analytics/engagement', icon: HeartIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'compliance-analytics', label: 'Compliance Analytics', href: '/analytics/compliance', icon: ShieldCheckIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'workforce-planning', label: 'Workforce Planning', href: '/analytics/workforce-planning', icon: UserGroupIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'ld-analytics', label: 'L&D Analytics', href: '/analytics/training', icon: AcademicCapIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'TRAINING_MANAGEMENT' },
+  // Distinct from L&D Analytics above: that one reads /api/analytics/training for organisation-wide
+  // measures, this one is the training module's own view over its courses and enrolments.
+  { id: 'training-analytics', label: 'Training Reports', href: '/training/analytics', icon: AcademicCapIcon, section: 'analytics', requiredPermissions: ['view_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
+  { id: 'leave-analytics', label: 'Leave Analytics', href: '/leave/analytics', icon: CalendarIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'executive-reports', label: 'Executive Reports', href: '/executive/reports', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_reports'], allowedRoles: ['ADMIN', 'EXECUTIVE', 'HR_MANAGER'] },
   { id: 'performance-analytics', label: 'Performance Analytics', href: '/performance-analytics', icon: ChartBarIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'recruiter-dashboard', label: 'Recruiter Analytics', href: '/recruiter-dashboard', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_recruiter_analytics'], requiredFeature: 'RECRUITMENT' },
   { id: 'reports', label: 'Reports', href: '/reports', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'] },

@@ -62,8 +62,21 @@ const AVAILABLE_FIELDS: ReportField[] = [
   { id: 'cost_per_hire', name: 'Cost per Hire', type: 'number', category: 'performance', aggregatable: true },
 ];
 
+const TABS = ['create', 'library', 'results', 'scheduler'] as const;
+type ReportTab = (typeof TABS)[number];
+
 export default function ReportsPage() {
-  const [activeTab, setActiveTab] = useState<'create' | 'library' | 'results' | 'scheduler'>('create');
+  const [activeTab, setActiveTab] = useState<ReportTab>('create');
+
+  // Custom Reports and Scheduled Reports were separate destinations over these same endpoints and
+  // both were unreachable from the menu. They now redirect here with the tab they used to be, so
+  // an old link still lands on the thing it named.
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('tab');
+    if (requested && (TABS as readonly string[]).includes(requested)) {
+      setActiveTab(requested as ReportTab);
+    }
+  }, []);
   const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
   const [reportResults, setReportResults] = useState<ReportResult[]>([]);
   const [schedules, setSchedules] = useState<ReportSchedule[]>([]);

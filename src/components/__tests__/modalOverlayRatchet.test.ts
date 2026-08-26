@@ -36,7 +36,6 @@ const LEGACY = [
   'app/(app)/admin/document-retention/page.tsx',
   'app/(app)/admin/permissions/page.tsx',
   'app/(app)/agencies/page.tsx',
-  'app/(app)/analytics/reports/page.tsx',
   'app/(app)/candidate/applications/page.tsx',
   'app/(app)/candidate/interviews/page.tsx',
   'app/(app)/candidate/offers/page.tsx',
@@ -87,6 +86,9 @@ const LEGACY = [
   'components/templates/TemplateList.tsx',
   // components/workflow/ApprovalCenter.tsx was deleted — it rendered a permanently empty approval
   // queue from state nothing populated. The queue now lives at /approvals over a real endpoint.
+  // analytics/reports and reports/scheduled became redirects into /reports, which already had the
+  // builder and the scheduler as tabs; performance/analytics was a duplicate of
+  // performance-analytics and was deleted. None of the three has an overlay to hand-roll any more.
 ];
 
 function tsxFilesUnder(dir: string): string[] {

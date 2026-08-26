@@ -19,6 +19,8 @@ import { rolePermissions } from '../permissions';
 
 /** Routes that deliberately have no menu entry, with the reason. */
 const INTENTIONALLY_UNLISTED: Record<string, string> = {
+  'analytics/reports': 'Redirects to /reports?tab=create — the builder lives there now.',
+  'reports/scheduled': 'Redirects to /reports?tab=scheduler — the scheduler lives there now.',
   'job-postings/[id]': 'Reached from the job postings list, not the menu.',
   'internal/jobs/[id]': 'Reached from the internal jobs list.',
   'internal/apply/[requisitionId]': 'Reached from an internal job.',
@@ -69,6 +71,39 @@ describe('every menu entry points at a page that exists', () => {
       expect(exists).toBe(true);
     },
   );
+});
+
+describe('the analytics section is reachable', () => {
+  it('lists any analytics or reports page with neither a menu entry nor a stated reason', () => {
+    // Eleven of these sixteen screens were built, wired to endpoints that exist, and absent from
+    // the menu — the Approval Centre problem at eleven times the size. This is the assertion that
+    // stops it happening again.
+    const appDir = path.join(process.cwd(), 'src', 'app', '(app)');
+    const linked = new Set(navigationRegistry.map((entry) => entry.href.replace(/^\//, '')));
+
+    const analytics = [
+      'analytics', 'analytics/attendance', 'analytics/compliance', 'analytics/engagement',
+      'analytics/hr-overview', 'analytics/reports', 'analytics/training',
+      'analytics/workforce-planning', 'executive/reports', 'leave/analytics',
+      'performance-analytics', 'reports', 'reports/export', 'reports/scheduled',
+      'training/analytics',
+    ];
+
+    const orphaned = analytics.filter((route) => {
+      const hasPage = fs.existsSync(path.join(appDir, ...route.split('/'), 'page.tsx'));
+      return hasPage && !linked.has(route) && !(route in INTENTIONALLY_UNLISTED);
+    });
+
+    expect(orphaned).toEqual([]);
+  });
+
+  it('has only one performance analytics page', () => {
+    // Two existed, both exporting PerformanceAnalyticsPage and both calling
+    // getPerformanceAnalytics from the same service. The richer of the two was the unreachable one.
+    expect(
+      fs.existsSync(path.join(process.cwd(), 'src', 'app', '(app)', 'performance', 'analytics')),
+    ).toBe(false);
+  });
 });
 
 describe('pages that exist have a way in', () => {
