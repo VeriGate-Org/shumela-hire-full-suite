@@ -105,6 +105,28 @@ public class PermissionService {
     public static final String ADMIN_ROLES_PERMISSION = "admin_roles";
 
     /**
+     * Permissions an administrator must not be able to revoke from themselves.
+     *
+     * <p>These are the ids the <b>interface</b> gates on ({@code src/config/permissions.ts}), not
+     * the display catalogue above — the two vocabularies are unrelated, and only this one decides
+     * whether the role-permissions page is reachable. Removing {@code manage_permissions} from ADMIN
+     * hides that page from the only people who could put it back, which is the same class of
+     * unrecoverable lockout as demoting the last administrator.
+     *
+     * <p>Deliberately narrow. A lock on anything that is merely important makes the page look
+     * broken; a lock belongs only where recovery is impossible from inside the product.
+     */
+    private static final Map<User.Role, java.util.Set<String>> LOCKED_PERMISSIONS = Map.of(
+        User.Role.ADMIN, java.util.Set.of("manage_permissions"),
+        User.Role.PLATFORM_OWNER, java.util.Set.of("platform_admin")
+    );
+
+    /** Would revoking this permission from this role leave nobody able to restore it? */
+    public static boolean isLockedFor(User.Role role, String permissionId) {
+        return LOCKED_PERMISSIONS.getOrDefault(role, java.util.Set.of()).contains(permissionId);
+    }
+
+    /**
      * Can this role change who administers the tenant?
      *
      * <p>Derived from the permission map rather than listing role names, so a role granted

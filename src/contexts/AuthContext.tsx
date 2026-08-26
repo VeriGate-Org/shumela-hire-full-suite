@@ -4,7 +4,8 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { signIn, signOut, signInWithRedirect, confirmSignIn, fetchAuthSession, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { apiFetch, withTimeout } from '@/lib/api-fetch';
 import { Hub } from 'aws-amplify/utils';
-import { rolePermissions } from '@/config/permissions';
+import { effectivePermissions, rolePermissions } from '@/config/permissions';
+import { loadRolePermissionOverrides } from '@/lib/rolePermissionOverrides';
 import { isCognitoConfigured, isOAuthConfigured, configureAmplify } from '@/lib/amplify-config';
 
 export type UserRole =
@@ -327,6 +328,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         auditLogService.logRoleSwitch(user.id, user.role, role).catch(() => {});
       });
     }
+  }, [user]);
+
+  // A permission an administrator revokes has to take effect for the people it was revoked from.
+  // Both places that build a user set `rolePermissions[role]`, the shipped defaults; this applies
+  // the tenant's stored deviations on top once they arrive. Without it the role-permissions page
+  // would store changes, display them, and govern nobody — which is what it did before.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    loadRolePermissionOverrides().then((overrides) => {
+      if (cancelled || overrides.length === 0) return;
+      const next = effectivePermissions(user.role, overrides);
+      // Only write when it actually differs, or this effect re-triggers itself for ever.
+      const same =
+        next.length === user.permissions.length &&
+        next.every((p) => user.permissions.includes(p));
+      if (!same) setUser({ ...user, permissions: next });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   const hasPermission = useCallback((permission: string): boolean => {
