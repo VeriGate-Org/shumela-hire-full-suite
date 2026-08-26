@@ -397,7 +397,7 @@ export default function ReportsPage() {
       <IdentityBand
         eyebrow="Reporting"
         title="Reports"
-        subtitle="Build one now, or manage what already runs"
+        subtitle="Build a report, or manage what already runs. Ready-made extracts are on Standard extracts."
         figures={[
           { label: 'Saved', value: savedReports.length },
           {

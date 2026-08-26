@@ -184,7 +184,7 @@ export const navigationRegistry: NavigationEntry[] = [
   // Pinned to the roles ReportExportController actually admits. HIRING_MANAGER
   // holds view_reports (to read reports) but not export rights, and an entry
   // that appears and then 403s is worse than no entry.
-  { id: 'report-export', label: 'Report Export', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT', allowedRoles: ['ADMIN', 'HR_MANAGER'] },
+  { id: 'report-export', label: 'Standard extracts', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT', allowedRoles: ['ADMIN', 'HR_MANAGER'] },
 
   // Administration
   // The front door. Seventeen admin pages existed and none of them was one — and administration

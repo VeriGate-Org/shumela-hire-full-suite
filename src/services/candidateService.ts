@@ -75,6 +75,23 @@ export async function updateMyDemographics(
   return response.json();
 }
 
+/**
+ * Ask for your own data to be erased, under POPIA s24.
+ *
+ * <p>The staff endpoint takes the requester's name and email as parameters, because staff log
+ * requests on behalf of other people. This one takes neither — the server reads who is asking from
+ * the token, so nobody can raise an erasure request against somebody else's record.
+ *
+ * <p>Withdrawing consent and asking for erasure are different acts: the first stops the answers
+ * being used in reporting, the second asks for them to be removed. The profile offers both.
+ */
+export async function requestOwnErasure(description: string) {
+  const params = new URLSearchParams({ requestType: 'ERASURE', description });
+  const response = await apiFetch(`/api/compliance/popia/dsar/mine?${params}`, { method: 'POST' });
+  if (!response.ok) throw new Error(`Failed to raise the request: HTTP ${response.status}`);
+  return response.json();
+}
+
 export async function getDocuments(applicantId: string) {
   const response = await apiFetch(`/api/applicants/${applicantId}/documents`);
   if (!response.ok) throw new Error(`Failed to fetch documents: HTTP ${response.status}`);

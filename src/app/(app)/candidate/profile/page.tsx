@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { getEnumLabel } from '@/utils/enumLabels';
 import { useAuth } from '@/contexts/AuthContext';
-import { getApplicantId, getApplicant, getDocuments as fetchDocuments, getApplications as fetchApplications, updateMyDemographics } from '@/services/candidateService';
+import { getApplicantId, getApplicant, getDocuments as fetchDocuments, getApplications as fetchApplications, updateMyDemographics, requestOwnErasure } from '@/services/candidateService';
 import {
   UserIcon,
   DocumentTextIcon,
@@ -204,6 +204,32 @@ export default function CandidateProfilePage() {
       // though it had been.
       setEquityMessage('That could not be saved, so nothing was changed. Try again.');
       setProfile((prev) => (prev ? { ...prev } : prev));
+    } finally {
+      setSavingEquity(false);
+    }
+  };
+
+  /**
+   * Ask for this information to be erased.
+   *
+   * <p>Confirmed first, because it is a request against one's own record that somebody then has to
+   * carry out across systems — not something to trigger by mis-clicking beside a checkbox.
+   */
+  const requestErasure = async () => {
+    if (!window.confirm(
+      'Ask for your employment-equity information to be erased?\n\n'
+      + 'This raises a request under POPIA section 24, answered within 30 days. '
+      + 'It is not the same as withdrawing consent, which stops the information being used '
+      + 'but keeps it on file.',
+    )) return;
+
+    setSavingEquity(true);
+    setEquityMessage(null);
+    try {
+      await requestOwnErasure('Erasure of employment-equity information, requested from my profile.');
+      setEquityMessage('Request raised. You will hear back within 30 days.');
+    } catch {
+      setEquityMessage('The request could not be raised, so nothing was submitted. Try again.');
     } finally {
       setSavingEquity(false);
     }
@@ -597,6 +623,25 @@ export default function CandidateProfilePage() {
                           </span>
                         </span>
                       </label>
+                    </div>
+
+                    {/*
+                      Withdrawing consent and asking for erasure are different acts, so they are
+                      different controls. Clearing the box above stops the answers being used;
+                      this asks for them to be removed, which is a request somebody has to action.
+                    */}
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        disabled={savingEquity}
+                        onClick={() => void requestErasure()}
+                        className="text-sm font-semibold text-error hover:underline disabled:opacity-50"
+                      >
+                        Request erasure of this information
+                      </button>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Raises a request under POPIA section 24. It is answered within 30 days.
+                      </p>
                     </div>
 
                     {equityMessage && (

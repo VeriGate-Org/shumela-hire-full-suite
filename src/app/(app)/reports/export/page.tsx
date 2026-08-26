@@ -101,8 +101,8 @@ export default function ReportExportPage() {
         <div className="space-y-4">
           <IdentityBand
             eyebrow="Reporting"
-            title="Export"
-            subtitle={`${REPORT_TYPES.length} standard extracts, as ${FORMAT_OPTIONS.map((f) => f.label).join(', ')}`}
+            title="Standard extracts"
+            subtitle={`${REPORT_TYPES.length} ready-made extracts, as ${FORMAT_OPTIONS.map((f) => f.label).join(', ')}. Build your own on Reports.`}
             figures={[
               {
                 label: 'Running',

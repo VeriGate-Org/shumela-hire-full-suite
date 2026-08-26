@@ -117,7 +117,7 @@ describe('Module gating', () => {
       'Executive Reports',
       'Recruiter Analytics',
       'Reports',
-      'Report Export',
+      'Standard extracts',
     ]);
     expect(analytics).not.toContain('HR Analytics');
     expect(analytics).not.toContain('Performance Analytics');

@@ -58,8 +58,13 @@ class ApprovalAuthorityTest {
     }
 
     private void userWithLevel(Integer level) {
+        userWith(level, User.Role.RECRUITER);
+    }
+
+    private void userWith(Integer level, User.Role role) {
         User user = new User();
         user.setApprovalLevel(level);
+        user.setRole(role);
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
     }
 
@@ -72,10 +77,42 @@ class ApprovalAuthorityTest {
     }
 
     @Test
-    void aUserWithNoRecordedLevelHasNone() {
-        // Null is the state every user is in until an administrator grants one. It must not be
-        // read as "unrestricted" on the way to filtering offers.
-        userWithLevel(null);
+    void aRoleWithNoDefaultAndNoGrantHasNone() {
+        // A recruiter raises offers and salary reviews; they do not approve them.
+        userWith(null, User.Role.RECRUITER);
+
+        assertEquals(ApprovalAuthority.NONE, authority.levelFor(caller));
+        assertFalse(authority.hasAuthority(caller));
+    }
+
+    @Test
+    void anUngrantedUserFallsBackToTheirRole() {
+        // Nobody had a level, so no offer ever reached the approval queue — the mechanism was
+        // correct and inert. The defaults match what the code calls the two levels: OfferService
+        // sets 1 for "manager approval" and 2 for "senior management".
+        userWith(null, User.Role.HR_MANAGER);
+        assertEquals(1, authority.levelFor(caller));
+
+        userWith(null, User.Role.EXECUTIVE);
+        assertEquals(2, authority.levelFor(caller));
+
+        userWith(null, User.Role.ADMIN);
+        assertEquals(2, authority.levelFor(caller));
+    }
+
+    @Test
+    void anExplicitGrantOverridesTheRoleDefault() {
+        // The grant is the decision; the default only covers what happens before one is made.
+        userWith(2, User.Role.HR_MANAGER);
+
+        assertEquals(2, authority.levelFor(caller));
+    }
+
+    @Test
+    void anExplicitZeroIsNotWidenedByTheRole() {
+        // Setting somebody to zero is an administrator removing authority. Reading that as "unset"
+        // and handing back the role default would undo the act.
+        userWith(0, User.Role.ADMIN);
 
         assertEquals(ApprovalAuthority.NONE, authority.levelFor(caller));
         assertFalse(authority.hasAuthority(caller));
