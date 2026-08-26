@@ -3,6 +3,8 @@ import Link from 'next/link';
 import ModernSidebar from './ModernSidebar';
 import NotificationCenter from './NotificationCenter';
 import UserProfile from './UserProfile';
+import { HEADER_TRIGGER } from './chrome/HeaderPopover';
+import TenantLogo from './chrome/TenantLogo';
 import { useAuth } from '../contexts/AuthContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { Bars3Icon, QuestionMarkCircleIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
@@ -28,11 +30,24 @@ interface ModernLayoutProps {
   children: ReactNode;
 }
 
+/** Shown when the tenant has no logo, and when the one it has fails to load. */
+function ProductMark({ logoText }: { logoText?: string }) {
+  return (
+    <>
+      <img src="/icons/shumelahire-icon.svg" alt="ShumelaHire" className="h-8 w-8" />
+      {!logoText && (
+        <span className="font-extrabold text-sm tracking-[-0.03em] hidden sm:block">
+          <span data-logotype className="text-primary">Shumela</span><span data-logotype className="text-cta">Hire</span>
+        </span>
+      )}
+    </>
+  );
+}
+
 const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
   const { title } = usePageHeading();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [logoError, setLogoError] = useState(false);
   const { user } = useAuth();
   const { branding } = useTenant();
   const { showOverlay, setShowOverlay, shortcutList } = useKeyboardShortcuts();
@@ -55,22 +70,12 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
             </button>
 
             <div className="flex items-center gap-2.5 lg:hidden">
-              {branding?.logoUrl && !logoError ? (
-                <img
-                  src={branding.logoUrl}
-                  alt="Organization logo"
-                  className="h-8 w-auto max-w-[180px] object-contain dark:rounded dark:bg-white/90 dark:px-1.5 dark:py-0.5"
-                  onError={() => setLogoError(true)}
-                />
+              {branding?.logoUrl ? (
+                // This bar sits on --card, which is white in light mode, so the plate is only
+                // needed in the dark. The sidebar's copy of this is dark on both and says 'always'.
+                <TenantLogo src={branding.logoUrl} plate="dark" fallback={<ProductMark logoText={branding?.logoText} />} />
               ) : (
-                <>
-                  <img src="/icons/shumelahire-icon.svg" alt="ShumelaHire" className="h-8 w-8" />
-                  {!branding?.logoText && (
-                    <span className="font-extrabold text-sm tracking-[-0.03em] hidden sm:block">
-                      <span data-logotype className="text-primary">Shumela</span><span data-logotype className="text-cta">Hire</span>
-                    </span>
-                  )}
-                </>
+                <ProductMark logoText={branding?.logoText} />
               )}
               {branding?.logoText && (
                 <span className="text-xs font-medium text-muted-foreground tracking-wide hidden sm:block">{branding.logoText}</span>
@@ -89,12 +94,10 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
           <div className="flex items-center gap-1">
             <NotificationCenter />
 
-            <Link
-              href="/help"
-              aria-label="Help Center"
-              className="p-2 rounded-control hover:bg-accent"
-            >
-              <QuestionMarkCircleIcon className="h-4 w-4 text-muted-foreground" />
+            {/* Same trigger as the bell beside them: one size, one hover, one focus ring. These
+                were 16px icons in a differently-sized box with no visible focus state at all. */}
+            <Link href="/help" aria-label="Help centre" className={HEADER_TRIGGER}>
+              <QuestionMarkCircleIcon className="h-5 w-5" />
             </Link>
 
             <button
@@ -104,9 +107,9 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
                 setColorMode(next);
               }}
               aria-label={`Theme: ${colorMode}`}
-              className="p-2 rounded-control hover:bg-accent transition-colors"
+              className={HEADER_TRIGGER}
             >
-              <ThemeIcon className="h-4 w-4 text-muted-foreground" />
+              <ThemeIcon className="h-5 w-5" />
             </button>
 
             <RoleSwitcher />
