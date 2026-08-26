@@ -343,7 +343,14 @@ export default function ExecutiveReportsPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Executive Reports" subtitle="Loading executive analytics..." actions={actions}>
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Executive"
+        title="Executive Reports"
+        subtitle="Loading executive analytics..."
+        actions={actions}
+      />
+
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
         </div>
@@ -353,7 +360,14 @@ export default function ExecutiveReportsPage() {
 
   if (loadError) {
     return (
-      <PageWrapper title="Executive Reports" subtitle="Strategic insights and executive reporting" actions={actions}>
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Executive"
+        title="Executive Reports"
+        subtitle="Strategic insights and executive reporting"
+        actions={actions}
+      />
+
         <div className="bg-card rounded-control shadow p-8 text-center">
           <ExclamationCircleIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load executive data</h3>

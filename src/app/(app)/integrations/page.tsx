@@ -162,7 +162,13 @@ export default function IntegrationsPage() {
 
   if (!hasAccess) {
     return (
-      <PageWrapper title="Integrations" subtitle="You do not have permission to manage integrations">
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Integrations"
+        title="Integrations"
+        subtitle="You do not have permission to manage integrations"
+      />
+
         <div className="enterprise-card p-8 text-center">
           <p className="text-sm text-muted-foreground">
             Integrations are managed by administrators and HR managers.

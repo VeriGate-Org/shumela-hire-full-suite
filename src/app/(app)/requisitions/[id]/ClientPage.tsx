@@ -140,7 +140,13 @@ export default function RequisitionDetailPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Requisition" subtitle="Loading…">
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Requisition &amp; approval record"
+        title="Requisition"
+        subtitle="Loading…"
+      />
+
         <div className="space-y-6"><FormSkeleton /><FormSkeleton /></div>
       </PageWrapper>
     );
@@ -148,7 +154,13 @@ export default function RequisitionDetailPage() {
 
   if (error || !requisition) {
     return (
-      <PageWrapper title="Requisition" subtitle={error ?? 'Not found'}>
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Requisition &amp; approval record"
+        title="Requisition"
+        subtitle={error ?? 'Not found'}
+      />
+
         <ErrorState
           title={error ?? 'Requisition not found'}
           message="Please try again or go back to the requisitions list."
@@ -173,7 +185,7 @@ export default function RequisitionDetailPage() {
   const rejectionComment = (rejection as unknown as Record<string, unknown> | undefined)?.comment as string | undefined;
 
   return (
-    <PageWrapper title={requisition.jobTitle} subtitle={`Requisition ${shortRef('REQ', requisition.id)}`}>
+    <PageWrapper>
       <button
         onClick={() => router.push('/requisitions')}
         className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"

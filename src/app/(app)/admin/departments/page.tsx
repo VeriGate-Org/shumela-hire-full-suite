@@ -154,7 +154,14 @@ export default function AdminDepartmentsPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Departments" subtitle="Manage organisational departments" actions={actions}>
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Register"
+        title="Departments"
+        subtitle="Manage organisational departments"
+        actions={actions}
+      />
+
         <div className="space-y-6">
           {/* Skeleton Stats Bar */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -188,7 +195,14 @@ export default function AdminDepartmentsPage() {
 
   if (loadError) {
     return (
-      <PageWrapper title="Departments" subtitle="Manage organisational departments" actions={actions}>
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Register"
+        title="Departments"
+        subtitle="Manage organisational departments"
+        actions={actions}
+      />
+
         <ErrorState
           title="Failed to load departments"
           message={loadError}

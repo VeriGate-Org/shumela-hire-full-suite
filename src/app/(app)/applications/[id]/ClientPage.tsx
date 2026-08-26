@@ -242,7 +242,14 @@ export default function ApplicationDetailPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Application" subtitle="Loading..." actions={headerActions}>
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Application record"
+        title="Application"
+        subtitle="Loading..."
+        actions={headerActions}
+      />
+
         <div className="flex items-center justify-center py-16">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-gold" />
         </div>
@@ -252,7 +259,13 @@ export default function ApplicationDetailPage() {
 
   if (error || !application) {
     return (
-      <PageWrapper title="Application Not Found" actions={headerActions}>
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Application record"
+        title="Application Not Found"
+        actions={headerActions}
+      />
+
         <EmptyState
           icon={ExclamationTriangleIcon}
           title="Application Not Found"
@@ -274,12 +287,8 @@ export default function ApplicationDetailPage() {
   const ended = hasEnded(application.status);
 
   return (
-    <PageWrapper
-      title={application.applicantName || 'Application'}
-      subtitle={[application.jobTitle, application.department].filter(Boolean).join(' · ')}
-      actions={headerActions}
-    >
-      <div className="space-y-4">
+    <PageWrapper>
+<div className="space-y-4">
         <IdentityBand
           eyebrow="Application record"
           title={application.applicantName || 'Unknown candidate'}

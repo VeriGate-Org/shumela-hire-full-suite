@@ -387,7 +387,14 @@ export default function AuditLogsPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Audit Logs" subtitle="Loading audit trail..." actions={actions}>
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Ledger"
+        title="Audit Logs"
+        subtitle="Loading audit trail..."
+        actions={actions}
+      />
+
         {/* Skeleton: Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           {Array.from({ length: 6 }).map((_, i) => (
