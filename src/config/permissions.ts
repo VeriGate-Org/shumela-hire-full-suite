@@ -6,6 +6,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'platform_admin', 'manage_features', 'manage_tenants',
   ],
   ADMIN: [
+    'view_approvals',
     'view_dashboard', 'manage_jobs', 'view_applications', 'view_applicants',
     'manage_pipeline', 'view_interviews', 'manage_offers', 'view_internal_jobs',
     'manage_applications', 'manage_workflow', 'view_salary_data',
@@ -23,12 +24,14 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'feed:view', 'feed:post', 'feed:moderate',
   ],
   EXECUTIVE: [
+    'view_approvals',
     'view_dashboard', 'view_internal_jobs',
     'view_analytics', 'view_reports', 'manage_requisitions',
     // Read-only HR analytics access
     'view_performance', 'view_training',
   ],
   HR_MANAGER: [
+    'view_approvals',
     'view_dashboard', 'manage_jobs', 'view_applications', 'view_applicants',
     'manage_pipeline', 'view_interviews', 'manage_offers', 'view_internal_jobs',
     'manage_applications', 'manage_workflow', 'view_salary_data',
@@ -54,6 +57,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'manage_onboarding', 'feed:view', 'feed:post',
   ],
   HIRING_MANAGER: [
+    'view_approvals',
     'view_dashboard', 'manage_jobs', 'view_applications',
     'manage_pipeline', 'view_interviews', 'manage_offers', 'view_internal_jobs',
     'view_analytics', 'manage_requisitions',
@@ -73,6 +77,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'view_applicants', 'manage_applications',
   ],
   RECRUITER: [
+    'view_approvals',
     'view_dashboard', 'manage_jobs', 'view_applications', 'view_applicants',
     'manage_pipeline', 'view_interviews', 'view_internal_jobs',
     'manage_applications', 'view_salary_data',
