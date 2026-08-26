@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import DocumentTemplateList from '@/components/templates/DocumentTemplateList';
 import DocumentTemplateEditor from '@/components/templates/DocumentTemplateEditor';
 import { DocumentTemplate } from '@/types/documentTemplate';
@@ -36,31 +37,13 @@ export default function DocumentTemplatesPage() {
   }, []);
 
   return (
-    <PageWrapper
-      title="Document Templates"
-      subtitle="Create and manage document templates with dynamic merge tags"
-      actions={
-        <div className="flex gap-2">
-          {view === 'editor' ? (
-            <button
-              onClick={handleCancel}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground border-2 border-border rounded-full hover:border-primary hover:text-primary hover:bg-surface-navy transition-all"
-            >
-              <ArrowLeftIcon className="h-3.5 w-3.5" />
-              Back to List
-            </button>
-          ) : (
-            <button
-              onClick={handleCreateNew}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider bg-primary text-white border-2 border-primary rounded-full hover:bg-primary/90 transition-all"
-            >
-              <PlusIcon className="h-3.5 w-3.5" />
-              New Template
-            </button>
-          )}
-        </div>
-      }
-    >
+    <PageWrapper actions={ <div className="flex gap-2"> {view === 'editor' ? ( <button onClick={handleCancel} className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground border-2 border-border rounded-full hover:border-primary hover:text-primary hover:bg-surface-navy transition-all"> <ArrowLeftIcon className="h-3.5 w-3.5" /> Back to List </button> ) : ( <button onClick={handleCreateNew} className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider bg-primary text-white border-2 border-primary rounded-full hover:bg-primary/90 transition-all"> <PlusIcon className="h-3.5 w-3.5" /> New Template </button> )} </div> }>
+      <IdentityBand
+        eyebrow="Register"
+        title="Document Templates"
+        subtitle="Templates used to generate documents"
+      />
+
       {view === 'list' ? (
         <DocumentTemplateList
           onEdit={handleEdit}

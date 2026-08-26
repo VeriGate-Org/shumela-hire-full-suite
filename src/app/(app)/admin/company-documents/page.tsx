@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { TableSkeleton } from '@/components/LoadingComponents';
 import { apiFetch } from '@/lib/api-fetch';
@@ -190,15 +191,13 @@ export default function AdminCompanyDocumentsPage() {
 
   return (
     <FeatureGate feature="COMPANY_DOCUMENTS">
-      <PageWrapper
+      <PageWrapper actions={ <button onClick={() => setShowUpload(true)} className="btn-cta inline-flex items-center gap-2"> <ArrowUpTrayIcon className="w-4 h-4" /> Upload Document </button> }>
+      <IdentityBand
+        eyebrow="Register"
         title="Company Documents"
-        subtitle="Manage organisation-wide policies, procedures, and compliance documents"
-        actions={
-          <button onClick={() => setShowUpload(true)} className="btn-cta inline-flex items-center gap-2">
-            <ArrowUpTrayIcon className="w-4 h-4" /> Upload Document
-          </button>
-        }
-      >
+        subtitle="Policies staff acknowledge"
+      />
+
         {/* Upload Modal */}
         {showUpload && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 backdrop-blur-sm p-6">
@@ -498,7 +497,7 @@ export default function AdminCompanyDocumentsPage() {
                                 }`}
                               >
                                 <span
-                                  className={`absolute top-[3px] left-[3px] w-[18px] h-[18px] rounded-full bg-white shadow transition-transform ${
+                                  className={`absolute top-[3px] left-[3px] w-[18px] h-[18px] rounded-full bg-card shadow transition-transform ${
                                     doc.isPublished ? 'translate-x-5' : 'translate-x-0'
                                   }`}
                                 />

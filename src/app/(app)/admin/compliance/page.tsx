@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { complianceService } from '@/services/complianceService';
 import { ShieldCheckIcon, DocumentTextIcon, BellAlertIcon, ClockIcon } from '@heroicons/react/24/outline';
@@ -109,7 +110,13 @@ export default function ComplianceDashboardPage() {
   }
 
   return (
-    <PageWrapper title="POPIA Compliance" subtitle="Manage consents, data subject access requests, and regulatory compliance">
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Casework"
+        title="POPIA Compliance"
+        subtitle="POPIA consents, requests and retention reminders"
+      />
+
       {/* POPIA Notice Banner */}
       <div className="flex items-center gap-3 px-5 py-3.5 bg-surface-navy border border-icon-bg-navy rounded-lg text-sm text-primary mb-6">
         <ShieldCheckIcon className="h-5 w-5 flex-shrink-0" />
@@ -486,29 +493,15 @@ function DsarTable({ dsarStats }: { dsarStats: Record<string, any> }) {
         </table>
       </div>
 
-      {/* Pagination */}
+      {/*
+        A paginator stood here: two arrows permanently `disabled` and a page number hardcoded to 1.
+        It was a picture of a control, not a control — every row is already on the page.
+      */}
       <div className="px-6 pb-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between pt-4 border-t border-border gap-3">
-          <div className="text-[0.813rem] text-muted-foreground">
-            Showing 1-{filteredRows.length} of {filteredRows.length} requests
-          </div>
-          <div className="flex gap-1">
-            <button
-              disabled
-              className="w-9 h-9 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground text-[0.813rem] font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-all"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
-            </button>
-            <button className="w-9 h-9 rounded-lg bg-primary border border-primary text-white flex items-center justify-center text-[0.813rem] font-semibold">
-              1
-            </button>
-            <button
-              disabled
-              className="w-9 h-9 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground text-[0.813rem] font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-all"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
-            </button>
-          </div>
+        <div className="pt-4 border-t border-border text-[0.813rem] text-muted-foreground">
+          {filteredRows.length === 0
+            ? 'No requests match these filters'
+            : `${filteredRows.length} ${filteredRows.length === 1 ? 'request' : 'requests'}`}
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import { TableSkeleton } from '@/components/LoadingComponents';
@@ -198,7 +199,13 @@ export default function AdminDepartmentsPage() {
   }
 
   return (
-    <PageWrapper title="Departments" subtitle="Manage organisational departments" actions={actions}>
+    <PageWrapper actions={actions}>
+      <IdentityBand
+        eyebrow="Register"
+        title="Departments"
+        subtitle="The organisational units vacancies are raised against"
+      />
+
       <div className="space-y-6">
         {/* Stats Bar */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

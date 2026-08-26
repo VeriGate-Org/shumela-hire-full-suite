@@ -6,6 +6,7 @@ import { readableTextOn } from '@/hooks/useTenantBranding';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { TenantBranding } from '@/types/tenantBranding';
 import {
   PhotoIcon,
@@ -210,10 +211,13 @@ export default function BrandingPage() {
   ];
 
   return (
-    <PageWrapper
-      title="Tenant Branding"
-      subtitle="Customise the look and feel of your ShumelaHire instance"
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Settings"
+        title="Tenant Branding"
+        subtitle="Logo and colours applied across the tenant"
+      />
+
       {/* Two-column grid: 55% left / 45% right */}
       <div className="grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-6 items-start">
 
@@ -434,13 +438,13 @@ export default function BrandingPage() {
                 <div className="w-9 h-9 rounded-control flex items-center justify-center text-white cursor-pointer">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 </div>
-                <div className="w-9 h-9 rounded-control flex items-center justify-center text-white/50 hover:text-white/80 hover:bg-white/[0.08] cursor-pointer transition-all duration-200">
+                <div className="w-9 h-9 rounded-control flex items-center justify-center text-white/50 hover:text-white/80 hover:bg-card/[0.08] cursor-pointer transition-all duration-200">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                 </div>
-                <div className="w-9 h-9 rounded-control flex items-center justify-center text-white/50 hover:text-white/80 hover:bg-white/[0.08] cursor-pointer transition-all duration-200">
+                <div className="w-9 h-9 rounded-control flex items-center justify-center text-white/50 hover:text-white/80 hover:bg-card/[0.08] cursor-pointer transition-all duration-200">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                 </div>
-                <div className="w-9 h-9 rounded-control flex items-center justify-center text-white/50 hover:text-white/80 hover:bg-white/[0.08] cursor-pointer transition-all duration-200">
+                <div className="w-9 h-9 rounded-control flex items-center justify-center text-white/50 hover:text-white/80 hover:bg-card/[0.08] cursor-pointer transition-all duration-200">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 </div>
               </div>
@@ -464,24 +468,29 @@ export default function BrandingPage() {
             <div className="text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-widest px-4 pt-3.5 pb-2">
               Button Samples
             </div>
-            <div className="flex flex-wrap gap-2.5 px-4 pb-4">
-              <button
-                className="px-3.5 py-1.5 rounded-button text-xs font-bold uppercase tracking-wide text-white border-2 border-transparent transition-all duration-200"
+            {/*
+              Specimens, not controls.
+
+              These were real <button> elements with no click handler, so they sat in the tab order
+              and did nothing when activated. A control that takes focus and does nothing is the
+              same defect as one that takes a click and does nothing — it is only quieter about it.
+            */}
+            <div className="flex flex-wrap gap-2.5 px-4 pb-4" aria-hidden="true">
+              <span
+                className="px-3.5 py-1.5 rounded-button text-xs font-bold uppercase tracking-wide text-white border-2 border-transparent"
                 style={{ backgroundColor: colors.primaryColor, borderColor: colors.primaryColor }}
               >
                 PRIMARY
-              </button>
-              <button
-                className="px-3.5 py-1.5 rounded-button text-xs font-bold uppercase tracking-wide border-2 border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-surface-navy transition-all duration-200"
-              >
+              </span>
+              <span className="px-3.5 py-1.5 rounded-button text-xs font-bold uppercase tracking-wide border-2 border-border text-muted-foreground">
                 SECONDARY
-              </button>
-              <button
-                className="px-3.5 py-1.5 rounded-button text-xs font-extrabold uppercase tracking-wide border-2 transition-all duration-200"
+              </span>
+              <span
+                className="px-3.5 py-1.5 rounded-button text-xs font-extrabold uppercase tracking-wide border-2"
                 style={{ backgroundColor: colors.accentColor, borderColor: colors.accentColor, color: '#0F172A' }}
               >
                 CALL TO ACTION
-              </button>
+              </span>
             </div>
           </div>
 

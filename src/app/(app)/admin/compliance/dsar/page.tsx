@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { complianceService, DataSubjectRequest } from '@/services/complianceService';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
@@ -47,7 +48,7 @@ export default function DsarPage() {
       COMPLETED: 'bg-green-100 text-green-800',
       REJECTED: 'bg-red-100 text-red-800',
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[status] || 'bg-muted text-foreground';
   };
 
   const typeBadge = (type: string) => {
@@ -58,18 +59,24 @@ export default function DsarPage() {
       PORTABILITY: 'bg-purple-100 text-purple-800',
       OBJECTION: 'bg-orange-100 text-orange-800',
     };
-    return colors[type] || 'bg-gray-100 text-gray-800';
+    return colors[type] || 'bg-muted text-foreground';
   };
 
   return (
     <FeatureGate feature="POPIA_COMPLIANCE">
-      <PageWrapper title="Data Subject Access Requests" subtitle="Manage POPIA data subject requests">
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Casework"
+        title="Data Subject Access Requests"
+        subtitle="Requests against a 30-day statutory deadline"
+      />
+
         <div className="space-y-6">
           {/* Filters */}
           <div className="flex gap-2 flex-wrap">
             {[undefined, 'RECEIVED', 'IN_PROGRESS', 'COMPLETED', 'REJECTED'].map((f) => (
               <button key={f || 'all'} onClick={() => { setFilter(f); setPage(0); }}
-                className={`px-3 py-1.5 text-sm rounded-lg ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700'}`}>
+                className={`px-3 py-1.5 text-sm rounded-lg ${filter === f ? 'bg-blue-600 text-white' : 'bg-muted dark:bg-muted text-foreground'}`}>
                 {f ? formatEnumValue(f) : 'All'}
               </button>
             ))}
@@ -80,26 +87,26 @@ export default function DsarPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : requests.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-muted-foreground">
               <DocumentTextIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No data subject requests found</p>
             </div>
           ) : (
             <div className="space-y-4">
               {requests.map((req) => (
-                <div key={req.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <div key={req.id} className="bg-card dark:bg-card rounded-lg shadow p-6">
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-gray-900 dark:text-white">{req.requesterName}</h3>
+                        <h3 className="font-semibold text-foreground dark:text-white">{req.requesterName}</h3>
                         <span className={`px-2 py-0.5 text-xs rounded-full ${typeBadge(req.requestType)}`}>{req.requestType}</span>
                         <span className={`px-2 py-0.5 text-xs rounded-full ${statusBadge(req.status)}`}>{req.status}</span>
                       </div>
-                      <p className="text-sm text-gray-500 mt-1">{req.requesterEmail}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{req.requesterEmail}</p>
                       {req.description && (
-                        <p className="text-sm text-gray-600 mt-2">{req.description}</p>
+                        <p className="text-sm text-muted-foreground mt-2">{req.description}</p>
                       )}
-                      <div className="flex gap-4 text-xs text-gray-500 mt-2">
+                      <div className="flex gap-4 text-xs text-muted-foreground mt-2">
                         <span>Created: {new Date(req.createdAt).toLocaleDateString()}</span>
                         {req.dueDate && <span>Due: {new Date(req.dueDate).toLocaleDateString()}</span>}
                       </div>

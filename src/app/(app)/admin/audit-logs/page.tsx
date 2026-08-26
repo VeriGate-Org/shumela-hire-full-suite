@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import EmptyState from '@/components/EmptyState';
 import {
   ClockIcon,
@@ -300,7 +301,7 @@ export default function AuditLogsPage() {
     if (action.includes('updated') || action.includes('edited')) return 'text-gold-600 bg-gold-100';
     if (action.includes('login')) return 'text-purple-600 bg-purple-100';
     if (action.includes('role') || action.includes('permission')) return 'text-yellow-600 bg-yellow-100';
-    return 'text-gray-600 bg-gray-100';
+    return 'text-muted-foreground bg-muted';
   };
 
   const getSeverityLevel = (log: AuditLogEntry): 'info' | 'warning' | 'error' | 'critical' => {
@@ -371,7 +372,7 @@ export default function AuditLogsPage() {
             className="sr-only peer"
           />
           <span className="absolute inset-0 bg-border rounded-xl transition-colors peer-checked:bg-accent-teal" />
-          <span className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-5" />
+          <span className="absolute top-0.5 left-0.5 w-5 h-5 bg-card rounded-full shadow-sm transition-transform peer-checked:translate-x-5" />
         </label>
       </div>
       <button
@@ -430,11 +431,13 @@ export default function AuditLogsPage() {
   }
 
   return (
-    <PageWrapper
-      title="Audit Logs"
-      subtitle="Monitor and review all system activity"
-      actions={actions}
-    >
+    <PageWrapper actions={actions}>
+      <IdentityBand
+        eyebrow="Ledger"
+        title="Audit Logs"
+        subtitle="Every recorded action, append-only"
+      />
+
       <div className="space-y-6">
         {/* Stats Bar — 3-column grid matching mock */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

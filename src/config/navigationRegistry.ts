@@ -187,6 +187,9 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'report-export', label: 'Report Export', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT', allowedRoles: ['ADMIN', 'HR_MANAGER'] },
 
   // Administration
+  // The front door. Seventeen admin pages existed and none of them was one — and administration
+  // is the area where the useful question is "is anything wrong", which no individual page answers.
+  { id: 'admin-console', label: 'Administration', href: '/admin', icon: Cog6ToothIcon, section: 'administration', requiredPermissions: ['manage_permissions'] },
   { id: 'permissions', label: 'Role Permissions', href: '/admin/permissions', icon: ShieldCheckIcon, section: 'administration', requiredPermissions: ['manage_permissions'] },
   { id: 'audit-logs', label: 'Audit Logs', href: '/admin/audit-logs', icon: ClipboardDocumentListIcon, section: 'administration', requiredPermissions: ['view_audit_logs'] },
   { id: 'departments', label: 'Departments', href: '/admin/departments', icon: BuildingOfficeIcon, section: 'administration', requiredPermissions: ['manage_departments'] },
