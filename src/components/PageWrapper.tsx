@@ -28,15 +28,15 @@ export default function PageWrapper({
   subtitle,
   actions,
 }: PageWrapperProps) {
-  const { setTitle, clearTitle } = usePageHeading();
+  const { setPageTitle, clearPageTitle } = usePageHeading();
 
   useEffect(() => {
-    setTitle(title);
+    setPageTitle(title);
     // Clear on unmount so a page without a title does not inherit the previous one's breadcrumb —
     // but only if this page's title is still the one showing. Both pages are briefly mounted during
     // a route change, and an unconditional clear here wiped the incoming title every time.
-    return () => clearTitle(title);
-  }, [title, setTitle, clearTitle]);
+    return () => clearPageTitle(title);
+  }, [title, setPageTitle, clearPageTitle]);
 
   return (
     <>
