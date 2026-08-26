@@ -18,7 +18,8 @@ export interface DistributionStripProps {
 
 const VALUE_TONE: Record<NonNullable<Bucket['tone']>, string> = {
   default: 'text-foreground',
-  warning: 'text-accent-gold',
+  // --accent-gold is 2.22:1 on a white card. --accent-gold-on-tint is the ink value.
+  warning: 'text-accent-gold-on-tint',
   critical: 'text-error',
   positive: 'text-accent-teal',
 };
