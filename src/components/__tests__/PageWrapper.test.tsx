@@ -23,10 +23,10 @@ jest.mock('next/link', () => {
   };
 });
 
-/** Reports whatever title PageWrapper published upward for the breadcrumb. */
+/** Reports the heading the chrome would show for this page. */
 function TitleSpy() {
-  const { title } = usePageHeading();
-  return <span data-testid="published-title">{title ?? '(none)'}</span>;
+  const { heading } = usePageHeading();
+  return <span data-testid="published-title">{heading ?? '(none)'}</span>;
 }
 
 function renderPageWrapper(props: React.ComponentProps<typeof PageWrapper>) {
@@ -97,6 +97,53 @@ describe('PageWrapper', () => {
     renderPageWrapper({ children: <div>Content</div> });
 
     expect(screen.getByTestId('published-title')).toHaveTextContent('(none)');
+  });
+
+  it("a page's own title outranks a nested band's section label", () => {
+    // The dashboard passes "Administrator Dashboard" and nests a band whose eyebrow is "System".
+    // React runs child effects before the parent's, so with one slot the nested band won and the
+    // page's own title never reached the breadcrumb.
+    function BandLike({ eyebrow }: { eyebrow: string }) {
+      const { setSectionLabel, clearSectionLabel } = usePageHeading();
+      React.useEffect(() => {
+        setSectionLabel(eyebrow);
+        return () => clearSectionLabel(eyebrow);
+      }, [eyebrow, setSectionLabel, clearSectionLabel]);
+      return null;
+    }
+
+    render(
+      <PageHeadingProvider>
+        <TitleSpy />
+        <PageWrapper title="Administrator Dashboard">
+          <BandLike eyebrow="System" />
+        </PageWrapper>
+      </PageHeadingProvider>,
+    );
+
+    expect(screen.getByTestId('published-title')).toHaveTextContent('Administrator Dashboard');
+  });
+
+  it('falls back to the section label when the page states no title', () => {
+    function BandLike({ eyebrow }: { eyebrow: string }) {
+      const { setSectionLabel, clearSectionLabel } = usePageHeading();
+      React.useEffect(() => {
+        setSectionLabel(eyebrow);
+        return () => clearSectionLabel(eyebrow);
+      }, [eyebrow, setSectionLabel, clearSectionLabel]);
+      return null;
+    }
+
+    render(
+      <PageHeadingProvider>
+        <TitleSpy />
+        <PageWrapper>
+          <BandLike eyebrow="Hiring pipeline" />
+        </PageWrapper>
+      </PageHeadingProvider>,
+    );
+
+    expect(screen.getByTestId('published-title')).toHaveTextContent('Hiring pipeline');
   });
 
   it('clears the published title when the page goes away', () => {

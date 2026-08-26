@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { usePageHeading } from '@/contexts/PageHeadingContext';
 
 export interface IdentityFigure {
   /** Short label, e.g. "In workflow". */
@@ -61,6 +62,18 @@ export default function IdentityBand({
   children,
   actions,
 }: IdentityBandProps) {
+  /*
+   * The top bar's breadcrumb is fed by PageWrapper's `title`, and the 39 pages built around this
+   * band pass none — so they showed no breadcrumb at all while the other 113 did. The eyebrow is
+   * the right thing to publish rather than the title: it names the section ("Application triage"),
+   * where the title names the specific record and can be a whole sentence.
+   */
+  const { setSectionLabel, clearSectionLabel } = usePageHeading();
+  useEffect(() => {
+    setSectionLabel(eyebrow);
+    return () => clearSectionLabel(eyebrow);
+  }, [eyebrow, setSectionLabel, clearSectionLabel]);
+
   return (
     <header className="band-glow relative overflow-hidden rounded-card bg-band px-6 py-6 text-band-foreground">
       <div className="relative z-10 flex flex-wrap items-start justify-between gap-6">

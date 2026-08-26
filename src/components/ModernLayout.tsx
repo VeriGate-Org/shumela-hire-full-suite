@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, ReactNode } from 'react';
+import React, { useState, ReactNode } from 'react';
 import Link from 'next/link';
 import ModernSidebar from './ModernSidebar';
 import NotificationCenter from './NotificationCenter';
@@ -45,22 +45,8 @@ function ProductMark({ logoText }: { logoText?: string }) {
 }
 
 const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
-  const { title } = usePageHeading();
-  // Rail is always there; the panel beside it is what pins. Persisted, because whether the menu
-  // stays open is a working preference, not a per-page one.
-  const [panelPinned, setPanelPinned] = useState(true);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('shumelahire-nav-pinned');
-    if (saved !== null) setPanelPinned(saved === 'true');
-  }, []);
-
-  const togglePin = useCallback(() => {
-    setPanelPinned(prev => {
-      localStorage.setItem('shumelahire-nav-pinned', String(!prev));
-      return !prev;
-    });
-  }, []);
+  const { heading: title } = usePageHeading();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
   const { branding } = useTenant();
@@ -71,7 +57,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Top nav — fixed full width */}
-      <header className={`fixed top-0 right-0 z-40 h-14 bg-card border-b border-border shadow-sm left-0 ${panelPinned ? 'lg:left-[260px]' : 'lg:left-16'} transition-all duration-200 ease-in-out`}>
+      <header className={`fixed top-0 right-0 z-40 h-14 bg-card border-b border-border shadow-sm left-0 ${sidebarCollapsed ? 'lg:left-16' : 'lg:left-[260px]'} transition-all duration-200 ease-in-out`}>
         <div className="flex h-full items-center justify-between px-4">
           {/* Left: hamburger + logo + breadcrumb */}
           <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -83,9 +69,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
               <Bars3Icon className="h-4 w-4 text-muted-foreground" />
             </button>
 
-            {/* A tenant's own logo earns a place on every size; the product mark does not need one
-                on desktop, where the rail already carries it. */}
-            <div className={`flex items-center gap-2.5 ${branding?.logoUrl ? '' : 'lg:hidden'}`}>
+            <div className="flex items-center gap-2.5 lg:hidden">
               {branding?.logoUrl ? (
                 // This bar sits on --card, which is white in light mode, so the plate is only
                 // needed in the dark. The sidebar's copy of this is dark on both and says 'always'.
@@ -137,7 +121,10 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
 
       {/* Sidebar — below top nav */}
       <div className="hidden lg:block">
-        <ModernSidebar panelPinned={panelPinned} onTogglePin={togglePin} />
+        <ModernSidebar
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
       </div>
 
       {/* Mobile sidebar overlay */}
@@ -152,7 +139,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
             style={{ backgroundColor: 'var(--sidebar-bg)' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <ModernSidebar forcePinned />
+            <ModernSidebar />
           </div>
         </div>
       )}
@@ -160,7 +147,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
       {/* Main content */}
       <div className={`
         pt-14 transition-all duration-200 ease-in-out
-        ${panelPinned ? 'lg:ml-[260px]' : 'lg:ml-16'}
+        ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-[260px]'}
       `}>
         <main className="min-h-[calc(100vh-3.5rem)]" style={{ padding: 'var(--density-padding)' }}>
           {children}
