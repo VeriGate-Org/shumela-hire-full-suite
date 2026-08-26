@@ -17,6 +17,14 @@ export interface ConsoleTile {
   id: string;
   label: string;
   href: string;
+  /**
+   * The permission this area needs.
+   *
+   * <p>The console is offered to ADMIN and HR_MANAGER, who can reach different subsets of it — so
+   * the two roles see different consoles rather than one of them seeing tiles that lead to a
+   * refusal.
+   */
+  permission: string;
   /** What this area holds, in a phrase. */
   description: string;
   /** What is true right now, or null when the figure could not be read. */

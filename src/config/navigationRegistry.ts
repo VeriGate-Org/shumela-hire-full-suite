@@ -189,7 +189,11 @@ export const navigationRegistry: NavigationEntry[] = [
   // Administration
   // The front door. Seventeen admin pages existed and none of them was one — and administration
   // is the area where the useful question is "is anything wrong", which no individual page answers.
-  { id: 'admin-console', label: 'Administration', href: '/admin', icon: Cog6ToothIcon, section: 'administration', requiredPermissions: ['manage_permissions'] },
+  // Not gated on manage_permissions, which is ADMIN-only: four of the seven areas this console
+  // gathers — departments, compliance, company documents and retention — are reachable by an
+  // HR_MANAGER too, and the DSAR breach count is most relevant to whoever owns compliance. Each
+  // tile still respects its own permission, so the two roles see different consoles.
+  { id: 'admin-console', label: 'Administration', href: '/admin', icon: Cog6ToothIcon, section: 'administration', requiredPermissions: ['view_admin_console'] },
   { id: 'permissions', label: 'Role Permissions', href: '/admin/permissions', icon: ShieldCheckIcon, section: 'administration', requiredPermissions: ['manage_permissions'] },
   { id: 'audit-logs', label: 'Audit Logs', href: '/admin/audit-logs', icon: ClipboardDocumentListIcon, section: 'administration', requiredPermissions: ['view_audit_logs'] },
   { id: 'departments', label: 'Departments', href: '/admin/departments', icon: BuildingOfficeIcon, section: 'administration', requiredPermissions: ['manage_departments'] },

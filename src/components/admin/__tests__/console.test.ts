@@ -93,6 +93,7 @@ describe('tile order', () => {
       id,
       label: id,
       href: '/',
+      permission: 'manage_permissions',
       description: '',
       detail: null,
       state,
@@ -147,6 +148,40 @@ describe('the admin screens', () => {
     expect(code.match(/\b(bg-white|bg-gray-\d+|text-gray-\d+|border-gray-\d+)\b/g) ?? []).toEqual(
       [],
     );
+  });
+});
+
+describe('the console is offered to both roles that can use it', () => {
+  const read = (...p: string[]) => fs.readFileSync(path.join(process.cwd(), 'src', ...p), 'utf8');
+
+  it('is gated on a permission ADMIN and HR_MANAGER both hold', () => {
+    // It was gated on manage_permissions, which is ADMIN-only — while four of the seven areas it
+    // gathers are reachable by an HR_MANAGER, and the DSAR breach count is most relevant to
+    // whoever owns compliance.
+    const perms = read('config', 'permissions.ts');
+    const admin = perms.slice(perms.indexOf('ADMIN:'), perms.indexOf('EXECUTIVE:'));
+    const hr = perms.slice(perms.indexOf('HR_MANAGER:'), perms.indexOf('HR_MANAGER:') + 900);
+
+    expect(admin).toContain('view_admin_console');
+    expect(hr).toContain('view_admin_console');
+    expect(read('config', 'navigationRegistry.ts')).toContain(
+      "href: '/admin', icon: Cog6ToothIcon, section: 'administration', requiredPermissions: ['view_admin_console']",
+    );
+  });
+
+  it('shows each role only the areas it can reach', () => {
+    // An HR Manager seeing a Role Permissions tile would be sent to a refusal.
+    const page = read('app', '(app)', 'admin', 'page.tsx');
+
+    expect(page).toContain('hasPermission(tile.permission)');
+  });
+
+  it('does not request what the viewer may not see', () => {
+    // A 403 here would report as "could not be read" when the truth is "not yours to read".
+    const page = read('app', '(app)', 'admin', 'page.tsx');
+
+    expect(page).toContain("hasPermission('manage_permissions')");
+    expect(page).toContain("hasPermission('manage_compliance')");
   });
 });
 

@@ -5,6 +5,7 @@ import PageWrapper from '@/components/PageWrapper';
 import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar from '@/components/record/DecisionBar';
 import { apiFetch } from '@/lib/api-fetch';
+import { useAuth } from '@/contexts/AuthContext';
 import { complianceService } from '@/services/complianceService';
 import { departmentService } from '@/services/departmentService';
 import {
@@ -35,6 +36,7 @@ export default function AdminConsolePage() {
   const [tiles, setTiles] = useState<ConsoleTile[]>([]);
   const [overdue, setOverdue] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { hasPermission } = useAuth();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -42,12 +44,22 @@ export default function AdminConsolePage() {
     // Each source is read independently. One failure narrows its own tile to "could not be read"
     // rather than emptying the console — an administration home that goes blank because one
     // endpoint is down is worse than one that says which part it cannot see.
+    // A source is only read when this viewer may see the tile it feeds. An HR Manager has no
+    // business issuing a request to /api/admin/roles, and a 403 in the console would report as
+    // "could not be read" when the truth is "not yours to read".
+    const skip = Promise.reject(new Error('not permitted'));
     const [requests, departments, documents, roles, policies] = await Promise.allSettled([
-      complianceService.getAllDsars(undefined, 0, DSAR_SCAN),
-      departmentService.getAll(),
-      apiFetch('/api/company-documents/all').then((r) => (r.ok ? r.json() : Promise.reject())),
-      apiFetch('/api/admin/roles').then((r) => (r.ok ? r.json() : Promise.reject())),
-      apiFetch('/api/admin/retention-policies').then((r) => (r.ok ? r.json() : Promise.reject())),
+      hasPermission('manage_compliance')
+        ? complianceService.getAllDsars(undefined, 0, DSAR_SCAN) : skip,
+      hasPermission('manage_departments') ? departmentService.getAll() : skip,
+      hasPermission('manage_company_documents')
+        ? apiFetch('/api/company-documents/all').then((r) => (r.ok ? r.json() : Promise.reject()))
+        : skip,
+      hasPermission('manage_permissions')
+        ? apiFetch('/api/admin/roles').then((r) => (r.ok ? r.json() : Promise.reject())) : skip,
+      hasPermission('manage_company_documents')
+        ? apiFetch('/api/admin/retention-policies').then((r) => (r.ok ? r.json() : Promise.reject()))
+        : skip,
     ]);
 
     const built: ConsoleTile[] = [];
@@ -60,6 +72,7 @@ export default function AdminConsolePage() {
       setOverdue(overdueRequests(rows).length);
       built.push({
         id: 'compliance',
+        permission: 'manage_compliance',
         label: 'Compliance',
         href: '/admin/compliance',
         description: 'POPIA consents, data-subject requests and retention reminders',
@@ -69,6 +82,7 @@ export default function AdminConsolePage() {
     } else {
       built.push({
         id: 'compliance',
+        permission: 'manage_compliance',
         label: 'Compliance',
         href: '/admin/compliance',
         description: 'POPIA consents, data-subject requests and retention reminders',
@@ -88,6 +102,7 @@ export default function AdminConsolePage() {
     const departmentCount = countDetail(count(departments), 'department', 'departments');
     built.push({
       id: 'departments',
+      permission: 'manage_departments',
       label: 'Departments',
       href: '/admin/departments',
       description: 'The organisational units vacancies are raised against',
@@ -97,6 +112,7 @@ export default function AdminConsolePage() {
     const documentCount = countDetail(count(documents), 'document', 'documents');
     built.push({
       id: 'company-documents',
+      permission: 'manage_company_documents',
       label: 'Company documents',
       href: '/admin/company-documents',
       description: 'Policies staff acknowledge',
@@ -106,6 +122,7 @@ export default function AdminConsolePage() {
     const roleCount = countDetail(count(roles), 'role', 'roles');
     built.push({
       id: 'permissions',
+      permission: 'manage_permissions',
       label: 'Role permissions',
       href: '/admin/permissions',
       description: 'What each role may see and do',
@@ -115,6 +132,7 @@ export default function AdminConsolePage() {
     const policyCount = countDetail(count(policies), 'policy', 'policies');
     built.push({
       id: 'retention',
+      permission: 'manage_company_documents',
       label: 'Document retention',
       href: '/admin/document-retention',
       description: 'How long each document type is kept before disposal',
@@ -125,6 +143,7 @@ export default function AdminConsolePage() {
     // anything is wrong, and branding is either set or it is not — neither is worth a request.
     built.push({
       id: 'audit-logs',
+      permission: 'view_audit_logs',
       label: 'Audit log',
       href: '/admin/audit-logs',
       description: 'Every recorded action, append-only',
@@ -133,6 +152,7 @@ export default function AdminConsolePage() {
     });
     built.push({
       id: 'branding',
+      permission: 'manage_permissions',
       label: 'Branding',
       href: '/admin/branding',
       description: 'Logo and colours applied across the tenant',
@@ -140,9 +160,10 @@ export default function AdminConsolePage() {
       state: 'settled',
     });
 
-    setTiles(orderTiles(built));
+    // Filtered last, so a tile's figure is never computed for somebody who will not see it.
+    setTiles(orderTiles(built.filter((tile) => hasPermission(tile.permission))));
     setLoading(false);
-  }, []);
+  }, [hasPermission]);
 
   useEffect(() => {
     void load();
