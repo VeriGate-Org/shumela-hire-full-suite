@@ -1,6 +1,7 @@
 package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.entity.User;
+import com.arthmatic.shumelahire.repository.RolePermissionOverrideDataRepository;
 import com.arthmatic.shumelahire.repository.UserDataRepository;
 import com.arthmatic.shumelahire.service.PermissionService;
 import org.junit.jupiter.api.AfterEach;
@@ -50,10 +51,13 @@ class AdminRoleLockoutTest {
     @Mock
     private UserDataRepository userRepository;
 
+    @Mock
+    private RolePermissionOverrideDataRepository rolePermissionRepository;
+
     private final PermissionService permissionService = new PermissionService();
 
     private AdminController controller() {
-        return new AdminController(userRepository, permissionService);
+        return new AdminController(userRepository, permissionService, rolePermissionRepository);
     }
 
     @AfterEach

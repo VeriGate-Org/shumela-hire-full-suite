@@ -3,24 +3,28 @@
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { apiFetch, refusalMessage } from '@/lib/api-fetch';
+import {
+  PERMISSION_CATALOGUE,
+  PERMISSION_CATEGORIES,
+  effectivePermissions,
+  isPermissionLocked,
+  type RolePermissionOverride,
+} from '@/config/permissions';
+import type { UserRole } from '@/contexts/AuthContext';
+import { clearRolePermissionOverrides } from '@/lib/rolePermissionOverrides';
 import { useToast } from '@/components/Toast';
 import InviteUserModal from '@/components/InviteUserModal';
 import {
   ShieldCheckIcon,
   UsersIcon,
   KeyIcon,
-  PencilIcon,
-  TrashIcon,
   PlusIcon,
   CheckIcon,
   XMarkIcon,
   ExclamationTriangleIcon,
   LockClosedIcon,
-  UserGroupIcon,
-  CogIcon,
-  EyeIcon,
+  PencilIcon,
   DocumentTextIcon,
-  ChartBarIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 
@@ -60,15 +64,12 @@ export default function AdminPermissionsPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [selectedView, setSelectedView] = useState<'roles' | 'permissions' | 'users'>('roles');
-  const [showRoleModal, setShowRoleModal] = useState(false);
-  const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [savingPermission, setSavingPermission] = useState<string | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editingUserRole, setEditingUserRole] = useState<string>('');
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const { toast } = useToast();
 
@@ -80,24 +81,36 @@ export default function AdminPermissionsPage() {
     setLoading(true);
     setLoadError(null);
     try {
-      const [permissionsRes, rolesRes, usersRes] = await Promise.allSettled([
-        apiFetch('/api/admin/permissions'),
+      const [overridesRes, rolesRes, usersRes] = await Promise.allSettled([
+        apiFetch('/api/admin/role-permissions'),
         apiFetch('/api/admin/roles'),
         apiFetch('/api/admin/users'),
       ]);
 
-      let anySuccess = false;
+      // The catalogue is the interface's own list, not the server's. There used to be two:
+      // this page rendered a set of ids the Java service kept (`dash_view`, `admin_roles`) while
+      // every gate in the product read a different set entirely, so nothing ticked here governed
+      // anything. One vocabulary now, and it is the one that gates.
+      setPermissions(PERMISSION_CATALOGUE);
+      let anySuccess = true;
 
-      if (permissionsRes.status === 'fulfilled' && permissionsRes.value.ok) {
-        const data = await permissionsRes.value.json();
-        setPermissions(Array.isArray(data) ? data : data.data || []);
-        anySuccess = true;
+      let overrides: RolePermissionOverride[] = [];
+      if (overridesRes.status === 'fulfilled' && overridesRes.value.ok) {
+        const data = await overridesRes.value.json();
+        overrides = Array.isArray(data) ? data : [];
       }
 
       if (rolesRes.status === 'fulfilled' && rolesRes.value.ok) {
         const data = await rolesRes.value.json();
-        setRoles(Array.isArray(data) ? data : data.data || []);
-        anySuccess = true;
+        const serverRoles: Role[] = Array.isArray(data) ? data : data.data || [];
+        // Names and headcounts come from the server; what each role may do is derived here, from
+        // the shipped defaults plus this tenant's stored deviations.
+        setRoles(serverRoles.map(r => ({
+          ...r,
+          permissions: effectivePermissions(r.id.toUpperCase() as UserRole, overrides),
+        })));
+      } else {
+        anySuccess = false;
       }
 
       if (usersRes.status === 'fulfilled' && usersRes.value.ok) {
@@ -116,28 +129,7 @@ export default function AdminPermissionsPage() {
     }
   };
 
-  const permissionCategories = [
-    { id: 'dashboard', name: 'Dashboard & Analytics', icon: ChartBarIcon },
-    { id: 'recruitment', name: 'Recruitment', icon: UsersIcon },
-    { id: 'applications', name: 'Applications', icon: DocumentTextIcon },
-    { id: 'candidates', name: 'Candidates', icon: UserGroupIcon },
-    { id: 'interviews', name: 'Interviews', icon: UsersIcon },
-    { id: 'integrations', name: 'Integrations', icon: CogIcon },
-    { id: 'training', name: 'Training', icon: DocumentTextIcon },
-    { id: 'admin', name: 'Administration', icon: ShieldCheckIcon }
-  ];
-
-  const getRoleColor = (color: string) => {
-    const colors = {
-      red: 'bg-red-100 text-red-800 border-red-200',
-      blue: 'bg-gold-100 text-gold-800 border-violet-200',
-      green: 'bg-green-100 text-green-800 border-green-200',
-      purple: 'bg-purple-100 text-purple-800 border-purple-200',
-      yellow: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      gray: 'bg-gray-100 text-gray-800 border-gray-200'
-    };
-    return colors[color as keyof typeof colors] || colors.gray;
-  };
+  const permissionCategories = PERMISSION_CATEGORIES;
 
   /** Map role color to the mock's colored icon square background + icon color */
   const getRoleIconStyle = (color: string) => {
@@ -150,15 +142,6 @@ export default function AdminPermissionsPage() {
       gray: 'bg-icon-bg-navy text-accent-navy',
     };
     return styles[color] || styles.gray;
-  };
-
-  const getPermissionLevel = (level: string) => {
-    const levels = {
-      read: { color: 'bg-green-100 text-green-800', icon: EyeIcon },
-      write: { color: 'bg-gold-100 text-gold-800', icon: PencilIcon },
-      admin: { color: 'bg-red-100 text-red-800', icon: ShieldCheckIcon }
-    };
-    return levels[level as keyof typeof levels] || levels.read;
   };
 
   const handleRolePermissionToggle = async (roleId: string, permissionId: string) => {
@@ -183,13 +166,22 @@ export default function AdminPermissionsPage() {
 
     setSavingPermission(permissionId);
     try {
-      const res = await apiFetch(`/api/admin/roles/${roleId}/permissions`, {
+      const res = await apiFetch('/api/admin/role-permissions', {
         method: 'PUT',
-        body: JSON.stringify({ permissionId, enabled: !hasPermission }),
+        body: JSON.stringify({
+          role: roleId.toUpperCase(),
+          permissionId,
+          granted: !hasPermission,
+        }),
       });
-      if (!res.ok) throw new Error('Failed to update permission');
-      toast(`Permission ${hasPermission ? 'removed' : 'granted'} successfully`, 'success');
-    } catch {
+      // The server refuses to revoke a permission administration cannot be recovered without, and
+      // says which. Reporting that as "Failed to update permission" would turn a rule into a bug.
+      if (!res.ok) throw new Error(await refusalMessage(res));
+      // Anyone signed in reads these once per session; drop the cache so this administrator's own
+      // menu reflects the change without a sign-out.
+      clearRolePermissionOverrides();
+      toast(`Permission ${hasPermission ? 'removed' : 'granted'}`, 'success');
+    } catch (err: unknown) {
       // Rollback on failure
       setRoles(prev => prev.map(r => {
         if (r.id === roleId) {
@@ -200,47 +192,9 @@ export default function AdminPermissionsPage() {
       if (selectedRole?.id === roleId) {
         setSelectedRole(prev => prev ? { ...prev, permissions: role.permissions } : null);
       }
-      toast('Failed to update permission. Changes reverted.', 'error');
+      toast(err instanceof Error ? err.message : 'Could not update the permission', 'error');
     } finally {
       setSavingPermission(null);
-    }
-  };
-
-  const handleSaveRoleChanges = async () => {
-    if (!selectedRole) return;
-    try {
-      const res = await apiFetch(`/api/admin/roles/${selectedRole.id}`, {
-        method: 'PUT',
-        body: JSON.stringify(selectedRole),
-      });
-      if (!res.ok) throw new Error('Failed to save');
-      toast('Role changes saved successfully', 'success');
-      setSelectedRole(null);
-      await loadPermissionData();
-    } catch {
-      toast('Failed to save role changes', 'error');
-    }
-  };
-
-  const handleCreateRole = () => {
-    setEditingRole(null);
-    setShowRoleModal(true);
-  };
-
-  const handleEditRole = (role: Role) => {
-    setEditingRole(role);
-    setShowRoleModal(true);
-  };
-
-  const handleDeleteRole = async (roleId: string) => {
-    setShowDeleteConfirm(null);
-    try {
-      const res = await apiFetch(`/api/admin/roles/${roleId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete');
-      setRoles(prev => prev.filter(role => role.id !== roleId));
-      toast('Role deleted successfully', 'success');
-    } catch {
-      toast('Failed to delete role. It may still have assigned users.', 'error');
     }
   };
 
@@ -317,13 +271,6 @@ export default function AdminPermissionsPage() {
       >
         <PlusIcon className="w-4 h-4" />
         Invite User
-      </button>
-      <button
-        onClick={handleCreateRole}
-        className="inline-flex items-center gap-2 px-5 py-2 bg-cta border-2 border-cta text-cta-foreground rounded-button text-sm font-semibold uppercase tracking-wider cursor-pointer hover:bg-cta-hover hover:border-cta-hover transition-all"
-      >
-        <PlusIcon className="w-4 h-4" />
-        Create Role
       </button>
     </div>
   );
@@ -492,26 +439,6 @@ export default function AdminPermissionsPage() {
                 className="enterprise-card p-5 relative cursor-pointer hover:-translate-y-0.5 transition-transform"
                 onClick={() => setSelectedRole(role)}
               >
-                {/* Three-dot menu area */}
-                {!role.isSystem && (
-                  <div className="absolute top-3 right-3 flex gap-1">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleEditRole(role); }}
-                      className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-primary transition-colors"
-                      title="Edit role"
-                    >
-                      <PencilIcon className="w-4.5 h-4.5" />
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(role.id); }}
-                      className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-icon-bg-pink hover:text-accent-pink transition-colors"
-                      title="Delete role"
-                    >
-                      <TrashIcon className="w-4.5 h-4.5" />
-                    </button>
-                  </div>
-                )}
-
                 {/* Card Header: icon + title + user count */}
                 <div className="flex items-center gap-3.5 mb-3.5 pr-16">
                   <div className={`w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 ${getRoleIconStyle(role.color)}`}>
@@ -593,19 +520,27 @@ export default function AdminPermissionsPage() {
                             {roles.map(role => {
                               const hasIt = role.permissions.includes(permission.id);
                               const isSaving = savingPermission === permission.id;
+                              // `isSystem` is true for every role the server returns, so this
+                              // matrix was disabled in its entirety — on top of writing to a route
+                              // that did not exist. Roles cannot be created (they are an enum), but
+                              // what each one may do is now stored and editable.
+                              const locked = isPermissionLocked(role.id.toUpperCase() as UserRole, permission.id);
                               return (
                                 <td key={role.id} className="px-4 py-3 text-center">
-                                  <label className="relative inline-block w-9 h-5 cursor-pointer">
+                                  <label
+                                    className={`relative inline-block w-9 h-5 ${locked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                    title={locked ? 'Cannot be removed — nobody would be able to restore it' : undefined}
+                                  >
                                     <input
                                       type="checkbox"
                                       checked={hasIt}
-                                      disabled={role.isSystem || isSaving}
+                                      disabled={locked || isSaving}
                                       onChange={() => handleRolePermissionToggle(role.id, permission.id)}
                                       className="sr-only peer"
                                     />
                                     <span className={`block w-9 h-5 rounded-full transition-colors ${
                                       hasIt ? 'bg-accent-teal' : 'bg-border'
-                                    } ${isSaving ? 'opacity-50' : ''}`} />
+                                    } ${isSaving ? 'opacity-50' : ''} ${locked ? 'opacity-60 ring-1 ring-inset ring-border' : ''}`} />
                                     <span className={`absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
                                       hasIt ? 'translate-x-4' : 'translate-x-0'
                                     }`} />
@@ -739,84 +674,6 @@ export default function AdminPermissionsPage() {
           </div>
         )}
 
-        {/* ══════ Create/Edit Role Modal ══════ */}
-        {showRoleModal && (
-          <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center p-4 z-50" onClick={() => { setShowRoleModal(false); setEditingRole(null); }}>
-            <div className="bg-card rounded-card shadow-lg max-w-[640px] w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-              {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-border">
-                <h2 className="text-lg font-bold text-foreground">
-                  {editingRole ? 'Edit Role' : 'Create New Role'}
-                </h2>
-                <button
-                  onClick={() => { setShowRoleModal(false); setEditingRole(null); }}
-                  className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-icon-bg-pink hover:text-accent-pink transition-colors"
-                >
-                  <XMarkIcon className="w-4.5 h-4.5" />
-                </button>
-              </div>
-              {/* Modal Body */}
-              <div className="p-6">
-                <div className="bg-muted/50 rounded-card p-8 text-center">
-                  <CogIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-[0.9375rem] text-foreground leading-relaxed">
-                    Custom role management will be available in a future release.
-                    System roles are currently read-only.
-                  </p>
-                </div>
-              </div>
-              {/* Modal Footer */}
-              <div className="flex justify-end gap-3 px-6 py-4 border-t border-border">
-                <button
-                  onClick={() => { setShowRoleModal(false); setEditingRole(null); }}
-                  className="btn-secondary inline-flex items-center cursor-pointer text-sm"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ══════ Delete Confirmation Modal ══════ */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center p-4 z-50" onClick={() => setShowDeleteConfirm(null)}>
-            <div className="bg-card rounded-card shadow-lg max-w-md w-full" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between px-6 py-5 border-b border-border">
-                <div className="flex items-center gap-3">
-                  <ExclamationTriangleIcon className="w-6 h-6 text-accent-pink" />
-                  <h2 className="text-lg font-bold text-foreground">Delete Role</h2>
-                </div>
-                <button
-                  onClick={() => setShowDeleteConfirm(null)}
-                  className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-icon-bg-pink hover:text-accent-pink transition-colors"
-                >
-                  <XMarkIcon className="w-4.5 h-4.5" />
-                </button>
-              </div>
-              <div className="p-6">
-                <p className="text-[0.9375rem] text-foreground leading-relaxed">
-                  Are you sure you want to delete this role? Users with this role will need to be reassigned.
-                </p>
-              </div>
-              <div className="flex justify-end gap-3 px-6 py-4 border-t border-border">
-                <button
-                  onClick={() => setShowDeleteConfirm(null)}
-                  className="btn-secondary inline-flex items-center cursor-pointer text-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleDeleteRole(showDeleteConfirm)}
-                  className="inline-flex items-center px-5 py-2 bg-transparent border-2 border-accent-pink text-accent-pink rounded-button text-sm font-semibold uppercase tracking-wider cursor-pointer hover:bg-accent-pink hover:text-white transition-all"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* ══════ Invite User Modal ══════ */}
         <InviteUserModal
           open={showInviteModal}
@@ -927,14 +784,6 @@ export default function AdminPermissionsPage() {
                 >
                   Close
                 </button>
-                {!selectedRole.isSystem && (
-                  <button
-                    onClick={handleSaveRoleChanges}
-                    className="btn-primary inline-flex items-center cursor-pointer text-sm"
-                  >
-                    Edit Role
-                  </button>
-                )}
               </div>
             </div>
           </div>

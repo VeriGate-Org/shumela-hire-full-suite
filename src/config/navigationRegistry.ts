@@ -23,7 +23,6 @@ import {
   UserGroupIcon,
   SparklesIcon,
   ClockIcon,
-  HandThumbUpIcon,
   HeartIcon,
   ExclamationTriangleIcon,
   FolderIcon,
