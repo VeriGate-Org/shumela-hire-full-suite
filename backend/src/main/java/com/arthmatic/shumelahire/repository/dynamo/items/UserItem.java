@@ -66,6 +66,7 @@ public class UserItem {
     private String phone;
     private String location;
     private String jobTitle;
+    private Integer approvalLevel;
     private String department;
     private String ssoProvider;
     private String ssoUserId;
@@ -206,6 +207,9 @@ public class UserItem {
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
+
+    public Integer getApprovalLevel() { return approvalLevel; }
+    public void setApprovalLevel(Integer approvalLevel) { this.approvalLevel = approvalLevel; }
 
     public String getJobTitle() { return jobTitle; }
     public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }

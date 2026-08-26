@@ -131,13 +131,24 @@ describe('where a row goes', () => {
 });
 
 describe('what the queue covers', () => {
-  it('is three mechanisms, not five', () => {
-    // Leave is deliberately not read — its query takes a manager id, not the caller. Offers need
-    // an approval level and nothing on this client stores one. Claiming five on the page would be
-    // claiming coverage the endpoint does not have.
-    expect(COVERED_KINDS).toEqual(['REQUISITION', 'JOB_ADVERT', 'SALARY_RECOMMENDATION']);
+  it('is four mechanisms, not five', () => {
+    // Leave is deliberately not read — its query takes a manager id rather than the caller, so
+    // folding it in changes leave's own contract. Claiming five on the page would be claiming
+    // coverage the endpoint does not have.
+    expect(COVERED_KINDS).toEqual([
+      'REQUISITION',
+      'JOB_ADVERT',
+      'SALARY_RECOMMENDATION',
+      'OFFER',
+    ]);
     expect(COVERED_KINDS).not.toContain('LEAVE');
-    expect(COVERED_KINDS).not.toContain('OFFER');
+  });
+
+  it('includes offers, which are gated on the server, not on the client', () => {
+    // Offers used to be permanently absent because the endpoint filtered them by a level nothing
+    // stored. That level now lives on the user record and is read server-side — it was a query
+    // parameter, which let any caller name their own authority. The client must never send one.
+    expect(COVERED_KINDS).toContain('OFFER');
   });
 });
 

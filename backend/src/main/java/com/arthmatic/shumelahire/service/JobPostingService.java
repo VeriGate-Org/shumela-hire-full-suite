@@ -34,6 +34,7 @@ public class JobPostingService {
 
     private final JobPostingDataRepository jobPostingRepository;
     private final AuditLogService auditLogService;
+    private final JobViewLedger jobViewLedger;
     private final JobAdSyncService jobAdSyncService;
     private final NotificationService notificationService;
     private final RequisitionDataRepository requisitionRepository;
@@ -45,6 +46,7 @@ public class JobPostingService {
 
     public JobPostingService(JobPostingDataRepository jobPostingRepository,
                              AuditLogService auditLogService,
+                             JobViewLedger jobViewLedger,
                              JobAdSyncService jobAdSyncService,
                              NotificationService notificationService,
                              RequisitionDataRepository requisitionRepository,
@@ -52,6 +54,7 @@ public class JobPostingService {
                              ObjectProvider<BackgroundCheckService> backgroundCheckService) {
         this.jobPostingRepository = jobPostingRepository;
         this.auditLogService = auditLogService;
+        this.jobViewLedger = jobViewLedger;
         this.jobAdSyncService = jobAdSyncService;
         this.notificationService = notificationService;
         this.requisitionRepository = requisitionRepository;
@@ -269,19 +272,42 @@ public class JobPostingService {
     }
     
     /**
-     * Get job posting by slug
+     * Get job posting by slug. Does not count a view.
+     *
+     * <p>Both a staff screen and the public careers site read postings by slug, and this method
+     * used to increment {@code viewsCount} for either — so a recruiter opening a posting to check
+     * the wording registered as candidate interest in it. Counting is now the public path's own
+     * decision, made through {@link #recordPublicView}.
      */
     @Transactional(readOnly = true)
     public JobPostingResponse getJobPostingBySlug(String slug) {
         JobPosting jobPosting = jobPostingRepository.findBySlug(slug)
                 .orElseThrow(() -> new IllegalArgumentException("Job posting not found with slug: " + slug));
-        
-        // TODO: Add rate-limiting/deduplication (session/IP-based) to prevent view inflation
-        // Increment view count for published jobs
-        if (jobPosting.getStatus() == JobPostingStatus.PUBLISHED) {
+
+        return JobPostingResponse.fromEntity(jobPosting);
+    }
+
+    /**
+     * Get a published posting for a public visitor, counting the view once per viewer per window.
+     *
+     * <p>The counter previously incremented on every load with no deduplication and a standing
+     * {@code TODO} saying so, which made one candidate refreshing five times read as five people.
+     * {@link JobViewLedger} decides whether this viewer has already been counted; the increment
+     * happens only when it says no.
+     *
+     * <p>A failure to count never fails the request. Someone reading a vacancy should not see an
+     * error because a statistic could not be written.
+     */
+    @Transactional(readOnly = true)
+    public JobPostingResponse recordPublicView(String slug, String clientIp, String userAgent) {
+        JobPosting jobPosting = jobPostingRepository.findBySlug(slug)
+                .orElseThrow(() -> new IllegalArgumentException("Job posting not found with slug: " + slug));
+
+        if (jobPosting.getStatus() == JobPostingStatus.PUBLISHED
+                && jobViewLedger.claim(jobPosting.getId(), clientIp, userAgent)) {
             jobPostingRepository.incrementViewCount(jobPosting.getId());
         }
-        
+
         return JobPostingResponse.fromEntity(jobPosting);
     }
     

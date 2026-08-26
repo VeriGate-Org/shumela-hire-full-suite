@@ -76,6 +76,18 @@ public class User implements UserDetails {
 
     private String jobTitle;
 
+    /**
+     * How much this person may approve, as a numeric ceiling.
+     *
+     * <p>Offers carry an {@code approvalLevelRequired}; a user may approve an offer whose required
+     * level is at or below their own. Null means none has been granted — which is not the same as
+     * zero authority granted deliberately, but is treated the same way: no offers.
+     *
+     * <p>Set by an administrator. It is deliberately not derived from the role, because "recruiter"
+     * says what someone does and not what they may commit the organisation to.
+     */
+    private Integer approvalLevel;
+
     private String department;
 
     private String ssoProvider; // "AZURE_AD", "SAML2", null for local
@@ -222,6 +234,14 @@ public class User implements UserDetails {
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
+
+    public Integer getApprovalLevel() {
+        return approvalLevel;
+    }
+
+    public void setApprovalLevel(Integer approvalLevel) {
+        this.approvalLevel = approvalLevel;
+    }
 
     public String getJobTitle() { return jobTitle; }
     public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }

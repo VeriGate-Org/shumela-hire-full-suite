@@ -48,6 +48,7 @@ class JobPostingVerificationRequirementsTest {
 
     @Mock private JobPostingDataRepository jobPostingRepository;
     @Mock private AuditLogService auditLogService;
+    @Mock private JobViewLedger jobViewLedger;
     @Mock private JobAdSyncService jobAdSyncService;
     @Mock private NotificationService notificationService;
     @Mock private RequisitionDataRepository requisitionRepository;
@@ -64,7 +65,7 @@ class JobPostingVerificationRequirementsTest {
 
     @BeforeEach
     void setUp() {
-        service = new JobPostingService(jobPostingRepository, auditLogService, jobAdSyncService,
+        service = new JobPostingService(jobPostingRepository, auditLogService, jobViewLedger, jobAdSyncService,
                 notificationService, requisitionRepository, userRepository, backgroundCheckProvider);
 
         published = new JobPosting();

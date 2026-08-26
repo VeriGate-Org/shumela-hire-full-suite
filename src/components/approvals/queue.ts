@@ -81,8 +81,12 @@ export const KIND_LABEL: Record<ApprovalKind, string> = {
  *
  * <p>Leave is excluded deliberately and says so in {@code PendingApprovalsService}: its query takes
  * a manager id rather than the caller's identity, so including it would mean changing leave's own
- * contract. Offers are read only when an approval level is supplied — see
- * {@link unavailableNote} — and nothing on this client stores one.
+ * contract.
+ *
+ * <p>Offers are covered, but only appear for someone an administrator has given an approval level.
+ * That level is read from the user record server-side — it used to be a query parameter, which let
+ * any caller name their own authority — so a person with none is told why in
+ * {@code unavailableSources} rather than the source going quiet.
  *
  * <p>Stated as a constant so the page can name what it covers rather than implying all five.
  */
@@ -90,6 +94,7 @@ export const COVERED_KINDS: ApprovalKind[] = [
   'REQUISITION',
   'JOB_ADVERT',
   'SALARY_RECOMMENDATION',
+  'OFFER',
 ];
 
 /** Whole days between an ISO timestamp and now. Null when the timestamp is missing or unparseable. */
