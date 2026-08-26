@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import {
   PERMISSION_CATALOGUE,
@@ -359,11 +360,13 @@ export default function AdminPermissionsPage() {
   }
 
   return (
-    <PageWrapper
-      title="Roles & Permissions"
-      subtitle="Manage access roles and permissions"
-      actions={actions}
-    >
+    <PageWrapper actions={actions}>
+      <IdentityBand
+        eyebrow="Matrix"
+        title="Roles & Permissions"
+        subtitle="What each role may see and do"
+      />
+
       <div className="space-y-6">
         {/* ══════ Stats Bar ══════ */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -541,7 +544,7 @@ export default function AdminPermissionsPage() {
                                     <span className={`block w-9 h-5 rounded-full transition-colors ${
                                       hasIt ? 'bg-accent-teal' : 'bg-border'
                                     } ${isSaving ? 'opacity-50' : ''} ${locked ? 'opacity-60 ring-1 ring-inset ring-border' : ''}`} />
-                                    <span className={`absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                                    <span className={`absolute left-0.5 top-0.5 w-4 h-4 bg-card rounded-full shadow transition-transform ${
                                       hasIt ? 'translate-x-4' : 'translate-x-0'
                                     }`} />
                                   </label>
@@ -736,7 +739,7 @@ export default function AdminPermissionsPage() {
                                 hasPermission ? 'bg-accent-teal' : 'bg-border'
                               } ${isSaving ? 'opacity-50' : ''}`}
                             >
-                              <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                              <span className={`absolute top-0.5 w-4 h-4 bg-card rounded-full shadow transition-transform ${
                                 hasPermission ? 'left-[18px]' : 'left-0.5'
                               }`} />
                             </button>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { complianceService, ConsentRecord } from '@/services/complianceService';
 import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/24/outline';
@@ -31,35 +32,41 @@ export default function ConsentsPage() {
 
   return (
     <FeatureGate feature="POPIA_COMPLIANCE">
-      <PageWrapper title="Consent Records" subtitle="Manage POPIA consent records for all employees">
+      <PageWrapper>
+      <IdentityBand
+        eyebrow="Ledger"
+        title="Consent Records"
+        subtitle="What each person consented to, and when"
+      />
+
         <div className="space-y-6">
           {loading ? (
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : consents.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-muted-foreground">
               <ShieldCheckIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No consent records found</p>
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div className="bg-card dark:bg-card rounded-lg shadow overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-900">
+                <thead className="bg-muted dark:bg-background">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Employee</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Purpose</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Date</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {consents.map((consent) => (
-                    <tr key={consent.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                      <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{consent.employeeName}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{consent.consentType}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">{consent.purpose}</td>
+                    <tr key={consent.id} className="hover:bg-muted dark:hover:bg-muted">
+                      <td className="px-6 py-4 text-sm text-foreground dark:text-white">{consent.employeeName}</td>
+                      <td className="px-6 py-4 text-sm text-muted-foreground">{consent.consentType}</td>
+                      <td className="px-6 py-4 text-sm text-muted-foreground max-w-xs truncate">{consent.purpose}</td>
                       <td className="px-6 py-4 text-sm">
                         {consent.isGranted ? (
                           <span className="flex items-center gap-1 text-green-600">
@@ -71,7 +78,7 @@ export default function ConsentsPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                      <td className="px-6 py-4 text-sm text-muted-foreground">
                         {consent.isGranted && consent.grantedAt
                           ? new Date(consent.grantedAt).toLocaleDateString()
                           : consent.withdrawnAt ? new Date(consent.withdrawnAt).toLocaleDateString() : '-'}
@@ -81,7 +88,7 @@ export default function ConsentsPage() {
                 </tbody>
               </table>
               {totalPages > 1 && (
-                <div className="flex justify-center gap-2 py-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex justify-center gap-2 py-4 border-t border-border dark:border-border">
                   <button disabled={page === 0} onClick={() => setPage(p => p - 1)}
                     className="px-3 py-1 text-sm rounded border disabled:opacity-50">Previous</button>
                   <span className="px-3 py-1 text-sm">Page {page + 1} of {totalPages}</span>

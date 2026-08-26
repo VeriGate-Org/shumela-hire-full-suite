@@ -6,6 +6,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'platform_admin', 'manage_features', 'manage_tenants',
   ],
   ADMIN: [
+    'view_admin_console',
     'view_approvals',
     'view_dashboard', 'manage_jobs', 'view_applications', 'view_applicants',
     'manage_pipeline', 'view_interviews', 'manage_offers', 'view_internal_jobs',
@@ -31,6 +32,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'view_performance', 'view_training',
   ],
   HR_MANAGER: [
+    'view_admin_console',
     'view_approvals',
     'view_dashboard', 'manage_jobs', 'view_applications', 'view_applicants',
     'manage_pipeline', 'view_interviews', 'manage_offers', 'view_internal_jobs',
@@ -178,6 +180,7 @@ export const PERMISSION_CATALOGUE: PermissionDefinition[] = [
   { id: 'feed:post', name: 'Post to the feed', description: 'Publish to the company feed', category: 'self', level: 'write' },
   { id: 'feed:moderate', name: 'Moderate the feed', description: 'Remove or edit others’ posts', category: 'self', level: 'admin' },
 
+  { id: 'view_admin_console', name: 'View the admin console', description: 'Open the administration home and see what needs attention', category: 'admin', level: 'read' },
   { id: 'manage_permissions', name: 'Manage permissions', description: 'Change what each role may do — this page', category: 'admin', level: 'admin' },
   { id: 'view_audit_logs', name: 'View audit logs', description: 'Read the tenant audit trail', category: 'admin', level: 'read' },
   { id: 'manage_departments', name: 'Manage departments', description: 'Add and retire departments', category: 'admin', level: 'admin' },

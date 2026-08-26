@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { TableSkeleton } from '@/components/LoadingComponents';
 import { apiFetch } from '@/lib/api-fetch';
@@ -193,25 +194,13 @@ export default function DocumentRetentionPage() {
 
   return (
     <FeatureGate feature="DOCUMENT_RETENTION">
-      <PageWrapper
+      <PageWrapper actions={ <div className="flex items-center gap-3"> <button onClick={handlePreview} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button text-[0.8125rem] font-semibold uppercase tracking-wider border border-border bg-card text-foreground hover:bg-surface-navy hover:border-primary hover:text-primary transition-all duration-200"> <EyeIcon className="w-4 h-4" /> Preview Impact </button> <button onClick={openCreate} className="btn-cta inline-flex items-center gap-2"> <PlusIcon className="w-4 h-4" /> Create Policy </button> </div> }>
+      <IdentityBand
+        eyebrow="Register"
         title="Document Retention Policies"
-        subtitle="Manage document lifecycle, retention periods, and compliance"
-        actions={
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handlePreview}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button text-[0.8125rem] font-semibold uppercase tracking-wider border border-border bg-card text-foreground hover:bg-surface-navy hover:border-primary hover:text-primary transition-all duration-200"
-            >
-              <EyeIcon className="w-4 h-4" />
-              Preview Impact
-            </button>
-            <button onClick={openCreate} className="btn-cta inline-flex items-center gap-2">
-              <PlusIcon className="w-4 h-4" />
-              Create Policy
-            </button>
-          </div>
-        }
-      >
+        subtitle="How long each document type is kept before disposal"
+      />
+
         {/* ====== CREATE / EDIT MODAL ====== */}
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 backdrop-blur-sm p-6">
@@ -311,7 +300,7 @@ export default function DocumentRetentionPage() {
                         onChange={e => setForm({ ...form, isActive: e.target.checked })}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-border rounded-full peer-checked:bg-accent-teal transition-colors duration-200 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-[18px] after:w-[18px] after:shadow-sm after:transition-transform after:duration-200 peer-checked:after:translate-x-5" />
+                      <div className="w-11 h-6 bg-border rounded-full peer-checked:bg-accent-teal transition-colors duration-200 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-card after:rounded-full after:h-[18px] after:w-[18px] after:shadow-sm after:transition-transform after:duration-200 peer-checked:after:translate-x-5" />
                     </label>
                   </div>
                 </div>
