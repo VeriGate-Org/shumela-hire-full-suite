@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar from '@/components/record/DecisionBar';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import {
@@ -14,7 +16,6 @@ import {
   MagnifyingGlassIcon,
   ClockIcon,
   ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
   ShieldCheckIcon,
   CurrencyDollarIcon,
   UsersIcon,
@@ -32,8 +33,7 @@ import {
 import {
   ChartBarIcon as ChartBarIconSolid,
   TrophyIcon as TrophyIconSolid,
-  ExclamationTriangleIcon as ExclamationTriangleIconSolid,
-  CheckCircleIcon as CheckCircleIconSolid
+  ExclamationTriangleIcon as ExclamationTriangleIconSolid
 } from '@heroicons/react/24/solid';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiReportNarrative from '@/components/ai/AiReportNarrative';
@@ -97,20 +97,19 @@ interface PerformanceAlert {
   timestamp: string;
 }
 
-interface StrategicInsight {
-  id: string;
-  category: 'market_trends' | 'competitive_analysis' | 'talent_pipeline' | 'cost_optimization' | 'risk_assessment';
-  title: string;
-  description: string;
-  impact: 'high' | 'medium' | 'low';
-  confidence: number;
-  dataPoints: Array<{
-    metric: string;
-    value: string;
-    change: number;
-  }>;
-  recommendations: string[];
-  timeframe: string;
+/** How many days each period covers, for the endpoints that accept a window. */
+const PERIOD_DAYS: Record<'week' | 'month' | 'quarter' | 'year', number> = {
+  week: 7,
+  month: 30,
+  quarter: 90,
+  year: 365,
+};
+
+/** The start of the selected period, as the pipeline endpoint wants it. */
+function periodStart(period: 'week' | 'month' | 'quarter' | 'year'): string {
+  const start = new Date();
+  start.setDate(start.getDate() - PERIOD_DAYS[period]);
+  return start.toISOString();
 }
 
 export default function ExecutiveReportsPage() {
@@ -118,7 +117,6 @@ export default function ExecutiveReportsPage() {
   const [departmentMetrics, setDepartmentMetrics] = useState<DepartmentMetrics[]>([]);
   const [reportTemplates, setReportTemplates] = useState<ReportTemplate[]>([]);
   const [performanceAlerts, setPerformanceAlerts] = useState<PerformanceAlert[]>([]);
-  const [strategicInsights, _setStrategicInsights] = useState<StrategicInsight[]>([]);
   const [selectedReport, setSelectedReport] = useState<ReportTemplate | null>(null);
   const [activeView, setActiveView] = useState<'dashboard' | 'reports' | 'insights' | 'analytics'>('dashboard');
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
@@ -140,8 +138,13 @@ export default function ExecutiveReportsPage() {
       const [dashboardRes, kpisRes, deptRes, alertsRes, reportsRes] = await Promise.allSettled([
         apiFetch('/api/analytics/dashboard'),
         apiFetch('/api/analytics/kpis'),
-        apiFetch('/api/pipeline/analytics/departments'),
-        apiFetch('/api/analytics/alerts'),
+        apiFetch(
+          `/api/pipeline/analytics/departments?startDate=${periodStart(selectedPeriod)}`,
+        ),
+        // /api/analytics/alerts takes days, and the department pipeline takes a date range, so
+        // the period selector genuinely narrows both. The KPI and dashboard calls below are a
+        // snapshot of today and take no period — which the bar says rather than implying otherwise.
+        apiFetch(`/api/analytics/alerts?days=${PERIOD_DAYS[selectedPeriod]}`),
         apiFetch('/api/reports/types'),
       ]);
 
@@ -367,12 +370,42 @@ export default function ExecutiveReportsPage() {
   }
 
   return (
-    <PageWrapper
-      title="Executive Reports"
-      subtitle="Strategic insights, performance analytics, and executive reporting"
-      actions={actions}
-    >
-      <div className="space-y-6">
+    <PageWrapper actions={actions}>
+      <div className="space-y-4">
+        <IdentityBand
+          eyebrow="Executive"
+          title="Reports"
+          subtitle={`Recruitment performance over the last ${selectedPeriod === 'week' ? '7 days' : selectedPeriod === 'month' ? '30 days' : selectedPeriod === 'quarter' ? 'quarter' : 'year'}`}
+          figures={[
+            {
+              label: 'Hires',
+              value: executiveMetrics?.totalHires ?? 'Not reported',
+            },
+            {
+              label: 'Time to hire',
+              value: executiveMetrics?.averageTimeToHire
+                ? `${executiveMetrics.averageTimeToHire} days`
+                : 'Not reported',
+            },
+            {
+              label: 'Open alerts',
+              value: performanceAlerts.length,
+              tone: (performanceAlerts.length > 0 ? 'warning' : undefined) as 'warning' | undefined,
+            },
+          ]}
+        />
+
+        {/*
+          Which control governs what. The period narrows the alerts and the department pipeline —
+          both endpoints accept a window — and does not touch the headline KPIs, which are a snapshot
+          of today. It used to trigger a refetch and be sent to nothing at all.
+        */}
+        <DecisionBar
+          ask={`Showing the last ${PERIOD_DAYS[selectedPeriod]} days`}
+          why="Alerts and the department pipeline follow this period. The figures above are current."
+          tone="settled"
+        />
+
         {/* View Navigation */}
         <div className="bg-card rounded-control shadow p-4">
           <nav className="flex space-x-8">
@@ -634,56 +667,14 @@ export default function ExecutiveReportsPage() {
               />
             </AiAssistPanel>
 
-            {strategicInsights.map((insight) => (
-              <div key={insight.id} className="bg-card rounded-control shadow">
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-foreground">{insight.title}</h3>
-                      <p className="text-muted-foreground mt-2">{insight.description}</p>
-                      <div className="flex items-center space-x-4 mt-3">
-                        <StatusPill value={insight.impact} domain="impact" label={`${getEnumLabel('impact', insight.impact)} Impact`} />
-                        <span className="text-sm text-muted-foreground">Confidence: {insight.confidence}%</span>
-                        <span className="text-sm text-muted-foreground">Timeline: {insight.timeframe}</span>
-                      </div>
-                    </div>
-                  </div>
+            {/*
+              A 49-line rendering of strategicInsights stood here. Its setter was named
+              _setStrategicInsights and was never called, so the list was empty on every tenant and
+              this tab showed only the AI narrative above — which is real and stays.
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    {insight.dataPoints.map((point, index) => (
-                      <div key={index} className="bg-muted rounded-control p-4">
-                        <h4 className="text-sm font-medium text-foreground">{point.metric}</h4>
-                        <div className="flex items-center mt-2">
-                          <span className="text-2xl font-bold text-foreground">{point.value}</span>
-                          <div className={`ml-2 flex items-center text-sm ${
-                            point.change > 0 ? 'text-green-600' : point.change < 0 ? 'text-red-600' : 'text-muted-foreground'
-                          }`}>
-                            {point.change > 0 ? (
-                              <ArrowTrendingUpIcon className="w-4 h-4 mr-1" />
-                            ) : point.change < 0 ? (
-                              <ArrowTrendingDownIcon className="w-4 h-4 mr-1" />
-                            ) : null}
-                            {Math.abs(point.change)}%
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div>
-                    <h4 className="text-lg font-medium text-foreground mb-3">Strategic Recommendations</h4>
-                    <div className="space-y-2">
-                      {insight.recommendations.map((rec, index) => (
-                        <div key={index} className="flex items-start">
-                          <CheckCircleIconSolid className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm text-foreground">{rec}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+              Removed rather than wired: nothing computes a strategic insight, so there is no source
+              to wire it to. The fourth instance of this pattern in this codebase.
+            */}
           </div>
         )}
 

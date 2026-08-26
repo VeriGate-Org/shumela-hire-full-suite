@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
+import IdentityBand from '@/components/record/IdentityBand';
 import {
   RecruiterOverview,
   TileState,
@@ -161,7 +162,42 @@ const RecruiterDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/*
+        The band is the header for this screen. It used to be PageWrapper's title on the route, which
+        meant the one analytics screen a recruiter opens most often was the one that did not look
+        like the others — and the figures a person would repeat were nowhere near the top.
+      */}
+      <IdentityBand
+        eyebrow="Recruitment"
+        title="Recruiter analytics"
+        subtitle={
+          overview
+            ? `${overview.applications} ${overview.applications === 1 ? 'application' : 'applications'} · ${overview.openAdverts} ${overview.openAdverts === 1 ? 'advert' : 'adverts'} open`
+            : loadState === 'failed'
+              ? 'The overview did not load'
+              : 'Loading…'
+        }
+        figures={
+          overview
+            ? [
+                { label: 'Applications', value: overview.applications },
+                {
+                  label: 'Last 7 days',
+                  value: overview.applicationsLast7Days,
+                },
+                {
+                  label: 'Past deadline',
+                  value: overview.advertsPastDeadline,
+                  tone: (overview.advertsPastDeadline > 0 ? 'warning' : undefined) as
+                    | 'warning'
+                    | undefined,
+                },
+              ]
+            : []
+        }
+      />
+
       {/* The page says what is wrong before it says anything else. A dashboard should be boring
           until it is not. */}
       {loadState === 'failed' ? (
