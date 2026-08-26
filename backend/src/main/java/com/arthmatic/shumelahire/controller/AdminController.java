@@ -122,6 +122,39 @@ public class AdminController {
         }
     }
 
+    /**
+     * Grant or revoke how much a user may approve.
+     * PUT /admin/users/{userId}/approval-level  {"approvalLevel": 2}
+     *
+     * <p>Offers are filtered by this: a user may approve an offer whose required level is at or
+     * below theirs. It is set here rather than derived from the role, because a role says what
+     * somebody does and not what they may commit the organisation to.
+     *
+     * <p>Send null to revoke. Zero and null both mean no offers; null records that none was ever
+     * granted, which is the state every user is in until an administrator acts.
+     */
+    @PutMapping("/users/{userId}/approval-level")
+    public ResponseEntity<?> updateApprovalLevel(@PathVariable String userId,
+                                                 @RequestBody Map<String, Integer> body) {
+        Integer level = body.get("approvalLevel");
+        if (level != null && level < 0) {
+            return ResponseEntity.badRequest().body(Map.of("error", "approvalLevel cannot be negative"));
+        }
+
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User user = userOpt.get();
+        user.setApprovalLevel(level);
+        userRepository.save(user);
+        // Worth a line in the log: this widens or narrows what somebody may authorise, and the
+        // change is otherwise invisible until it shows up as offers appearing on their queue.
+        log.info("Approval level for user {} set to {}", userId, level);
+        return ResponseEntity.ok(Map.of("message", "Approval level updated"));
+    }
+
     @PostMapping("/users/invite")
     public ResponseEntity<?> inviteUser(@Valid @RequestBody InviteUserRequest request) {
         if (cognitoAdminService == null) {

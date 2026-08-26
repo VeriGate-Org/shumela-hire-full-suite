@@ -11,8 +11,15 @@ import com.arthmatic.shumelahire.repository.dynamo.items.JobPostingItem;
 
 import org.springframework.stereotype.Repository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -38,6 +45,8 @@ import java.util.stream.Collectors;
 @Repository
 public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem, JobPosting>
         implements JobPostingDataRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(DynamoJobPostingRepository.class);
 
     private static final DateTimeFormatter ISO_FMT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
@@ -326,10 +335,26 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
 
     @Override
     public void incrementViewCount(String id) {
-        findById(id).ifPresent(jp -> {
-            jp.setViewsCount((jp.getViewsCount() != null ? jp.getViewsCount() : 0L) + 1);
-            save(jp);
-        });
+        // ADD, not read-then-write. The previous implementation read the posting, added one and
+        // saved it back, so two views arriving together both read N and both wrote N+1 — one
+        // vanished. ADD is applied by DynamoDB itself and cannot lose a concurrent increment.
+        //
+        // It also writes only the counter, where save() rewrote the whole item: a view could
+        // otherwise overwrite an edit made between the read and the write.
+        try {
+            dynamoDbClient.updateItem(UpdateItemRequest.builder()
+                    .tableName(tableName)
+                    .key(Map.of(
+                            "PK", AttributeValue.fromS(tenantPk()),
+                            "SK", AttributeValue.fromS(entitySk(id))))
+                    .updateExpression("ADD viewsCount :one")
+                    .conditionExpression("attribute_exists(PK)")
+                    .expressionAttributeValues(Map.of(":one", AttributeValue.fromN("1")))
+                    .build());
+        } catch (ConditionalCheckFailedException missing) {
+            // The posting was deleted between being read and being counted. Nothing to do.
+            logger.debug("Not counting a view for missing posting {}", id);
+        }
     }
 
     @Override

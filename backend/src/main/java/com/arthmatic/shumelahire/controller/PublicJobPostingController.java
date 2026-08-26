@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,13 +54,18 @@ public class PublicJobPostingController {
     }
 
     /**
-     * Get job posting by slug (public view, increments view count)
+     * Get job posting by slug, counting the view once per viewer per window.
      * GET /api/public/job-postings/slug/{slug}
+     *
+     * <p>The address is read only to tell one viewer from another and is never stored — the ledger
+     * keeps a salted hash. See {@link com.arthmatic.shumelahire.service.JobViewLedger}.
      */
     @GetMapping("/slug/{slug}")
-    public ResponseEntity<?> getJobPostingBySlug(@PathVariable String slug) {
+    public ResponseEntity<?> getJobPostingBySlug(@PathVariable String slug,
+                                                 HttpServletRequest request) {
         try {
-            JobPostingResponse response = jobPostingService.getJobPostingBySlug(slug);
+            JobPostingResponse response = jobPostingService.recordPublicView(
+                    slug, clientIp(request), request.getHeader("User-Agent"));
             return ResponseEntity.ok(response.toPublicView());
         } catch (IllegalArgumentException e) {
             logger.warn("Job posting not found with slug: {}", slug);
@@ -120,5 +126,20 @@ public class PublicJobPostingController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Internal server error"));
         }
+    }
+
+    /**
+     * The viewer's address, as seen through CloudFront.
+     *
+     * <p>{@code getRemoteAddr()} behind a CDN is the edge, not the visitor, which would collapse
+     * every viewer into one and count a single view per posting per window for the whole world.
+     * The first entry in {@code X-Forwarded-For} is the client.
+     */
+    private String clientIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }

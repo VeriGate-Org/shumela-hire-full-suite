@@ -12,6 +12,8 @@ import com.arthmatic.shumelahire.repository.RequisitionDataRepository;
 import com.arthmatic.shumelahire.service.SalaryRecommendationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.arthmatic.shumelahire.security.ApprovalAuthority;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -55,23 +57,29 @@ public class PendingApprovalsService {
     private final JobPostingDataRepository jobPostingRepository;
     private final OfferDataRepository offerRepository;
     private final SalaryRecommendationService salaryRecommendationService;
+    private final ApprovalAuthority approvalAuthority;
 
     public PendingApprovalsService(RequisitionDataRepository requisitionRepository,
                                    JobPostingDataRepository jobPostingRepository,
                                    OfferDataRepository offerRepository,
-                                   SalaryRecommendationService salaryRecommendationService) {
+                                   SalaryRecommendationService salaryRecommendationService,
+                                   ApprovalAuthority approvalAuthority) {
         this.requisitionRepository = requisitionRepository;
         this.jobPostingRepository = jobPostingRepository;
         this.offerRepository = offerRepository;
         this.salaryRecommendationService = salaryRecommendationService;
+        this.approvalAuthority = approvalAuthority;
     }
 
     /**
-     * @param userApprovalLevel the caller's approval level, used to filter offers. Pass a
-     *                          non-positive value when it is unknown, and offers are skipped with a
-     *                          recorded reason rather than being silently absent.
+     * @param viewer the signed-in caller, whose approval level decides which offers are theirs. A
+     *               caller with no recorded level gets no offers, and the reason is reported in
+     *               {@code unavailableSources} rather than the source being silently absent.
      */
-    public PendingApprovalsResult pendingFor(int userApprovalLevel) {
+    public PendingApprovalsResult pendingFor(Authentication viewer) {
+        // Read from the user record, never from the request. Offers are filtered by this number,
+        // so a caller who supplies it decides for themselves how much they may see.
+        int userApprovalLevel = approvalAuthority.levelFor(viewer);
         PendingApprovalsResult result = new PendingApprovalsResult();
         List<PendingApproval> items = new ArrayList<>();
 
@@ -83,7 +91,8 @@ public class PendingApprovalsService {
             collect(result, "offers", items, () -> offers(userApprovalLevel));
         } else {
             result.getUnavailableSources().put("offers",
-                    "No approval level for this user, so offers cannot be filtered to them");
+                    "No approval level is recorded against your user, so offers cannot be matched "
+                            + "to you. An administrator sets this.");
         }
 
         // Leave is deliberately not read here. Its query takes a manager id rather than the

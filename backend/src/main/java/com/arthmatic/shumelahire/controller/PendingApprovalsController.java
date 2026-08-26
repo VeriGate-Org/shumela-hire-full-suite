@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -34,7 +34,7 @@ public class PendingApprovalsController {
 
     /**
      * Everything awaiting approval, oldest first.
-     * GET /api/approvals/pending?approvalLevel={n}
+     * GET /api/approvals/pending
      *
      * <p>The response distinguishes items confirmed as the caller's from those merely pending
      * somebody — only offers and leave can tell the difference today — and lists any source that
@@ -42,10 +42,11 @@ public class PendingApprovalsController {
      * a total:</b> an empty list with a failed source means "we could not find out", not "nothing
      * is pending".
      *
-     * <p>{@code approvalLevel} is a parameter rather than something read from the session because
-     * there is no approval level on the user record today. Offers are the only source that can
-     * filter by it; omit it and offers are reported as unavailable with a reason rather than
-     * quietly missing. Once approval level lives on the user, this parameter should go.
+     * <p><b>Approval level is read from the caller's user record, never from the request.</b> It
+     * used to be a query parameter, which meant any of the five permitted roles could ask for
+     * {@code approvalLevel=99} and receive every offer awaiting approval — candidate name, job
+     * title and total compensation included. A caller with no recorded level gets no offers, and
+     * the reason appears in {@code unavailableSources}.
      *
      * <p><b>Leave is not included yet.</b> Its query takes a manager id rather than the caller's
      * identity, so folding it in changes leave's own contract. That is a deliberate, separate step
@@ -54,10 +55,9 @@ public class PendingApprovalsController {
      */
     @GetMapping("/pending")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'EXECUTIVE')")
-    public ResponseEntity<?> pending(
-            @RequestParam(required = false, defaultValue = "0") int approvalLevel) {
+    public ResponseEntity<?> pending(Authentication viewer) {
         try {
-            PendingApprovalsResult result = pendingApprovalsService.pendingFor(approvalLevel);
+            PendingApprovalsResult result = pendingApprovalsService.pendingFor(viewer);
             if (result.isPartial()) {
                 logger.warn("Pending approvals returned partially: {} source(s) unavailable",
                         result.getUnavailableSources().size());

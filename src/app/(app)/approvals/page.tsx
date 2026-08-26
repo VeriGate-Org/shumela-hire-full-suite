@@ -37,8 +37,8 @@ import {
  * and three permission rules, and a second approval path is a second thing to keep correct; sending
  * someone to the record means the audit trail is identical whichever screen they came from.
  *
- * <p><b>What it does not cover, it says.</b> Leave is never in this queue and offers are absent
- * until a user's approval level is recorded somewhere. Both are named on the page rather than
+ * <p><b>What it does not cover, it says.</b> Leave is never in this queue, and offers appear only
+ * for someone an administrator has given an approval level. Both are named on the page rather than
  * silently missing — a queue that is short by one source looks exactly like a quiet day.
  */
 
@@ -152,7 +152,7 @@ export default function ApprovalsPage() {
         {result && yours === 0 && result.total > 0 && (
           <DecisionBar
             ask="Nothing here is confirmed as yours."
-            why={`${result.total} ${result.total === 1 ? 'item is' : 'items are'} pending someone. Only offers can be matched to a person, and offers are not in this queue — so an item being yours cannot be established here.`}
+            why={`${result.total} ${result.total === 1 ? 'item is' : 'items are'} pending someone. Only offers can be matched to a person — the other mechanisms report that something is pending without saying whose it is.`}
             tone="owed"
           />
         )}
@@ -209,7 +209,7 @@ export default function ApprovalsPage() {
                 count: result.countsByKind[kind] ?? 0,
               }),
             )}
-            footnote="Three approval mechanisms, one queue, ordered by how long each item has waited."
+            footnote="One queue across every approval mechanism you hold authority over, ordered by how long each item has waited."
           />
         )}
 

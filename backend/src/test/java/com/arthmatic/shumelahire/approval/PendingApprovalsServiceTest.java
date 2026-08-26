@@ -27,6 +27,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import com.arthmatic.shumelahire.security.ApprovalAuthority;
+
+import org.springframework.security.core.Authentication;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -40,13 +46,28 @@ class PendingApprovalsServiceTest {
     @Mock private JobPostingDataRepository jobPostingRepository;
     @Mock private OfferDataRepository offerRepository;
     @Mock private SalaryRecommendationService salaryRecommendationService;
+    @Mock private ApprovalAuthority approvalAuthority;
+
+    /**
+     * A stand-in for the signed-in caller.
+     *
+     * <p>The level no longer travels with the call — it is read from the user record — so the tests
+     * pass a viewer and set what the authority says about them.
+     */
+    private final Authentication viewer = new UsernamePasswordAuthenticationToken("someone", "x");
+
+    /** Say what this caller may approve, the way the user record would. */
+    private void approvalLevel(int level) {
+        when(approvalAuthority.levelFor(any())).thenReturn(level);
+    }
 
     private PendingApprovalsService service;
 
     @BeforeEach
     void setUp() {
         service = new PendingApprovalsService(requisitionRepository, jobPostingRepository,
-                offerRepository, salaryRecommendationService);
+                offerRepository, salaryRecommendationService, approvalAuthority);
+        approvalLevel(0);
         // Default: every source answers with nothing.
         when(requisitionRepository.findByStatusOrderByCreatedAtDesc(any()))
                 .thenReturn(Collections.emptyList());
@@ -88,7 +109,8 @@ class PendingApprovalsServiceTest {
 
         // An approval level is supplied so every source can answer; with none, offers are
         // legitimately unavailable and the result would be partial by design.
-        PendingApprovalsResult result = service.pendingFor(2);
+        approvalLevel(2);
+        PendingApprovalsResult result = service.pendingFor(viewer);
 
         assertEquals(2, result.getTotal());
         assertEquals("r1", result.getItems().get(0).getId(), "the 5 August item waited longest");
@@ -104,7 +126,7 @@ class PendingApprovalsServiceTest {
         when(salaryRecommendationService.getPendingApproval())
                 .thenReturn(List.of(salaryRec("s1", new BigDecimal("900000"), LocalDateTime.now())));
 
-        PendingApprovalsResult result = service.pendingFor(0);
+        PendingApprovalsResult result = service.pendingFor(viewer);
 
         assertTrue(result.isPartial(), "a failure must be visible to the caller");
         assertTrue(result.getUnavailableSources().containsKey("requisitions"));
@@ -123,7 +145,8 @@ class PendingApprovalsServiceTest {
         when(salaryRecommendationService.getPendingApproval())
                 .thenThrow(new RuntimeException("down"));
 
-        PendingApprovalsResult result = service.pendingFor(2);
+        approvalLevel(2);
+        PendingApprovalsResult result = service.pendingFor(viewer);
 
         assertEquals(0, result.getTotal());
         assertTrue(result.isPartial());
@@ -133,7 +156,8 @@ class PendingApprovalsServiceTest {
     @Test
     @DisplayName("A quiet day is empty and NOT partial — the opposite case must be distinguishable")
     void nothingPendingIsNotPartial() {
-        PendingApprovalsResult result = service.pendingFor(2);
+        approvalLevel(2);
+        PendingApprovalsResult result = service.pendingFor(viewer);
 
         assertEquals(0, result.getTotal());
         assertFalse(result.isPartial(), "no work is not the same as no answer");
@@ -143,7 +167,7 @@ class PendingApprovalsServiceTest {
     @Test
     @DisplayName("Without an approval level, offers are skipped with a reason rather than silently absent")
     void offersSkippedWhenLevelUnknown() {
-        PendingApprovalsResult result = service.pendingFor(0);
+        PendingApprovalsResult result = service.pendingFor(viewer);
 
         assertTrue(result.getUnavailableSources().containsKey("offers"));
         assertTrue(result.getUnavailableSources().get("offers").contains("approval level"));
@@ -161,7 +185,8 @@ class PendingApprovalsServiceTest {
         offer.setCreatedAt(LocalDateTime.of(2026, 8, 18, 9, 0));
         when(offerRepository.findOffersRequiringApproval(2)).thenReturn(List.of(offer));
 
-        PendingApprovalsResult result = service.pendingFor(2);
+        approvalLevel(2);
+        PendingApprovalsResult result = service.pendingFor(viewer);
 
         assertEquals(1, result.getTotal());
         PendingApproval item = result.getItems().get(0);
@@ -177,7 +202,7 @@ class PendingApprovalsServiceTest {
                 .thenReturn(List.of(requisition("r1", "Risk Manager",
                         new BigDecimal("1100000"), LocalDateTime.now())));
 
-        PendingApprovalsResult result = service.pendingFor(0);
+        PendingApprovalsResult result = service.pendingFor(viewer);
 
         assertEquals(PendingApproval.Assignment.UNCONFIRMED, result.getItems().get(0).getAssignment());
         assertEquals(0, result.getAssignedToYou(), "nothing may be claimed as the caller's here");
@@ -189,7 +214,7 @@ class PendingApprovalsServiceTest {
         when(requisitionRepository.findByStatusOrderByCreatedAtDesc(RequisitionStatus.PENDING_HR_APPROVAL))
                 .thenReturn(List.of(requisition("r1", "Communications Officer", null, LocalDateTime.now())));
 
-        PendingApproval item = service.pendingFor(0).getItems().get(0);
+        PendingApproval item = service.pendingFor(viewer).getItems().get(0);
 
         assertNull(item.getStakeAmount(), "absent must not become zero");
         assertEquals("No band recorded", item.getStakeLabel());
@@ -205,7 +230,7 @@ class PendingApprovalsServiceTest {
         when(jobPostingRepository.findByStatusOrderByCreatedAtDesc(JobPostingStatus.PENDING_APPROVAL))
                 .thenReturn(List.of(posting));
 
-        PendingApproval item = service.pendingFor(0).getItems().get(0);
+        PendingApproval item = service.pendingFor(viewer).getItems().get(0);
 
         assertNull(item.getStakeAmount());
         assertTrue(item.getStakeLabel().contains("no financial commitment"));
@@ -221,14 +246,14 @@ class PendingApprovalsServiceTest {
         when(jobPostingRepository.findByStatusOrderByCreatedAtDesc(JobPostingStatus.PENDING_APPROVAL))
                 .thenReturn(List.of(posting));
 
-        assertNull(service.pendingFor(0).getValueHeldUp(),
+        assertNull(service.pendingFor(viewer).getValueHeldUp(),
                 "an advert-only queue holds up no money, which is not the same as R0");
 
         when(requisitionRepository.findByStatusOrderByCreatedAtDesc(RequisitionStatus.PENDING_HR_APPROVAL))
                 .thenReturn(List.of(requisition("r1", "Risk Manager",
                         new BigDecimal("1100000"), LocalDateTime.now())));
 
-        assertEquals(0, new BigDecimal("1100000").compareTo(service.pendingFor(0).getValueHeldUp()));
+        assertEquals(0, new BigDecimal("1100000").compareTo(service.pendingFor(viewer).getValueHeldUp()));
     }
 
     @Test
@@ -241,7 +266,7 @@ class PendingApprovalsServiceTest {
         when(salaryRecommendationService.getPendingApproval())
                 .thenReturn(List.of(salaryRec("s1", new BigDecimal("3"), LocalDateTime.now())));
 
-        PendingApprovalsResult result = service.pendingFor(0);
+        PendingApprovalsResult result = service.pendingFor(viewer);
 
         assertEquals(2, result.getCountsByKind().get("REQUISITION"));
         assertEquals(1, result.getCountsByKind().get("SALARY_RECOMMENDATION"));
@@ -255,7 +280,7 @@ class PendingApprovalsServiceTest {
                 .thenReturn(List.of(requisition("r2", "Risk Manager",
                         new BigDecimal("1100000"), LocalDateTime.now())));
 
-        PendingApprovalsResult result = service.pendingFor(0);
+        PendingApprovalsResult result = service.pendingFor(viewer);
 
         assertEquals(1, result.getTotal(), "an executive-stage requisition must not be missed");
         assertEquals("PENDING_EXECUTIVE_APPROVAL", result.getItems().get(0).getStage());

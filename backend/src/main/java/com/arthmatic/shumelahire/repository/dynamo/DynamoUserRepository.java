@@ -198,6 +198,7 @@ public class DynamoUserRepository extends DynamoRepository<UserItem, User>
         entity.setPhone(item.getPhone());
         entity.setLocation(item.getLocation());
         entity.setJobTitle(item.getJobTitle());
+        entity.setApprovalLevel(item.getApprovalLevel());
         entity.setDepartment(item.getDepartment());
         entity.setSsoProvider(item.getSsoProvider());
         entity.setSsoUserId(item.getSsoUserId());
@@ -267,6 +268,7 @@ public class DynamoUserRepository extends DynamoRepository<UserItem, User>
         item.setPhone(entity.getPhone());
         item.setLocation(entity.getLocation());
         item.setJobTitle(entity.getJobTitle());
+        item.setApprovalLevel(entity.getApprovalLevel());
         item.setDepartment(entity.getDepartment());
         item.setSsoProvider(entity.getSsoProvider());
         item.setSsoUserId(entity.getSsoUserId());
