@@ -25,6 +25,15 @@ export interface ConsoleTile {
    * refusal.
    */
   permission: string;
+  /**
+   * The module feature this area needs, if any.
+   *
+   * <p>The sidebar entries these tiles replaced were feature-gated. Without carrying that here, a
+   * tenant that does not license POPIA compliance, custom branding, document templates, company
+   * documents or document retention would be shown a door to a page they had never had an entry
+   * for.
+   */
+  feature?: string;
   /** What this area holds, in a phrase. */
   description: string;
   /** What is true right now, or null when the figure could not be read. */
@@ -48,6 +57,103 @@ export const OMITTED: Record<string, string> = {
   'document retention — policies with no period set':
     'No field on the policy distinguishes "not set" from "set to zero".',
 };
+
+/**
+ * Every administration area, and what it takes to see one.
+ *
+ * <p>Declared here rather than inline in the page so it can be checked. These replaced nine
+ * sidebar entries, and the alignment between who could see those entries and what the backend
+ * actually permits was covered by a test — that check has to follow the areas, not be lost with
+ * the entries.
+ *
+ * <p>The order here is irrelevant: the console sorts by whether something is wrong.
+ */
+export interface AdminArea {
+  id: string;
+  label: string;
+  href: string;
+  description: string;
+  permission: string;
+  feature?: string;
+}
+
+export const ADMIN_AREAS: AdminArea[] = [
+  {
+    id: 'compliance',
+    label: 'Compliance',
+    href: '/admin/compliance',
+    description: 'POPIA consents, data-subject requests and retention reminders',
+    permission: 'manage_compliance',
+    feature: 'POPIA_COMPLIANCE',
+  },
+  {
+    id: 'departments',
+    label: 'Departments',
+    href: '/admin/departments',
+    description: 'The organisational units vacancies are raised against',
+    permission: 'manage_departments',
+  },
+  {
+    id: 'company-documents',
+    label: 'Company documents',
+    href: '/admin/company-documents',
+    description: 'Policies staff acknowledge',
+    permission: 'manage_company_documents',
+    feature: 'COMPANY_DOCUMENTS',
+  },
+  {
+    id: 'permissions',
+    label: 'Role permissions',
+    href: '/admin/permissions',
+    description: 'What each role may see and do',
+    permission: 'manage_permissions',
+  },
+  {
+    id: 'retention',
+    label: 'Document retention',
+    href: '/admin/document-retention',
+    description: 'How long each document type is kept before disposal',
+    permission: 'manage_company_documents',
+    feature: 'DOCUMENT_RETENTION',
+  },
+  {
+    id: 'custom-fields',
+    label: 'Custom fields',
+    href: '/settings/custom-fields',
+    description: 'Extra fields captured on records in this tenant',
+    permission: 'custom_fields:manage',
+  },
+  {
+    id: 'document-templates',
+    label: 'Document templates',
+    href: '/admin/document-templates',
+    description: 'Templates used to generate offers and letters',
+    permission: 'manage_permissions',
+    feature: 'DOCUMENT_TEMPLATES',
+  },
+  {
+    id: 'audit-logs',
+    label: 'Audit log',
+    href: '/admin/audit-logs',
+    description: 'Every recorded action, append-only',
+    permission: 'view_audit_logs',
+  },
+  {
+    id: 'branding',
+    label: 'Branding',
+    href: '/admin/branding',
+    description: 'Logo and colours applied across the tenant',
+    permission: 'manage_permissions',
+    feature: 'CUSTOM_BRANDING',
+  },
+];
+
+/** The area with this id, for a page building its tile. */
+export function area(id: string): AdminArea {
+  const found = ADMIN_AREAS.find((a) => a.id === id);
+  if (!found) throw new Error(`No admin area called ${id}`);
+  return found;
+}
 
 const ORDER: Record<TileState, number> = { wrong: 0, attention: 1, unknown: 2, settled: 3 };
 
