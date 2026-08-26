@@ -109,7 +109,16 @@ describe('Module gating', () => {
     const analytics = visibleSidebar('ADMIN', IDC_MODULES)
       .filter((e) => e.section === 'analytics')
       .map((e) => e.label);
-    expect(analytics).toEqual(['Analytics', 'Recruiter Analytics', 'Reports', 'Report Export']);
+    // Executive Reports joins this list rather than being gated out: it reads recruitment
+    // analytics — the dashboard KPIs, the alerts and /api/pipeline/analytics/departments — so it is
+    // exactly as relevant to a recruitment-only tenant as Recruiter Analytics is.
+    expect(analytics).toEqual([
+      'Analytics',
+      'Executive Reports',
+      'Recruiter Analytics',
+      'Reports',
+      'Report Export',
+    ]);
     expect(analytics).not.toContain('HR Analytics');
     expect(analytics).not.toContain('Performance Analytics');
     // 'Employee Reports' was asserted absent here too. The entry has since been removed outright —
