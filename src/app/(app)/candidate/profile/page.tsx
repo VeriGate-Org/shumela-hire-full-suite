@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { getEnumLabel } from '@/utils/enumLabels';
 import { useAuth } from '@/contexts/AuthContext';
-import { getApplicantId, getApplicant, getDocuments as fetchDocuments, getApplications as fetchApplications } from '@/services/candidateService';
+import { getApplicantId, getApplicant, getDocuments as fetchDocuments, getApplications as fetchApplications, updateMyDemographics } from '@/services/candidateService';
 import {
   UserIcon,
   DocumentTextIcon,
@@ -39,17 +39,14 @@ interface CandidateProfile {
   summary: string;
   dateOfBirth: string;
   nationality: string;
-  workAuthorization: 'authorized' | 'requires_sponsorship' | 'not_authorized';
-  salaryExpectation: {
-    min: number;
-    max: number;
-    currency: string;
-  };
-  availability: 'immediate' | 'two_weeks' | 'one_month' | 'more_than_month';
-  noticePeriod: string;
-  preferredJobTypes: string[];
-  willingToRelocate: boolean;
-  remoteWork: 'only' | 'hybrid' | 'no_preference' | 'not_preferred';
+  // Employment-equity answers. Given by this person, and editable only here — staff may read them
+  // and may not rewrite them, so this is the one screen on which they can be corrected or a
+  // consent withdrawn.
+  gender?: string;
+  race?: string;
+  disabilityStatus?: string;
+  citizenshipStatus?: string;
+  demographicsConsent?: boolean;
 }
 
 interface Experience {
@@ -105,17 +102,112 @@ interface Application {
   notes: string;
 }
 
+/**
+ * A stored list of strings.
+ *
+ * <p>The record holds these as a JSON array. Older records may hold a comma-separated string, so
+ * that is tried second rather than first — trying it first is what produced skill names with
+ * brackets and quotes in them.
+ */
+function parseList(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(String).filter(Boolean);
+  if (typeof value !== 'string' || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
+  } catch {
+    // Not JSON — fall through to the legacy comma format.
+  }
+  return value.split(',').map((entry) => entry.trim()).filter(Boolean);
+}
+
+/** A stored list of objects — experience and education are both kept this way. */
+function parseObjectList(value: unknown): Record<string, unknown>[] {
+  if (Array.isArray(value)) return value as Record<string, unknown>[];
+  if (typeof value !== 'string' || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? (parsed as Record<string, unknown>[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** One employment-equity answer, with "not answered" as a real and selectable state. */
+function EquityField({
+  label,
+  value,
+  options,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  value?: string;
+  options: string[];
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-muted-foreground">{label}</label>
+      <select
+        value={value ?? ''}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-1 w-full max-w-sm p-2 border border-border rounded-control bg-card text-foreground"
+      >
+        <option value="">Not answered</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 export default function CandidateProfilePage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
-  const [experiences, _setExperiences] = useState<Experience[]>([]);
-  const [education, _setEducation] = useState<Education[]>([]);
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [education, setEducation] = useState<Education[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [activeTab, setActiveTab] = useState<'profile' | 'experience' | 'education' | 'skills' | 'documents' | 'applications'>('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
+  // The applicant exactly as fetched. A save sends the whole record back, because the update
+  // endpoint assigns every field from the request — see updateMyDemographics.
+  const [loadedApplicant, setLoadedApplicant] = useState<Record<string, unknown> | null>(null);
+  const [savingEquity, setSavingEquity] = useState(false);
+  const [equityMessage, setEquityMessage] = useState<string | null>(null);
+
+  /**
+   * Save one employment-equity answer.
+   *
+   * <p>Saves on change rather than behind a Save button: each control is one answer, and a person
+   * withdrawing consent should not have to find a second control to make it take effect.
+   */
+  const saveEquity = async (change: Record<string, string | boolean>) => {
+    if (!profile?.id || !loadedApplicant) return;
+    setSavingEquity(true);
+    setEquityMessage(null);
+    try {
+      await updateMyDemographics(profile.id, loadedApplicant, change);
+      setProfile((prev) => (prev ? { ...prev, ...change } : prev));
+      setLoadedApplicant((prev) => (prev ? { ...prev, ...change } : prev));
+      setEquityMessage('Saved.');
+    } catch {
+      // Say that nothing was saved rather than leaving the control showing the new value as
+      // though it had been.
+      setEquityMessage('That could not be saved, so nothing was changed. Try again.');
+      setProfile((prev) => (prev ? { ...prev } : prev));
+    } finally {
+      setSavingEquity(false);
+    }
+  };
 
   const loadCandidateData = useCallback(async () => {
     if (!user?.email) { setLoading(false); return; }
@@ -131,6 +223,7 @@ export default function CandidateProfilePage() {
       ]);
 
       if (applicantData) {
+        setLoadedApplicant(applicantData);
         setProfile({
           id: applicantData.id,
           firstName: applicantData.name || applicantData.firstName || '',
@@ -143,28 +236,57 @@ export default function CandidateProfilePage() {
           summary: applicantData.summary || '',
           dateOfBirth: applicantData.dateOfBirth || '',
           nationality: applicantData.nationality || '',
-          workAuthorization: 'authorized',
-          salaryExpectation: { min: 0, max: 0, currency: 'ZAR' },
-          availability: 'two_weeks',
-          noticePeriod: '',
-          preferredJobTypes: [],
-          willingToRelocate: false,
-          remoteWork: 'no_preference',
+          gender: applicantData.gender,
+          race: applicantData.race,
+          disabilityStatus: applicantData.disabilityStatus,
+          citizenshipStatus: applicantData.citizenshipStatus,
+          demographicsConsent: applicantData.demographicsConsent,
         });
 
-        // Parse skills from comma-separated string if available
-        if (applicantData.skills) {
-          const skillNames = typeof applicantData.skills === 'string'
-            ? applicantData.skills.split(',').map((s: string) => s.trim()).filter(Boolean)
-            : applicantData.skills;
-          setSkills(skillNames.map((name: string, idx: number) => ({
+        // Skills are stored as a JSON array — the staff form writes JSON.stringify(skills). This
+        // split that string on commas, so ["Programme delivery","Jira"] rendered as two entries
+        // reading ["Programme delivery" and "Jira"], brackets and quotes included.
+        setSkills(
+          parseList(applicantData.skills).map((name: string, idx: number) => ({
             id: `skill-${idx}`,
             name,
             level: 'intermediate' as const,
             years: 0,
             category: 'technical' as const,
-          })));
-        }
+          })),
+        );
+
+        // Neither of these was ever populated: the tabs rendered an empty list on every profile
+        // while the data sat on the record. The setters were named _setExperiences and
+        // _setEducation so the unused-variable lint would not mention it.
+        setExperiences(
+          parseObjectList(applicantData.experience).map((entry, idx) => ({
+            id: `experience-${idx}`,
+            company: String(entry.company ?? ''),
+            position: String(entry.position ?? ''),
+            startDate: String(entry.startDate ?? ''),
+            endDate: entry.endDate ? String(entry.endDate) : null,
+            isCurrent: !entry.endDate,
+            description: String(entry.description ?? ''),
+            location: '',
+            achievements: [],
+          })),
+        );
+
+        setEducation(
+          parseObjectList(applicantData.education).map((entry, idx) => ({
+            id: `education-${idx}`,
+            institution: String(entry.institution ?? ''),
+            degree: String(entry.degree ?? ''),
+            field: String(entry.fieldOfStudy ?? ''),
+            startYear: '',
+            endYear: entry.graduationYear ? String(entry.graduationYear) : null,
+            isCurrent: false,
+            gpa: null,
+            description: '',
+            honors: [],
+          })),
+        );
       }
 
       setDocuments(docs.map((d: any) => ({
@@ -204,7 +326,7 @@ export default function CandidateProfilePage() {
       case 'interview_completed': return <EyeIcon className="w-5 h-5 text-purple-500" />;
       case 'reviewing': return <ClockIcon className="w-5 h-5 text-orange-500" />;
       case 'rejected': return <XCircleIcon className="w-5 h-5 text-red-500" />;
-      default: return <ClockIcon className="w-5 h-5 text-gray-500" />;
+      default: return <ClockIcon className="w-5 h-5 text-muted-foreground" />;
     }
   };
 
@@ -216,8 +338,8 @@ export default function CandidateProfilePage() {
       case 'interview_completed': return 'bg-purple-100 text-purple-800';
       case 'reviewing': return 'bg-orange-100 text-orange-800';
       case 'rejected': return 'bg-red-100 text-red-800';
-      case 'withdrawn': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'withdrawn': return 'bg-muted text-foreground';
+      default: return 'bg-muted text-foreground';
     }
   };
 
@@ -226,8 +348,8 @@ export default function CandidateProfilePage() {
       case 'expert': return 'bg-green-100 text-green-800 border-green-300';
       case 'advanced': return 'bg-gold-100 text-gold-800 border-violet-300';
       case 'intermediate': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'beginner': return 'bg-gray-100 text-gray-800 border-gray-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'beginner': return 'bg-muted text-foreground border-border';
+      default: return 'bg-muted text-foreground border-border';
     }
   };
 
@@ -245,7 +367,7 @@ export default function CandidateProfilePage() {
         onClick={() => setIsEditing(!isEditing)}
         className={`inline-flex items-center px-4 py-2 border text-sm font-medium rounded-full shadow-sm ${
           isEditing
-            ? 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+            ? 'border-border text-foreground bg-card hover:bg-muted'
             : 'bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider'
         }`}
       >
@@ -268,10 +390,10 @@ export default function CandidateProfilePage() {
   if (!profile) {
     return (
       <PageWrapper title="My Profile" subtitle="Manage your professional profile" actions={actions}>
-        <div className="bg-white rounded-control shadow p-12 text-center">
-          <UserIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No profile data</h3>
-          <p className="text-sm text-gray-500">Your profile information will appear here once connected to the system.</p>
+        <div className="bg-card rounded-control shadow p-12 text-center">
+          <UserIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">No profile data</h3>
+          <p className="text-sm text-muted-foreground">Your profile information will appear here once connected to the system.</p>
         </div>
       </PageWrapper>
     );
@@ -285,7 +407,7 @@ export default function CandidateProfilePage() {
     >
       <div className="space-y-6">
         {/* Profile Header Card */}
-        <div className="bg-white rounded-control shadow p-6">
+        <div className="bg-card rounded-control shadow p-6">
           <div className="flex items-start space-x-6">
             <div className="relative">
               <div className="w-24 h-24 bg-violet-600 rounded-full flex items-center justify-center">
@@ -309,14 +431,14 @@ export default function CandidateProfilePage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
+                  <h1 className="text-2xl font-bold text-foreground">
                     {profile?.firstName} {profile?.lastName}
                   </h1>
                   <p className="text-lg text-gold-600 font-medium mt-1">
                     {profile?.headline}
                   </p>
                   
-                  <div className="flex items-center space-x-4 mt-3 text-sm text-gray-600">
+                  <div className="flex items-center space-x-4 mt-3 text-sm text-muted-foreground">
                     <div className="flex items-center">
                       <MapPinIcon className="w-4 h-4 mr-1" />
                       {profile?.location}
@@ -332,21 +454,15 @@ export default function CandidateProfilePage() {
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    profile?.workAuthorization === 'authorized' 
-                      ? 'bg-green-100 text-green-800'
-                      : profile?.workAuthorization === 'requires_sponsorship'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {profile?.workAuthorization === 'authorized' ? 'Authorized to Work' : 
-                     profile?.workAuthorization === 'requires_sponsorship' ? 'Requires Sponsorship' : 'Not Authorized'}
-                  </span>
-                </div>
+                {/*
+                  A green "Authorized to Work" pill stood here. It read a field that is not stored
+                  and was set to 'authorized' for every candidate at load, so the badge was shown to
+                  everyone regardless — a claim about a person's right to work in the country, made
+                  up by the page. Nothing replaces it, because nothing is known.
+                */}
               </div>
               
-              <p className="text-gray-700 mt-4 leading-relaxed">
+              <p className="text-foreground mt-4 leading-relaxed">
                 {profile?.summary}
               </p>
             </div>
@@ -354,8 +470,8 @@ export default function CandidateProfilePage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-control shadow">
-          <div className="border-b border-gray-200">
+        <div className="bg-card rounded-control shadow">
+          <div className="border-b border-border">
             <nav className="flex space-x-8 px-6">
               {[
                 { id: 'profile', name: 'Profile Details', icon: UserIcon },
@@ -371,7 +487,7 @@ export default function CandidateProfilePage() {
                   className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                     activeTab === tab.id
                       ? 'border-gold-500 text-gold-700'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                   }`}
                 >
                   <tab.icon className="w-4 h-4" />
@@ -387,74 +503,105 @@ export default function CandidateProfilePage() {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+                    <h3 className="text-lg font-semibold text-foreground">Personal Information</h3>
                     
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
-                        <p className="text-gray-900">{new Date(profile?.dateOfBirth || '').toLocaleDateString()}</p>
+                        <label className="block text-sm font-medium text-foreground">Date of Birth</label>
+                        <p className="text-foreground">{new Date(profile?.dateOfBirth || '').toLocaleDateString()}</p>
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Nationality</label>
-                        <p className="text-gray-900">{profile?.nationality}</p>
+                        <label className="block text-sm font-medium text-foreground">Nationality</label>
+                        <p className="text-foreground">{profile?.nationality}</p>
                       </div>
                       
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Work Authorization</label>
-                        <p className="text-gray-900">
-                          {profile?.workAuthorization === 'authorized' ? 'Authorized to work' : 
-                           profile?.workAuthorization === 'requires_sponsorship' ? 'Requires sponsorship' : 'Not authorized'}
-                        </p>
-                      </div>
                     </div>
                   </div>
                   
+                  {/*
+                    "Job Preferences" stood here — salary expectation, availability, remote-work
+                    preference, willingness to relocate and preferred job types. All five were
+                    constants assigned when the profile loaded and then rendered as this person's
+                    answers, so every candidate saw the same preferences presented as their own.
+                    Removed rather than left showing an invented answer. Collecting any of them is a
+                    product decision with a form and a column behind it.
+                  */}
+
+                  {/*
+                    Employment equity — the only place these can be changed.
+
+                    Staff may read these and may not rewrite them: they are given under consent and
+                    feed statutory reporting, so someone else altering another person's
+                    self-declaration is a different act from correcting a typo. That left this
+                    screen as the only one on which a correction — or a withdrawal of consent — can
+                    happen, and until now it did not offer either.
+                  */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Job Preferences</h3>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Salary Expectation</label>
-                        <p className="text-gray-900">
-                          ${profile?.salaryExpectation.min.toLocaleString()} - ${profile?.salaryExpectation.max.toLocaleString()} {profile?.salaryExpectation.currency}
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Availability</label>
-                        <p className="text-gray-900">
-                          {profile?.availability === 'immediate' ? 'Immediate' :
-                           profile?.availability === 'two_weeks' ? 'Two weeks notice' :
-                           profile?.availability === 'one_month' ? 'One month notice' : 'More than one month'}
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Remote Work Preference</label>
-                        <p className="text-gray-900">
-                          {profile?.remoteWork === 'only' ? 'Remote only' :
-                           profile?.remoteWork === 'hybrid' ? 'Hybrid preferred' :
-                           profile?.remoteWork === 'no_preference' ? 'No preference' : 'Office preferred'}
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Willing to Relocate</label>
-                        <p className="text-gray-900">{profile?.willingToRelocate ? 'Yes' : 'No'}</p>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Preferred Job Types</label>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          {profile?.preferredJobTypes.map((type, index) => (
-                            <span key={index} className="px-2 py-1 bg-gold-100 text-gold-800 text-sm rounded-full">
-                              {type}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
+                    <h3 className="text-lg font-semibold text-foreground">Employment equity</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Voluntary, and it does not affect any application. Used only for
+                      employment-equity reporting.
+                    </p>
+
+                    <div className="space-y-3">
+                      <EquityField
+                        label="Gender"
+                        value={profile?.gender}
+                        options={['Female', 'Male', 'Prefer not to say']}
+                        onChange={(value) => void saveEquity({ gender: value })}
+                        disabled={savingEquity}
+                      />
+                      <EquityField
+                        label="Population group"
+                        value={profile?.race}
+                        options={['African', 'Coloured', 'Indian', 'White', 'Prefer not to say']}
+                        onChange={(value) => void saveEquity({ race: value })}
+                        disabled={savingEquity}
+                      />
+                      <EquityField
+                        label="Disability"
+                        value={profile?.disabilityStatus}
+                        options={['Yes', 'No', 'Prefer not to say']}
+                        onChange={(value) => void saveEquity({ disabilityStatus: value })}
+                        disabled={savingEquity}
+                      />
+                      <EquityField
+                        label="Citizenship"
+                        value={profile?.citizenshipStatus}
+                        options={['South African', 'Permanent resident', 'Work permit']}
+                        onChange={(value) => void saveEquity({ citizenshipStatus: value })}
+                        disabled={savingEquity}
+                      />
                     </div>
+
+                    <div className="rounded-control border border-border bg-muted px-4 py-3">
+                      <label className="flex items-start gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={profile?.demographicsConsent ?? false}
+                          disabled={savingEquity}
+                          onChange={(e) => void saveEquity({ demographicsConsent: e.target.checked })}
+                          className="mt-0.5 h-4 w-4"
+                        />
+                        <span className="text-sm text-foreground">
+                          Use these answers for employment-equity reporting.
+                          {/*
+                            Withdrawing consent stops the answers being used. It does not erase
+                            them. Those are different acts and the control must not let one look
+                            like the other — the same wording the staff form uses.
+                          */}
+                          <span className="mt-1 block text-xs text-muted-foreground">
+                            Clearing this stops them being used in reporting. It does not delete
+                            what is stored — erasing the record is a separate request.
+                          </span>
+                        </span>
+                      </label>
+                    </div>
+
+                    {equityMessage && (
+                      <p className="text-sm text-muted-foreground">{equityMessage}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -464,7 +611,7 @@ export default function CandidateProfilePage() {
             {activeTab === 'experience' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Work Experience</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Work Experience</h3>
                   {isEditing && (
                     <button className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-full text-gold-600 hover:bg-gold-50">
                       <PlusIcon className="w-4 h-4 mr-2" />
@@ -475,17 +622,17 @@ export default function CandidateProfilePage() {
                 
                 <div className="space-y-6">
                   {experiences.map((exp, _index) => (
-                    <div key={exp.id} className="border border-gray-200 rounded-control p-6">
+                    <div key={exp.id} className="border border-border rounded-control p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-start space-x-4">
-                            <div className="w-12 h-12 bg-gray-100 rounded-control flex items-center justify-center">
-                              <BriefcaseIcon className="w-6 h-6 text-gray-600" />
+                            <div className="w-12 h-12 bg-muted rounded-control flex items-center justify-center">
+                              <BriefcaseIcon className="w-6 h-6 text-muted-foreground" />
                             </div>
                             <div className="flex-1">
-                              <h4 className="text-lg font-semibold text-gray-900">{exp.position}</h4>
+                              <h4 className="text-lg font-semibold text-foreground">{exp.position}</h4>
                               <p className="text-gold-600 font-medium">{exp.company}</p>
-                              <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                              <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
                                 <span>
                                   {new Date(exp.startDate).toLocaleDateString()} - {
                                     exp.isCurrent ? 'Present' : new Date(exp.endDate!).toLocaleDateString()
@@ -500,12 +647,12 @@ export default function CandidateProfilePage() {
                             </div>
                           </div>
                           
-                          <p className="text-gray-700 mt-4">{exp.description}</p>
+                          <p className="text-foreground mt-4">{exp.description}</p>
                           
                           {exp.achievements.length > 0 && (
                             <div className="mt-4">
-                              <h5 className="text-sm font-medium text-gray-900 mb-2">Key Achievements:</h5>
-                              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                              <h5 className="text-sm font-medium text-foreground mb-2">Key Achievements:</h5>
+                              <ul className="list-disc list-inside space-y-1 text-sm text-foreground">
                                 {exp.achievements.map((achievement, idx) => (
                                   <li key={idx}>{achievement}</li>
                                 ))}
@@ -516,10 +663,10 @@ export default function CandidateProfilePage() {
                         
                         {isEditing && (
                           <div className="flex space-x-2">
-                            <button className="p-2 text-gray-400 hover:text-gold-600 rounded-full">
+                            <button className="p-2 text-muted-foreground hover:text-gold-600 rounded-full">
                               <PencilIcon className="w-4 h-4" />
                             </button>
-                            <button className="p-2 text-gray-400 hover:text-red-600 rounded-full">
+                            <button className="p-2 text-muted-foreground hover:text-red-600 rounded-full">
                               <TrashIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -535,7 +682,7 @@ export default function CandidateProfilePage() {
             {activeTab === 'education' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Education</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Education</h3>
                   {isEditing && (
                     <button className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-full text-gold-600 hover:bg-gold-50">
                       <PlusIcon className="w-4 h-4 mr-2" />
@@ -546,17 +693,17 @@ export default function CandidateProfilePage() {
                 
                 <div className="space-y-6">
                   {education.map((edu, _index) => (
-                    <div key={edu.id} className="border border-gray-200 rounded-control p-6">
+                    <div key={edu.id} className="border border-border rounded-control p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-start space-x-4">
-                            <div className="w-12 h-12 bg-gray-100 rounded-control flex items-center justify-center">
-                              <AcademicCapIcon className="w-6 h-6 text-gray-600" />
+                            <div className="w-12 h-12 bg-muted rounded-control flex items-center justify-center">
+                              <AcademicCapIcon className="w-6 h-6 text-muted-foreground" />
                             </div>
                             <div className="flex-1">
-                              <h4 className="text-lg font-semibold text-gray-900">{edu.degree} in {edu.field}</h4>
+                              <h4 className="text-lg font-semibold text-foreground">{edu.degree} in {edu.field}</h4>
                               <p className="text-gold-600 font-medium">{edu.institution}</p>
-                              <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                              <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
                                 <span>
                                   {edu.startYear} - {edu.isCurrent ? 'Present' : edu.endYear}
                                 </span>
@@ -570,11 +717,11 @@ export default function CandidateProfilePage() {
                             </div>
                           </div>
                           
-                          <p className="text-gray-700 mt-4">{edu.description}</p>
+                          <p className="text-foreground mt-4">{edu.description}</p>
                           
                           {edu.honors.length > 0 && (
                             <div className="mt-4">
-                              <h5 className="text-sm font-medium text-gray-900 mb-2">Honors & Awards:</h5>
+                              <h5 className="text-sm font-medium text-foreground mb-2">Honors & Awards:</h5>
                               <div className="flex flex-wrap gap-2">
                                 {edu.honors.map((honor, idx) => (
                                   <span key={idx} className="px-2 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">
@@ -588,10 +735,10 @@ export default function CandidateProfilePage() {
                         
                         {isEditing && (
                           <div className="flex space-x-2">
-                            <button className="p-2 text-gray-400 hover:text-gold-600 rounded-full">
+                            <button className="p-2 text-muted-foreground hover:text-gold-600 rounded-full">
                               <PencilIcon className="w-4 h-4" />
                             </button>
-                            <button className="p-2 text-gray-400 hover:text-red-600 rounded-full">
+                            <button className="p-2 text-muted-foreground hover:text-red-600 rounded-full">
                               <TrashIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -607,7 +754,7 @@ export default function CandidateProfilePage() {
             {activeTab === 'skills' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Skills & Expertise</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Skills & Expertise</h3>
                   {isEditing && (
                     <button className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-full text-gold-600 hover:bg-gold-50">
                       <PlusIcon className="w-4 h-4 mr-2" />
@@ -619,7 +766,7 @@ export default function CandidateProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {['technical', 'soft', 'language', 'certification'].map((category) => (
                     <div key={category} className="space-y-4">
-                      <h4 className="font-medium text-gray-900 capitalize border-b border-gray-200 pb-2">
+                      <h4 className="font-medium text-foreground capitalize border-b border-border pb-2">
                         {category === 'technical' ? 'Technical Skills' :
                          category === 'soft' ? 'Soft Skills' :
                          category === 'language' ? 'Languages' : 'Certifications'}
@@ -652,7 +799,7 @@ export default function CandidateProfilePage() {
             {activeTab === 'documents' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Documents & Portfolio</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Documents & Portfolio</h3>
                   {isEditing && (
                     <button className="inline-flex items-center px-4 py-2 bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full text-sm font-medium">
                       <ArrowUpTrayIcon className="w-4 h-4 mr-2" />
@@ -663,27 +810,27 @@ export default function CandidateProfilePage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {documents.map((doc) => (
-                    <div key={doc.id} className="border border-gray-200 rounded-control p-4 hover:border-gray-300 transition-colors">
+                    <div key={doc.id} className="border border-border rounded-control p-4 hover:border-border transition-colors">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-3">
                           <div className="w-10 h-10 bg-gold-100 rounded-control flex items-center justify-center">
                             <DocumentTextIcon className="w-5 h-5 text-gold-600" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">{doc.name}</p>
-                            <p className="text-xs text-gray-500">{getEnumLabel('documentType', doc.type)}</p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-sm font-medium text-foreground truncate">{doc.name}</p>
+                            <p className="text-xs text-muted-foreground">{getEnumLabel('documentType', doc.type)}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
                               {formatFileSize(doc.size)} • {new Date(doc.uploadedAt).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
                         
                         <div className="flex space-x-1">
-                          <button className="p-1 text-gray-400 hover:text-gold-600 rounded-full">
+                          <button className="p-1 text-muted-foreground hover:text-gold-600 rounded-full">
                             <EyeIcon className="w-4 h-4" />
                           </button>
                           {isEditing && (
-                            <button className="p-1 text-gray-400 hover:text-red-600 rounded-full">
+                            <button className="p-1 text-muted-foreground hover:text-red-600 rounded-full">
                               <TrashIcon className="w-4 h-4" />
                             </button>
                           )}
@@ -699,25 +846,25 @@ export default function CandidateProfilePage() {
             {activeTab === 'applications' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">My Job Applications</h3>
-                  <div className="text-sm text-gray-600">
+                  <h3 className="text-lg font-semibold text-foreground">My Job Applications</h3>
+                  <div className="text-sm text-muted-foreground">
                     {applications.length} applications
                   </div>
                 </div>
                 
                 <div className="space-y-4">
                   {applications.map((app) => (
-                    <div key={app.id} className="border border-gray-200 rounded-control p-6 hover:border-gray-300 transition-colors">
+                    <div key={app.id} className="border border-border rounded-control p-6 hover:border-border transition-colors">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 bg-gray-100 rounded-control flex items-center justify-center">
-                              <BriefcaseIcon className="w-6 h-6 text-gray-600" />
+                            <div className="w-12 h-12 bg-muted rounded-control flex items-center justify-center">
+                              <BriefcaseIcon className="w-6 h-6 text-muted-foreground" />
                             </div>
                             <div>
-                              <h4 className="text-lg font-semibold text-gray-900">{app.jobTitle}</h4>
+                              <h4 className="text-lg font-semibold text-foreground">{app.jobTitle}</h4>
                               <p className="text-gold-600 font-medium">{app.company}</p>
-                              <p className="text-sm text-gray-600 mt-1">
+                              <p className="text-sm text-muted-foreground mt-1">
                                 Applied on {new Date(app.appliedDate).toLocaleDateString()}
                               </p>
                             </div>
@@ -728,7 +875,7 @@ export default function CandidateProfilePage() {
                               {getStatusIcon(app.status)}
                               <span className="ml-1">{getEnumLabel('applicationStatus', app.status)}</span>
                             </span>
-                            <span className="text-sm text-gray-600">Current Stage: {app.currentStage}</span>
+                            <span className="text-sm text-muted-foreground">Current Stage: {app.currentStage}</span>
                             {app.interviewDate && (
                               <span className="text-sm text-gold-600">
                                 Interview: {new Date(app.interviewDate).toLocaleDateString()}
@@ -737,17 +884,17 @@ export default function CandidateProfilePage() {
                           </div>
                           
                           {app.notes && (
-                            <p className="text-sm text-gray-700 mt-3 bg-gray-50 rounded p-3">
+                            <p className="text-sm text-foreground mt-3 bg-muted rounded p-3">
                               {app.notes}
                             </p>
                           )}
                         </div>
                         
                         <div className="flex space-x-2">
-                          <button className="p-2 text-gray-400 hover:text-gold-600 rounded-full">
+                          <button className="p-2 text-muted-foreground hover:text-gold-600 rounded-full">
                             <EyeIcon className="w-5 h-5" />
                           </button>
-                          <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full">
+                          <button className="p-2 text-muted-foreground hover:text-muted-foreground rounded-full">
                             <LinkIcon className="w-5 h-5" />
                           </button>
                         </div>

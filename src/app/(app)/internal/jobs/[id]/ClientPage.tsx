@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
+import { includesInflatedViews } from '@/components/job-postings/views';
 import PageWrapper from '@/components/PageWrapper';
 import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
@@ -441,13 +442,16 @@ export default function InternalJobDetailPage() {
               {job.viewCount !== undefined && (
                 <div className="text-center">
                   <div className="text-2xl font-bold text-gold-600">{job.viewCount}</div>
-                  {/* Every page load of this advert, not every person. JobPostingService
-                      increments on each getJobPostingBySlug with no session or IP dedup, and
-                      carries a TODO saying so — one candidate refreshing five times is five
-                      views. Labelled as page views rather than an audience figure. */}
+                  {/* What this figure means depends on when the advert was created. Counting was
+                      deduplicated in v2.3.0; before that every page load incremented it, staff
+                      previews included. createdAt is used rather than a publish date because this
+                      shape carries no publish date — and it is the safer input, since an advert
+                      created after the changeover cannot hold views from before it. */}
                   <div className="text-sm text-muted-foreground">Page views</div>
                   <div className="text-[0.6875rem] text-muted-foreground/70 mt-0.5">
-                    Includes repeat visits
+                    {includesInflatedViews(job.createdAt)
+                      ? 'Includes repeat visits'
+                      : 'One per person per day'}
                   </div>
                 </div>
               )}

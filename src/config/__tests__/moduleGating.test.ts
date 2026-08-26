@@ -112,7 +112,9 @@ describe('Module gating', () => {
     expect(analytics).toEqual(['Analytics', 'Recruiter Analytics', 'Reports', 'Report Export']);
     expect(analytics).not.toContain('HR Analytics');
     expect(analytics).not.toContain('Performance Analytics');
-    expect(analytics).not.toContain('Employee Reports');
+    // 'Employee Reports' was asserted absent here too. The entry has since been removed outright —
+    // it pointed at /reports/employees, which has never had a page — so the assertion would now
+    // hold for a reason that has nothing to do with module gating, which is what this file tests.
   });
 
   it('still shows HR and Talent to a tenant that licenses every module', () => {
@@ -123,7 +125,8 @@ describe('Module gating', () => {
       'Expense Submission',
       'HR Analytics',
       'Performance Analytics',
-      'Employee Reports',
+      // 'Employee Reports' removed: the menu entry pointed at a page that does not exist, so a
+      // fully-licensed tenant was being shown a door onto the SPA fallback.
     ]) {
       expect(labels).toContain(label);
     }

@@ -41,6 +41,40 @@ export async function getApplicant(applicantId: string) {
   return response.json();
 }
 
+/**
+ * Save this candidate's own employment-equity answers.
+ *
+ * <p><b>The whole record goes back, not a patch.</b> {@code ApplicantService.updateApplicant}
+ * assigns every field from the request — {@code applicant.setName(request.getName())} and so on —
+ * so a body carrying only the demographic fields would blank the person's name, email and address.
+ * The loaded record is merged with the change and sent complete.
+ *
+ * <p>The identity number is left exactly as it arrived. It comes back masked, and the service
+ * refuses a masked value rather than writing the mask over the real one.
+ *
+ * @param loaded the applicant as most recently fetched
+ * @param change the employment-equity fields to replace
+ */
+export async function updateMyDemographics(
+  applicantId: string,
+  loaded: Record<string, unknown>,
+  change: {
+    gender?: string;
+    race?: string;
+    disabilityStatus?: string;
+    citizenshipStatus?: string;
+    demographicsConsent?: boolean;
+  },
+) {
+  const response = await apiFetch(`/api/applicants/${applicantId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...loaded, ...change }),
+  });
+  if (!response.ok) throw new Error(`Failed to save: HTTP ${response.status}`);
+  return response.json();
+}
+
 export async function getDocuments(applicantId: string) {
   const response = await apiFetch(`/api/applicants/${applicantId}/documents`);
   if (!response.ok) throw new Error(`Failed to fetch documents: HTTP ${response.status}`);

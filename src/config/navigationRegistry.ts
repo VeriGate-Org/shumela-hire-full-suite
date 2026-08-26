@@ -173,7 +173,6 @@ export const navigationRegistry: NavigationEntry[] = [
   // holds view_reports (to read reports) but not export rights, and an entry
   // that appears and then 403s is worse than no entry.
   { id: 'report-export', label: 'Report Export', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT', allowedRoles: ['ADMIN', 'HR_MANAGER'] },
-  { id: 'employee-reports', label: 'Employee Reports', href: '/reports/employees', icon: IdentificationIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
 
   // Administration
   { id: 'permissions', label: 'Role Permissions', href: '/admin/permissions', icon: ShieldCheckIcon, section: 'administration', requiredPermissions: ['manage_permissions'] },
@@ -201,7 +200,6 @@ export const navigationRegistry: NavigationEntry[] = [
   // could never lock, and an ATS-only tenant was getting an internal-comms
   // section it had not licensed. Hiding the /notifications PAGE does not touch
   // the header notification bell, which is NotificationsPanel, not this entry.
-  { id: 'announcements', label: 'Announcements', href: '/announcements', icon: MegaphoneIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
   { id: 'messaging', label: 'Messaging', href: '/messages', icon: ChatBubbleLeftRightIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
   { id: 'notifications-search', label: 'Notifications & Search', href: '/notifications', icon: BellIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
   { id: 'it-support', label: 'IT Support', href: '/support', icon: WrenchIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
