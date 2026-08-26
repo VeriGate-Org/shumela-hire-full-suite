@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { hrAnalyticsService } from '@/services/hrAnalyticsService';
 import { useToast } from '@/components/Toast';
@@ -41,6 +42,18 @@ interface KPIs {
   employeeSatisfactionScore: number;
 }
 
+/**
+ * The one measure this service computed on every request and never showed.
+ *
+ * <p>{@code genderDistribution} sits alongside departmentDistribution and employmentTypes in
+ * HROverviewAnalyticsService and was the only key of 24 that reached no screen.
+ */
+interface GenderDistribution {
+  gender: string;
+  count: number;
+  percentage: number;
+}
+
 export default function HROverviewPage() {
   const [metrics, setMetrics] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(true);
@@ -67,13 +80,43 @@ export default function HROverviewPage() {
   const tenure = (metrics.tenure || {}) as TenureData;
   const deptDistribution = (metrics.departmentDistribution || []) as DeptDistribution[];
   const kpis = (metrics.kpis || {}) as KPIs;
+  const genderDistribution = (metrics.genderDistribution || []) as GenderDistribution[];
 
   const maxDeptCount = Math.max(...deptDistribution.map((d) => d.count), 1);
   const maxTenureCount = Math.max(...(tenure.tenureBands || []).map((b) => b.count), 1);
 
   return (
     <FeatureGate feature="ADVANCED_ANALYTICS">
-      <PageWrapper title="HR Overview Analytics" subtitle="Key workforce metrics and organizational insights">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Workforce"
+          title="HR overview"
+          subtitle={
+            headcount.totalEmployees
+              ? `${headcount.totalEmployees.toLocaleString('en-ZA')} people · ${headcount.newHiresThisMonth ?? 0} joined and ${headcount.terminationsThisMonth ?? 0} left this month`
+              : 'Workforce measures across the organisation'
+          }
+          figures={[
+            {
+              label: 'Headcount',
+              value: headcount.totalEmployees?.toLocaleString('en-ZA') ?? 'Not reported',
+            },
+            {
+              label: 'Turnover',
+              value:
+                turnover.annualTurnoverRate === undefined || turnover.annualTurnoverRate === null
+                  ? 'Not reported'
+                  : `${turnover.annualTurnoverRate}%`,
+            },
+            {
+              label: 'Median tenure',
+              value:
+                tenure.medianTenureYears === undefined || tenure.medianTenureYears === null
+                  ? 'Not reported'
+                  : `${tenure.medianTenureYears} yrs`,
+            },
+          ]}
+        />
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500" />
@@ -90,8 +133,8 @@ export default function HROverviewPage() {
                 { label: 'New Hires (Month)', value: headcount.newHiresThisMonth, color: '#06b6d4' },
                 { label: 'Terminations (Month)', value: headcount.terminationsThisMonth, color: '#ef4444' },
               ].map((card) => (
-                <div key={card.label} className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                  <p className="text-xs text-gray-400 uppercase tracking-wide">{card.label}</p>
+                <div key={card.label} className="bg-card rounded-xl p-4 border border-border">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{card.label}</p>
                   <p className="text-2xl font-bold mt-1" style={{ color: card.color }}>
                     {card.value ?? '-'}
                   </p>
@@ -107,8 +150,8 @@ export default function HROverviewPage() {
                 { label: 'Offer Acceptance Rate', value: kpis.offerAcceptanceRate ? `${kpis.offerAcceptanceRate}%` : '-', color: '#10b981' },
                 { label: 'Satisfaction Score', value: kpis.employeeSatisfactionScore ? `${kpis.employeeSatisfactionScore}/10` : '-', color: '#06b6d4' },
               ].map((card) => (
-                <div key={card.label} className="bg-gray-800 rounded-xl p-5 border border-gray-700">
-                  <p className="text-xs text-gray-400 uppercase tracking-wide">{card.label}</p>
+                <div key={card.label} className="bg-card rounded-xl p-5 border border-border">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{card.label}</p>
                   <p className="text-3xl font-bold mt-2" style={{ color: card.color }}>
                     {card.value}
                   </p>
@@ -118,9 +161,9 @@ export default function HROverviewPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Turnover Rate Chart */}
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-1">Monthly Turnover Rate</h3>
-                <div className="flex items-center gap-4 mb-4 text-sm text-gray-400">
+              <div className="bg-card rounded-xl p-6 border border-border">
+                <h3 className="text-lg font-semibold text-foreground mb-1">Monthly Turnover Rate</h3>
+                <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
                   <span>Annual: <strong className="text-red-400">{turnover.annualTurnoverRate}%</strong></span>
                   <span>Voluntary: <strong className="text-amber-400">{turnover.voluntaryTurnoverRate}%</strong></span>
                   <span>Involuntary: <strong className="text-orange-400">{turnover.involuntaryTurnoverRate}%</strong></span>
@@ -136,23 +179,23 @@ export default function HROverviewPage() {
                           minHeight: '4px',
                         }}
                       />
-                      <span className="text-[10px] text-gray-500 mt-1">{item.month}</span>
+                      <span className="text-[10px] text-muted-foreground mt-1">{item.month}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Department Distribution */}
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Department Distribution</h3>
+              <div className="bg-card rounded-xl p-6 border border-border">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Department Distribution</h3>
                 <div className="space-y-3">
                   {deptDistribution.map((dept) => (
                     <div key={dept.department}>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-300">{dept.department}</span>
-                        <span className="text-gray-400">{dept.count} ({dept.percentage}%)</span>
+                        <span className="text-muted-foreground">{dept.department}</span>
+                        <span className="text-muted-foreground">{dept.count} ({dept.percentage}%)</span>
                       </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-2">
                         <div
                           className="h-2 rounded-full"
                           style={{
@@ -167,16 +210,16 @@ export default function HROverviewPage() {
               </div>
 
               {/* Tenure Distribution */}
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-1">Tenure Distribution</h3>
-                <p className="text-sm text-gray-400 mb-4">
+              <div className="bg-card rounded-xl p-6 border border-border">
+                <h3 className="text-lg font-semibold text-foreground mb-1">Tenure Distribution</h3>
+                <p className="text-sm text-muted-foreground mb-4">
                   Average: <strong className="text-violet-400">{tenure.averageTenureYears} years</strong> |
                   Median: <strong className="text-violet-400">{tenure.medianTenureYears} years</strong>
                 </p>
                 <div className="flex items-end gap-2 h-40">
                   {(tenure.tenureBands || []).map((band) => (
                     <div key={band.band} className="flex-1 flex flex-col items-center">
-                      <span className="text-xs text-gray-400 mb-1">{band.count}</span>
+                      <span className="text-xs text-muted-foreground mb-1">{band.count}</span>
                       <div
                         className="w-full rounded-t"
                         style={{
@@ -185,15 +228,43 @@ export default function HROverviewPage() {
                           minHeight: '4px',
                         }}
                       />
-                      <span className="text-[10px] text-gray-500 mt-1 text-center leading-tight">{band.band}</span>
+                      <span className="text-[10px] text-muted-foreground mt-1 text-center leading-tight">{band.band}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
+              {/*
+                Gender distribution — computed by HROverviewAnalyticsService on every request and,
+                until now, the one measure of 24 that no screen displayed.
+              */}
+              {genderDistribution.length > 0 && (
+                <div className="enterprise-card p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-4">Gender Distribution</h3>
+                  <div className="space-y-3">
+                    {genderDistribution.map((entry) => (
+                      <div key={entry.gender}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-muted-foreground">{entry.gender}</span>
+                          <span className="text-muted-foreground">
+                            {entry.count} ({entry.percentage}%)
+                          </span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2">
+                          <div
+                            className="h-2 rounded-full bg-primary"
+                            style={{ width: `${entry.percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Employment Types */}
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Employment Types</h3>
+              <div className="bg-card rounded-xl p-6 border border-border">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Employment Types</h3>
                 <div className="space-y-3">
                   {((metrics.employmentTypes || []) as { type: string; count: number; percentage: number }[]).map((et) => {
                     const colors: Record<string, string> = {
@@ -205,10 +276,10 @@ export default function HROverviewPage() {
                     return (
                       <div key={et.type}>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-gray-300">{et.type}</span>
-                          <span className="text-gray-400">{et.count} ({et.percentage}%)</span>
+                          <span className="text-muted-foreground">{et.type}</span>
+                          <span className="text-muted-foreground">{et.count} ({et.percentage}%)</span>
                         </div>
-                        <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div className="w-full bg-muted rounded-full h-2">
                           <div
                             className="h-2 rounded-full"
                             style={{
