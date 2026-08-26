@@ -46,9 +46,11 @@ public class CognitoJwtConverter implements Converter<Jwt, AbstractAuthenticatio
     );
 
     private final UserDataRepository userRepository;
+    private final SignInAuditRecorder signInAuditRecorder;
 
-    public CognitoJwtConverter(UserDataRepository userRepository) {
+    public CognitoJwtConverter(UserDataRepository userRepository, SignInAuditRecorder signInAuditRecorder) {
         this.userRepository = userRepository;
+        this.signInAuditRecorder = signInAuditRecorder;
     }
 
     @Override
@@ -73,6 +75,13 @@ public class CognitoJwtConverter implements Converter<Jwt, AbstractAuthenticatio
                 TenantContext.setCurrentTenant(tenantId);
             }
         }
+
+        // Tenant is resolved by this point, so the row is filed against the right tenant. This is
+        // deduplicated per sign-in and never throws — see SignInAuditRecorder.
+        signInAuditRecorder.recordSignIn(
+                jwt,
+                principal,
+                authorities.stream().map(GrantedAuthority::getAuthority).toList());
 
         return new JwtAuthenticationToken(jwt, authorities, principal);
     }
