@@ -8,7 +8,6 @@ import { SsoConfig, ssoService } from '@/services/ssoService';
 import {
   ArrowPathIcon,
   ShieldCheckIcon,
-  Cog6ToothIcon,
   UserGroupIcon,
   ClockIcon,
   CheckBadgeIcon,
