@@ -22,6 +22,7 @@ import {
   railFootnote,
   shortDate,
 } from '@/components/job-postings/workflow';
+import { viewsCaveat } from '@/components/job-postings/views';
 
 /**
  * The approval and publishing record of one job advert.
@@ -457,9 +458,16 @@ export default function JobPostingWorkflowPage() {
                 },
               ]}
             />
-            <p className="px-5 pb-4 text-xs text-muted-foreground">
-              Page views include repeat visits by the same person.
-            </p>
+            {/*
+              What the figure means depends on when this posting went live. Deduplicated counting
+              began on the date in views.ts; a total accumulated before then includes repeats and
+              staff previews and cannot be corrected, because no per-view record was ever kept.
+            */}
+            {viewsCaveat(posting.publishedAt, posting.viewsCount) && (
+              <p className="px-5 pb-4 text-xs text-muted-foreground">
+                {viewsCaveat(posting.publishedAt, posting.viewsCount)}
+              </p>
+            )}
           </section>
         )}
 

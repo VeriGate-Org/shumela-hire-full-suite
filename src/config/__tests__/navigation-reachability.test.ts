@@ -11,7 +11,10 @@ import { rolePermissions } from '../permissions';
  * waiting had no way to discover the queue built for exactly that. The page was tested, the
  * endpoint was tested, and nothing asked whether anyone could find it.
  *
- * <p>These tests are cheap and would have caught it.
+ * <p>These tests are cheap and would have caught it. When first written they also found two menu
+ * entries pointing at pages that never existed — Employee Reports and Announcements — which were
+ * carried as exemptions for one release and have since been removed. No exemptions remain, and a
+ * new one should be a deliberate decision rather than a way to make this file pass.
  */
 
 /** Routes that deliberately have no menu entry, with the reason. */
@@ -49,28 +52,8 @@ describe('the approvals queue is reachable', () => {
   });
 });
 
-/**
- * Menu entries whose page does not exist, found when this test was written.
- *
- * <p>Both are gated behind {@code EMPLOYEE_SELF_SERVICE}, so they appear only for a tenant with
- * that feature on — which is why nobody had noticed. For such a tenant the item is in the menu and
- * clicking it lands on the SPA fallback, i.e. the marketing root.
- *
- * <p>Left in place rather than deleted: they belong to a module outside this work, and removing
- * somebody's nav entry is a different decision from noticing it is broken. Recorded here so the
- * test can pass without the debt going quiet.
- */
-const KNOWN_MISSING_PAGES: Record<string, string> = {
-  '/reports/employees': 'No page under src/app/(app)/reports/employees. EMPLOYEE_SELF_SERVICE.',
-  '/announcements': 'No page under src/app/(app)/announcements. EMPLOYEE_SELF_SERVICE.',
-};
-
 describe('every menu entry points at a page that exists', () => {
-  it.each(
-    navigationRegistry.filter(
-      (e) => e.href.startsWith('/') && !e.href.includes('[') && !(e.href in KNOWN_MISSING_PAGES),
-    ),
-  )(
+  it.each(navigationRegistry.filter((e) => e.href.startsWith('/') && !e.href.includes('[')))(
     '$label → $href',
     (entry) => {
       // A menu item pointing at a route that was renamed or removed is a dead end that looks like
@@ -86,22 +69,6 @@ describe('every menu entry points at a page that exists', () => {
       expect(exists).toBe(true);
     },
   );
-});
-
-describe('the broken entries stay visible until someone fixes them', () => {
-  it('is still exactly two, and they are still broken', () => {
-    // If one of these gains a page, delete its line rather than leaving a stale exemption. If a
-    // third appears, this fails — which is the point.
-    for (const href of Object.keys(KNOWN_MISSING_PAGES)) {
-      const segments = href.replace(/^\//, '').split('/');
-      const base = path.join(process.cwd(), 'src', 'app', '(app)', ...segments);
-      const exists = fs.existsSync(`${base}/page.tsx`) || fs.existsSync(`${base}.tsx`);
-
-      expect(exists).toBe(false);
-    }
-
-    expect(Object.keys(KNOWN_MISSING_PAGES)).toHaveLength(2);
-  });
 });
 
 describe('pages that exist have a way in', () => {
