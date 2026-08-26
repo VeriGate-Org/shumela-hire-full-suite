@@ -40,28 +40,23 @@ export const CONNECTOR_META: Record<string, ConnectorMeta> = {
   },
   docusign: {
     does: 'Sends offer letters and contracts for signing, and tracks envelopes',
-    destinations: [],
-    blocked: 'No screen yet',
+    destinations: [{ label: 'Settings', href: '/integrations/docusign' }],
   },
   linkedin: {
     does: 'Posts vacancies and sources candidates from your company page',
-    destinations: [],
-    blocked: 'Connect below',
+    destinations: [{ label: 'Settings', href: '/integrations/job-boards' }],
   },
   indeed: {
     does: 'Posts vacancies and sponsored listings',
-    destinations: [],
-    blocked: 'Needs credentials',
+    destinations: [{ label: 'Settings', href: '/integrations/job-boards' }],
   },
   pnet: {
     does: 'South African board — posts by XML feed',
-    destinations: [],
-    blocked: 'Needs credentials',
+    destinations: [{ label: 'Settings', href: '/integrations/job-boards' }],
   },
   'career-junction': {
     does: 'South African board — posting and candidate matching',
-    destinations: [],
-    blocked: 'Needs credentials',
+    destinations: [{ label: 'Settings', href: '/integrations/job-boards' }],
   },
   'ms-teams': {
     does: 'Posts hiring and interview updates to a channel',
@@ -75,9 +70,7 @@ export const CONNECTOR_META: Record<string, ConnectorMeta> = {
   },
   'aws-ses': {
     does: 'Delivers every transactional email the system sends',
-    destinations: [],
-    // Deliberately not "needs credentials": an HR manager cannot fix this one from here.
-    blocked: 'Set in deployment config',
+    destinations: [{ label: 'Settings', href: '/integrations/email' }],
   },
 };
 
