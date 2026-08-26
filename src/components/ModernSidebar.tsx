@@ -1,18 +1,28 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+'use client';
+
+import React, { useMemo, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useFeatureGate } from '@/contexts/FeatureGateContext';
 import { useTenant } from '@/contexts/TenantContext';
-import TenantLogo from './chrome/TenantLogo';
-import { navigationRegistry, sectionLabels, NavSection, NavigationEntry, SECTION_ORDER, SECTION_ICONS, SINGLE_LINK_SECTIONS, getHiddenSectionsForRole } from '@/config/navigationRegistry';
+import { useSectionPanel } from './chrome/useSectionPanel';
+import {
+  navigationRegistry,
+  sectionLabels,
+  NavSection,
+  NavigationEntry,
+  SECTION_ORDER,
+  SECTION_ICONS,
+  SINGLE_LINK_SECTIONS,
+  getHiddenSectionsForRole,
+} from '@/config/navigationRegistry';
 import { FEATURE_MINIMUM_PLAN } from '@/config/featurePlanMap';
 import {
-  ChevronRightIcon,
-  LockClosedIcon,
   AdjustmentsHorizontalIcon,
+  LockClosedIcon,
+  MapPinIcon,
 } from '@heroicons/react/24/outline';
-
 
 interface SidebarNavItem extends NavigationEntry {
   locked: boolean;
@@ -20,75 +30,47 @@ interface SidebarNavItem extends NavigationEntry {
 }
 
 interface ModernSidebarProps {
-  isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
+  /** Whether the section panel stays open. Unpinned, it floats over the content on hover. */
+  panelPinned?: boolean;
+  onTogglePin?: () => void;
+  /**
+   * The mobile overlay is 260px — exactly rail plus panel — and has no hover, so it always shows
+   * both and offers no pin control.
+   */
+  forcePinned?: boolean;
 }
 
-/** The product wordmark, used when there is no tenant logo and when one fails to load. */
-function ShumelaHireWordmark() {
-  return (
-    <span className="font-extrabold text-xl tracking-[-0.03em]">
-      <span style={{ color: '#F1C54B' }}>Shumela</span>
-      <span style={{ color: '#5B9BD5' }}>Hire</span>
-    </span>
-  );
-}
+const RAIL_PX = 64;
 
+/**
+ * Rail plus panel.
+ *
+ * <p><b>Why.</b> An IDC administrator sees 29 entries across 9 sections, and 13 of them are
+ * Recruitment while six sections hold one or two items — yet every section carried the same
+ * accordion furniture. Sections now live permanently on a 64px rail and a section's items get a
+ * column of their own.
+ *
+ * <p>This also retires two defects in the old arrangement. Collapsing the sidebar rendered
+ * {@code items.slice(0, 1)} per group, so twelve of Recruitment's thirteen entries were simply
+ * unreachable behind an icon that looked like a section but navigated to one child. And the
+ * {@code aside} was itself the scroll container with the footer inside it, so once the active
+ * section auto-expanded, Settings and the "Powered by" attribution sat below the fold. The rail and
+ * both footers are now fixed; only the lists scroll.
+ */
 const ModernSidebar: React.FC<ModernSidebarProps> = ({
-  isCollapsed = false,
-  onToggleCollapse
+  panelPinned = true,
+  onTogglePin,
+  forcePinned = false,
 }) => {
   const pathname = usePathname();
   const { user } = useAuth();
   const { isFeatureEnabled } = useFeatureGate();
   const { tenant, branding } = useTenant();
+  const listRef = useRef<HTMLDivElement>(null);
 
-  // All group sections start collapsed (matching mock default state)
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-
+  const pinned = forcePinned || panelPinned;
   const isWhiteLabelled = !!tenant && tenant.subdomain !== 'default' && !!branding?.logoUrl;
   const hasModules = !!tenant?.modules;
-  const sidebarRef = useRef<HTMLElement>(null);
-
-  // Persist sidebar scroll position across navigations
-  useEffect(() => {
-    const el = sidebarRef.current;
-    if (!el) return;
-    const saved = sessionStorage.getItem('sidebar-scroll');
-    if (saved) {
-      requestAnimationFrame(() => { el.scrollTop = parseInt(saved, 10); });
-    }
-    const onScroll = () => { sessionStorage.setItem('sidebar-scroll', String(el.scrollTop)); };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // Auto-expand the section that contains the active route
-  useEffect(() => {
-    for (const entry of navigationRegistry) {
-      if (pathname.startsWith(entry.href) && entry.href !== '/') {
-        setExpandedSections(prev => {
-          if (prev.has(entry.section)) return prev;
-          const next = new Set(prev);
-          next.add(entry.section);
-          return next;
-        });
-        break;
-      }
-    }
-  }, [pathname]);
-
-  const toggleSection = useCallback((section: string) => {
-    setExpandedSections(prev => {
-      const next = new Set(prev);
-      if (next.has(section)) {
-        next.delete(section);
-      } else {
-        next.add(section);
-      }
-      return next;
-    });
-  }, []);
 
   const navigationItems = useMemo((): SidebarNavItem[] => {
     if (!user) return [];
@@ -109,7 +91,6 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       .filter(item => !(isWhiteLabelled || hasModules) || !item.locked);
   }, [user, isFeatureEnabled, isWhiteLabelled, hasModules]);
 
-  // Group items by section, ordered by SECTION_ORDER
   const orderedSections = useMemo(() => {
     const groups: Partial<Record<NavSection, SidebarNavItem[]>> = {};
     for (const item of navigationItems) {
@@ -122,12 +103,59 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       .map(s => ({ section: s, items: groups[s]! }));
   }, [navigationItems]);
 
-  const isActiveRoute = (href: string) => {
-    return pathname.startsWith(href) && href !== '/';
-  };
+  const isActiveRoute = useCallback(
+    (href: string) => pathname.startsWith(href) && href !== '/',
+    [pathname],
+  );
 
-  const renderLockedItem = (item: SidebarNavItem) => (
-    <div key={item.id} className="relative group">
+  /**
+   * The section the current route belongs to — but only when it is one with a panel. A single-item
+   * section returns null so the panel keeps showing what it had, rather than blanking every time
+   * someone visits the Dashboard.
+   */
+  const activeSection = useMemo(() => {
+    const match = navigationItems
+      .filter(item => isActiveRoute(item.href))
+      .sort((a, b) => b.href.length - a.href.length)[0];
+    if (!match || SINGLE_LINK_SECTIONS.has(match.section)) return null;
+    return match.section;
+  }, [navigationItems, isActiveRoute]);
+
+  const firstPanelSection = orderedSections.find(s => !SINGLE_LINK_SECTIONS.has(s.section))?.section;
+  const {
+    openSection,
+    isPanelVisible,
+    isFloating,
+    hoverSection,
+    hoverAway,
+    selectSection,
+    closePanel,
+  } = useSectionPanel(activeSection ?? null, pinned);
+
+  const shownSection = (openSection ?? firstPanelSection) as NavSection | undefined;
+  const shownItems = orderedSections.find(s => s.section === shownSection)?.items ?? [];
+
+  // Scroll position is kept for the item list, which is the part that scrolls now.
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const saved = sessionStorage.getItem('sidebar-scroll');
+    if (saved) requestAnimationFrame(() => { el.scrollTop = parseInt(saved, 10); });
+    const onScroll = () => sessionStorage.setItem('sidebar-scroll', String(el.scrollTop));
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // A floating panel closes on Escape, like every other transient surface in the product.
+  useEffect(() => {
+    if (!isFloating) return;
+    const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') closePanel(); };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isFloating, closePanel]);
+
+  const lockedRow = (item: SidebarNavItem) => (
+    <div key={item.id} className="group relative">
       <span className="sidebar-link" style={{ opacity: 0.35, cursor: 'not-allowed' }}>
         <span className="flex items-center justify-between">
           <span className="truncate">{item.label}</span>
@@ -135,181 +163,160 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
         </span>
       </span>
       {item.lockedPlanLabel && (
-        <div className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-full ml-2 z-50 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap rounded bg-popover text-popover-foreground border border-border shadow-md px-2 py-1 text-[11px]">
+        <div className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded border border-border bg-popover px-2 py-1 text-[11px] text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100">
           Requires {item.lockedPlanLabel} plan
         </div>
       )}
     </div>
   );
 
-  const renderChildItem = (item: SidebarNavItem) => {
-    if (item.locked) return renderLockedItem(item);
-
-    const isActive = isActiveRoute(item.href) && !navigationItems.some(other =>
-      other.href !== item.href && other.href.startsWith(item.href) && pathname.startsWith(other.href)
-    );
-
-    return (
-      <div key={item.id}>
-        <Link
-          href={item.href}
-          className={`sidebar-link ${isActive ? 'sidebar-link-active' : ''}`}
-        >
-          <span className="flex items-center justify-between">
-            <span className="truncate">{item.label}</span>
-            {item.badge && (
-              <span className="px-1.5 py-0.5 text-[10px] rounded bg-cta text-cta-foreground">
-                {item.badge}
-              </span>
-            )}
-          </span>
-        </Link>
-      </div>
-    );
-  };
-
-  const renderSingleLinkSection = (section: NavSection, items: SidebarNavItem[]) => {
-    const item = items[0];
-    if (!item) return null;
-    if (item.locked) return renderLockedItem(item);
-
-    const isActive = isActiveRoute(item.href);
-    const SectionIcon = SECTION_ICONS[section];
-
-    return (
-      <Link
-        key={item.id}
-        href={item.href}
-        className={`sidebar-single-link ${isActive ? 'sidebar-single-link-active' : ''}`}
-      >
-        {SectionIcon && <SectionIcon className="h-5 w-5 flex-shrink-0" />}
-        {!isCollapsed && <span className="truncate">{item.label}</span>}
-        {!isCollapsed && item.badge && (
-          <span className="px-1.5 py-0.5 text-[10px] rounded bg-cta text-cta-foreground ml-auto">
-            {item.badge}
-          </span>
-        )}
-      </Link>
-    );
-  };
-
-  const renderGroupSection = (section: NavSection, items: SidebarNavItem[]) => {
-    const isExpanded = expandedSections.has(section);
-    const SectionIcon = SECTION_ICONS[section];
-
-    return (
-      <div key={section}>
-        {!isCollapsed ? (
-          <>
-            <button
-              onClick={() => toggleSection(section)}
-              className="sidebar-group-header w-full"
-            >
-              {SectionIcon && <SectionIcon className="h-5 w-5 flex-shrink-0" />}
-              <span className="flex-1 text-left truncate">
-                {sectionLabels[section] || section}
-              </span>
-              <ChevronRightIcon
-                className="h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200"
-                style={{
-                  color: 'rgba(255,255,255,0.3)',
-                  transform: isExpanded ? 'rotate(90deg)' : undefined,
-                }}
-              />
-            </button>
-            <div className={`overflow-hidden transition-all duration-200 ease-in-out ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-              <nav>
-                {items.map(item => renderChildItem(item))}
-              </nav>
-            </div>
-          </>
-        ) : (
-          <nav>
-            {items.slice(0, 1).map(item => (
-              <div key={item.id}>
-                {item.locked ? renderLockedItem(item) : (
-                  <Link
-                    href={item.href}
-                    className="sidebar-single-link justify-center"
-                    title={sectionLabels[section]}
-                  >
-                    {SectionIcon && <SectionIcon className="h-5 w-5" />}
-                  </Link>
-                )}
-              </div>
-            ))}
-          </nav>
-        )}
-      </div>
-    );
-  };
-
   return (
-    <aside
-      ref={sidebarRef}
-      className={`
-        fixed left-0 top-0 bottom-0 flex flex-col overflow-y-auto sidebar-scroll transition-all duration-200 ease-in-out z-50
-        ${isCollapsed ? 'w-16' : 'w-[260px]'}
-      `}
-      style={{ backgroundColor: 'var(--sidebar-bg)' }}
-    >
-      {/* Logo / Branding */}
-      {!isCollapsed && (
-        <div className="px-5 pt-6 pb-2">
-          {isWhiteLabelled && branding?.logoUrl ? (
-            // The sidebar is #0B1929 in both themes, so the plate is unconditional here.
-            <TenantLogo src={branding.logoUrl} plate="always" fallback={<ShumelaHireWordmark />} />
-          ) : (
-            <ShumelaHireWordmark />
-          )}
-        </div>
-      )}
-      {isCollapsed && (
-        <div className="flex justify-center pt-4 pb-2">
+    <>
+      {/* ── Rail: every section, always ─────────────────────────────────── */}
+      <aside
+        aria-label="Sections"
+        className="fixed bottom-0 left-0 top-0 z-50 flex w-16 flex-col"
+        style={{ backgroundColor: 'var(--sidebar-bg)' }}
+        onMouseLeave={hoverAway}
+      >
+        <div className="flex h-14 flex-none items-center justify-center">
           <img src="/icons/shumelahire-icon.svg" alt="ShumelaHire" className="h-7 w-7" />
         </div>
-      )}
 
-      {/* Navigation sections */}
-      <div className="flex-1">
-        {orderedSections.map(({ section, items }, index) => {
-          const isSingleLink = SINGLE_LINK_SECTIONS.has(section);
+        <div className="sidebar-scroll flex-1 overflow-y-auto py-1">
+          {orderedSections.map(({ section, items }) => {
+            const Icon = SECTION_ICONS[section];
+            const label = sectionLabels[section] || section;
+            const single = SINGLE_LINK_SECTIONS.has(section);
+            const here = items.some(item => isActiveRoute(item.href));
 
-          return (
-            <React.Fragment key={section}>
-              {index > 0 && (
-                <div className="sidebar-divider" />
-              )}
-              {isSingleLink
-                ? renderSingleLinkSection(section, items)
-                : renderGroupSection(section, items)
-              }
-            </React.Fragment>
-          );
-        })}
-      </div>
+            // A one-item section is a destination, not a container. It navigates, and never
+            // opens a panel — which is the whole reason six of nine sections stop costing a
+            // disclosure triangle they had no use for.
+            if (single) {
+              const item = items[0];
+              if (!item) return null;
+              return (
+                <Link
+                  key={section}
+                  href={item.href}
+                  title={item.label}
+                  aria-label={item.label}
+                  aria-current={here ? 'page' : undefined}
+                  onMouseEnter={hoverAway}
+                  className={`rail-item ${here ? 'rail-item-active' : ''}`}
+                >
+                  {Icon && <Icon className="h-5 w-5" />}
+                </Link>
+              );
+            }
 
-      {/* Bottom: Settings */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        <Link
-          href="/settings"
-          className={`sidebar-single-link ${isActiveRoute('/settings') ? 'sidebar-single-link-active' : ''}`}
+            return (
+              <button
+                key={section}
+                type="button"
+                title={label}
+                aria-label={label}
+                aria-expanded={isPanelVisible && shownSection === section}
+                onMouseEnter={() => hoverSection(section)}
+                onFocus={() => hoverSection(section)}
+                onClick={() => selectSection(section)}
+                className={`rail-item ${here ? 'rail-item-active' : ''} ${
+                  shownSection === section && isPanelVisible ? 'rail-item-open' : ''
+                }`}
+              >
+                {Icon && <Icon className="h-5 w-5" />}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex-none" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <Link
+            href="/settings"
+            title="Settings"
+            aria-label="Settings"
+            onMouseEnter={hoverAway}
+            className={`rail-item ${isActiveRoute('/settings') ? 'rail-item-active' : ''}`}
+          >
+            <AdjustmentsHorizontalIcon className="h-5 w-5" />
+          </Link>
+        </div>
+      </aside>
+
+      {/* ── Panel: one section's items ──────────────────────────────────── */}
+      {isPanelVisible && shownSection && (
+        <nav
+          aria-label={`${sectionLabels[shownSection] || shownSection} pages`}
+          className={`fixed bottom-0 z-50 flex w-[196px] flex-col ${isFloating ? 'shadow-2xl' : ''}`}
+          // A floating panel starts below the header. Unpinned, the header begins at the rail's
+          // edge, so a full-height panel would cover its left end — and the tenant logo with it.
+          style={{
+            left: RAIL_PX,
+            top: isFloating ? '3.5rem' : 0,
+            backgroundColor: 'var(--sidebar-bg)',
+            borderRight: '1px solid rgba(255,255,255,0.08)',
+          }}
+          onMouseEnter={() => hoverSection(shownSection)}
+          onMouseLeave={hoverAway}
         >
-          <AdjustmentsHorizontalIcon className="h-5 w-5 flex-shrink-0" />
-          {!isCollapsed && <span>Settings</span>}
-        </Link>
-
-        {!isCollapsed && isWhiteLabelled && (
-          <div className="px-5 pb-4 pt-1">
-            <p className="flex items-center gap-1.5 text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
-              Powered by
-              <img src="/icons/shumelahire-icon.svg" alt="" className="h-3.5 w-3.5" />
-              <span className="font-semibold">ShumelaHire</span>
-            </p>
+          <div className="flex h-14 flex-none items-center justify-between gap-1 pl-4 pr-2">
+            <span className="truncate text-[13px] font-semibold" style={{ color: 'rgba(255,255,255,0.92)' }}>
+              {sectionLabels[shownSection] || shownSection}
+            </span>
+            {!forcePinned && onTogglePin && (
+              <button
+                type="button"
+                onClick={onTogglePin}
+                title={pinned ? 'Unpin menu' : 'Keep menu open'}
+                aria-label={pinned ? 'Unpin menu' : 'Keep menu open'}
+                aria-pressed={pinned}
+                className="rounded-control p-1.5 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                style={{ color: pinned ? 'var(--cta)' : 'rgba(255,255,255,0.45)' }}
+              >
+                <MapPinIcon className="h-4 w-4" />
+              </button>
+            )}
           </div>
-        )}
-      </div>
-    </aside>
+
+          <div ref={listRef} className="sidebar-scroll flex-1 overflow-y-auto pb-2">
+            {shownItems.map(item =>
+              item.locked ? lockedRow(item) : (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  aria-current={isActiveRoute(item.href) ? 'page' : undefined}
+                  onClick={() => { if (isFloating) closePanel(); }}
+                  className={`sidebar-link ${isActiveRoute(item.href) ? 'sidebar-link-active' : ''}`}
+                  style={{ paddingLeft: '1rem' }}
+                >
+                  <span className="flex items-center justify-between">
+                    <span className="truncate">{item.label}</span>
+                    {item.badge && (
+                      <span className="rounded bg-cta px-1.5 py-0.5 text-[10px] text-cta-foreground">
+                        {item.badge}
+                      </span>
+                    )}
+                  </span>
+                </Link>
+              )
+            )}
+          </div>
+
+          {/* Fixed, so it is present whatever the list is doing. This block used to live inside the
+              scrolling element and dropped below the fold as soon as a section expanded. */}
+          {isWhiteLabelled && (
+            <div className="flex-none px-4 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <p className="flex items-center gap-1.5 text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                Powered by
+                <img src="/icons/shumelahire-icon.svg" alt="" className="h-3.5 w-3.5" />
+                <span className="font-semibold">ShumelaHire</span>
+              </p>
+            </div>
+          )}
+        </nav>
+      )}
+    </>
   );
 };
 

@@ -238,22 +238,29 @@ describe('the account menu version', () => {
 });
 
 describe('the tenant logo', () => {
-  it('is plated on the sidebar in both themes', () => {
-    // --sidebar-bg is #0B1929 in light and dark alike, and 63% of the IDC mark's ink measures
-    // below 3:1 against it. A dark:-only plate would fix nothing there.
-    expect(read('components', 'ModernSidebar.tsx')).toContain('plate="always"');
+  it('lives in the top bar, which is the one surface that is always visible', () => {
+    // It used to sit at the top of the sidebar. The rail that replaced the sidebar is 64px and
+    // cannot hold a wordmark, and the panel beside it can be unpinned and closed — so a logo there
+    // would come and go. The top bar carried nothing but a breadcrumb on desktop.
+    expect(read('components', 'ModernLayout.tsx')).toContain('<TenantLogo');
   });
 
-  it('is plated only in the dark on the top bar', () => {
+  it('is plated against the dark theme', () => {
+    // The bar sits on --card: white in light mode, #1E293B in dark. 63% of the IDC mark's opaque
+    // pixels measure below 3:1 on a dark ground, so the plate is what keeps it legible.
     expect(read('components', 'ModernLayout.tsx')).toContain('plate="dark"');
   });
 
-  it('falls back when the URL fails, on both surfaces', () => {
-    // The sidebar had no error handling at all, so a bad URL rendered a broken-image glyph.
+  it('is not drawn unplated on the rail', () => {
+    // The rail is #0B1929 in both themes. Putting the tenant logo back there without a plate is
+    // exactly the regression this guards.
+    expect(read('components', 'ModernSidebar.tsx')).not.toContain('TenantLogo');
+  });
+
+  it('falls back when the URL fails', () => {
     const logo = read('components', 'chrome', 'TenantLogo.tsx');
 
     expect(logo).toContain('onError');
-    expect(read('components', 'ModernSidebar.tsx')).toContain('fallback=');
     expect(read('components', 'ModernLayout.tsx')).toContain('fallback=');
   });
 });
