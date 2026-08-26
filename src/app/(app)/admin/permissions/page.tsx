@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
-import { apiFetch } from '@/lib/api-fetch';
+import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import InviteUserModal from '@/components/InviteUserModal';
 import {
@@ -251,13 +251,19 @@ export default function AdminPermissionsPage() {
         method: 'PUT',
         body: JSON.stringify({ role: editingUserRole }),
       });
-      if (!res.ok) throw new Error('Failed to update');
+      // The server refuses two demotions that would lock administration out of the tenant, and its
+      // message names the way out — "ask another administrator", "appoint another one first".
+      // Replacing that with "Failed to update user role" turns a rule into what looks like a bug,
+      // and leaves the reader with nothing to do about it.
+      if (!res.ok) throw new Error(await refusalMessage(res));
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, roleId: editingUserRole } : u));
       toast('User role updated successfully', 'success');
       setEditingUserId(null);
       setEditingUserRole('');
-    } catch {
-      toast('Failed to update user role', 'error');
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Could not update the user role', 'error');
+      // The row stays in edit mode on refusal: the change was not applied, and closing the editor
+      // would suggest it had been.
     }
   };
 

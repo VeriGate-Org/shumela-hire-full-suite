@@ -73,7 +73,6 @@ describe('Authorization alignment', () => {
     expectNavRoles('performance', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EXECUTIVE']);
     expectNavRoles('engagement', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('compliance', ['ADMIN', 'HR_MANAGER']);
-    expectNavRoles('labour-relations', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('hr-analytics', ['ADMIN', 'HR_MANAGER', 'EXECUTIVE', 'HIRING_MANAGER', 'RECRUITER']);
     // ReportExportController is ADMIN/HR_MANAGER only — EXECUTIVE was never
     // admitted, so the entry it used to get here would have 403'd. The nav

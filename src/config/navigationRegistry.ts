@@ -172,7 +172,6 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'audit-logs', label: 'Audit Logs', href: '/admin/audit-logs', icon: ClipboardDocumentListIcon, section: 'administration', requiredPermissions: ['view_audit_logs'] },
   { id: 'departments', label: 'Departments', href: '/admin/departments', icon: BuildingOfficeIcon, section: 'administration', requiredPermissions: ['manage_departments'] },
   { id: 'compliance', label: 'Compliance', href: '/admin/compliance', icon: ExclamationTriangleIcon, section: 'administration', requiredPermissions: ['manage_compliance'], requiredFeature: 'POPIA_COMPLIANCE' },
-  { id: 'labour-relations', label: 'Labour Relations', href: '/admin/labour-relations', icon: HandThumbUpIcon, section: 'administration', requiredPermissions: ['manage_compliance'], requiredFeature: 'LABOUR_RELATIONS' },
   { id: 'branding', label: 'Branding', href: '/admin/branding', icon: SwatchIcon, section: 'administration', requiredPermissions: ['manage_permissions'], requiredFeature: 'CUSTOM_BRANDING' },
   { id: 'document-templates', label: 'Document Templates', href: '/admin/document-templates', icon: DocumentDuplicateIcon, section: 'administration', requiredPermissions: ['manage_permissions'], requiredFeature: 'DOCUMENT_TEMPLATES' },
   { id: 'company-documents-admin', label: 'Company Documents', href: '/admin/company-documents', icon: FolderIcon, section: 'administration', requiredPermissions: ['manage_company_documents'], requiredFeature: 'COMPANY_DOCUMENTS' },

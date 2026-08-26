@@ -20,6 +20,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -99,6 +102,23 @@ public class AdminController {
         return ResponseEntity.ok(pageResult);
     }
 
+    /**
+     * Changes a user's role — except where doing so would lock administration out of the tenant.
+     *
+     * <p>Two refusals, both irreversible from inside the product and neither previously guarded:
+     *
+     * <ul>
+     *   <li><b>Self-demotion.</b> An administrator removing their own administrative role loses the
+     *       page they are standing on, along with any way back to it. There is no "are you sure"
+     *       that makes this recoverable, so it is refused rather than confirmed.</li>
+     *   <li><b>The last administrator.</b> Demoting the only remaining administrator leaves the
+     *       tenant with nobody who can appoint one. That is a support ticket and a database edit,
+     *       which is not a thing a UI should be able to cause.</li>
+     * </ul>
+     *
+     * <p>Enforced here rather than by hiding a control. A disabled checkbox is a suggestion — the
+     * endpoint is reachable directly, and the lockout is the same either way.
+     */
     @PutMapping("/users/{userId}/role")
     public ResponseEntity<?> updateUserRole(@PathVariable String userId, @RequestBody Map<String, String> body) {
         String roleName = body.get("role");
@@ -111,15 +131,59 @@ public class AdminController {
             return ResponseEntity.notFound().build();
         }
 
+        User.Role newRole;
         try {
-            User.Role newRole = User.Role.valueOf(roleName.toUpperCase());
-            User user = userOpt.get();
-            user.setRole(newRole);
-            userRepository.save(user);
-            return ResponseEntity.ok(Map.of("message", "Role updated"));
+            newRole = User.Role.valueOf(roleName.toUpperCase());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid role: " + roleName));
         }
+
+        User user = userOpt.get();
+        User.Role currentRole = user.getRole();
+
+        // Only a demotion out of administration can lock anyone out. Promotions, and moves between
+        // two non-administrative roles, are none of this method's business.
+        if (permissionService.canAdministerRoles(currentRole) && !permissionService.canAdministerRoles(newRole)) {
+            String callerEmail = extractAuthenticatedEmail(authentication());
+            if (callerEmail != null && callerEmail.equalsIgnoreCase(user.getEmail())) {
+                log.warn("Refused self-demotion of administrator {}", userId);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                        "error", "You cannot remove your own administrator role. Ask another administrator to do it."));
+            }
+
+            if (countAdministrators() <= 1) {
+                log.warn("Refused demotion of the last administrator {}", userId);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                        "error", "This is the only administrator. Appoint another one before changing this role."));
+            }
+        }
+
+        user.setRole(newRole);
+        userRepository.save(user);
+        return ResponseEntity.ok(Map.of("message", "Role updated"));
+    }
+
+    /** How many users can still administer roles. Counts every administrative role, not just ADMIN. */
+    private long countAdministrators() {
+        return userRepository.findAll().stream()
+                .map(User::getRole)
+                .filter(permissionService::canAdministerRoles)
+                .count();
+    }
+
+    private String extractAuthenticatedEmail(Authentication authentication) {
+        if (authentication == null) return null;
+        if (authentication.getPrincipal() instanceof Jwt jwt) {
+            return jwt.getClaimAsString("email");
+        }
+        if (authentication.getPrincipal() instanceof User principal) {
+            return principal.getEmail();
+        }
+        return null;
+    }
+
+    private Authentication authentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 
     @PostMapping("/users/invite")
