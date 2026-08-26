@@ -388,15 +388,15 @@ export default function EmployeeDocumentsPage() {
   const getCategoryBadgeClasses = (type: string) => {
     const t = type?.toLowerCase() || '';
     if (t.includes('id') || t.includes('identity') || t.includes('passport'))
-      return 'bg-icon-bg-navy text-accent-navy';
+      return 'icon-tile-navy';
     if (t.includes('qualification') || t.includes('degree') || t.includes('diploma'))
-      return 'bg-icon-bg-teal text-accent-teal';
+      return 'icon-tile-teal';
     if (t.includes('certificate') || t.includes('cert'))
-      return 'bg-icon-bg-gold text-accent-gold-on-tint';
+      return 'icon-tile-gold-on-tint';
     if (t.includes('contract') || t.includes('agreement'))
       return 'bg-purple-100 text-purple-700';
     if (t.includes('medical') || t.includes('health'))
-      return 'bg-icon-bg-pink text-accent-pink';
+      return 'icon-tile-pink';
     return 'bg-slate-100 text-slate-500';
   };
 
@@ -608,7 +608,7 @@ export default function EmployeeDocumentsPage() {
                 onClick={() => setStatusFilter('all')}
                 className={`enterprise-card flex items-center gap-4 p-5 text-left transition-all hover:-translate-y-px ${statusFilter === 'all' ? 'ring-2 ring-primary' : ''}`}
               >
-                <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-card icon-tile-navy flex items-center justify-center flex-shrink-0">
                   <DocumentTextIcon className="w-6 h-6" />
                 </div>
                 <div>
@@ -621,7 +621,7 @@ export default function EmployeeDocumentsPage() {
                 onClick={() => setStatusFilter(statusFilter === 'expiring' ? 'all' : 'expiring')}
                 className={`enterprise-card flex items-center gap-4 p-5 text-left transition-all hover:-translate-y-px border-l-[3px] border-l-warning ${statusFilter === 'expiring' ? 'ring-2 ring-warning' : ''}`}
               >
-                <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-card icon-tile-gold-on-tint flex items-center justify-center flex-shrink-0">
                   <ExclamationTriangleIcon className="w-6 h-6" />
                 </div>
                 <div>
@@ -634,7 +634,7 @@ export default function EmployeeDocumentsPage() {
                 onClick={() => setStatusFilter(statusFilter === 'awaiting_signature' ? 'all' : 'awaiting_signature')}
                 className={`enterprise-card flex items-center gap-4 p-5 text-left transition-all hover:-translate-y-px ${statusFilter === 'awaiting_signature' ? 'ring-2 ring-purple-500' : ''}`}
               >
-                <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center flex-shrink-0">
                   <PencilSquareIcon className="w-6 h-6" />
                 </div>
                 <div>
@@ -647,7 +647,7 @@ export default function EmployeeDocumentsPage() {
                 onClick={() => setStatusFilter(statusFilter === 'expired' ? 'all' : 'expired')}
                 className={`enterprise-card flex items-center gap-4 p-5 text-left transition-all hover:-translate-y-px border-l-[3px] border-l-destructive ${statusFilter === 'expired' ? 'ring-2 ring-destructive' : ''}`}
               >
-                <div className="w-12 h-12 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-card icon-tile-pink flex items-center justify-center flex-shrink-0">
                   <ExclamationCircleIcon className="w-6 h-6" />
                 </div>
                 <div>

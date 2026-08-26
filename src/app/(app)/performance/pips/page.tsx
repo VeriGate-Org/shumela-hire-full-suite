@@ -93,8 +93,8 @@ export default function PipsPage() {
   const statusBadgeClass = (status: string) => {
     const colors: Record<string, string> = {
       ACTIVE: 'bg-success-bg text-[#065F46]',
-      COMPLETED: 'bg-icon-bg-navy text-primary',
-      EXTENDED: 'bg-icon-bg-navy text-primary',
+      COMPLETED: 'icon-tile-navy',
+      EXTENDED: 'icon-tile-navy',
       TERMINATED: 'bg-error-bg text-[#991B1B]',
     };
     return colors[status] || 'bg-muted text-muted-foreground';
@@ -124,7 +124,7 @@ export default function PipsPage() {
       case 'MET': return 'bg-success-bg text-success-on-tint';
       case 'MISSED': return 'bg-warning-bg text-warning-on-tint';
       case 'PENDING':
-      default: return 'bg-icon-bg-navy text-primary';
+      default: return 'icon-tile-navy';
     }
   };
 
@@ -158,10 +158,10 @@ export default function PipsPage() {
 
   // Avatar color rotation
   const avatarColors = [
-    { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
-    { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
-    { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
-    { bg: 'bg-icon-bg-navy', text: 'text-primary' },
+    { bg: 'icon-tile-teal', text: 'text-accent-teal' },
+    { bg: 'icon-tile-gold', text: 'text-accent-gold-on-tint' },
+    { bg: 'icon-tile-pink', text: 'text-accent-pink' },
+    { bg: 'icon-tile-navy', text: 'text-primary' },
   ];
 
   return (
@@ -193,8 +193,8 @@ export default function PipsPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="enterprise-card p-5 flex items-center gap-4">
-                <div className="w-[52px] h-[52px] rounded-xl bg-icon-bg-navy flex items-center justify-center flex-shrink-0">
-                  <DocumentTextIcon className="w-6 h-6 text-primary" />
+                <div className="w-[52px] h-[52px] rounded-xl icon-tile-navy flex items-center justify-center flex-shrink-0">
+                  <DocumentTextIcon className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="text-[1.75rem] font-extrabold leading-none text-foreground">{activePips.length}</div>
@@ -202,8 +202,8 @@ export default function PipsPage() {
                 </div>
               </div>
               <div className="enterprise-card p-5 flex items-center gap-4">
-                <div className="w-[52px] h-[52px] rounded-xl bg-icon-bg-teal flex items-center justify-center flex-shrink-0">
-                  <CheckCircleIcon className="w-6 h-6 text-accent-teal" />
+                <div className="w-[52px] h-[52px] rounded-xl icon-tile-teal flex items-center justify-center flex-shrink-0">
+                  <CheckCircleIcon className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="text-[1.75rem] font-extrabold leading-none text-foreground">{successRate}%</div>
@@ -211,8 +211,8 @@ export default function PipsPage() {
                 </div>
               </div>
               <div className="enterprise-card p-5 flex items-center gap-4">
-                <div className="w-[52px] h-[52px] rounded-xl bg-icon-bg-gold flex items-center justify-center flex-shrink-0">
-                  <ClockIcon className="w-6 h-6 text-accent-gold" />
+                <div className="w-[52px] h-[52px] rounded-xl icon-tile-gold flex items-center justify-center flex-shrink-0">
+                  <ClockIcon className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="text-[1.75rem] font-extrabold leading-none text-foreground">60</div>
@@ -220,8 +220,8 @@ export default function PipsPage() {
                 </div>
               </div>
               <div className="enterprise-card p-5 flex items-center gap-4">
-                <div className="w-[52px] h-[52px] rounded-xl bg-icon-bg-pink flex items-center justify-center flex-shrink-0">
-                  <ChartBarIcon className="w-6 h-6 text-accent-pink" />
+                <div className="w-[52px] h-[52px] rounded-xl icon-tile-pink flex items-center justify-center flex-shrink-0">
+                  <ChartBarIcon className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="text-[1.75rem] font-extrabold leading-none text-foreground">{completedPips.length}</div>

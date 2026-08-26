@@ -31,10 +31,10 @@ type TabFilter = 'all' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE';
 
 /* Rotating avatar palette using design-system tokens */
 const AVATAR_PALETTE = [
-  { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
-  { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
-  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
-  { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
+  { bg: 'icon-tile-navy', text: 'text-accent-navy' },
+  { bg: 'icon-tile-teal', text: 'text-accent-teal' },
+  { bg: 'icon-tile-gold', text: 'text-accent-gold-on-tint' },
+  { bg: 'icon-tile-pink', text: 'text-accent-pink' },
 ];
 
 function getAvatarStyle(index: number) {
@@ -269,7 +269,7 @@ export default function OnboardingChecklistsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Active Onboardings */}
               <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-navy text-accent-navy flex items-center justify-center">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl icon-tile-navy flex items-center justify-center">
                   <UsersIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div>
@@ -284,7 +284,7 @@ export default function OnboardingChecklistsPage() {
 
               {/* Completion Rate */}
               <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-teal text-accent-teal flex items-center justify-center">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl icon-tile-teal flex items-center justify-center">
                   <CheckCircleIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div>
@@ -299,7 +299,7 @@ export default function OnboardingChecklistsPage() {
 
               {/* Avg Days to Complete */}
               <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl icon-tile-gold-on-tint flex items-center justify-center">
                   <ClockIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div>
@@ -314,7 +314,7 @@ export default function OnboardingChecklistsPage() {
 
               {/* Overdue Tasks */}
               <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-pink text-accent-pink flex items-center justify-center">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl icon-tile-pink flex items-center justify-center">
                   <ExclamationCircleIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div>
@@ -347,7 +347,7 @@ export default function OnboardingChecklistsPage() {
                   <span
                     className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[0.688rem] font-bold ml-1.5 ${
                       activeTab === tab.key
-                        ? 'bg-icon-bg-navy text-primary'
+                        ? 'icon-tile-navy'
                         : 'bg-background text-muted-foreground'
                     }`}
                   >

@@ -90,7 +90,7 @@ const STAGE_GROUPS = [
     id: 'screening',
     displayName: 'Screening',
     order: 2,
-    color: 'bg-icon-bg-gold text-accent-gold-on-tint border-border',
+    color: 'icon-tile-gold-on-tint border-border',
     icon: EyeIcon,
     description: 'Resume and initial screening',
     backendStages: ['INITIAL_SCREENING', 'PHONE_SCREENING'],
@@ -99,7 +99,7 @@ const STAGE_GROUPS = [
     id: 'interviews',
     displayName: 'Interviews',
     order: 3,
-    color: 'bg-icon-bg-navy text-accent-navy border-border',
+    color: 'icon-tile-navy border-border',
     icon: CalendarIcon,
     description: 'Interview rounds',
     backendStages: [
@@ -111,7 +111,7 @@ const STAGE_GROUPS = [
     id: 'checks',
     displayName: 'Checks',
     order: 4,
-    color: 'bg-icon-bg-pink text-accent-pink border-border',
+    color: 'icon-tile-pink border-border',
     icon: ShieldCheckIcon,
     description: 'Reference and background checks',
     backendStages: ['REFERENCE_CHECK', 'BACKGROUND_CHECK'],
@@ -120,7 +120,7 @@ const STAGE_GROUPS = [
     id: 'offer',
     displayName: 'Offer',
     order: 5,
-    color: 'bg-icon-bg-teal text-accent-teal border-border',
+    color: 'icon-tile-teal border-border',
     icon: BriefcaseIcon,
     description: 'Offer extended to candidate',
     backendStages: ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION'],
@@ -129,7 +129,7 @@ const STAGE_GROUPS = [
     id: 'accepted',
     displayName: 'Accepted',
     order: 6,
-    color: 'bg-icon-bg-teal text-accent-teal border-accent-teal',
+    color: 'icon-tile-teal border-accent-teal',
     icon: CheckCircleIcon,
     description: 'Offer accepted by candidate',
     backendStages: ['OFFER_ACCEPTED'],
@@ -1006,10 +1006,10 @@ export default function PipelinePage() {
         {/* Stats Bar */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           {[
-            { icon: UserGroupIcon, label: 'Total Candidates', value: pipelineMetrics.totalApplications, iconColor: 'text-accent-navy', iconBg: 'bg-icon-bg-navy' },
-            { icon: ClockIcon, label: 'Avg Time in Pipeline', value: `${pipelineMetrics.averageTimeToHire}d`, iconColor: 'text-accent-teal', iconBg: 'bg-icon-bg-teal' },
-            { icon: ChartBarIcon, label: 'Conversion Rate', value: `${pipelineMetrics.conversionRate}%`, iconColor: 'text-accent-gold-on-tint', iconBg: 'bg-icon-bg-gold' },
-            { icon: CheckCircleIcon, label: 'Active Applications', value: pipelineMetrics.activeApplications, iconColor: 'text-accent-pink', iconBg: 'bg-icon-bg-pink' },
+            { icon: UserGroupIcon, label: 'Total Candidates', value: pipelineMetrics.totalApplications, iconColor: 'text-accent-navy', iconBg: 'icon-tile-navy' },
+            { icon: ClockIcon, label: 'Avg Time in Pipeline', value: `${pipelineMetrics.averageTimeToHire}d`, iconColor: 'text-accent-teal', iconBg: 'icon-tile-teal' },
+            { icon: ChartBarIcon, label: 'Conversion Rate', value: `${pipelineMetrics.conversionRate}%`, iconColor: 'text-accent-gold-on-tint', iconBg: 'icon-tile-gold' },
+            { icon: CheckCircleIcon, label: 'Active Applications', value: pipelineMetrics.activeApplications, iconColor: 'text-accent-pink', iconBg: 'icon-tile-pink' },
           ].map((metric) => (
             <div key={metric.label} className="enterprise-card p-5 hover:-translate-y-px transition-all">
               <div className="flex items-center gap-4">
@@ -1185,10 +1185,10 @@ export default function PipelinePage() {
             hired: 'border-t-green-500',
           };
           const columnBadgeColors: Record<string, string> = {
-            applied: 'bg-icon-bg-navy text-accent-navy',
+            applied: 'icon-tile-navy',
             screening: 'bg-violet-100 text-violet-600',
             interviews: 'bg-sky-100 text-sky-500',
-            checks: 'bg-icon-bg-gold text-accent-gold-on-tint',
+            checks: 'icon-tile-gold-on-tint',
             offer: 'bg-orange-100 text-orange-500',
             accepted: 'bg-green-100 text-green-600',
             hired: 'bg-green-100 text-green-600',

@@ -374,7 +374,7 @@ export default function EmployeeDetailPage() {
                     <div className="enterprise-card p-6">
                       <CardHeader
                         icon={UserIcon}
-                        iconTone="bg-icon-bg-navy text-primary"
+                        iconTone="icon-tile-navy"
                         title="Personal Information"
                       />
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -394,7 +394,7 @@ export default function EmployeeDetailPage() {
                     <div className="enterprise-card p-6">
                       <CardHeader
                         icon={BriefcaseIcon}
-                        iconTone="bg-icon-bg-teal text-teal-600"
+                        iconTone="icon-tile-teal"
                         title="Employment Details"
                       />
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -427,25 +427,25 @@ export default function EmployeeDetailPage() {
                     <div className="grid grid-cols-2 gap-3">
                       <StatCard
                         icon={CalendarIcon}
-                        iconTone="bg-icon-bg-navy text-primary"
+                        iconTone="icon-tile-navy"
                         value={computeTenure(employee.hireDate)}
                         label="Tenure"
                       />
                       <StatCard
                         icon={CalendarDaysIcon}
-                        iconTone="bg-icon-bg-teal text-teal-600"
+                        iconTone="icon-tile-teal"
                         value="\u2014"
                         label="Leave Balance"
                       />
                       <StatCard
                         icon={ChartBarIcon}
-                        iconTone="bg-icon-bg-gold text-gold-600"
+                        iconTone="icon-tile-gold"
                         value="\u2014"
                         label="Attendance Rate"
                       />
                       <StatCard
                         icon={StarIcon}
-                        iconTone="bg-icon-bg-pink text-idc-pink-600"
+                        iconTone="icon-tile-pink"
                         value="\u2014"
                         label="Performance Score"
                       />
@@ -455,7 +455,7 @@ export default function EmployeeDetailPage() {
                     <div className="enterprise-card p-6">
                       <CardHeader
                         icon={HandThumbUpIcon}
-                        iconTone="bg-icon-bg-gold text-gold-600"
+                        iconTone="icon-tile-gold"
                         title="Quick Actions"
                       />
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -483,7 +483,7 @@ export default function EmployeeDetailPage() {
                     <div className="enterprise-card p-6">
                       <CardHeader
                         icon={AcademicCapIcon}
-                        iconTone="bg-icon-bg-navy text-primary"
+                        iconTone="icon-tile-navy"
                         title="Education & Qualifications"
                       />
                       <p className="text-sm text-muted-foreground italic">
@@ -497,7 +497,7 @@ export default function EmployeeDetailPage() {
                 <div className="enterprise-card p-6">
                   <CardHeader
                     icon={BuildingOffice2Icon}
-                    iconTone="bg-icon-bg-navy text-primary"
+                    iconTone="icon-tile-navy"
                     title="Organisational Position"
                   />
                   <div className="flex flex-col xl:flex-row items-center justify-center gap-0 py-6">
@@ -508,7 +508,7 @@ export default function EmployeeDetailPage() {
                           <p className="text-[0.6875rem] font-bold uppercase tracking-wider text-muted-foreground mb-3">
                             Reports To
                           </p>
-                          <div className="w-12 h-12 rounded-full bg-icon-bg-navy text-primary text-sm font-bold mx-auto mb-2 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-full icon-tile-navy text-sm font-bold mx-auto mb-2 flex items-center justify-center">
                             {employee.reportingManagerName
                               .split(' ')
                               .map((n) => n[0])
@@ -569,7 +569,7 @@ export default function EmployeeDetailPage() {
                 <div className="enterprise-card p-6">
                   <CardHeader
                     icon={ClockIcon}
-                    iconTone="bg-icon-bg-teal text-teal-600"
+                    iconTone="icon-tile-teal"
                     title="Recent Activity"
                   />
                   <p className="text-sm text-muted-foreground italic">

@@ -482,7 +482,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
           onClick={() => setAdvancedOpen(!advancedOpen)}
           className="flex items-center gap-2.5 w-full px-4 py-3.5 bg-surface-navy rounded-control hover:bg-icon-bg-navy transition-colors cursor-pointer select-none"
         >
-          <div className="w-7 h-7 rounded-full bg-icon-bg-navy text-primary flex items-center justify-center flex-shrink-0">
+          <div className="w-7 h-7 rounded-full icon-tile-navy flex items-center justify-center flex-shrink-0">
             <Cog6ToothIcon className="w-3.5 h-3.5" />
           </div>
           <span className="text-sm font-bold text-foreground flex-1 text-left">Advanced Settings</span>

@@ -162,10 +162,10 @@ const EMPTY_CREATE_FORM: CreateOfferForm = {
 const SALARY_FREQUENCIES = ['ANNUALLY', 'MONTHLY', 'HOURLY'];
 
 const AVATAR_COLORS = [
-  { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
-  { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
-  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
-  { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
+  { bg: 'icon-tile-navy', text: 'text-accent-navy' },
+  { bg: 'icon-tile-teal', text: 'text-accent-teal' },
+  { bg: 'icon-tile-gold', text: 'text-accent-gold-on-tint' },
+  { bg: 'icon-tile-pink', text: 'text-accent-pink' },
 ];
 
 function getAvatarColor(index: number) {
@@ -191,19 +191,19 @@ const IN_FLIGHT_WITH_CANDIDATE = ['SENT', 'AWAITING_SIGNATURE', 'SIGNED', 'UNDER
 function getStatusBadge(status: string): { className: string; label: string } {
   switch (status) {
     case 'DRAFT':
-      return { className: 'bg-icon-bg-navy text-accent-navy', label: 'Draft' };
+      return { className: 'icon-tile-navy', label: 'Draft' };
     case 'PENDING_APPROVAL':
       return { className: 'bg-warning-bg text-amber-800', label: 'Pending Approval' };
     case 'APPROVED':
-      return { className: 'bg-icon-bg-teal text-accent-teal', label: 'Approved' };
+      return { className: 'icon-tile-teal', label: 'Approved' };
     case 'SENT':
       return { className: 'bg-warning-bg text-amber-800', label: 'Sent' };
     case 'AWAITING_SIGNATURE':
       return { className: 'bg-warning-bg text-amber-800', label: 'Awaiting Signature' };
     case 'SIGNED':
-      return { className: 'bg-icon-bg-teal text-accent-teal', label: 'Signed' };
+      return { className: 'icon-tile-teal', label: 'Signed' };
     case 'UNDER_NEGOTIATION':
-      return { className: 'bg-icon-bg-gold text-accent-gold-on-tint', label: 'Negotiating' };
+      return { className: 'icon-tile-gold-on-tint', label: 'Negotiating' };
     case 'ACCEPTED':
       return { className: 'bg-success-bg text-emerald-800', label: 'Accepted' };
     case 'DECLINED':

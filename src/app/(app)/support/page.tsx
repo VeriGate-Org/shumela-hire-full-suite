@@ -200,7 +200,7 @@ const KB_CATEGORIES: KBCategory[] = [
     key: 'getting-started',
     title: 'Getting Started',
     articles: 4,
-    colorClass: 'bg-icon-bg-navy text-accent-navy',
+    colorClass: 'icon-tile-navy',
     icon: (
       <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
@@ -212,7 +212,7 @@ const KB_CATEGORIES: KBCategory[] = [
     key: 'network-vpn',
     title: 'Network & VPN',
     articles: 6,
-    colorClass: 'bg-icon-bg-teal text-accent-teal',
+    colorClass: 'icon-tile-teal',
     icon: (
       <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
@@ -226,7 +226,7 @@ const KB_CATEGORIES: KBCategory[] = [
     key: 'email-calendar',
     title: 'Email & Calendar',
     articles: 5,
-    colorClass: 'bg-icon-bg-gold text-accent-gold-on-tint',
+    colorClass: 'icon-tile-gold-on-tint',
     icon: (
       <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -238,7 +238,7 @@ const KB_CATEGORIES: KBCategory[] = [
     key: 'software-apps',
     title: 'Software & Apps',
     articles: 8,
-    colorClass: 'bg-icon-bg-pink text-accent-pink',
+    colorClass: 'icon-tile-pink',
     icon: (
       <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
@@ -251,7 +251,7 @@ const KB_CATEGORIES: KBCategory[] = [
     key: 'hardware',
     title: 'Hardware',
     articles: 3,
-    colorClass: 'bg-icon-bg-navy text-accent-navy',
+    colorClass: 'icon-tile-navy',
     icon: (
       <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
@@ -264,7 +264,7 @@ const KB_CATEGORIES: KBCategory[] = [
     key: 'security',
     title: 'Security',
     articles: 4,
-    colorClass: 'bg-icon-bg-teal text-accent-teal',
+    colorClass: 'icon-tile-teal',
     icon: (
       <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -288,7 +288,7 @@ const POPULAR_ARTICLES = [
 function getStatusBadge(status: string, label: string) {
   const map: Record<string, string> = {
     open: 'bg-surface-navy text-accent-navy',
-    'in-progress': 'bg-icon-bg-teal text-accent-teal',
+    'in-progress': 'icon-tile-teal',
     resolved: 'bg-success-bg text-success-on-tint',
     closed: 'bg-background text-muted-foreground',
   };
@@ -334,11 +334,11 @@ function getPriorityBadge(priority: string, label: string) {
 function getTimelineDotClass(type: TimelineEntry['type']) {
   switch (type) {
     case 'created':
-      return 'bg-icon-bg-navy text-accent-navy';
+      return 'icon-tile-navy';
     case 'assigned':
-      return 'bg-icon-bg-teal text-accent-teal';
+      return 'icon-tile-teal';
     case 'comment':
-      return 'bg-icon-bg-gold text-accent-gold-on-tint';
+      return 'icon-tile-gold-on-tint';
     default:
       return 'bg-muted text-muted-foreground';
   }
@@ -646,7 +646,7 @@ export default function SupportPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Open Tickets */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card icon-tile-navy flex items-center justify-center flex-shrink-0">
               <ExclamationCircleIcon className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
@@ -657,7 +657,7 @@ export default function SupportPage() {
 
           {/* In Progress */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center flex-shrink-0">
               <ArrowPathIcon className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
@@ -668,7 +668,7 @@ export default function SupportPage() {
 
           {/* Resolved This Month */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card icon-tile-gold-on-tint flex items-center justify-center flex-shrink-0">
               <CheckCircleIcon className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
@@ -679,7 +679,7 @@ export default function SupportPage() {
 
           {/* Avg Resolution Time */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card icon-tile-pink flex items-center justify-center flex-shrink-0">
               <ClockIcon className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
@@ -1096,7 +1096,7 @@ export default function SupportPage() {
                         onClick={() => toast('This article is being prepared.', 'info')}
                         className="flex items-center gap-3 w-full px-4 py-3.5 border border-border rounded-control bg-card text-left hover:border-primary hover:bg-surface-navy transition-colors"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 rounded-lg icon-tile-navy flex items-center justify-center flex-shrink-0">
                           <DocumentTextIcon className="w-4 h-4" />
                         </div>
                         <span className="text-sm font-medium text-foreground flex-1">{article}</span>

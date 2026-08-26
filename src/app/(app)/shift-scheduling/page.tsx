@@ -208,7 +208,7 @@ export default function ShiftSchedulingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Shifts Assigned */}
             <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center">
+              <div className="flex-shrink-0 w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center">
                 <CheckCircleIcon className="w-6 h-6" />
               </div>
               <div>
@@ -224,7 +224,7 @@ export default function ShiftSchedulingPage() {
 
             {/* Unassigned */}
             <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
+              <div className="flex-shrink-0 w-12 h-12 rounded-card icon-tile-gold-on-tint flex items-center justify-center">
                 <ExclamationCircleIcon className="w-6 h-6" />
               </div>
               <div>
@@ -235,7 +235,7 @@ export default function ShiftSchedulingPage() {
 
             {/* Overtime Risk */}
             <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center">
+              <div className="flex-shrink-0 w-12 h-12 rounded-card icon-tile-pink flex items-center justify-center">
                 <ExclamationTriangleIcon className="w-6 h-6" />
               </div>
               <div>

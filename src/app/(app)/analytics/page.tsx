@@ -339,7 +339,7 @@ export default function AnalyticsPage() {
               onClick={() => setShowFilters(!showFilters)}
               className={`inline-flex items-center gap-2 px-5 py-2 rounded-button text-sm font-semibold border transition-colors ${
                 showFilters
-                  ? 'border-primary text-primary bg-icon-bg-navy'
+                  ? 'border-primary icon-tile-navy'
                   : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary'
               }`}
             >
@@ -381,7 +381,7 @@ export default function AnalyticsPage() {
                 {/* Teal accent bar at top */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-accent-teal" />
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-9 h-9 rounded-full bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 rounded-full icon-tile-teal flex items-center justify-center flex-shrink-0">
                     <StarIcon className="w-[18px] h-[18px]" />
                   </div>
                   <h3 className="text-[0.9375rem] font-bold text-foreground">Highlights</h3>
@@ -413,7 +413,7 @@ export default function AnalyticsPage() {
                 {/* Gold accent bar at top */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-accent-gold" />
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-9 h-9 rounded-full bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 rounded-full icon-tile-gold-on-tint flex items-center justify-center flex-shrink-0">
                     <ExclamationTriangleIcon className="w-[18px] h-[18px]" />
                   </div>
                   <h3 className="text-[0.9375rem] font-bold text-foreground">Areas for Improvement</h3>

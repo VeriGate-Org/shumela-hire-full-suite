@@ -135,8 +135,8 @@ export default function ComplianceDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {/* Consents */}
         <Link href="/admin/compliance/consents" className="enterprise-card p-5 flex items-center gap-4 transition-all duration-200 hover:shadow-md hover:-translate-y-px cursor-pointer">
-          <div className="flex-shrink-0 w-[52px] h-[52px] rounded-xl bg-icon-bg-navy flex items-center justify-center">
-            <ShieldCheckIcon className="h-6 w-6 text-primary" />
+          <div className="flex-shrink-0 w-[52px] h-[52px] rounded-xl icon-tile-navy flex items-center justify-center">
+            <ShieldCheckIcon className="h-6 w-6" />
           </div>
           <div>
             <div className="font-bold text-sm text-foreground mb-0.5">Consents</div>
@@ -147,8 +147,8 @@ export default function ComplianceDashboardPage() {
 
         {/* DSARs */}
         <Link href="/admin/compliance/dsar" className="enterprise-card p-5 flex items-center gap-4 transition-all duration-200 hover:shadow-md hover:-translate-y-px cursor-pointer">
-          <div className="flex-shrink-0 w-[52px] h-[52px] rounded-xl bg-icon-bg-teal flex items-center justify-center">
-            <DocumentTextIcon className="h-6 w-6 text-accent-teal" />
+          <div className="flex-shrink-0 w-[52px] h-[52px] rounded-xl icon-tile-teal flex items-center justify-center">
+            <DocumentTextIcon className="h-6 w-6" />
           </div>
           <div>
             <div className="font-bold text-sm text-foreground mb-0.5">DSARs</div>
@@ -159,8 +159,8 @@ export default function ComplianceDashboardPage() {
 
         {/* Reminders */}
         <Link href="/admin/compliance/reminders" className="enterprise-card p-5 flex items-center gap-4 transition-all duration-200 hover:shadow-md hover:-translate-y-px cursor-pointer">
-          <div className="flex-shrink-0 w-[52px] h-[52px] rounded-xl bg-icon-bg-gold flex items-center justify-center">
-            <BellAlertIcon className="h-6 w-6 text-accent-gold-on-tint" />
+          <div className="flex-shrink-0 w-[52px] h-[52px] rounded-xl icon-tile-gold flex items-center justify-center">
+            <BellAlertIcon className="h-6 w-6-on-tint" />
           </div>
           <div>
             <div className="font-bold text-sm text-foreground mb-0.5">Reminders</div>
@@ -171,8 +171,8 @@ export default function ComplianceDashboardPage() {
 
         {/* Overdue */}
         <div className="enterprise-card p-5 flex items-center gap-4">
-          <div className="flex-shrink-0 w-[52px] h-[52px] rounded-xl bg-icon-bg-pink flex items-center justify-center">
-            <ClockIcon className="h-6 w-6 text-accent-pink" />
+          <div className="flex-shrink-0 w-[52px] h-[52px] rounded-xl icon-tile-pink flex items-center justify-center">
+            <ClockIcon className="h-6 w-6" />
           </div>
           <div>
             <div className="font-bold text-sm text-foreground mb-0.5">Overdue</div>
@@ -373,15 +373,15 @@ function DsarTable({ dsarStats }: { dsarStats: Record<string, any> }) {
   });
 
   const typeBadgeConfig: Record<string, string> = {
-    access: 'bg-icon-bg-navy text-primary',
-    deletion: 'bg-icon-bg-pink text-accent-pink',
-    rectification: 'bg-icon-bg-gold text-accent-gold-on-tint',
-    portability: 'bg-icon-bg-teal text-accent-teal',
+    access: 'icon-tile-navy',
+    deletion: 'icon-tile-pink',
+    rectification: 'icon-tile-gold-on-tint',
+    portability: 'icon-tile-teal',
   };
 
   const statusBadgeConfig: Record<string, { classes: string; dotColor: string }> = {
     open: { classes: 'bg-warning-bg text-amber-800 dark:text-amber-300', dotColor: 'bg-warning' },
-    inprogress: { classes: 'bg-icon-bg-navy text-primary', dotColor: 'bg-primary' },
+    inprogress: { classes: 'icon-tile-navy', dotColor: 'bg-primary' },
     completed: { classes: 'bg-success-bg text-emerald-800 dark:text-emerald-300', dotColor: 'bg-success' },
   };
 

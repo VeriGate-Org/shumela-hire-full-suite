@@ -171,7 +171,7 @@ const DocumentTemplateList: React.FC<DocumentTemplateListProps> = ({ onEdit, onC
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="enterprise-card flex items-center gap-4 p-5">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-navy text-accent-navy flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-xl icon-tile-navy flex items-center justify-center shrink-0">
               <DocumentTextIcon className="h-6 w-6" />
             </div>
             <div>
@@ -180,7 +180,7 @@ const DocumentTemplateList: React.FC<DocumentTemplateListProps> = ({ onEdit, onC
             </div>
           </div>
           <div className="enterprise-card flex items-center gap-4 p-5">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-teal text-accent-teal flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-xl icon-tile-teal flex items-center justify-center shrink-0">
               <Squares2X2Icon className="h-6 w-6" />
             </div>
             <div>
@@ -189,7 +189,7 @@ const DocumentTemplateList: React.FC<DocumentTemplateListProps> = ({ onEdit, onC
             </div>
           </div>
           <div className="enterprise-card flex items-center gap-4 p-5">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-xl icon-tile-gold-on-tint flex items-center justify-center shrink-0">
               <ClockIcon className="h-6 w-6" />
             </div>
             <div>

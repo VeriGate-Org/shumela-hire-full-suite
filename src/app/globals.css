@@ -60,6 +60,14 @@
   --icon-bg-teal: #C8FFF5;
   --icon-bg-gold: #FEF6D8;
   --icon-bg-pink: #FFE0E3;
+
+  /* Ink for a solid icon tile. Chosen per accent and per theme: navy, teal and pink take white in
+     light mode, gold never can — at 2.22:1 against white it is the one accent that must carry dark
+     ink. Lowest of the eight pairings is 4.78:1. */
+  --icon-tile-ink-navy: #FFFFFF;
+  --icon-tile-ink-teal: #FFFFFF;
+  --icon-tile-ink-gold: #0F172A;
+  --icon-tile-ink-pink: #FFFFFF;
   --accent-navy: #05527E;
   --accent-teal: #047469;
   --accent-gold: #D4A832;
@@ -210,6 +218,12 @@
   --icon-bg-teal: #0D3B35;
   --icon-bg-gold: #3D2E0A;
   --icon-bg-pink: #3D1525;
+
+  /* Dark accents are all light colours, so every tile takes dark ink. */
+  --icon-tile-ink-navy: #0F172A;
+  --icon-tile-ink-teal: #0F172A;
+  --icon-tile-ink-gold: #0F172A;
+  --icon-tile-ink-pink: #0F172A;
   --accent-navy: #60A5FA;
   --accent-teal: #2DD4BF;
   --accent-gold: #FBBF24;
@@ -655,6 +669,25 @@
     background-color: rgba(255, 255, 255, 0.07);
     box-shadow: inset 3px 0 0 var(--cta);
   }
+
+  /* Solid icon tiles.
+   *
+   * The tint these replaced measured 1.08–1.23:1 against its card — the shape barely existed and
+   * the glyph appeared to float on a wash. The tile is now the accent itself.
+   *
+   * One class rather than a background utility beside a text utility, because the pair had drifted
+   * into nine different ink classes across 341 sites, including a text-violet-600 that belongs to
+   * no palette in the product. Owning both colours here means the next change to this treatment is
+   * four rules, not another sweep.
+   */
+  .icon-tile-navy { background-color: var(--accent-navy); color: var(--icon-tile-ink-navy); }
+  .icon-tile-teal { background-color: var(--accent-teal); color: var(--icon-tile-ink-teal); }
+  .icon-tile-gold { background-color: var(--accent-gold); color: var(--icon-tile-ink-gold); }
+  .icon-tile-pink { background-color: var(--accent-pink); color: var(--icon-tile-ink-pink); }
+
+  /* An icon inside the tile inherits it, beating any colour utility left on the glyph itself. */
+  .icon-tile-navy > svg, .icon-tile-teal > svg,
+  .icon-tile-gold > svg, .icon-tile-pink > svg { color: inherit; }
 
   .sidebar-divider {
     height: 1px;

@@ -85,7 +85,7 @@ export default function SsoConfigPage() {
           {/* Stat Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-              <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-card icon-tile-navy flex items-center justify-center flex-shrink-0">
                 <UserGroupIcon className="w-6 h-6" />
               </div>
               <div>
@@ -99,7 +99,7 @@ export default function SsoConfigPage() {
             </div>
 
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-              <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center flex-shrink-0">
                 <ClockIcon className="w-6 h-6" />
               </div>
               <div>
@@ -113,7 +113,7 @@ export default function SsoConfigPage() {
             </div>
 
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-              <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-card icon-tile-gold-on-tint flex items-center justify-center flex-shrink-0">
                 <CheckBadgeIcon className="w-6 h-6" />
               </div>
               <div>

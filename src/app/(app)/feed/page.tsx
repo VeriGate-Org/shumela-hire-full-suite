@@ -175,7 +175,7 @@ export default function FeedPage() {
         {/* Meta: author + date */}
         <div className="flex items-center gap-4 text-[0.8125rem] text-muted-foreground mb-3.5 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-full bg-icon-bg-gold text-gold-600 inline-flex items-center justify-center text-[0.65rem] font-bold flex-shrink-0">
+            <span className="w-7 h-7 rounded-full icon-tile-gold inline-flex items-center justify-center text-[0.65rem] font-bold flex-shrink-0">
               {post.authorName ? post.authorName.split(' ').map(n => n[0]).join('').slice(0, 3).toUpperCase() : '?'}
             </span>
             <span>
@@ -469,7 +469,7 @@ export default function FeedPage() {
         {/* Stats Bar */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-primary flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card icon-tile-navy flex items-center justify-center flex-shrink-0">
               <ChatBubbleLeftIcon className="h-6 w-6" />
             </div>
             <div>
@@ -478,7 +478,7 @@ export default function FeedPage() {
             </div>
           </div>
           <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-teal-600 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center flex-shrink-0">
               <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
             </div>
             <div>
@@ -487,7 +487,7 @@ export default function FeedPage() {
             </div>
           </div>
           <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-gold-600 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card icon-tile-gold flex items-center justify-center flex-shrink-0">
               <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
             <div>

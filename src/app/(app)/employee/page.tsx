@@ -51,10 +51,10 @@ function initials(emp: DirectReport): string {
 
 /** Pick a deterministic accent colour from the palette based on the employee id */
 const AVATAR_PALETTES = [
-  { bg: 'bg-icon-bg-navy', text: 'text-accent-navy', solid: 'bg-accent-navy' },
-  { bg: 'bg-icon-bg-teal', text: 'text-accent-teal', solid: 'bg-accent-teal' },
-  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint', solid: 'bg-accent-gold' },
-  { bg: 'bg-icon-bg-pink', text: 'text-accent-pink', solid: 'bg-accent-pink' },
+  { bg: 'icon-tile-navy', text: 'text-accent-navy', solid: 'bg-accent-navy' },
+  { bg: 'icon-tile-teal', text: 'text-accent-teal', solid: 'bg-accent-teal' },
+  { bg: 'icon-tile-gold', text: 'text-accent-gold-on-tint', solid: 'bg-accent-gold' },
+  { bg: 'icon-tile-pink', text: 'text-accent-pink', solid: 'bg-accent-pink' },
 ] as const;
 
 function avatarPalette(emp: DirectReport) {
@@ -109,10 +109,10 @@ function StatCard({
   palette: 'navy' | 'teal' | 'gold' | 'pink';
 }) {
   const iconBgMap = {
-    navy: 'bg-icon-bg-navy text-accent-navy',
-    teal: 'bg-icon-bg-teal text-accent-teal',
-    gold: 'bg-icon-bg-gold text-accent-gold-on-tint',
-    pink: 'bg-icon-bg-pink text-accent-pink',
+    navy: 'icon-tile-navy',
+    teal: 'icon-tile-teal',
+    gold: 'icon-tile-gold-on-tint',
+    pink: 'icon-tile-pink',
   };
   return (
     <div className="enterprise-card flex items-center gap-4 p-5 hover:-translate-y-px">

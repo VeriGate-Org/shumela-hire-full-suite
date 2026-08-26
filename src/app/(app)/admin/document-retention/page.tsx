@@ -158,9 +158,9 @@ export default function DocumentRetentionPage() {
 
   const getActionBadge = (action: string) => {
     const styles: Record<string, string> = {
-      DELETE: 'bg-icon-bg-pink text-accent-pink',
-      ARCHIVE: 'bg-icon-bg-navy text-accent-navy',
-      NOTIFY: 'bg-icon-bg-gold text-accent-gold-on-tint',
+      DELETE: 'icon-tile-pink',
+      ARCHIVE: 'icon-tile-navy',
+      NOTIFY: 'icon-tile-gold-on-tint',
     };
     return (
       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-button text-[0.6875rem] font-semibold uppercase tracking-wide ${styles[action] || 'bg-muted text-muted-foreground'}`}>
@@ -443,7 +443,7 @@ export default function DocumentRetentionPage() {
               {/* Total Policies */}
               <div className="enterprise-card p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
                 <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-card icon-tile-navy flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                   </div>
                   <div>
@@ -456,7 +456,7 @@ export default function DocumentRetentionPage() {
               {/* Active Policies */}
               <div className="enterprise-card p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
                 <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   </div>
                   <div>
@@ -469,7 +469,7 @@ export default function DocumentRetentionPage() {
               {/* Archive Policies */}
               <div className="enterprise-card p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
                 <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-card icon-tile-gold-on-tint flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
                   </div>
                   <div>
@@ -482,7 +482,7 @@ export default function DocumentRetentionPage() {
               {/* Delete Policies */}
               <div className="enterprise-card p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
                 <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-card icon-tile-pink flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   </div>
                   <div>
@@ -569,9 +569,9 @@ export default function DocumentRetentionPage() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <div className={`flex-shrink-0 w-9 h-9 rounded-control flex items-center justify-center ${
-                              policy.action === 'DELETE' ? 'bg-icon-bg-pink text-accent-pink' :
-                              policy.action === 'ARCHIVE' ? 'bg-icon-bg-navy text-accent-navy' :
-                              'bg-icon-bg-gold text-accent-gold-on-tint'
+                              policy.action === 'DELETE' ? 'icon-tile-pink' :
+                              policy.action === 'ARCHIVE' ? 'icon-tile-navy' :
+                              'icon-tile-gold-on-tint'
                             }`}>
                               <ClockIcon className="w-[18px] h-[18px]" />
                             </div>

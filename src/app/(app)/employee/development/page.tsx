@@ -137,10 +137,10 @@ export default function MyDevelopmentPage() {
             {/* ===== Stats Bar ===== */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
               {[
-                { icon: DocumentTextIcon, label: 'Total Plans', value: idps.length, iconColor: 'text-accent-navy', iconBg: 'bg-icon-bg-navy' },
-                { icon: CheckCircleIcon, label: 'Completion Rate', value: `${progress}%`, iconColor: 'text-accent-teal', iconBg: 'bg-icon-bg-teal' },
-                { icon: AcademicCapIcon, label: 'Goals Achieved', value: completedGoals, iconColor: 'text-accent-gold-on-tint', iconBg: 'bg-icon-bg-gold' },
-                { icon: ClockIcon, label: 'In Progress', value: inProgressGoals, iconColor: 'text-accent-pink', iconBg: 'bg-icon-bg-pink' },
+                { icon: DocumentTextIcon, label: 'Total Plans', value: idps.length, iconColor: 'text-accent-navy', iconBg: 'icon-tile-navy' },
+                { icon: CheckCircleIcon, label: 'Completion Rate', value: `${progress}%`, iconColor: 'text-accent-teal', iconBg: 'icon-tile-teal' },
+                { icon: AcademicCapIcon, label: 'Goals Achieved', value: completedGoals, iconColor: 'text-accent-gold-on-tint', iconBg: 'icon-tile-gold' },
+                { icon: ClockIcon, label: 'In Progress', value: inProgressGoals, iconColor: 'text-accent-pink', iconBg: 'icon-tile-pink' },
               ].map((metric) => (
                 <div key={metric.label} className="enterprise-card p-5 hover:-translate-y-px transition-all">
                   <div className="flex items-center gap-4">
@@ -256,12 +256,12 @@ export default function MyDevelopmentPage() {
                       {/* Goal Status Icon */}
                       <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
                         goal.status === 'COMPLETED'
-                          ? 'bg-icon-bg-teal text-accent-teal'
+                          ? 'icon-tile-teal'
                           : goal.status === 'IN_PROGRESS'
-                            ? 'bg-icon-bg-gold text-accent-gold-on-tint'
+                            ? 'icon-tile-gold-on-tint'
                             : goal.status === 'CANCELLED'
-                              ? 'bg-icon-bg-pink text-accent-pink'
-                              : 'bg-icon-bg-navy text-accent-navy'
+                              ? 'icon-tile-pink'
+                              : 'icon-tile-navy'
                       }`}>
                         {goal.status === 'COMPLETED' ? (
                           <CheckCircleIcon className="w-3 h-3" />
@@ -295,8 +295,8 @@ export default function MyDevelopmentPage() {
                           disabled={updatingGoal === goal.id}
                           className={`shrink-0 text-xs font-semibold px-3 py-1 rounded-button border-2 uppercase tracking-wide transition-all disabled:opacity-50 ${
                             goal.status === 'NOT_STARTED'
-                              ? 'border-accent-navy text-accent-navy bg-transparent hover:bg-icon-bg-navy'
-                              : 'border-accent-teal text-accent-teal bg-transparent hover:bg-icon-bg-teal'
+                              ? 'border-accent-navy bg-transparent hover:icon-tile-navy'
+                              : 'border-accent-teal bg-transparent hover:icon-tile-teal'
                           }`}
                         >
                           {updatingGoal === goal.id
@@ -396,12 +396,12 @@ export default function MyDevelopmentPage() {
                         >
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
                             goal.status === 'COMPLETED'
-                              ? 'bg-icon-bg-teal text-accent-teal'
+                              ? 'icon-tile-teal'
                               : goal.status === 'IN_PROGRESS'
-                                ? 'bg-icon-bg-gold text-accent-gold-on-tint'
+                                ? 'icon-tile-gold-on-tint'
                                 : goal.status === 'CANCELLED'
-                                  ? 'bg-icon-bg-pink text-accent-pink'
-                                  : 'bg-icon-bg-navy text-accent-navy'
+                                  ? 'icon-tile-pink'
+                                  : 'icon-tile-navy'
                           }`}>
                             {goal.status === 'COMPLETED' ? (
                               <CheckCircleIcon className="w-3 h-3" />
@@ -450,8 +450,8 @@ export default function MyDevelopmentPage() {
             {/* ===== Help / Info Footer ===== */}
             <div className="enterprise-card p-5">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-card bg-icon-bg-navy flex items-center justify-center shrink-0">
-                  <InformationCircleIcon className="w-5 h-5 text-accent-navy" />
+                <div className="w-10 h-10 rounded-card icon-tile-navy flex items-center justify-center shrink-0">
+                  <InformationCircleIcon className="w-5 h-5" />
                 </div>
                 <div>
                   <p className="text-[0.8125rem] font-semibold text-foreground mb-1">About your development plan</p>

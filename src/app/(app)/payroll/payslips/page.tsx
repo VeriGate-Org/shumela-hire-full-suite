@@ -412,8 +412,8 @@ export default function PayslipsPage() {
             {chartPayslips.length > 0 && (
               <div className="enterprise-card p-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-9 h-9 rounded-[10px] bg-icon-bg-navy flex items-center justify-center">
-                    <ChartBarIcon className="w-[18px] h-[18px] text-primary" />
+                  <div className="w-9 h-9 rounded-[10px] icon-tile-navy flex items-center justify-center">
+                    <ChartBarIcon className="w-[18px] h-[18px]" />
                   </div>
                   <h3 className="text-base font-bold text-foreground">Net Pay Trend &mdash; {selectedYear}</h3>
                 </div>
@@ -485,7 +485,7 @@ export default function PayslipsPage() {
                 {/* Earnings section */}
                 <div className="mb-5">
                   <div className="flex items-center gap-2.5 mb-3">
-                    <div className="w-7 h-7 rounded-lg bg-icon-bg-teal flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-lg icon-tile-teal flex items-center justify-center">
                       <svg className="w-3.5 h-3.5 text-accent-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
                     </div>
                     <h3 className="text-sm font-bold text-foreground">Earnings</h3>
@@ -509,7 +509,7 @@ export default function PayslipsPage() {
                 {/* Deductions section */}
                 <div className="mb-5">
                   <div className="flex items-center gap-2.5 mb-3">
-                    <div className="w-7 h-7 rounded-lg bg-icon-bg-pink flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-lg icon-tile-pink flex items-center justify-center">
                       <svg className="w-3.5 h-3.5 text-accent-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
                     </div>
                     <h3 className="text-sm font-bold text-foreground">Deductions</h3>

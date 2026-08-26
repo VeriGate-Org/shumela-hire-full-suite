@@ -43,12 +43,12 @@ function avatarColor(name: string | undefined): string {
 /*  Category badge colour map (design-system tokens)                  */
 /* ------------------------------------------------------------------ */
 const CATEGORY_STYLES: Record<string, string> = {
-  TEAMWORK: 'bg-icon-bg-navy text-accent-navy',
-  INNOVATION: 'bg-icon-bg-teal text-accent-teal',
+  TEAMWORK: 'icon-tile-navy',
+  INNOVATION: 'icon-tile-teal',
   CUSTOMER_SERVICE: 'bg-surface-teal text-accent-teal border border-icon-bg-teal',
-  LEADERSHIP: 'bg-icon-bg-gold text-accent-gold-on-tint',
-  GOING_ABOVE: 'bg-icon-bg-pink text-accent-pink',
-  EXCELLENCE: 'bg-icon-bg-pink text-accent-pink',
+  LEADERSHIP: 'icon-tile-gold-on-tint',
+  GOING_ABOVE: 'icon-tile-pink',
+  EXCELLENCE: 'icon-tile-pink',
   SERVICE: 'bg-surface-teal text-accent-teal border border-icon-bg-teal',
 };
 
@@ -228,8 +228,8 @@ export default function RecognitionPage() {
             {/* Total Recognitions */}
             <div className="enterprise-card p-5 hover:-translate-y-px transition-all">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-navy flex items-center justify-center shrink-0">
-                  <StarIcon className="w-6 h-6 text-accent-navy" />
+                <div className="w-12 h-12 rounded-card icon-tile-navy flex items-center justify-center shrink-0">
+                  <StarIcon className="w-6 h-6" />
                 </div>
                 <div className="min-w-0">
                   <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
@@ -245,7 +245,7 @@ export default function RecognitionPage() {
             {/* This Month */}
             <div className="enterprise-card p-5 hover:-translate-y-px transition-all">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-teal flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center shrink-0">
                   <svg className="w-6 h-6 text-accent-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                     <line x1="16" y1="2" x2="16" y2="6" />
@@ -267,7 +267,7 @@ export default function RecognitionPage() {
             {/* Most Recognized */}
             <div className="enterprise-card p-5 hover:-translate-y-px transition-all">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-gold flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-card icon-tile-gold flex items-center justify-center shrink-0">
                   <svg className="w-6 h-6 text-accent-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
@@ -287,7 +287,7 @@ export default function RecognitionPage() {
             {/* Top Category */}
             <div className="enterprise-card p-5 hover:-translate-y-px transition-all">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-pink flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-card icon-tile-pink flex items-center justify-center shrink-0">
                   <svg className="w-6 h-6 text-accent-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                     <circle cx="9" cy="7" r="4" />
@@ -410,7 +410,7 @@ export default function RecognitionPage() {
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <span
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-[0.02em] ${
-                          CATEGORY_STYLES[rec.category] || 'bg-icon-bg-navy text-accent-navy'
+                          CATEGORY_STYLES[rec.category] || 'icon-tile-navy'
                         }`}
                       >
                         <StarIcon className="w-3 h-3" />
@@ -485,7 +485,7 @@ export default function RecognitionPage() {
                         : idx === 1
                           ? 'bg-border text-foreground'
                           : idx === 2
-                            ? 'bg-icon-bg-gold text-accent-gold-on-tint'
+                            ? 'icon-tile-gold-on-tint'
                             : 'bg-background text-muted-foreground';
 
                     return (

@@ -21,28 +21,28 @@ const TYPE_CONFIG: Record<
   }
 > = {
   PHYSICAL: {
-    iconBg: 'bg-icon-bg-teal',
+    iconBg: 'icon-tile-teal',
     iconColor: 'text-accent-teal',
     labelBg: 'bg-surface-teal',
     labelColor: 'text-accent-teal',
     barFill: 'bg-accent-teal',
   },
   MENTAL: {
-    iconBg: 'bg-icon-bg-navy',
+    iconBg: 'icon-tile-navy',
     iconColor: 'text-accent-navy',
     labelBg: 'bg-surface-navy',
     labelColor: 'text-accent-navy',
     barFill: 'bg-accent-navy',
   },
   FINANCIAL: {
-    iconBg: 'bg-icon-bg-gold',
+    iconBg: 'icon-tile-gold',
     iconColor: 'text-accent-gold',
     labelBg: 'bg-surface-gold',
     labelColor: 'text-accent-gold',
     barFill: 'bg-accent-gold',
   },
   SOCIAL: {
-    iconBg: 'bg-icon-bg-pink',
+    iconBg: 'icon-tile-pink',
     iconColor: 'text-accent-pink',
     labelBg: 'bg-surface-pink',
     labelColor: 'text-accent-pink',
@@ -216,7 +216,7 @@ export default function WellnessPage() {
                 {
                   label: 'Participation Rate',
                   value: `${stats.participationRate}%`,
-                  iconBg: 'bg-icon-bg-navy',
+                  iconBg: 'icon-tile-navy',
                   iconColor: 'text-accent-navy',
                   icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
@@ -228,7 +228,7 @@ export default function WellnessPage() {
                 {
                   label: 'Active Programs',
                   value: String(stats.activeCount),
-                  iconBg: 'bg-icon-bg-teal',
+                  iconBg: 'icon-tile-teal',
                   iconColor: 'text-accent-teal',
                   icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
@@ -239,7 +239,7 @@ export default function WellnessPage() {
                 {
                   label: 'Total Participants',
                   value: String(stats.totalParticipants),
-                  iconBg: 'bg-icon-bg-gold',
+                  iconBg: 'icon-tile-gold',
                   iconColor: 'text-accent-gold',
                   icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
@@ -251,7 +251,7 @@ export default function WellnessPage() {
                 {
                   label: 'Program Types',
                   value: String(new Set(programs.map(p => p.programType)).size),
-                  iconBg: 'bg-icon-bg-pink',
+                  iconBg: 'icon-tile-pink',
                   iconColor: 'text-accent-pink',
                   icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">

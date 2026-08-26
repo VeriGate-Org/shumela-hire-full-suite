@@ -363,8 +363,8 @@ export default function TimeAttendancePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Hours This Week */}
               <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-navy flex items-center justify-center">
-                  <ClockIcon className="w-[22px] h-[22px] text-accent-navy" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl icon-tile-navy flex items-center justify-center">
+                  <ClockIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-2xl font-extrabold text-foreground leading-none mb-0.5">
@@ -378,8 +378,8 @@ export default function TimeAttendancePage() {
 
               {/* Days Present */}
               <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-teal flex items-center justify-center">
-                  <CalendarDaysIcon className="w-[22px] h-[22px] text-accent-teal" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl icon-tile-teal flex items-center justify-center">
+                  <CalendarDaysIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-2xl font-extrabold text-foreground leading-none mb-0.5">
@@ -393,8 +393,8 @@ export default function TimeAttendancePage() {
 
               {/* Overtime Hours */}
               <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-gold flex items-center justify-center">
-                  <ExclamationTriangleIcon className="w-[22px] h-[22px] text-accent-gold" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl icon-tile-gold flex items-center justify-center">
+                  <ExclamationTriangleIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-2xl font-extrabold text-foreground leading-none mb-0.5">
@@ -408,8 +408,8 @@ export default function TimeAttendancePage() {
 
               {/* Punctuality Rate */}
               <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-pink flex items-center justify-center">
-                  <CheckCircleIcon className="w-[22px] h-[22px] text-accent-pink" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl icon-tile-pink flex items-center justify-center">
+                  <CheckCircleIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-2xl font-extrabold text-foreground leading-none mb-0.5">
@@ -707,8 +707,8 @@ export default function TimeAttendancePage() {
                     href="/time-attendance/team"
                     className="border border-border rounded-card p-6 bg-card text-center hover:shadow-md hover:-translate-y-0.5 hover:border-primary transition-all block"
                   >
-                    <div className="w-14 h-14 rounded-[14px] bg-icon-bg-navy flex items-center justify-center mx-auto mb-3.5">
-                      <UsersIcon className="w-[26px] h-[26px] text-accent-navy" />
+                    <div className="w-14 h-14 rounded-[14px] icon-tile-navy flex items-center justify-center mx-auto mb-3.5">
+                      <UsersIcon className="w-[26px] h-[26px]" />
                     </div>
                     <h3 className="text-[15px] font-semibold text-foreground mb-1">
                       View Team Attendance
@@ -723,8 +723,8 @@ export default function TimeAttendancePage() {
                     href="/time-attendance/overtime"
                     className="border border-border rounded-card p-6 bg-card text-center hover:shadow-md hover:-translate-y-0.5 hover:border-primary transition-all block"
                   >
-                    <div className="w-14 h-14 rounded-[14px] bg-icon-bg-gold flex items-center justify-center mx-auto mb-3.5">
-                      <ClockIcon className="w-[26px] h-[26px] text-accent-gold" />
+                    <div className="w-14 h-14 rounded-[14px] icon-tile-gold flex items-center justify-center mx-auto mb-3.5">
+                      <ClockIcon className="w-[26px] h-[26px]" />
                     </div>
                     <h3 className="text-[15px] font-semibold text-foreground mb-1">
                       Approve Overtime
@@ -739,8 +739,8 @@ export default function TimeAttendancePage() {
                     href="/time-attendance/geofences"
                     className="border border-border rounded-card p-6 bg-card text-center hover:shadow-md hover:-translate-y-0.5 hover:border-primary transition-all block"
                   >
-                    <div className="w-14 h-14 rounded-[14px] bg-icon-bg-teal flex items-center justify-center mx-auto mb-3.5">
-                      <DocumentTextIcon className="w-[26px] h-[26px] text-accent-teal" />
+                    <div className="w-14 h-14 rounded-[14px] icon-tile-teal flex items-center justify-center mx-auto mb-3.5">
+                      <DocumentTextIcon className="w-[26px] h-[26px]" />
                     </div>
                     <h3 className="text-[15px] font-semibold text-foreground mb-1">
                       Geofences & Reports
