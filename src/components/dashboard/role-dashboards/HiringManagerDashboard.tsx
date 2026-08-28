@@ -11,6 +11,8 @@ import EmptyState from '@/components/EmptyState';
 import { BriefcaseIcon, CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 interface HiringManagerDashboardProps {
+  /** The role being viewed, as the switcher names it. */
+  roleLabel?: string;
   /** Handed down by the page, because this component owns the band. */
   actions?: React.ReactNode;
   selectedTimeframe: string;
@@ -226,7 +228,7 @@ function transformApplicationsToPipeline(applications: any[]): PipelineStage[] {
 // selectedTimeframe is still in the props so RoleDashboard's call site is unchanged, but it is
 // deliberately unused: /api/analytics/dashboard accepts only department and date, so passing it
 // re-fetched identical data. Making it real is a backend change with its own gate.
-export default function HiringManagerDashboard({ actions }: HiringManagerDashboardProps) {
+export default function HiringManagerDashboard({ actions, roleLabel }: HiringManagerDashboardProps) {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [metrics, setMetrics] = useState<MetricItem[]>(defaultMetrics);
@@ -385,7 +387,7 @@ export default function HiringManagerDashboard({ actions }: HiringManagerDashboa
     <div className="space-y-4 max-w-full overflow-hidden">
       <IdentityBand
         eyebrow="Your vacancies"
-        title="Hiring Manager"
+        title={roleLabel ?? 'Hiring Manager'}
         subtitle={
           typeof totalApplications === 'number'
             ? `${openPositions.length} ${openPositions.length === 1 ? 'role' : 'roles'} open · ${totalApplications} ${totalApplications === 1 ? 'candidate' : 'candidates'} in play`

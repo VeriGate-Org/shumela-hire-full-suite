@@ -21,6 +21,8 @@ import { DashboardWidget, PerformanceMetrics } from '../../dashboard';
 import { formatEnumValue } from '@/utils/enumLabels';
 
 interface AdminDashboardProps {
+  /** The role being viewed, as the switcher names it. */
+  roleLabel?: string;
   /** Handed down by the page, because this component owns the band. */
   actions?: React.ReactNode;
   selectedTimeframe: string;
@@ -128,7 +130,7 @@ const quickActions: QuickAction[] = [
   { label: 'Backup Database', surface: 'bg-surface-navy', borderColor: 'border-l-accent-navy', disabled: true },
 ];
 
-export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _onTimeframeChange, actions }: AdminDashboardProps) {
+export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _onTimeframeChange, actions, roleLabel }: AdminDashboardProps) {
   const router = useRouter();
   const [systemHealthData, setSystemHealthData] = useState<SystemHealthPoint[]>(defaultSystemHealthData);
   const [adminMetrics, setAdminMetrics] = useState<MetricItem[]>(defaultAdminMetrics);
@@ -231,7 +233,7 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
     <div className="space-y-4 max-w-full overflow-hidden">
       <IdentityBand
         eyebrow="System"
-        title="Admin"
+        title={roleLabel ?? 'Admin'}
         subtitle={
           userCount !== null
             ? `${userCount} ${userCount === 1 ? 'user' : 'users'} · ${recentEvents.length} recent ${recentEvents.length === 1 ? 'event' : 'events'}`

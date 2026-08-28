@@ -20,6 +20,8 @@ import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
 import { DashboardWidget } from '../../dashboard';
 
 interface ExecutiveDashboardProps {
+  /** The role being viewed, as the switcher names it. */
+  roleLabel?: string;
   /** Handed down by the page, because this component owns the band. */
   actions?: React.ReactNode;
   selectedTimeframe: string;
@@ -133,7 +135,7 @@ function formatCurrencyZar(value?: number): string {
   return `R${Math.round(value).toLocaleString()}`;
 }
 
-export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimeframe, actions }: ExecutiveDashboardProps) {
+export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimeframe, actions, roleLabel }: ExecutiveDashboardProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [hrOverview, setHrOverview] = useState<HrOverview | null>(null);
@@ -281,7 +283,7 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
     <div className="space-y-4 max-w-full overflow-hidden">
       <IdentityBand
         eyebrow="Organisation"
-        title="Executive"
+        title={roleLabel ?? 'Executive'}
         subtitle={
           requisitionSummary
             ? `${totalHeadcount} people · ${requisitionSummary.total} ${requisitionSummary.total === 1 ? 'requisition' : 'requisitions'}`

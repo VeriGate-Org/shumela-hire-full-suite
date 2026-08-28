@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { UserRole } from '../../contexts/AuthContext';
+import { ROLE_DISPLAY_NAMES, UserRole } from '../../contexts/AuthContext';
 import AdminDashboard from './role-dashboards/AdminDashboard';
 import HRDashboard from './role-dashboards/HRDashboard';
 import HiringManagerDashboard from './role-dashboards/HiringManagerDashboard';
@@ -30,7 +30,9 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
   onTimeframeChange,
   actions
 }) => {
-  const dashboardProps = { selectedTimeframe, onTimeframeChange, actions };
+    // The band titles itself with the role being viewed, from the same source the switcher reads —
+  // it said "Hiring Manager" while the switcher said "Viewing as Talent Acquisition".
+  const dashboardProps = { selectedTimeframe, onTimeframeChange, actions, roleLabel: ROLE_DISPLAY_NAMES[role] };
 
   switch (role) {
     case 'ADMIN':

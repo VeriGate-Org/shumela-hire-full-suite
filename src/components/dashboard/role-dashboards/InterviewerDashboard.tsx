@@ -8,6 +8,8 @@ import StatusPill from '@/components/StatusPill';
 import { getEnumLabel } from '@/utils/enumLabels';
 
 interface InterviewerDashboardProps {
+  /** The role being viewed, as the switcher names it. */
+  roleLabel?: string;
   /** Handed down by the page, because this component owns the band. */
   actions?: React.ReactNode;
   selectedTimeframe: string;
@@ -27,7 +29,7 @@ interface Interview {
 
 const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
   selectedTimeframe: _selectedTimeframe,
-  onTimeframeChange: _onTimeframeChange, actions }) => {
+  onTimeframeChange: _onTimeframeChange, actions, roleLabel }) => {
   const [upcomingInterviews, setUpcomingInterviews] = useState<Interview[]>([]);
   const [pendingFeedback, setPendingFeedback] = useState<Interview[]>([]);
   const [completedCount, setCompletedCount] = useState(0);
@@ -128,7 +130,7 @@ const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
     <div className="space-y-4 max-w-full overflow-hidden">
       <IdentityBand
         eyebrow="Your panel work"
-        title="Interviewer"
+        title={roleLabel ?? 'Interviewer'}
         subtitle={`${upcomingInterviews.length} ${upcomingInterviews.length === 1 ? 'interview' : 'interviews'} scheduled · ${completedCount} completed`}
         figures={[
           ...(pendingFeedback.length > 0

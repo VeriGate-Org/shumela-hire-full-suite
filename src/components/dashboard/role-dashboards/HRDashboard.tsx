@@ -8,6 +8,8 @@ import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics } from '../../dashboard';
 
 interface HRDashboardProps {
+  /** The role being viewed, as the switcher names it. */
+  roleLabel?: string;
   /** Handed down by the page, because this component owns the band. */
   actions?: React.ReactNode;
   selectedTimeframe: string;
@@ -95,7 +97,7 @@ const KPI_CONFIG: Record<string, { label: string; unit: 'number' | 'percentage' 
   time_to_hire: { label: 'Time to Hire', unit: 'days', target: 30, description: 'Average days from application to hire' },
 };
 
-export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onTimeframeChange, actions }: HRDashboardProps) {
+export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onTimeframeChange, actions, roleLabel }: HRDashboardProps) {
   const [metrics, setMetrics] = useState<MetricItem[]>([]);
   const [pipeline, setPipeline] = useState<PipelineDept[]>([]);
   const [lifecycle, setLifecycle] = useState<LifecycleItem[]>([]);
@@ -341,7 +343,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
     <div className="space-y-4 max-w-full overflow-hidden">
       <IdentityBand
         eyebrow="People operations"
-        title="HR"
+        title={roleLabel ?? 'HR'}
         subtitle={
           postingSummary
             ? `${postingSummary.total} ${postingSummary.total === 1 ? 'posting' : 'postings'} · ${postingSummary.openToApplicants} open to applicants`
