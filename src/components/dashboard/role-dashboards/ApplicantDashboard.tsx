@@ -9,6 +9,8 @@ import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
 
 interface ApplicantDashboardProps {
+  /** Handed down by the page, because this component owns the band. */
+  actions?: React.ReactNode;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
@@ -89,7 +91,7 @@ function formatRelativeDate(dateString: string): string {
   }
 }
 
-export default function ApplicantDashboard({ selectedTimeframe: _selectedTimeframe, onTimeframeChange: _onTimeframeChange }: ApplicantDashboardProps) {
+export default function ApplicantDashboard({ selectedTimeframe: _selectedTimeframe, onTimeframeChange: _onTimeframeChange, actions }: ApplicantDashboardProps) {
   const { user } = useAuth();
   const [statusCounts, setStatusCounts] = useState<StatusCount[]>([
     { status: 'Applied', count: 0, color: 'bg-gold-100 text-gold-800' },
@@ -242,6 +244,7 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
             tone: (upcomingInterviews.length > 0 ? 'positive' : undefined) as 'positive' | undefined,
           },
         ]}
+       actions={actions}
       />
 
       {nextInterview ? (

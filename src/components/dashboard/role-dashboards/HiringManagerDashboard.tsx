@@ -11,6 +11,8 @@ import EmptyState from '@/components/EmptyState';
 import { BriefcaseIcon, CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 interface HiringManagerDashboardProps {
+  /** Handed down by the page, because this component owns the band. */
+  actions?: React.ReactNode;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
@@ -224,7 +226,7 @@ function transformApplicationsToPipeline(applications: any[]): PipelineStage[] {
 // selectedTimeframe is still in the props so RoleDashboard's call site is unchanged, but it is
 // deliberately unused: /api/analytics/dashboard accepts only department and date, so passing it
 // re-fetched identical data. Making it real is a backend change with its own gate.
-export default function HiringManagerDashboard(_props: HiringManagerDashboardProps) {
+export default function HiringManagerDashboard({ actions }: HiringManagerDashboardProps) {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [metrics, setMetrics] = useState<MetricItem[]>(defaultMetrics);
@@ -399,6 +401,7 @@ export default function HiringManagerDashboard(_props: HiringManagerDashboardPro
             tone: (upcomingInterviews.length > 0 ? 'warning' : undefined) as 'warning' | undefined,
           },
         ]}
+       actions={actions}
       />
 
       {!loading && (

@@ -36,6 +36,8 @@ import {
  */
 
 interface RecruiterDashboardProps {
+  /** Handed down by the page, because this component owns the band. */
+  actions?: React.ReactNode;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
@@ -59,7 +61,7 @@ function relativeDay(iso?: string): string {
   return `${days} days ago`;
 }
 
-export default function RecruiterDashboard(_props: RecruiterDashboardProps) {
+export default function RecruiterDashboard({ actions }: RecruiterDashboardProps) {
   const [overview, setOverview] = useState<RecruiterOverview | null>(null);
   const [recent, setRecent] = useState<RecentApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -141,6 +143,7 @@ export default function RecruiterDashboard(_props: RecruiterDashboardProps) {
               ]
             : []
         }
+       actions={actions}
       />
 
       {owed.length > 0 && (

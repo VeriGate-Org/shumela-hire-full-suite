@@ -17,14 +17,20 @@ interface RoleDashboardProps {
   role: UserRole;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
+  /**
+   * The page's actions, handed to whichever role dashboard renders — that component owns the band,
+   * and the band owns the actions. The page was drawing a second band purely to hold them.
+   */
+  actions?: React.ReactNode;
 }
 
 const RoleDashboard: React.FC<RoleDashboardProps> = ({
   role,
   selectedTimeframe,
-  onTimeframeChange
+  onTimeframeChange,
+  actions
 }) => {
-  const dashboardProps = { selectedTimeframe, onTimeframeChange };
+  const dashboardProps = { selectedTimeframe, onTimeframeChange, actions };
 
   switch (role) {
     case 'ADMIN':

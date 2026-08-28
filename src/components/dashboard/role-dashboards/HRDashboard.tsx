@@ -8,6 +8,8 @@ import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics } from '../../dashboard';
 
 interface HRDashboardProps {
+  /** Handed down by the page, because this component owns the band. */
+  actions?: React.ReactNode;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
@@ -93,7 +95,7 @@ const KPI_CONFIG: Record<string, { label: string; unit: 'number' | 'percentage' 
   time_to_hire: { label: 'Time to Hire', unit: 'days', target: 30, description: 'Average days from application to hire' },
 };
 
-export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onTimeframeChange }: HRDashboardProps) {
+export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onTimeframeChange, actions }: HRDashboardProps) {
   const [metrics, setMetrics] = useState<MetricItem[]>([]);
   const [pipeline, setPipeline] = useState<PipelineDept[]>([]);
   const [lifecycle, setLifecycle] = useState<LifecycleItem[]>([]);
@@ -360,6 +362,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
               ]
             : []
         }
+       actions={actions}
       />
 
       {!loading && postingSummary && (

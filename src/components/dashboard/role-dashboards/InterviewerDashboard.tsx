@@ -8,6 +8,8 @@ import StatusPill from '@/components/StatusPill';
 import { getEnumLabel } from '@/utils/enumLabels';
 
 interface InterviewerDashboardProps {
+  /** Handed down by the page, because this component owns the band. */
+  actions?: React.ReactNode;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
@@ -25,8 +27,7 @@ interface Interview {
 
 const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
   selectedTimeframe: _selectedTimeframe,
-  onTimeframeChange: _onTimeframeChange,
-}) => {
+  onTimeframeChange: _onTimeframeChange, actions }) => {
   const [upcomingInterviews, setUpcomingInterviews] = useState<Interview[]>([]);
   const [pendingFeedback, setPendingFeedback] = useState<Interview[]>([]);
   const [completedCount, setCompletedCount] = useState(0);
@@ -141,6 +142,7 @@ const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
             value: averageRating === null ? 'No ratings recorded yet' : averageRating.toFixed(1),
           },
         ]}
+       actions={actions}
       />
 
       {pendingFeedback.length > 0 ? (

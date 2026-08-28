@@ -21,6 +21,8 @@ import { DashboardWidget, PerformanceMetrics } from '../../dashboard';
 import { formatEnumValue } from '@/utils/enumLabels';
 
 interface AdminDashboardProps {
+  /** Handed down by the page, because this component owns the band. */
+  actions?: React.ReactNode;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
@@ -126,7 +128,7 @@ const quickActions: QuickAction[] = [
   { label: 'Backup Database', surface: 'bg-surface-navy', borderColor: 'border-l-accent-navy', disabled: true },
 ];
 
-export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _onTimeframeChange }: AdminDashboardProps) {
+export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _onTimeframeChange, actions }: AdminDashboardProps) {
   const router = useRouter();
   const [systemHealthData, setSystemHealthData] = useState<SystemHealthPoint[]>(defaultSystemHealthData);
   const [adminMetrics, setAdminMetrics] = useState<MetricItem[]>(defaultAdminMetrics);
@@ -243,6 +245,7 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
           ...(userCount !== null ? [{ label: 'Users', value: userCount }] : []),
           { label: 'Recent events', value: recentEvents.length },
         ]}
+       actions={actions}
       />
 
       <DecisionBar

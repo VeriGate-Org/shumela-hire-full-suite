@@ -19,6 +19,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DashboardWidget } from '../../dashboard';
 
 interface LineManagerDashboardProps {
+  /** Handed down by the page, because this component owns the band. */
+  actions?: React.ReactNode;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
@@ -123,7 +125,7 @@ function KpiTile({ label, value, icon: Icon, tone, href, onClick }: KpiTileProps
   );
 }
 
-export default function LineManagerDashboard({ selectedTimeframe: _selectedTimeframe }: LineManagerDashboardProps) {
+export default function LineManagerDashboard({ selectedTimeframe: _selectedTimeframe, actions }: LineManagerDashboardProps) {
   const { user } = useAuth();
   const router = useRouter();
   const managerId = user?.employeeId || '';
@@ -275,6 +277,7 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
             ? [{ label: 'Awaiting you', value: awaiting, tone: 'warning' as const }]
             : []),
         ]}
+       actions={actions}
       />
 
       {!loading && (
