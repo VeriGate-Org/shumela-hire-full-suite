@@ -45,6 +45,20 @@
   --sidebar-width: 260px;
   --sidebar-link-color: #5B9BD5;
 
+  /* The section panel beside the rail. Light here, dark under .dark — the rail itself never moves.
+     Solved against white: labels 4.97:1, hover rail 3.10:1, active rail 4.90:1. Gold still means
+     "you are here", in the darker gold the system already keeps for light grounds, because --cta
+     manages only 1.64:1 on white and cannot carry an indicator there. */
+  --nav-panel-bg: #FFFFFF;
+  --nav-panel-border: #E2E8F0;
+  --nav-fg: #617188;
+  --nav-fg-strong: #0F172A;
+  --nav-hover-bg: #F1F5F9;
+  --nav-hover-rail: #0999EB;
+  --nav-active-bg: #F0F7FB;
+  --nav-active-fg: #05527E;
+  --nav-active-rail: #8A6D21;
+
   /* Brand Radius — contemporary */
   --radius: 10px;
   --radius-control: 8px;
@@ -179,6 +193,17 @@
   --ring: #60A5FA;
 
   --sidebar-bg: #0B1929;
+
+  /* Dark: the panel matches the rail again, and the original white-alpha values return. */
+  --nav-panel-bg: #0B1929;
+  --nav-panel-border: rgba(255, 255, 255, 0.08);
+  --nav-fg: rgba(255, 255, 255, 0.6);
+  --nav-fg-strong: rgba(255, 255, 255, 0.9);
+  --nav-hover-bg: rgba(255, 255, 255, 0.04);
+  --nav-hover-rail: #5B9BD5;
+  --nav-active-bg: rgba(255, 255, 255, 0.05);
+  --nav-active-fg: #5B9BD5;
+  --nav-active-rail: #F1C54B;
 
   --cta: #F1C54B;
   --cta-foreground: #0F172A;
@@ -540,26 +565,84 @@
     font-weight: 700;
   }
 
-  /* Sidebar navigation — dark navy (matches mock) */
+  /* Sidebar navigation.
+   *
+   * Two surfaces, and they no longer behave the same. The rail is #0B1929 in both themes — it holds
+   * icons and no text, so the gold "you are here" marker keeps the 10.82:1 it only reaches on a
+   * dark ground. The panel beside it is all text, and it follows the theme.
+   *
+   * That split is why the panel needs its own tokens rather than the white-alpha the whole menu was
+   * built from: white at 4% means nothing on a white panel. The eight --nav-* values below are the
+   * whole of the difference between the two themes.
+   *
+   * Indicators are inset shadows, not borders. A border widens the box, so every label would shift
+   * three pixels sideways as the pointer crossed it unless the padding compensated in every state.
+   */
+
+  /* ── The rail: dark in both themes ────────────────────────────────── */
+  .rail-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 44px;
+    color: rgba(255, 255, 255, 0.55);
+    box-shadow: inset 3px 0 0 transparent;
+    transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+  }
+
+  .rail-item:hover,
+  .rail-item:focus-visible {
+    color: rgba(255, 255, 255, 0.92);
+    background-color: rgba(255, 255, 255, 0.05);
+    box-shadow: inset 3px 0 0 var(--sidebar-link-color);
+    outline: none;
+  }
+
+  /* Which section's panel is showing — weaker than "where you are", stronger than nothing. */
+  .rail-item-open {
+    color: rgba(255, 255, 255, 0.92);
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .rail-item-active,
+  .rail-item-active:hover,
+  .rail-item-active:focus-visible {
+    color: var(--cta);
+    background-color: rgba(255, 255, 255, 0.07);
+    box-shadow: inset 3px 0 0 var(--cta);
+  }
+
+  /* ── The panel: follows the theme ─────────────────────────────────── */
   .sidebar-link {
     display: block;
     padding: 10px 20px 10px 56px;
     font-size: 14px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--nav-fg);
     text-decoration: none;
-    transition: color 0.15s ease, background-color 0.15s ease;
+    box-shadow: inset 3px 0 0 transparent;
+    transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     cursor: pointer;
   }
 
-  .sidebar-link:hover {
-    color: rgba(255, 255, 255, 0.9);
-    background-color: rgba(255, 255, 255, 0.04);
+  /* Keyboard focus draws what the pointer draws. The menu had no focus state at all. */
+  .sidebar-link:hover,
+  .sidebar-link:focus-visible {
+    color: var(--nav-fg-strong);
+    background-color: var(--nav-hover-bg);
+    box-shadow: inset 3px 0 0 var(--nav-hover-rail);
   }
 
-  .sidebar-link-active {
-    color: var(--sidebar-link-color);
-    background-color: rgba(255, 255, 255, 0.05);
+  /* Listed after the hover rules and matching their specificity, so pointing at the page you are
+     already on does not replace the gold rail with the blue one. */
+  .sidebar-link-active,
+  .sidebar-link-active:hover,
+  .sidebar-link-active:focus-visible {
+    color: var(--nav-active-fg);
+    background-color: var(--nav-active-bg);
+    box-shadow: inset 3px 0 0 var(--nav-active-rail);
   }
 
   .sidebar-group-header {
@@ -569,15 +652,18 @@
     padding: 16px 20px;
     font-size: 15px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--nav-fg-strong);
     cursor: pointer;
-    transition: color 0.15s ease, background-color 0.15s ease;
+    box-shadow: inset 3px 0 0 transparent;
+    transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     user-select: none;
   }
 
-  .sidebar-group-header:hover {
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.04);
+  .sidebar-group-header:hover,
+  .sidebar-group-header:focus-visible {
+    color: var(--nav-fg-strong);
+    background-color: var(--nav-hover-bg);
+    box-shadow: inset 3px 0 0 var(--nav-hover-rail);
   }
 
   .sidebar-single-link {
@@ -587,20 +673,28 @@
     padding: 16px 20px;
     font-size: 15px;
     font-weight: 500;
-    color: var(--sidebar-link-color);
+    color: var(--nav-fg);
     text-decoration: none;
-    transition: color 0.15s ease, background-color 0.15s ease;
+    box-shadow: inset 3px 0 0 transparent;
+    transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     cursor: pointer;
   }
 
-  .sidebar-single-link:hover {
-    color: #93C5FD;
-    background-color: rgba(255, 255, 255, 0.04);
+  .sidebar-single-link:hover,
+  .sidebar-single-link:focus-visible {
+    color: var(--nav-fg-strong);
+    background-color: var(--nav-hover-bg);
+    box-shadow: inset 3px 0 0 var(--nav-hover-rail);
   }
 
-  .sidebar-single-link-active {
-    color: var(--sidebar-link-color);
+  .sidebar-single-link-active,
+  .sidebar-single-link-active:hover,
+  .sidebar-single-link-active:focus-visible {
+    color: var(--nav-active-fg);
+    background-color: var(--nav-active-bg);
+    box-shadow: inset 3px 0 0 var(--nav-active-rail);
   }
+
 
   /* Solid icon tiles.
    *
@@ -620,7 +714,6 @@
   /* An icon inside the tile inherits it, beating any colour utility left on the glyph itself. */
   .icon-tile-navy > svg, .icon-tile-teal > svg,
   .icon-tile-gold > svg, .icon-tile-pink > svg { color: inherit; }
-
   .sidebar-divider {
     height: 1px;
     background-color: rgba(255, 255, 255, 0.08);
