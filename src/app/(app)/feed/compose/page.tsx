@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { feedService } from '@/services/feedService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -55,7 +56,12 @@ export default function ComposePostPage() {
   }
 
   return (
-    <PageWrapper title="New Post" subtitle="Share with your organisation">
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Engagement"
+        title="New Post"
+        subtitle="Share with your organisation"
+      />
       <FeatureGate feature="SOCIAL_FEED">
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Back Link */}

@@ -21,6 +21,7 @@ import {
   BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { InlineLoading } from '@/components/LoadingComponents';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
@@ -201,10 +202,12 @@ export default function EmployeeDetailPage() {
   ];
 
   return (
-    <PageWrapper
-      title={employee ? fullName(employee) : 'Employee'}
-      subtitle={employee ? employee.jobTitle || '' : ''}
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="HR"
+        title={employee ? fullName(employee) : 'Employee'}
+        subtitle={employee ? employee.jobTitle || '' : ''}
+        actions={
         <button
           type="button"
           onClick={() => router.push('/employee?managerId=me')}
@@ -214,7 +217,7 @@ export default function EmployeeDetailPage() {
           Back to team
         </button>
       }
-    >
+      />
       {loading ? (
         <div className="enterprise-card p-6">
           <InlineLoading message="Loading employee..." />

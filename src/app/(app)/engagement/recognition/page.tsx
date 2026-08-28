@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { engagementService, Recognition, LeaderboardEntry } from '@/services/engagementService';
 import { StarIcon, SparklesIcon } from '@heroicons/react/24/outline';
@@ -195,10 +196,12 @@ export default function RecognitionPage() {
   /*  Render                                                          */
   /* ---------------------------------------------------------------- */
   return (
-    <PageWrapper
-      title="Peer Recognition Wall"
-      subtitle="Celebrate and recognise your colleagues"
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Engagement"
+        title="Peer Recognition Wall"
+        subtitle="Celebrate and recognise your colleagues"
+        actions={
         <Link
           href="/engagement/recognition/give"
           className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold uppercase tracking-wide rounded-full border-2 border-cta bg-cta text-cta-foreground hover:bg-cta-hover hover:border-cta-hover transition-all"
@@ -207,7 +210,7 @@ export default function RecognitionPage() {
           Give Recognition
         </Link>
       }
-    >
+      />
       <FeatureGate
         feature="RECOGNITION_REWARDS"
         fallback={

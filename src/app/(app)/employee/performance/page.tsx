@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { InlineLoading } from '@/components/LoadingComponents';
 import StatusPill from '@/components/StatusPill';
@@ -111,7 +112,12 @@ export default function MyPerformancePage() {
 
   return (
     <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
-      <PageWrapper title="My Performance" subtitle="Your performance contract, goals, and review status">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="My Performance"
+          subtitle="Your performance contract, goals, and review status"
+        />
         {loading ? (
           <InlineLoading message="Loading your performance data..." />
         ) : !activeContract ? (

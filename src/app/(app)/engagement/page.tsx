@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { engagementService, Survey, Recognition, WellnessProgram, LeaderboardEntry } from '@/services/engagementService';
 import {
@@ -156,7 +157,13 @@ export default function EngagementDashboardPage() {
   /* ----- Loading skeleton state ----- */
   if (loading) {
     return (
-      <PageWrapper title="Engagement Hub" subtitle="Employee engagement, recognition and wellness" actions={headerActions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Engagement"
+          title="Engagement Hub"
+          subtitle="Employee engagement, recognition and wellness"
+          actions={headerActions}
+        />
         {/* Skeleton stats bar */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {[...Array(4)].map((_, i) => (
@@ -256,7 +263,13 @@ export default function EngagementDashboardPage() {
   }
 
   return (
-    <PageWrapper title="Engagement Hub" subtitle="Employee engagement, recognition and wellness" actions={headerActions}>
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Engagement"
+        title="Engagement Hub"
+        subtitle="Employee engagement, recognition and wellness"
+        actions={headerActions}
+      />
       <div className="space-y-6">
 
         {/* ============================================================ */}

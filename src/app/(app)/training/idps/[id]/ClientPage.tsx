@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { trainingService, IndividualDevelopmentPlan, IDPGoal } from '@/services/trainingService';
 import {
@@ -128,7 +129,12 @@ export default function IDPDetailPage() {
   if (loading) {
     return (
       <FeatureGate feature="TRAINING_MANAGEMENT">
-        <PageWrapper title="Development Plan" subtitle="Loading...">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="Development Plan"
+            subtitle="Loading..."
+          />
           <div className="flex items-center justify-center h-96">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
@@ -140,7 +146,12 @@ export default function IDPDetailPage() {
   if (error || !idp) {
     return (
       <FeatureGate feature="TRAINING_MANAGEMENT">
-        <PageWrapper title="Development Plan" subtitle="Error loading plan">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="Development Plan"
+            subtitle="Error loading plan"
+          />
           <div className="enterprise-card p-8 text-center">
             <ClipboardDocumentListIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-1">{error || 'Plan not found'}</h3>
@@ -171,7 +182,12 @@ export default function IDPDetailPage() {
 
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">
-      <PageWrapper title={idp.title} subtitle="Individual Development Plan">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title={idp.title}
+          subtitle="Individual Development Plan"
+        />
         <div className="space-y-6">
           {/* Back link */}
           <Link

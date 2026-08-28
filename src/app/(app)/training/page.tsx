@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import EmptyState from '@/components/EmptyState';
 import { apiFetch } from '@/lib/api-fetch';
 import { useAuth } from '@/contexts/AuthContext';
@@ -250,11 +251,13 @@ export default function TrainingPage() {
   ) : undefined;
 
   return (
-    <PageWrapper
-      title="Training & Development"
-      subtitle="Browse courses, track progress, and manage certifications"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Talent"
+        title="Training & Development"
+        subtitle="Browse courses, track progress, and manage certifications"
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* Stats Bar - 3-column grid matching mock */}
         {stats && (

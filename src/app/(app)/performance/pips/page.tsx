@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { performanceEnhancementService, Pip } from '@/services/performanceEnhancementService';
 import { ExclamationTriangleIcon, CheckCircleIcon, ClockIcon, PlusIcon, TrashIcon, DocumentTextIcon, CalendarIcon, ChartBarIcon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -166,15 +167,17 @@ export default function PipsPage() {
 
   return (
     <FeatureGate feature="PERFORMANCE_PIP">
-      <PageWrapper
-        title="Performance Improvement"
-        subtitle="Manage performance improvement plans, track milestones, and monitor employee progress"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Performance Improvement"
+          subtitle="Manage performance improvement plans, track milestones, and monitor employee progress"
+          actions={
           <button onClick={() => setShowCreateForm(!showCreateForm)} className="btn-cta inline-flex items-center gap-2">
             <PlusIcon className="w-4 h-4" /> Create PIP
           </button>
         }
-      >
+        />
         <div className="space-y-6">
 
           {/* ====== STAT CARDS ====== */}

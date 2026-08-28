@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { performanceEnhancementService, FeedbackRequest } from '@/services/performanceEnhancementService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -125,7 +126,11 @@ export default function ProvideFeedbackPage() {
   if (loading) {
     return (
       <FeatureGate feature="PERFORMANCE_360_FEEDBACK">
-        <PageWrapper title="Provide Feedback">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="Provide Feedback"
+          />
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500" />
           </div>
@@ -137,7 +142,11 @@ export default function ProvideFeedbackPage() {
   if (error || !request) {
     return (
       <FeatureGate feature="PERFORMANCE_360_FEEDBACK">
-        <PageWrapper title="Provide Feedback">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="Provide Feedback"
+          />
           <div className="bg-white rounded-[10px] border border-gray-200 p-6 text-center">
             <p className="text-red-600 mb-4">{error || 'Feedback request not found'}</p>
             <div className="flex justify-center gap-4">
@@ -159,7 +168,12 @@ export default function ProvideFeedbackPage() {
 
   return (
     <FeatureGate feature="PERFORMANCE_360_FEEDBACK">
-      <PageWrapper title="Provide Feedback" subtitle={`Feedback for ${request.employeeName}`}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Provide Feedback"
+          subtitle={`Feedback for ${request.employeeName}`}
+        />
         {/* Back Link */}
         <Link
           href="/performance/360"

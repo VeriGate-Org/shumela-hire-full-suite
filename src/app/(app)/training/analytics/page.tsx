@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { trainingService, TrainingAnalytics } from '@/services/trainingService';
 import {
@@ -51,7 +52,12 @@ export default function TrainingAnalyticsPage() {
   if (loading) {
     return (
       <FeatureGate feature="TRAINING_MANAGEMENT">
-        <PageWrapper title="Training Analytics" subtitle="Loading...">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Analytics"
+            title="Training Analytics"
+            subtitle="Loading..."
+          />
           <div className="text-center py-12 text-gray-500">Loading analytics...</div>
         </PageWrapper>
       </FeatureGate>
@@ -78,17 +84,19 @@ export default function TrainingAnalyticsPage() {
 
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">
-      <PageWrapper
-        title="Training Analytics"
-        subtitle="Overview of training and development metrics"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Analytics"
+          title="Training Analytics"
+          subtitle="Overview of training and development metrics"
+          actions={
           <button onClick={analyzeRoi} disabled={aiLoading || !analytics}
             className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm disabled:opacity-50 flex items-center gap-1">
             <SparklesIcon className="h-4 w-4" />
             {aiLoading ? 'Analysing...' : 'AI ROI Analysis'}
           </button>
         }
-      >
+        />
         <div className="space-y-6">
           {aiRoi && (
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">

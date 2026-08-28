@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import SageSyncStatus from '@/components/integrations/SageSyncStatus';
 import {
@@ -65,11 +66,13 @@ export default function SageDashboardPage() {
 
   return (
     <FeatureGate feature="SAGE_300_PEOPLE">
-      <PageWrapper
-        title="Sage 300 People"
-        subtitle="When an offer is accepted, ShumelaHire creates that person in Sage with their salary and tax details."
-        actions={actions}
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="Sage 300 People"
+          subtitle="When an offer is accepted, ShumelaHire creates that person in Sage with their salary and tax details."
+          actions={actions}
+        />
         {loading ? (
           /* ========== SKELETON STATE ========== */
           <div className="space-y-6">

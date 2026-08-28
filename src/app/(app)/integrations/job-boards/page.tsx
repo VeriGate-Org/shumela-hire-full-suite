@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api-fetch';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { linkedInSocialService, LinkedInConnectionStatus } from '@/services/linkedInSocialService';
 import { ConnectorScreen, Panel, DeploymentSetting, OperatorNote } from '../ConnectorScreen';
@@ -81,7 +82,12 @@ export default function JobBoardsPage() {
 
   if (!hasAccess) {
     return (
-      <PageWrapper title="Job boards" subtitle="You do not have permission to view integrations">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="Job boards"
+          subtitle="You do not have permission to view integrations"
+        />
         <div className="enterprise-card p-8 text-center">
           <p className="text-sm text-muted-foreground">
             Integrations are managed by administrators and HR managers.

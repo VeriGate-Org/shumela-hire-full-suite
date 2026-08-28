@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { useToast } from '@/components/Toast';
 import {
@@ -164,11 +165,13 @@ export default function PayslipsPage() {
 
   return (
     <FeatureGate feature="payroll" fallback={null}>
-      <PageWrapper
-        title="My Payslips"
-        subtitle="View and download your monthly payslips"
-        actions={actions}
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="My Payslips"
+          subtitle="View and download your monthly payslips"
+          actions={actions}
+        />
         {/* ========== LOADING STATE ========== */}
         {loading && (
           <div className="space-y-6 max-w-[1100px] mx-auto">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import LeaveBalanceCards from '@/components/leave/LeaveBalanceCards';
 import { LeaveBalance, LeaveRequest, leaveService } from '@/services/leaveService';
@@ -80,10 +81,12 @@ export default function LeaveDashboardPage() {
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">
-      <PageWrapper
-        title="Leave Management"
-        subtitle="Request leave, view balances, and track approval status"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Leave Management"
+          subtitle="Request leave, view balances, and track approval status"
+          actions={
           <Link
             href="/leave/request"
             className="btn-cta inline-flex items-center gap-2"
@@ -91,7 +94,7 @@ export default function LeaveDashboardPage() {
             <PlusIcon className="w-4 h-4" /> Request Leave
           </Link>
         }
-      >
+        />
         <div className="space-y-6">
 
           {/* ====== BALANCE STRIP ====== */}

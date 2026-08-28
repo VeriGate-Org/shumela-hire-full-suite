@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import LeaveRequestForm from '@/components/leave/LeaveRequestForm';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,7 +15,12 @@ export default function LeaveRequestPage() {
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">
-      <PageWrapper title="Request Leave" subtitle="Submit a new leave request">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Request Leave"
+          subtitle="Submit a new leave request"
+        />
         <div className="max-w-2xl">
           <LeaveRequestForm
             employeeId={employeeId}

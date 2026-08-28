@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { trainingService, TrainingSession } from '@/services/trainingService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -74,10 +75,12 @@ export default function TrainingSessionsPage() {
 
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">
-      <PageWrapper
-        title="Training Sessions"
-        subtitle="View and enroll in upcoming training sessions"
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Training Sessions"
+          subtitle="View and enroll in upcoming training sessions"
+        />
         <div className="space-y-6">
           {/* View Toggle */}
           <div className="flex gap-2">

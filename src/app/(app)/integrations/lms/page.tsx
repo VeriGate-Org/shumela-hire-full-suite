@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { lmsService, LmsConnector, LmsSyncLog } from '@/services/lmsService';
 import { useToast } from '@/components/Toast';
@@ -134,10 +135,12 @@ export default function LmsIntegrationPage() {
 
   return (
     <FeatureGate feature="LMS_INTEGRATION">
-      <PageWrapper
-        title="Learning management"
-        subtitle="Course completions come back from your LMS, so a person's training record here matches what they have actually finished."
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="Learning management"
+          subtitle="Course completions come back from your LMS, so a person's training record here matches what they have actually finished."
+        />
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500" />

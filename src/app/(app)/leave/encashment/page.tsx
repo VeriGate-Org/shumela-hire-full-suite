@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { leaveService, LeaveType, LeaveEncashmentRequest } from '@/services/leaveService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -170,7 +171,12 @@ export default function LeaveEncashmentPage() {
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">
-      <PageWrapper title="Leave Encashment" subtitle="Convert unused leave days to cash payout">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Leave Encashment"
+          subtitle="Convert unused leave days to cash payout"
+        />
         {loading ? (
           <div className="enterprise-card p-8 text-center text-muted-foreground">Loading...</div>
         ) : (

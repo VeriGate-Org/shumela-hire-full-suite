@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { TableSkeleton } from '@/components/LoadingComponents';
 import { ShiftSchedule, Shift, shiftService } from '@/services/shiftService';
@@ -190,10 +191,12 @@ export default function ShiftSchedulingPage() {
 
   return (
     <FeatureGate feature="SHIFT_SCHEDULING">
-      <PageWrapper
-        title="Shift Scheduling"
-        subtitle="Manage weekly shift assignments for your teams"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Shift Scheduling"
+          subtitle="Manage weekly shift assignments for your teams"
+          actions={
           <div className="flex items-center gap-3 flex-wrap">
             <Link href="/shift-scheduling/manage"
               className="btn-cta inline-flex items-center gap-2">
@@ -201,7 +204,7 @@ export default function ShiftSchedulingPage() {
             </Link>
           </div>
         }
-      >
+        />
         <div className="space-y-4">
 
           {/* ====== Stats Bar ====== */}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { hrAnalyticsService } from '@/services/hrAnalyticsService';
 import { engagementService, WellnessProgram } from '@/services/engagementService';
@@ -103,7 +104,12 @@ export default function WellnessIndicatorsPage() {
   if (loading) {
     return (
       <FeatureGate feature="WELLNESS_PROGRAMS">
-        <PageWrapper title="Wellness Indicators" subtitle="Loading...">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Engagement"
+            title="Wellness Indicators"
+            subtitle="Loading..."
+          />
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
@@ -135,7 +141,12 @@ export default function WellnessIndicatorsPage() {
 
   return (
     <FeatureGate feature="WELLNESS_PROGRAMS">
-      <PageWrapper title="Wellness Indicators" subtitle="Employee wellness monitoring, burnout risk assessment, and program participation">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Engagement"
+          title="Wellness Indicators"
+          subtitle="Employee wellness monitoring, burnout risk assessment, and program participation"
+        />
         <div className="space-y-6">
           {/* Summary KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { hrAnalyticsService } from '@/services/hrAnalyticsService';
 import { useToast } from '@/components/Toast';
@@ -135,7 +136,12 @@ export default function WorkforcePlanningPage() {
 
   return (
     <FeatureGate feature="PREDICTIVE_ANALYTICS">
-      <PageWrapper title="Workforce Planning" subtitle="Attrition risk analysis and succession planning">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Analytics"
+          title="Workforce Planning"
+          subtitle="Attrition risk analysis and succession planning"
+        />
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500" />

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { useFeatureGate } from '@/contexts/FeatureGateContext';
 import AiSmartSearch from '@/components/ai/AiSmartSearch';
@@ -120,7 +121,12 @@ export default function AiToolsPage() {
       // Without a fallback this renders null, so a navigation item leads to a blank page on any
       // tenant without AI. An empty screen reads as a broken page; "not enabled" reads as an answer.
       fallback={
-        <PageWrapper title="AI Tools" subtitle="Not enabled for this organisation">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="AI Tools"
+            title="AI Tools"
+            subtitle="Not enabled for this organisation"
+          />
           <div className="enterprise-card p-8 text-center max-w-lg mx-auto">
             <h2 className="text-lg font-bold text-foreground mb-2">AI features are switched off</h2>
             <p className="text-sm text-muted-foreground">
@@ -133,7 +139,12 @@ export default function AiToolsPage() {
       // A whole route must not flash the "switched off" message before the flags resolve — that
       // reads as a definite answer, and it is the wrong one for most tenants.
       loading={
-        <PageWrapper title="AI Tools" subtitle="Every AI feature in this platform, and where it runs">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="AI Tools"
+            title="AI Tools"
+            subtitle="Every AI feature in this platform, and where it runs"
+          />
           <div className="enterprise-card p-8 text-center max-w-lg mx-auto">
             <p className="text-sm text-muted-foreground">Checking which features are enabled…</p>
           </div>
@@ -154,10 +165,12 @@ function AiToolsContent() {
   const highRisk = highRiskFeatures();
 
   return (
-    <PageWrapper
-      title="AI Tools"
-      subtitle="Every AI feature in this platform, and where it runs"
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="AI Tools"
+        title="AI Tools"
+        subtitle="Every AI feature in this platform, and where it runs"
+      />
       <div className="space-y-6">
         {/* The question worth answering first is not "what AI exists" but "what is it deciding
             about our candidates". All five high-risk features run inside other screens. */}

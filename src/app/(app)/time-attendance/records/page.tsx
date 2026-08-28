@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { AttendanceRecord, attendanceService, PageResponse } from '@/services/attendanceService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,7 +35,12 @@ export default function AttendanceRecordsPage() {
 
   return (
     <FeatureGate feature="TIME_ATTENDANCE">
-      <PageWrapper title="Attendance Records" subtitle="View your attendance history">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Attendance Records"
+          subtitle="View your attendance history"
+        />
         {loading ? (
           <div className="enterprise-card p-6"><TableSkeleton /></div>
         ) : records.length === 0 ? (

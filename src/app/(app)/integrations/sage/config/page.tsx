@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import SageConfigForm from '@/components/integrations/SageConfigForm';
 import {
@@ -108,11 +109,13 @@ export default function SageConfigPage() {
 
   return (
     <FeatureGate feature="SAGE_300_PEOPLE">
-      <PageWrapper
-        title="Sage Connector Configuration"
-        subtitle="Configure and manage connections to Sage payroll systems"
-        actions={actions}
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="Sage Connector Configuration"
+          subtitle="Configure and manage connections to Sage payroll systems"
+          actions={actions}
+        />
         {showForm ? (
           <SageConfigForm
             connector={editingConnector}

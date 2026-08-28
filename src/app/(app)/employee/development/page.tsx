@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { InlineLoading } from '@/components/LoadingComponents';
 import StatusPill from '@/components/StatusPill';
@@ -120,7 +121,12 @@ export default function MyDevelopmentPage() {
 
   return (
     <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
-      <PageWrapper title="My Development" subtitle="Your individual development plan and goals">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="My Development"
+          subtitle="Your individual development plan and goals"
+        />
         {loading ? (
           <InlineLoading message="Loading your development plan..." />
         ) : !activeIdp ? (

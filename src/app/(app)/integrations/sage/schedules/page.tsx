@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import SageScheduleForm from '@/components/integrations/SageScheduleForm';
 import SageSyncStatus from '@/components/integrations/SageSyncStatus';
@@ -135,11 +136,13 @@ export default function SageSchedulesPage() {
 
   return (
     <FeatureGate feature="SAGE_300_PEOPLE">
-      <PageWrapper
-        title="Sync Schedules"
-        subtitle="Manage automated synchronization schedules between ShumelaHire and Sage"
-        actions={actions}
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="Sync Schedules"
+          subtitle="Manage automated synchronization schedules between ShumelaHire and Sage"
+          actions={actions}
+        />
         {showForm ? (
           <SageScheduleForm
             schedule={editingSchedule}

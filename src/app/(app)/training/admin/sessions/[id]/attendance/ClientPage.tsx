@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import {
   trainingService,
@@ -126,7 +127,12 @@ export default function AttendanceRegisterPage() {
   if (loading) {
     return (
       <FeatureGate feature="TRAINING_MANAGEMENT">
-        <PageWrapper title="Attendance Register" subtitle="Loading...">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="Attendance Register"
+            subtitle="Loading..."
+          />
           <div className="flex items-center justify-center h-96">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
@@ -138,7 +144,12 @@ export default function AttendanceRegisterPage() {
   if (error) {
     return (
       <FeatureGate feature="TRAINING_MANAGEMENT">
-        <PageWrapper title="Attendance Register" subtitle="Error">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="Attendance Register"
+            subtitle="Error"
+          />
           <div className="enterprise-card p-8 text-center">
             <UserGroupIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-1">{error}</h3>
@@ -165,10 +176,12 @@ export default function AttendanceRegisterPage() {
 
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">
-      <PageWrapper
-        title="Attendance Register"
-        subtitle={session ? `${session.courseTitle} - ${session.courseCode}` : 'Session Attendance'}
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Attendance Register"
+          subtitle={session ? `${session.courseTitle} - ${session.courseCode}` : 'Session Attendance'}
+          actions={
           <button
             onClick={handleSaveAll}
             disabled={saving}
@@ -177,7 +190,7 @@ export default function AttendanceRegisterPage() {
             {saving ? 'Saving...' : 'Save All'}
           </button>
         }
-      >
+        />
         <div className="space-y-6">
           {/* Back link */}
           <Link

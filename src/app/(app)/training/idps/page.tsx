@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { trainingService, IndividualDevelopmentPlan } from '@/services/trainingService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -98,7 +99,11 @@ export default function IDPsPage() {
 
   if (!canViewTraining) {
     return (
-      <PageWrapper title="Development Plans">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Development Plans"
+        />
         <div className="text-center py-16 enterprise-card max-w-lg mx-auto">
           <ShieldExclamationIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
           <p className="font-medium text-foreground mb-2">Access restricted</p>
@@ -118,10 +123,12 @@ export default function IDPsPage() {
 
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">
-      <PageWrapper
-        title="Development Plans"
-        subtitle="Create and manage employee development plans"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Development Plans"
+          subtitle="Create and manage employee development plans"
+          actions={
           <button
             onClick={() => setShowForm(!showForm)}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
@@ -129,7 +136,7 @@ export default function IDPsPage() {
             <PlusIcon className="w-4 h-4" /> Create IDP
           </button>
         }
-      >
+        />
         <div className="space-y-6">
           {/* Create Form */}
           {showForm && (

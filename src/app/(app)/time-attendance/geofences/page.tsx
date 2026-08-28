@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { Geofence, attendanceService } from '@/services/attendanceService';
 import { PlusIcon, TrashIcon, MapPinIcon } from '@heroicons/react/24/outline';
@@ -85,10 +86,12 @@ export default function GeofencesPage() {
 
   return (
     <FeatureGate feature="GEOFENCING">
-      <PageWrapper
-        title="Geofence Configuration"
-        subtitle="Manage location-based attendance validation zones"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Geofence Configuration"
+          subtitle="Manage location-based attendance validation zones"
+          actions={
           <button
             onClick={() => setShowForm(!showForm)}
             className="btn-cta inline-flex items-center gap-2"
@@ -96,7 +99,7 @@ export default function GeofencesPage() {
             <PlusIcon className="w-4 h-4" /> Add Geofence
           </button>
         }
-      >
+        />
         <div className="space-y-6">
           {showForm && (
             <div className="enterprise-card p-6">

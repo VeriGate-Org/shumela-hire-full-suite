@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { trainingService } from '@/services/trainingService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -105,7 +106,12 @@ export default function EvaluationPage() {
   if (submitted) {
     return (
       <FeatureGate feature="TRAINING_MANAGEMENT">
-        <PageWrapper title="Evaluation Submitted" subtitle="Thank you for your feedback">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="Evaluation Submitted"
+            subtitle="Thank you for your feedback"
+          />
           <div className="enterprise-card p-12 text-center">
             <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-foreground mb-2">Thank You!</h2>
@@ -129,10 +135,12 @@ export default function EvaluationPage() {
 
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">
-      <PageWrapper
-        title="Training Evaluation"
-        subtitle="Share your feedback on this training session"
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Training Evaluation"
+          subtitle="Share your feedback on this training session"
+        />
         <div className="space-y-6">
           {/* Back link */}
           <Link

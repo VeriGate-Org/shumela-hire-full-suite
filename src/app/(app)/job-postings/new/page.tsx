@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import JobPostingForm from '@/components/JobPostingForm';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
@@ -78,7 +79,12 @@ function NewJobPostingPage() {
 
   if (loadingClone) {
     return (
-      <PageWrapper title={title} subtitle={subtitle}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Recruitment"
+          title={title}
+          subtitle={subtitle}
+        />
         <div className="flex items-center justify-center py-16">
           <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
         </div>
@@ -87,7 +93,12 @@ function NewJobPostingPage() {
   }
 
   return (
-    <PageWrapper title={title} subtitle={subtitle}>
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Recruitment"
+        title={title}
+        subtitle={subtitle}
+      />
       <JobPostingForm
         jobPostingId={editId}
         initialData={cloneData}

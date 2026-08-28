@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import SageSyncLogTable from '@/components/integrations/SageSyncLogTable';
 import {
@@ -59,11 +60,13 @@ export default function SageLogsPage() {
 
   return (
     <FeatureGate feature="SAGE_300_PEOPLE">
-      <PageWrapper
-        title="Sync Logs"
-        subtitle="View history and status of data synchronization operations"
-        actions={actions}
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="Sync Logs"
+          subtitle="View history and status of data synchronization operations"
+          actions={actions}
+        />
         <div className="space-y-4">
           {/* Summary */}
           {!loading && totalElements > 0 && (

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import { auditLogService } from '@/services/auditLogService';
@@ -651,11 +652,17 @@ export default function SettingsPage() {
   };
 
   return (
-    <PageWrapper title="Settings" subtitle="Manage your account preferences, notifications, and security" actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Settings"
+        title="Settings"
+        subtitle="Manage your account preferences, notifications, and security"
+        actions={
       savedIndicator ? (
         <span className="text-sm text-success font-medium animate-fade-in">Saved</span>
       ) : undefined
-    }>
+    }
+      />
       {/* Centered single-column layout matching mock's max-width: 960px */}
       <div className="max-w-[960px] mx-auto">
         {/* Horizontal tabs — matches mock's .tabs with border-bottom underline */}

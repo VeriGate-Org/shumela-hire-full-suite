@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { apiFetch } from '@/lib/api-fetch';
 import { useRouter } from 'next/navigation';
@@ -363,7 +364,12 @@ export default function EditProfilePage() {
   if (loading) {
     return (
       <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
-        <PageWrapper title="Edit Profile" subtitle="Loading...">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="HR"
+            title="Edit Profile"
+            subtitle="Loading..."
+          />
           <div className="text-center py-12 text-muted-foreground">Loading profile...</div>
         </PageWrapper>
       </FeatureGate>
@@ -372,10 +378,12 @@ export default function EditProfilePage() {
 
   return (
     <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
-      <PageWrapper
-        title="Edit Profile"
-        subtitle="Update your personal information"
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Edit Profile"
+          subtitle="Update your personal information"
+        />
         <div className="space-y-6">
           {/* Message */}
           {message && (

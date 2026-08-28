@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -241,7 +242,12 @@ export default function SurveyDetailPage() {
   if (loading) {
     return (
       <FeatureGate feature="PULSE_SURVEYS">
-        <PageWrapper title="Survey" subtitle="Loading survey...">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Engagement"
+            title="Survey"
+            subtitle="Loading survey..."
+          />
           <div className="flex items-center justify-center h-96">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500"></div>
           </div>
@@ -253,7 +259,12 @@ export default function SurveyDetailPage() {
   if (error) {
     return (
       <FeatureGate feature="PULSE_SURVEYS">
-        <PageWrapper title="Survey" subtitle="An error occurred">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Engagement"
+            title="Survey"
+            subtitle="An error occurred"
+          />
           <div className="bg-white rounded-[10px] border border-gray-200 p-8">
             <div className="text-center">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -287,7 +298,12 @@ export default function SurveyDetailPage() {
   if (!survey) {
     return (
       <FeatureGate feature="PULSE_SURVEYS">
-        <PageWrapper title="Survey" subtitle="Survey not found">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Engagement"
+            title="Survey"
+            subtitle="Survey not found"
+          />
           <div className="bg-white rounded-[10px] border border-gray-200 p-12 text-center">
             <ClipboardDocumentListIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-1">Survey not found</h3>
@@ -310,7 +326,12 @@ export default function SurveyDetailPage() {
   if (submitted) {
     return (
       <FeatureGate feature="PULSE_SURVEYS">
-        <PageWrapper title={survey.title} subtitle="Response submitted">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Engagement"
+            title={survey.title}
+            subtitle="Response submitted"
+          />
           <div className="space-y-6">
             <Link
               href="/engagement/surveys"
@@ -347,7 +368,12 @@ export default function SurveyDetailPage() {
 
     return (
       <FeatureGate feature="PULSE_SURVEYS">
-        <PageWrapper title={survey.title} subtitle="Take this survey">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Engagement"
+            title={survey.title}
+            subtitle="Take this survey"
+          />
           <div className="space-y-6">
             <Link
               href="/engagement/surveys"
@@ -413,7 +439,12 @@ export default function SurveyDetailPage() {
   // Non-active survey - show read-only info
   return (
     <FeatureGate feature="PULSE_SURVEYS">
-      <PageWrapper title={survey.title} subtitle={`Survey - ${survey.status}`}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Engagement"
+          title={survey.title}
+          subtitle={`Survey - ${survey.status}`}
+        />
         <div className="space-y-6">
           <Link
             href="/engagement/surveys"

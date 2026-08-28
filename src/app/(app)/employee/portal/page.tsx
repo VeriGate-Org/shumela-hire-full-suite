@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { InlineLoading } from '@/components/LoadingComponents';
 import { apiFetch } from '@/lib/api-fetch';
@@ -417,7 +418,12 @@ export default function EmployeePortalPage() {
     <FeatureGate
       feature="EMPLOYEE_SELF_SERVICE"
       fallback={
-        <PageWrapper title="" subtitle="">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="HR"
+            title=""
+            subtitle=""
+          />
           <div className="text-center py-12 enterprise-card max-w-lg mx-auto">
             <UserCircleIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
             <p className="font-medium text-foreground mb-2">Feature Not Available</p>
@@ -429,10 +435,12 @@ export default function EmployeePortalPage() {
         </PageWrapper>
       }
     >
-      <PageWrapper
-        title=""
-        subtitle=""
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title=""
+          subtitle=""
+        />
         {loading ? (
           <InlineLoading message="Loading your dashboard..." />
         ) : error ? (

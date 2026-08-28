@@ -2,6 +2,7 @@
 
 import { useState, useRef, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import {
   PlusIcon,
   DocumentTextIcon,
@@ -363,10 +364,12 @@ export default function ExpenseClaimsPage() {
   // --- Error State ---
   if (error) {
     return (
-      <PageWrapper
-        title="Expense Claims"
-        subtitle="Submit and track expense reimbursements"
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Expense Claims"
+          subtitle="Submit and track expense reimbursements"
+        />
         <div className="enterprise-card flex flex-col items-center justify-center text-center py-16 px-6">
           <div className="w-[72px] h-[72px] rounded-full bg-destructive/10 flex items-center justify-center mb-5">
             <InformationCircleIcon className="w-9 h-9 text-destructive" />
@@ -390,10 +393,12 @@ export default function ExpenseClaimsPage() {
   }
 
   return (
-    <PageWrapper
-      title="Expense Claims"
-      subtitle="Submit and track expense reimbursements"
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="HR"
+        title="Expense Claims"
+        subtitle="Submit and track expense reimbursements"
+        actions={
         <button
           onClick={() => setActiveTab('new-claim')}
           className="btn-cta inline-flex items-center gap-2"
@@ -402,7 +407,7 @@ export default function ExpenseClaimsPage() {
           New Expense Claim
         </button>
       }
-    >
+      />
       <div className="space-y-6">
         {/* ====== STATS GRID ====== */}
         {loading ? (

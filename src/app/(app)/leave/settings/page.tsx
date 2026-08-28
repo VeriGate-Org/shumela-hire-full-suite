@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { leaveService, LeavePolicy } from '@/services/leaveService';
 import {
@@ -73,10 +74,12 @@ export default function LeaveSettingsPage() {
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">
-      <PageWrapper
-        title="Leave Settings"
-        subtitle="Configure leave policies and auto-escalation rules"
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Leave Settings"
+          subtitle="Configure leave policies and auto-escalation rules"
+        />
         <div className="space-y-6">
           {message && (
             <div className={`px-4 py-3 rounded-lg text-sm ${

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import LeaveAnalyticsCharts from '@/components/leave/LeaveAnalyticsCharts';
 import { aiLeaveService } from '@/services/aiLeaveService';
@@ -37,7 +38,12 @@ export default function LeaveAnalyticsPage() {
   if (!canViewAnalytics) {
     return (
       <FeatureGate feature="LEAVE_MANAGEMENT">
-        <PageWrapper title="Access Denied" subtitle="You do not have permission to view Leave Analytics.">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Analytics"
+            title="Access Denied"
+            subtitle="You do not have permission to view Leave Analytics."
+          />
           <div className="text-center py-12">
             <ShieldExclamationIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
             <p className="text-muted-foreground">Contact your administrator if you believe this is an error.</p>
@@ -49,17 +55,19 @@ export default function LeaveAnalyticsPage() {
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">
-      <PageWrapper
-        title="Leave Analytics"
-        subtitle="Insights and trends on leave usage"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Analytics"
+          title="Leave Analytics"
+          subtitle="Insights and trends on leave usage"
+          actions={
           <button onClick={analyzePatterns} disabled={aiLoading}
             className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm disabled:opacity-50 flex items-center gap-1">
             <SparklesIcon className="h-4 w-4" />
             {aiLoading ? 'Analysing...' : 'AI Pattern Analysis'}
           </button>
         }
-      >
+        />
         {aiInsights && (
           <div className="mb-6 bg-purple-50 border border-purple-200 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">

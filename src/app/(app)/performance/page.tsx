@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import CycleManagement from '@/components/performance/CycleManagement';
 import ContractBuilder from '@/components/performance/ContractBuilder';
 import { PerformanceCycle } from '@/types/performance';
@@ -29,7 +30,11 @@ export default function PerformanceDashboard() {
 
   if (!canViewPerformance) {
     return (
-      <PageWrapper title="Performance Management">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Performance Management"
+        />
         <div className="text-center py-16 enterprise-card max-w-lg mx-auto">
           <ShieldExclamationIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
           <p className="font-medium text-foreground mb-2">Access restricted</p>
@@ -112,11 +117,13 @@ export default function PerformanceDashboard() {
   ) : undefined;
 
   return (
-    <PageWrapper
-      title="Performance Management"
-      subtitle="Manage performance cycles, contracts, and reviews"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Talent"
+        title="Performance Management"
+        subtitle="Manage performance cycles, contracts, and reviews"
+        actions={actions}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Cycle Management */}
         <div className="lg:col-span-2">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { trainingService, TrainingCourse, TrainingSession } from '@/services/trainingService';
 import Link from 'next/link';
@@ -122,7 +123,12 @@ export default function TrainingAdminPage() {
   if (!canManage) {
     return (
       <FeatureGate feature="TRAINING_MANAGEMENT">
-        <PageWrapper title="Access Denied" subtitle="You do not have permission to access Training Administration.">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="Access Denied"
+            subtitle="You do not have permission to access Training Administration."
+          />
           <div className="text-center py-12">
             <ShieldExclamationIcon className="w-12 h-12 text-destructive mx-auto mb-4" />
             <p className="text-muted-foreground">Contact your administrator if you believe this is an error.</p>
@@ -134,10 +140,12 @@ export default function TrainingAdminPage() {
 
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">
-      <PageWrapper
-        title="Training Administration"
-        subtitle="Manage training courses, sessions, and employee development"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Training Administration"
+          subtitle="Manage training courses, sessions, and employee development"
+          actions={
           <button
             onClick={() => activeTab === 'courses' ? setShowCourseForm(true) : setShowSessionForm(true)}
             className="btn-cta inline-flex items-center gap-2 px-6 py-2.5 text-sm cursor-pointer"
@@ -146,7 +154,7 @@ export default function TrainingAdminPage() {
             {activeTab === 'courses' ? 'Create Course' : 'New Session'}
           </button>
         }
-      >
+        />
         <div className="space-y-6">
           {/* Stats Bar */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

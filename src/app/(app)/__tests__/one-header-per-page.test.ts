@@ -124,3 +124,37 @@ describe('no page draws an empty header card', () => {
     expect(screens(APP).length).toBeGreaterThan(100);
   });
 });
+
+describe('the gold header card is gone', () => {
+  it('no screen passes a title to PageWrapper', () => {
+    // The sweep that moved the last 110 screens onto the band. Stated as an invariant rather than
+    // left as a one-off, because the old header is still what a new page would be copied from:
+    // ModernLayout renders its card whenever a title, subtitle or actions is present, so a single
+    // titled wrapper brings the whole treatment back on that screen.
+    const offenders: string[] = [];
+
+    for (const file of screens(APP)) {
+      const source = fs.readFileSync(file, 'utf8');
+      let index = source.indexOf('<PageWrapper');
+      while (index !== -1) {
+        if (source.slice(index, tagEnd(source, index)).includes('title=')) {
+          offenders.push(path.relative(APP, file));
+          break;
+        }
+        index = source.indexOf('<PageWrapper', index + 1);
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
+  it('most screens now carry a band', () => {
+    // Guards the other direction: a walker that stopped finding screens would make the assertion
+    // above pass by looking at nothing.
+    const withBand = screens(APP).filter((f) =>
+      fs.readFileSync(f, 'utf8').includes('IdentityBand'),
+    );
+
+    expect(withBand.length).toBeGreaterThan(120);
+  });
+});

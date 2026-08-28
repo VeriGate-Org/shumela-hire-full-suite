@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { engagementService } from '@/services/engagementService';
 import { useRouter } from 'next/navigation';
@@ -54,7 +55,12 @@ export default function GiveRecognitionPage() {
 
   return (
     <FeatureGate feature="RECOGNITION_REWARDS">
-      <PageWrapper title="Give Recognition" subtitle="Recognize a colleague for their outstanding work">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Engagement"
+          title="Give Recognition"
+          subtitle="Recognize a colleague for their outstanding work"
+        />
         <div className="max-w-2xl mx-auto">
           {success ? (
             <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
