@@ -451,7 +451,7 @@ export default function AuditLogsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Total Events */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl icon-tile-navy flex items-center justify-center flex-shrink-0">
               <DocumentTextIcon className="w-6 h-6" />
             </div>
             <div>
@@ -462,7 +462,7 @@ export default function AuditLogsPage() {
 
           {/* Today */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl icon-tile-teal flex items-center justify-center flex-shrink-0">
               <ClockIcon className="w-6 h-6" />
             </div>
             <div>
@@ -473,7 +473,7 @@ export default function AuditLogsPage() {
 
           {/* Warnings (Critical Events) */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl icon-tile-gold-on-tint flex items-center justify-center flex-shrink-0">
               <ExclamationTriangleIcon className="w-6 h-6" />
             </div>
             <div>
@@ -484,7 +484,7 @@ export default function AuditLogsPage() {
 
           {/* Critical */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-pink text-accent-pink flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl icon-tile-pink flex items-center justify-center flex-shrink-0">
               <ShieldCheckIcon className="w-6 h-6" />
             </div>
             <div>
@@ -495,7 +495,7 @@ export default function AuditLogsPage() {
 
           {/* Active Users */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl icon-tile-navy flex items-center justify-center flex-shrink-0">
               <UsersIcon className="w-6 h-6" />
             </div>
             <div>
@@ -506,7 +506,7 @@ export default function AuditLogsPage() {
 
           {/* Top Action */}
           <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl icon-tile-teal flex items-center justify-center flex-shrink-0">
               <BoltIcon className="w-6 h-6" />
             </div>
             <div>
@@ -756,10 +756,10 @@ export default function AuditLogsPage() {
 
                       // Severity badge colors matching mock (pill with dot)
                       const severityStyles: Record<string, string> = {
-                        info: 'bg-icon-bg-navy text-accent-navy',
-                        warning: 'bg-icon-bg-gold text-accent-gold-on-tint',
-                        error: 'bg-icon-bg-pink text-accent-pink',
-                        critical: 'bg-icon-bg-pink text-accent-pink',
+                        info: 'icon-tile-navy',
+                        warning: 'icon-tile-gold-on-tint',
+                        error: 'icon-tile-pink',
+                        critical: 'icon-tile-pink',
                       };
                       const severityDotStyles: Record<string, string> = {
                         info: 'bg-accent-navy',
@@ -770,10 +770,10 @@ export default function AuditLogsPage() {
 
                       // User avatar color rotation
                       const avatarColors = [
-                        { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
-                        { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
-                        { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
-                        { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
+                        { bg: 'icon-tile-navy', text: 'text-accent-navy' },
+                        { bg: 'icon-tile-teal', text: 'text-accent-teal' },
+                        { bg: 'icon-tile-gold', text: 'text-accent-gold-on-tint' },
+                        { bg: 'icon-tile-pink', text: 'text-accent-pink' },
                       ];
                       const avatarColor = avatarColors[idx % avatarColors.length];
                       const initials = auditActorLabel(log)
@@ -943,10 +943,10 @@ export default function AuditLogsPage() {
                         (() => {
                           const sev = row.value as 'info' | 'warning' | 'error' | 'critical';
                           const styles: Record<string, string> = {
-                            info: 'bg-icon-bg-navy text-accent-navy',
-                            warning: 'bg-icon-bg-gold text-accent-gold-on-tint',
-                            error: 'bg-icon-bg-pink text-accent-pink',
-                            critical: 'bg-icon-bg-pink text-accent-pink',
+                            info: 'icon-tile-navy',
+                            warning: 'icon-tile-gold-on-tint',
+                            error: 'icon-tile-pink',
+                            critical: 'icon-tile-pink',
                           };
                           const dotStyles: Record<string, string> = {
                             info: 'bg-accent-navy',

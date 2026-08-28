@@ -407,8 +407,8 @@ export default function InterviewSchedulePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Upcoming stat */}
           <div className="bg-white border border-border rounded-card shadow-sm p-5 flex items-center gap-4 transition-all hover:shadow-md hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-navy flex items-center justify-center flex-shrink-0">
-              <ClockIcon className="w-6 h-6 text-violet-600" />
+            <div className="w-12 h-12 rounded-card icon-tile-navy flex items-center justify-center flex-shrink-0">
+              <ClockIcon className="w-6 h-6" />
             </div>
             <div className="flex-1">
               <div className="text-[1.75rem] font-extrabold leading-tight text-gray-900">
@@ -420,8 +420,8 @@ export default function InterviewSchedulePage() {
 
           {/* Completed stat */}
           <div className="bg-white border border-border rounded-card shadow-sm p-5 flex items-center gap-4 transition-all hover:shadow-md hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-teal flex items-center justify-center flex-shrink-0">
-              <CheckCircleIcon className="w-6 h-6 text-teal-600" />
+            <div className="w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center flex-shrink-0">
+              <CheckCircleIcon className="w-6 h-6" />
             </div>
             <div className="flex-1">
               <div className="text-[1.75rem] font-extrabold leading-tight text-gray-900">
@@ -433,8 +433,8 @@ export default function InterviewSchedulePage() {
 
           {/* Total stat */}
           <div className="bg-white border border-border rounded-card shadow-sm p-5 flex items-center gap-4 transition-all hover:shadow-md hover:-translate-y-px">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-gold flex items-center justify-center flex-shrink-0">
-              <UserIcon className="w-6 h-6 text-gold-600" />
+            <div className="w-12 h-12 rounded-card icon-tile-gold flex items-center justify-center flex-shrink-0">
+              <UserIcon className="w-6 h-6" />
             </div>
             <div className="flex-1">
               <div className="text-[1.75rem] font-extrabold leading-tight text-gray-900">

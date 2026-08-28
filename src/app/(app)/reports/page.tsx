@@ -417,7 +417,7 @@ export default function ReportsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Reports Generated */}
           <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center bg-icon-bg-navy text-shumelahire-500">
+            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center icon-tile-navy">
               <DocumentTextIcon className="h-6 w-6" />
             </div>
             <div className="flex-1 min-w-0">
@@ -433,7 +433,7 @@ export default function ReportsPage() {
 
           {/* Scheduled */}
           <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center bg-icon-bg-teal text-teal-600">
+            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center icon-tile-teal">
               <ClockIcon className="h-6 w-6" />
             </div>
             <div className="flex-1 min-w-0">
@@ -449,7 +449,7 @@ export default function ReportsPage() {
 
           {/* Most Popular */}
           <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center bg-icon-bg-gold text-gold-600">
+            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center icon-tile-gold">
               <StarIcon className="h-6 w-6" />
             </div>
             <div className="flex-1 min-w-0">
@@ -465,7 +465,7 @@ export default function ReportsPage() {
 
           {/* Avg Generation */}
           <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center bg-icon-bg-pink text-idc-pink-600">
+            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center icon-tile-pink">
               <BoltIcon className="h-6 w-6" />
             </div>
             <div className="flex-1 min-w-0">

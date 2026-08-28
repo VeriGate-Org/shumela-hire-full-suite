@@ -356,8 +356,8 @@ export default function OvertimePage() {
               {/* ======== MONTHLY STATS STRIP ======== */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="enterprise-card p-5 flex items-center gap-4 hover:shadow-md hover:-translate-y-px transition-all">
-                  <div className="w-12 h-12 rounded-xl bg-icon-bg-navy flex items-center justify-center flex-shrink-0">
-                    <ClockIcon className="w-6 h-6 text-accent-navy" />
+                  <div className="w-12 h-12 rounded-xl icon-tile-navy flex items-center justify-center flex-shrink-0">
+                    <ClockIcon className="w-6 h-6" />
                   </div>
                   <div>
                     <div className="text-2xl font-extrabold text-foreground leading-tight">{monthlyStats.totalMonthlyHours}h</div>
@@ -365,8 +365,8 @@ export default function OvertimePage() {
                   </div>
                 </div>
                 <div className="enterprise-card p-5 flex items-center gap-4 hover:shadow-md hover:-translate-y-px transition-all">
-                  <div className="w-12 h-12 rounded-xl bg-icon-bg-gold flex items-center justify-center flex-shrink-0">
-                    <CurrencyDollarIcon className="w-6 h-6 text-accent-gold" />
+                  <div className="w-12 h-12 rounded-xl icon-tile-gold flex items-center justify-center flex-shrink-0">
+                    <CurrencyDollarIcon className="w-6 h-6" />
                   </div>
                   <div>
                     <div className="text-2xl font-extrabold text-foreground leading-tight">{records.length}</div>
@@ -374,8 +374,8 @@ export default function OvertimePage() {
                   </div>
                 </div>
                 <div className="enterprise-card p-5 flex items-center gap-4 hover:shadow-md hover:-translate-y-px transition-all">
-                  <div className="w-12 h-12 rounded-xl bg-icon-bg-teal flex items-center justify-center flex-shrink-0">
-                    <ChartBarIcon className="w-6 h-6 text-accent-teal" />
+                  <div className="w-12 h-12 rounded-xl icon-tile-teal flex items-center justify-center flex-shrink-0">
+                    <ChartBarIcon className="w-6 h-6" />
                   </div>
                   <div>
                     <div className="text-2xl font-extrabold text-foreground leading-tight">{monthlyStats.avgWeekly.toFixed(1)}h</div>
@@ -514,7 +514,7 @@ export default function OvertimePage() {
                                   <tr className="hover:bg-surface-navy transition-colors">
                                     <td className="px-4 py-3.5 text-sm text-foreground border-b border-border">
                                       <div className="flex items-center gap-2">
-                                        <div className="w-9 h-9 rounded-full bg-icon-bg-teal text-accent-teal font-bold text-xs flex items-center justify-center flex-shrink-0">
+                                        <div className="w-9 h-9 rounded-full icon-tile-teal font-bold text-xs flex items-center justify-center flex-shrink-0">
                                           {initials}
                                         </div>
                                         <span className="font-medium">{rec.employeeName}</span>

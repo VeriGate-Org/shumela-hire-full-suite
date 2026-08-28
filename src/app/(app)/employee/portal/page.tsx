@@ -395,12 +395,12 @@ export default function EmployeePortalPage() {
   }, [recentLeave, enrollments]);
 
   const quickActions = [
-    { label: 'Request Leave', href: '/leave/request', icon: CalendarDaysIcon, iconBg: 'bg-icon-bg-navy', iconColor: 'text-accent-navy' },
-    { label: 'My Documents', href: '/employee/documents', icon: DocumentTextIcon, iconBg: 'bg-icon-bg-teal', iconColor: 'text-accent-teal' },
-    { label: 'Internal Jobs', href: '/internal/jobs', icon: BriefcaseIcon, iconBg: 'bg-icon-bg-gold', iconColor: 'text-accent-gold-on-tint' },
-    { label: 'Training Courses', href: '/training/courses', icon: AcademicCapIcon, iconBg: 'bg-icon-bg-navy', iconColor: 'text-accent-navy' },
-    { label: 'Give Recognition', href: '/engagement/recognition/give', icon: HandThumbUpIcon, iconBg: 'bg-icon-bg-teal', iconColor: 'text-accent-teal' },
-    { label: 'Edit Profile', href: '/employee/profile/edit', icon: PencilSquareIcon, iconBg: 'bg-icon-bg-pink', iconColor: 'text-accent-pink' },
+    { label: 'Request Leave', href: '/leave/request', icon: CalendarDaysIcon, iconBg: 'icon-tile-navy', iconColor: 'text-accent-navy' },
+    { label: 'My Documents', href: '/employee/documents', icon: DocumentTextIcon, iconBg: 'icon-tile-teal', iconColor: 'text-accent-teal' },
+    { label: 'Internal Jobs', href: '/internal/jobs', icon: BriefcaseIcon, iconBg: 'icon-tile-gold', iconColor: 'text-accent-gold-on-tint' },
+    { label: 'Training Courses', href: '/training/courses', icon: AcademicCapIcon, iconBg: 'icon-tile-navy', iconColor: 'text-accent-navy' },
+    { label: 'Give Recognition', href: '/engagement/recognition/give', icon: HandThumbUpIcon, iconBg: 'icon-tile-teal', iconColor: 'text-accent-teal' },
+    { label: 'Edit Profile', href: '/employee/profile/edit', icon: PencilSquareIcon, iconBg: 'icon-tile-pink', iconColor: 'text-accent-pink' },
   ];
 
   const isClockedIn = attendanceStatus && isAttendanceRecord(attendanceStatus);
@@ -514,13 +514,13 @@ export default function EmployeePortalPage() {
                 /* Profile Card fallback when attendance is off */
                 <div className="enterprise-card p-6">
                   <div className="flex items-center gap-2.5 mb-5">
-                    <div className="w-8 h-8 rounded-control bg-icon-bg-navy text-accent-navy flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-control icon-tile-navy flex items-center justify-center">
                       <UserCircleIcon className="w-[18px] h-[18px]" />
                     </div>
                     <span className="text-base font-bold text-foreground">Employee Profile</span>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-full bg-icon-bg-navy flex items-center justify-center text-accent-navy font-semibold text-lg shrink-0">
+                    <div className="w-14 h-14 rounded-full icon-tile-navy flex items-center justify-center font-semibold text-lg shrink-0">
                       {profile.profilePhotoUrl ? (
                         <img src={profile.profilePhotoUrl} alt="" className="w-14 h-14 rounded-full object-cover" />
                       ) : (
@@ -533,7 +533,7 @@ export default function EmployeePortalPage() {
                       </h2>
                       <div className="flex flex-wrap gap-2 mt-1.5">
                         <span className="text-xs bg-icon-bg-navy text-accent-navy px-2 py-0.5 rounded-full">{profile.employeeNumber}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${profile.status === 'ACTIVE' ? 'bg-icon-bg-teal text-accent-teal' : 'bg-muted text-muted-foreground'}`}>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${profile.status === 'ACTIVE' ? 'icon-tile-teal' : 'bg-muted text-muted-foreground'}`}>
                           {profile.status}
                         </span>
                       </div>
@@ -549,7 +549,7 @@ export default function EmployeePortalPage() {
                   {/* Card header with icon */}
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-control bg-icon-bg-navy text-accent-navy flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-control icon-tile-navy flex items-center justify-center">
                         <ClockIcon className="w-[18px] h-[18px]" />
                       </div>
                       <span className="text-base font-bold text-foreground">Today&apos;s Attendance</span>
@@ -652,7 +652,7 @@ export default function EmployeePortalPage() {
                 <div className="enterprise-card p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-control bg-icon-bg-teal text-accent-teal flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-control icon-tile-teal flex items-center justify-center">
                         <CalendarDaysIcon className="w-[18px] h-[18px]" />
                       </div>
                       <span className="text-base font-bold text-foreground">Leave Balances</span>
@@ -683,7 +683,7 @@ export default function EmployeePortalPage() {
               <div className="enterprise-card p-6">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-control bg-icon-bg-pink text-accent-pink flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-control icon-tile-pink flex items-center justify-center">
                       <ClockIcon className="w-[18px] h-[18px]" />
                     </div>
                     <span className="text-base font-bold text-foreground">Upcoming &amp; Recent</span>
@@ -737,7 +737,7 @@ export default function EmployeePortalPage() {
               {/* D. Quick Actions */}
               <div className="enterprise-card p-6">
                 <div className="flex items-center gap-2.5 mb-5">
-                  <div className="w-8 h-8 rounded-control bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-control icon-tile-gold-on-tint flex items-center justify-center">
                     <LightBulbIcon className="w-[18px] h-[18px]" />
                   </div>
                   <span className="text-base font-bold text-foreground">Quick Actions</span>
@@ -767,7 +767,7 @@ export default function EmployeePortalPage() {
               <div className="enterprise-card p-6">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-control bg-icon-bg-navy text-accent-navy flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-control icon-tile-navy flex items-center justify-center">
                       <PresentationChartBarIcon className="w-[18px] h-[18px]" />
                     </div>
                     <span className="text-base font-bold text-foreground">Career &amp; Development</span>
@@ -863,7 +863,7 @@ export default function EmployeePortalPage() {
                 <div className="enterprise-card p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-control bg-icon-bg-pink text-accent-pink flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-control icon-tile-pink flex items-center justify-center">
                         <DocumentTextIcon className="w-[18px] h-[18px]" />
                       </div>
                       <span className="text-base font-bold text-foreground">Announcements</span>
@@ -915,7 +915,7 @@ export default function EmployeePortalPage() {
               <div className="enterprise-card p-6">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-control bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-control icon-tile-gold-on-tint flex items-center justify-center">
                       <BriefcaseIcon className="w-[18px] h-[18px]" />
                     </div>
                     <span className="text-base font-bold text-foreground">Career Opportunities</span>
@@ -964,7 +964,7 @@ export default function EmployeePortalPage() {
                 <div className="enterprise-card p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-control bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-control icon-tile-gold-on-tint flex items-center justify-center">
                         <StarIcon className="w-[18px] h-[18px]" />
                       </div>
                       <span className="text-base font-bold text-foreground">Recognition</span>
@@ -983,9 +983,9 @@ export default function EmployeePortalPage() {
                     <div className="flex flex-col gap-4">
                       {recognitions.map((rec, idx) => {
                         const iconColorClasses = [
-                          { bg: 'bg-icon-bg-gold', text: 'text-accent-gold-on-tint' },
-                          { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
-                          { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
+                          { bg: 'icon-tile-gold', text: 'text-accent-gold-on-tint' },
+                          { bg: 'icon-tile-navy', text: 'text-accent-navy' },
+                          { bg: 'icon-tile-teal', text: 'text-accent-teal' },
                         ];
                         const colors = iconColorClasses[idx % iconColorClasses.length];
                         return (
@@ -1030,7 +1030,7 @@ export default function EmployeePortalPage() {
                 <div className="enterprise-card p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-control bg-icon-bg-teal text-accent-teal flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-control icon-tile-teal flex items-center justify-center">
                         <AcademicCapIcon className="w-[18px] h-[18px]" />
                       </div>
                       <span className="text-base font-bold text-foreground">Onboarding Progress</span>

@@ -370,7 +370,7 @@ export default function WorkflowPage() {
         {activeView === 'manager' && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-0.5 transition-transform">
-              <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-card icon-tile-navy flex items-center justify-center flex-shrink-0">
                 <ClipboardDocumentCheckIcon className="w-6 h-6" />
               </div>
               <div>
@@ -384,7 +384,7 @@ export default function WorkflowPage() {
             </div>
 
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-0.5 transition-transform">
-              <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center flex-shrink-0">
                 <BoltIcon className="w-6 h-6" />
               </div>
               <div>
@@ -398,7 +398,7 @@ export default function WorkflowPage() {
             </div>
 
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-0.5 transition-transform">
-              <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-card icon-tile-gold-on-tint flex items-center justify-center flex-shrink-0">
                 <ShieldCheckIcon className="w-6 h-6" />
               </div>
               <div>
@@ -502,9 +502,9 @@ export default function WorkflowPage() {
                 <span className="font-semibold text-muted-foreground">Status</span>
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-button text-[0.6875rem] font-semibold ${
                   selectedExecution.status === 'completed' ? 'bg-surface-teal text-accent-teal' :
-                  selectedExecution.status === 'failed' ? 'bg-icon-bg-pink text-accent-pink' :
-                  selectedExecution.status === 'running' ? 'bg-icon-bg-navy text-accent-navy' :
-                  'bg-icon-bg-gold text-accent-gold-on-tint'
+                  selectedExecution.status === 'failed' ? 'icon-tile-pink' :
+                  selectedExecution.status === 'running' ? 'icon-tile-navy' :
+                  'icon-tile-gold-on-tint'
                 }`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${
                     selectedExecution.status === 'completed' ? 'bg-accent-teal' :

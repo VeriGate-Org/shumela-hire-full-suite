@@ -16,36 +16,36 @@ import Link from 'next/link';
 
 // ---- colour helpers keyed to category ----
 const CATEGORY_BADGE: Record<string, string> = {
-  Technical: 'bg-icon-bg-navy text-primary',
-  'Compliance & Safety': 'bg-icon-bg-pink text-accent-pink',
-  Communication: 'bg-icon-bg-teal text-accent-teal',
-  'Problem Solving': 'bg-icon-bg-gold text-accent-gold-on-tint',
-  Leadership: 'bg-icon-bg-gold text-accent-gold-on-tint',
-  Financial: 'bg-icon-bg-gold text-accent-gold-on-tint',
+  Technical: 'icon-tile-navy',
+  'Compliance & Safety': 'icon-tile-pink',
+  Communication: 'icon-tile-teal',
+  'Problem Solving': 'icon-tile-gold-on-tint',
+  Leadership: 'icon-tile-gold-on-tint',
+  Financial: 'icon-tile-gold-on-tint',
 };
 
 const ICON_BG: Record<string, string> = {
-  Technical: 'bg-icon-bg-navy text-primary',
-  'Compliance & Safety': 'bg-icon-bg-pink text-accent-pink',
-  Communication: 'bg-icon-bg-teal text-accent-teal',
-  'Problem Solving': 'bg-icon-bg-gold text-accent-gold-on-tint',
-  Leadership: 'bg-icon-bg-gold text-accent-gold-on-tint',
-  Financial: 'bg-icon-bg-gold text-accent-gold-on-tint',
+  Technical: 'icon-tile-navy',
+  'Compliance & Safety': 'icon-tile-pink',
+  Communication: 'icon-tile-teal',
+  'Problem Solving': 'icon-tile-gold-on-tint',
+  Leadership: 'icon-tile-gold-on-tint',
+  Financial: 'icon-tile-gold-on-tint',
 };
 
 // Cycle through icon-bg colours per-framework when category not available
 const ICON_CYCLE = [
-  'bg-icon-bg-navy text-primary',
-  'bg-icon-bg-teal text-accent-teal',
-  'bg-icon-bg-gold text-accent-gold-on-tint',
-  'bg-icon-bg-pink text-accent-pink',
+  'icon-tile-navy',
+  'icon-tile-teal',
+  'icon-tile-gold-on-tint',
+  'icon-tile-pink',
 ];
 
 const BADGE_CYCLE = [
-  'bg-icon-bg-navy text-primary',
-  'bg-icon-bg-teal text-accent-teal',
-  'bg-icon-bg-gold text-accent-gold-on-tint',
-  'bg-icon-bg-pink text-accent-pink',
+  'icon-tile-navy',
+  'icon-tile-teal',
+  'icon-tile-gold-on-tint',
+  'icon-tile-pink',
 ];
 
 function getCategoryBadge(category: string | null | undefined, idx: number) {
@@ -199,7 +199,7 @@ export default function CompetenciesPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 {/* Total Competencies */}
                 <div className="enterprise-card p-5 flex items-center gap-4 transition hover:-translate-y-px">
-                  <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-primary flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-card icon-tile-navy flex items-center justify-center shrink-0">
                     <StarIcon className="w-6 h-6" />
                   </div>
                   <div>
@@ -214,7 +214,7 @@ export default function CompetenciesPage() {
 
                 {/* Categories */}
                 <div className="enterprise-card p-5 flex items-center gap-4 transition hover:-translate-y-px">
-                  <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center shrink-0">
                     <Squares2X2Icon className="w-6 h-6" />
                   </div>
                   <div>
@@ -229,7 +229,7 @@ export default function CompetenciesPage() {
 
                 {/* Profiles Assessed (derived: active frameworks) */}
                 <div className="enterprise-card p-5 flex items-center gap-4 transition hover:-translate-y-px">
-                  <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-card icon-tile-gold-on-tint flex items-center justify-center shrink-0">
                     <UserGroupIcon className="w-6 h-6" />
                   </div>
                   <div>

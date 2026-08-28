@@ -135,12 +135,12 @@ export default function AdminPermissionsPage() {
   /** Map role color to the mock's colored icon square background + icon color */
   const getRoleIconStyle = (color: string) => {
     const styles: Record<string, string> = {
-      red: 'bg-icon-bg-pink text-accent-pink',
-      blue: 'bg-icon-bg-navy text-accent-navy',
-      green: 'bg-icon-bg-teal text-accent-teal',
-      purple: 'bg-icon-bg-navy text-accent-navy',
-      yellow: 'bg-icon-bg-gold text-accent-gold-on-tint',
-      gray: 'bg-icon-bg-navy text-accent-navy',
+      red: 'icon-tile-pink',
+      blue: 'icon-tile-navy',
+      green: 'icon-tile-teal',
+      purple: 'icon-tile-navy',
+      yellow: 'icon-tile-gold-on-tint',
+      gray: 'icon-tile-navy',
     };
     return styles[color] || styles.gray;
   };
@@ -378,7 +378,7 @@ export default function AdminPermissionsPage() {
         {/* ══════ Stats Bar ══════ */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card icon-tile-navy flex items-center justify-center flex-shrink-0">
               <ShieldCheckIcon className="w-6 h-6" />
             </div>
             <div>
@@ -388,7 +388,7 @@ export default function AdminPermissionsPage() {
           </div>
 
           <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center flex-shrink-0">
               <UsersIcon className="w-6 h-6" />
             </div>
             <div>
@@ -398,7 +398,7 @@ export default function AdminPermissionsPage() {
           </div>
 
           <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card icon-tile-gold-on-tint flex items-center justify-center flex-shrink-0">
               <KeyIcon className="w-6 h-6" />
             </div>
             <div>
@@ -408,7 +408,7 @@ export default function AdminPermissionsPage() {
           </div>
 
           <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-            <div className="w-12 h-12 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-card icon-tile-pink flex items-center justify-center flex-shrink-0">
               <ExclamationTriangleIcon className="w-6 h-6" />
             </div>
             <div>
@@ -700,7 +700,7 @@ export default function AdminPermissionsPage() {
                 <h2 className="text-lg font-bold text-foreground">{selectedRole.name}</h2>
                 <button
                   onClick={() => setSelectedRole(null)}
-                  className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-icon-bg-pink hover:text-accent-pink transition-colors"
+                  className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:icon-tile-pink hover: transition-colors"
                 >
                   <XMarkIcon className="w-4.5 h-4.5" />
                 </button>
@@ -729,7 +729,7 @@ export default function AdminPermissionsPage() {
                           }`}
                         >
                           <span className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            hasPermission ? 'bg-icon-bg-teal text-accent-teal' : 'bg-muted text-border'
+                            hasPermission ? 'icon-tile-teal' : 'bg-muted text-border'
                           }`}>
                             {hasPermission ? (
                               <CheckIcon className="w-3 h-3" />

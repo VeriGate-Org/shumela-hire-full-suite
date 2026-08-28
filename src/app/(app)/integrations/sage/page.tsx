@@ -138,7 +138,7 @@ export default function SageDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
               {/* Records Synced / Total Connectors */}
               <div className="enterprise-card p-5 flex items-start gap-4">
-                <div className="w-11 h-11 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+                <div className="w-11 h-11 rounded-card icon-tile-navy flex items-center justify-center flex-shrink-0">
                   <LinkIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div>
@@ -156,7 +156,7 @@ export default function SageDashboardPage() {
 
               {/* Active Connectors */}
               <div className="enterprise-card p-5 flex items-start gap-4">
-                <div className="w-11 h-11 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+                <div className="w-11 h-11 rounded-card icon-tile-teal flex items-center justify-center flex-shrink-0">
                   <CheckCircleIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div>
@@ -174,7 +174,7 @@ export default function SageDashboardPage() {
 
               {/* Test Success Rate */}
               <div className="enterprise-card p-5 flex items-start gap-4">
-                <div className="w-11 h-11 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
+                <div className="w-11 h-11 rounded-card icon-tile-gold-on-tint flex items-center justify-center flex-shrink-0">
                   <SignalIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div>
@@ -192,7 +192,7 @@ export default function SageDashboardPage() {
 
               {/* Recent Syncs */}
               <div className="enterprise-card p-5 flex items-start gap-4">
-                <div className="w-11 h-11 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center flex-shrink-0">
+                <div className="w-11 h-11 rounded-card icon-tile-pink flex items-center justify-center flex-shrink-0">
                   <ClockIcon className="w-[22px] h-[22px]" />
                 </div>
                 <div>
@@ -318,7 +318,7 @@ export default function SageDashboardPage() {
                         href="/integrations/sage/config"
                         className="flex items-center gap-3 rounded-control border border-border p-4 hover:bg-surface-navy transition-colors group"
                       >
-                        <div className="w-10 h-10 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-card icon-tile-navy flex items-center justify-center flex-shrink-0">
                           <Cog6ToothIcon className="w-5 h-5" />
                         </div>
                         <div>
@@ -334,7 +334,7 @@ export default function SageDashboardPage() {
                         href="/integrations/sage/schedules"
                         className="flex items-center gap-3 rounded-control border border-border p-4 hover:bg-surface-navy transition-colors group"
                       >
-                        <div className="w-10 h-10 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-card icon-tile-teal flex items-center justify-center flex-shrink-0">
                           <CalendarDaysIcon className="w-5 h-5" />
                         </div>
                         <div>
@@ -350,7 +350,7 @@ export default function SageDashboardPage() {
                         href="/integrations/sage/logs"
                         className="flex items-center gap-3 rounded-control border border-border p-4 hover:bg-surface-navy transition-colors group"
                       >
-                        <div className="w-10 h-10 rounded-card bg-icon-bg-gold text-accent-gold-on-tint flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-card icon-tile-gold-on-tint flex items-center justify-center flex-shrink-0">
                           <ClipboardDocumentListIcon className="w-5 h-5" />
                         </div>
                         <div>

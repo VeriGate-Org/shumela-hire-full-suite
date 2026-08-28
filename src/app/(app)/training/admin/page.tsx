@@ -152,8 +152,8 @@ export default function TrainingAdminPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Total Courses */}
             <div className="enterprise-card p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-card bg-icon-bg-navy flex items-center justify-center flex-shrink-0">
-                <BookOpenIcon className="w-6 h-6 text-accent-navy" />
+              <div className="w-12 h-12 rounded-card icon-tile-navy flex items-center justify-center flex-shrink-0">
+                <BookOpenIcon className="w-6 h-6" />
               </div>
               <div>
                 <p className="text-2xl font-extrabold text-foreground leading-none">
@@ -165,8 +165,8 @@ export default function TrainingAdminPage() {
 
             {/* Active Sessions */}
             <div className="enterprise-card p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-card bg-icon-bg-teal flex items-center justify-center flex-shrink-0">
-                <CalendarDaysIcon className="w-6 h-6 text-accent-teal" />
+              <div className="w-12 h-12 rounded-card icon-tile-teal flex items-center justify-center flex-shrink-0">
+                <CalendarDaysIcon className="w-6 h-6" />
               </div>
               <div>
                 <p className="text-2xl font-extrabold text-foreground leading-none">
@@ -178,8 +178,8 @@ export default function TrainingAdminPage() {
 
             {/* Total Enrolled */}
             <div className="enterprise-card p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-card bg-icon-bg-gold flex items-center justify-center flex-shrink-0">
-                <UsersIcon className="w-6 h-6 text-accent-gold" />
+              <div className="w-12 h-12 rounded-card icon-tile-gold flex items-center justify-center flex-shrink-0">
+                <UsersIcon className="w-6 h-6" />
               </div>
               <div>
                 <p className="text-2xl font-extrabold text-foreground leading-none">
@@ -617,8 +617,8 @@ export default function TrainingAdminPage() {
                                 </td>
                                 <td className="px-4 py-3 text-[0.8125rem]">
                                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.6875rem] font-semibold ${
-                                    session.status === 'OPEN' ? 'bg-icon-bg-navy text-accent-navy' :
-                                    session.status === 'PLANNED' ? 'bg-icon-bg-navy text-accent-navy' :
+                                    session.status === 'OPEN' ? 'icon-tile-navy' :
+                                    session.status === 'PLANNED' ? 'icon-tile-navy' :
                                     session.status === 'COMPLETED' ? 'bg-success-bg text-success-on-tint' :
                                     session.status === 'CANCELLED' ? 'bg-error-bg text-error-on-tint' :
                                     'bg-muted text-muted-foreground'

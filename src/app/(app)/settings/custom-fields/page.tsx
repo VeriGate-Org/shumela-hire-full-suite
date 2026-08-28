@@ -56,12 +56,12 @@ const TYPE_BADGE_CLASSES: Record<string, string> = {
 
 /* ===== Field icon color map ===== */
 const FIELD_ICON_CLASSES: Record<string, string> = {
-  TEXT: 'bg-icon-bg-navy text-accent-navy',
-  NUMBER: 'bg-icon-bg-gold text-accent-gold-on-tint',
-  DATE: 'bg-icon-bg-teal text-accent-teal',
-  SELECT: 'bg-icon-bg-pink text-accent-pink',
-  BOOLEAN: 'bg-icon-bg-teal text-accent-teal',
-  TEXTAREA: 'bg-icon-bg-navy text-accent-navy',
+  TEXT: 'icon-tile-navy',
+  NUMBER: 'icon-tile-gold-on-tint',
+  DATE: 'icon-tile-teal',
+  SELECT: 'icon-tile-pink',
+  BOOLEAN: 'icon-tile-teal',
+  TEXTAREA: 'icon-tile-navy',
 };
 
 /* ===== Toggle Switch Component ===== */
@@ -107,10 +107,10 @@ function StatCard({
   palette: 'navy' | 'teal' | 'gold' | 'pink';
 }) {
   const iconBgMap = {
-    navy: 'bg-icon-bg-navy text-accent-navy',
-    teal: 'bg-icon-bg-teal text-accent-teal',
-    gold: 'bg-icon-bg-gold text-accent-gold-on-tint',
-    pink: 'bg-icon-bg-pink text-accent-pink',
+    navy: 'icon-tile-navy',
+    teal: 'icon-tile-teal',
+    gold: 'icon-tile-gold-on-tint',
+    pink: 'icon-tile-pink',
   };
   return (
     <div className="enterprise-card flex items-center gap-4 p-5 hover:-translate-y-px">

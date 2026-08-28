@@ -291,7 +291,7 @@ export default function BrandingPage() {
               ) : (
                 /* Default upload state */
                 <div>
-                  <div className="w-14 h-14 rounded-full bg-icon-bg-navy text-primary flex items-center justify-center mx-auto mb-3.5">
+                  <div className="w-14 h-14 rounded-full icon-tile-navy flex items-center justify-center mx-auto mb-3.5">
                     <PhotoIcon className="w-6 h-6" />
                   </div>
                   <div className="text-[0.9375rem] font-semibold text-foreground mb-1">

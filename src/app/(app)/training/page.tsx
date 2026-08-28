@@ -180,14 +180,14 @@ export default function TrainingPage() {
     switch (category) {
       case 'systems':
       case 'recruitment':
-        return `${base} bg-icon-bg-navy text-accent-navy`;
+        return `${base} icon-tile-navy`;
       case 'leadership':
-        return `${base} bg-icon-bg-teal text-accent-teal`;
+        return `${base} icon-tile-teal`;
       case 'compliance':
-        return `${base} bg-icon-bg-gold text-accent-gold-on-tint`;
+        return `${base} icon-tile-gold-on-tint`;
       case 'diversity':
       case 'interviewing':
-        return `${base} bg-icon-bg-pink text-accent-pink`;
+        return `${base} icon-tile-pink`;
       default:
         return `${base} bg-muted text-muted-foreground`;
     }
@@ -260,7 +260,7 @@ export default function TrainingPage() {
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-icon-bg-navy text-accent-navy">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 icon-tile-navy">
                 <CheckCircleIcon className="w-6 h-6" />
               </div>
               <div>
@@ -270,7 +270,7 @@ export default function TrainingPage() {
             </div>
 
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-icon-bg-teal text-accent-teal">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 icon-tile-teal">
                 <ClockIcon className="w-6 h-6" />
               </div>
               <div>
@@ -280,7 +280,7 @@ export default function TrainingPage() {
             </div>
 
             <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-icon-bg-gold text-accent-gold-on-tint">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 icon-tile-gold-on-tint">
                 <TrophyIcon className="w-6 h-6" />
               </div>
               <div>
@@ -504,7 +504,7 @@ export default function TrainingPage() {
                     <div className="flex flex-col gap-4 mb-8">
                       {inProgressModules.length > 0 ? inProgressModules.map(module => (
                         <div key={module.id} className="enterprise-card p-6 flex items-center gap-6 hover:-translate-y-px transition-transform flex-wrap md:flex-nowrap">
-                          <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-icon-bg-navy text-accent-navy">
+                          <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 icon-tile-navy">
                             {getTypeIcon(module.type)}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -618,17 +618,17 @@ export default function TrainingPage() {
                   const isCompleted = module.status === 'completed';
                   const certStatus = isCompleted ? 'valid' : 'pending';
                   const iconBgMap: Record<string, string> = {
-                    systems: 'bg-icon-bg-navy text-accent-navy',
-                    recruitment: 'bg-icon-bg-navy text-accent-navy',
-                    interviewing: 'bg-icon-bg-pink text-accent-pink',
-                    compliance: 'bg-icon-bg-gold text-accent-gold-on-tint',
-                    diversity: 'bg-icon-bg-teal text-accent-teal',
-                    leadership: 'bg-icon-bg-teal text-accent-teal',
+                    systems: 'icon-tile-navy',
+                    recruitment: 'icon-tile-navy',
+                    interviewing: 'icon-tile-pink',
+                    compliance: 'icon-tile-gold-on-tint',
+                    diversity: 'icon-tile-teal',
+                    leadership: 'icon-tile-teal',
                   };
 
                   return (
                     <div key={module.id} className="enterprise-card p-6 flex gap-5 hover:-translate-y-0.5 transition-transform">
-                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBgMap[module.category] || 'bg-icon-bg-navy text-accent-navy'}`}>
+                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBgMap[module.category] || 'icon-tile-navy'}`}>
                         <TrophyIcon className="w-7 h-7" />
                       </div>
                       <div className="flex-1 min-w-0">

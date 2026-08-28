@@ -43,12 +43,12 @@ interface CompanyDocument {
 const CATEGORIES = ['POLICY', 'HANDBOOK', 'PROCEDURE', 'FORM', 'TEMPLATE', 'ANNOUNCEMENT'];
 
 const CATEGORY_BADGE_STYLES: Record<string, string> = {
-  POLICY: 'bg-icon-bg-navy text-accent-navy',
-  HANDBOOK: 'bg-icon-bg-teal text-accent-teal',
-  PROCEDURE: 'bg-icon-bg-teal text-accent-teal',
-  FORM: 'bg-icon-bg-gold text-accent-gold-on-tint',
+  POLICY: 'icon-tile-navy',
+  HANDBOOK: 'icon-tile-teal',
+  PROCEDURE: 'icon-tile-teal',
+  FORM: 'icon-tile-gold-on-tint',
   TEMPLATE: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-  ANNOUNCEMENT: 'bg-icon-bg-pink text-accent-pink',
+  ANNOUNCEMENT: 'icon-tile-pink',
 };
 
 function getFileTypeStyle(filename: string): string {
@@ -334,7 +334,7 @@ export default function AdminCompanyDocumentsPage() {
             {/* ===== Stats Bar ===== */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="enterprise-card flex items-center gap-4 p-5 hover:-translate-y-px transition-transform">
-                <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 bg-icon-bg-navy text-accent-navy">
+                <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 icon-tile-navy">
                   <DocumentTextIcon className="w-6 h-6" />
                 </div>
                 <div>
@@ -343,7 +343,7 @@ export default function AdminCompanyDocumentsPage() {
                 </div>
               </div>
               <div className="enterprise-card flex items-center gap-4 p-5 hover:-translate-y-px transition-transform">
-                <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 bg-icon-bg-teal text-accent-teal">
+                <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 icon-tile-teal">
                   <CheckCircleIcon className="w-6 h-6" />
                 </div>
                 <div>
@@ -352,7 +352,7 @@ export default function AdminCompanyDocumentsPage() {
                 </div>
               </div>
               <div className="enterprise-card flex items-center gap-4 p-5 hover:-translate-y-px transition-transform">
-                <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 bg-icon-bg-gold text-accent-gold-on-tint">
+                <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 icon-tile-gold-on-tint">
                   <ClockIcon className="w-6 h-6" />
                 </div>
                 <div>
@@ -361,7 +361,7 @@ export default function AdminCompanyDocumentsPage() {
                 </div>
               </div>
               <div className="enterprise-card flex items-center gap-4 p-5 hover:-translate-y-px transition-transform">
-                <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 bg-icon-bg-pink text-accent-pink">
+                <div className="w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 icon-tile-pink">
                   <ClipboardDocumentCheckIcon className="w-6 h-6" />
                 </div>
                 <div>

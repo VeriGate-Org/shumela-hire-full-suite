@@ -436,7 +436,7 @@ export default function InternalApplicationPage() {
           <div className="bg-card border border-border rounded-card shadow-sm p-7 md:p-8">
             <div
               aria-hidden="true"
-              className="w-11 h-11 rounded-full grid place-items-center bg-icon-bg-teal text-accent-teal"
+              className="w-11 h-11 rounded-full grid place-items-center icon-tile-teal"
             >
               <CheckIcon className="w-6 h-6" />
             </div>
@@ -606,7 +606,7 @@ export default function InternalApplicationPage() {
               <label htmlFor="availability-date" className="block text-[0.9375rem] font-extrabold tracking-[-0.015em] text-foreground">
                 <span
                   aria-hidden="true"
-                  className="inline-grid place-items-center w-5 h-5 rounded-md mr-2 align-[2px] bg-icon-bg-navy text-primary text-[0.6875rem] font-extrabold"
+                  className="inline-grid place-items-center w-5 h-5 rounded-md mr-2 align-[2px] icon-tile-navy text-[0.6875rem] font-extrabold"
                 >
                   1
                 </span>
@@ -633,7 +633,7 @@ export default function InternalApplicationPage() {
               <label htmlFor="reason-for-application" className="block text-[0.9375rem] font-extrabold tracking-[-0.015em] text-foreground">
                 <span
                   aria-hidden="true"
-                  className="inline-grid place-items-center w-5 h-5 rounded-md mr-2 align-[2px] bg-icon-bg-navy text-primary text-[0.6875rem] font-extrabold"
+                  className="inline-grid place-items-center w-5 h-5 rounded-md mr-2 align-[2px] icon-tile-navy text-[0.6875rem] font-extrabold"
                 >
                   2
                 </span>
@@ -692,7 +692,7 @@ export default function InternalApplicationPage() {
               <label htmlFor="cover-letter" className="block text-[0.9375rem] font-extrabold tracking-[-0.015em] text-foreground">
                 <span
                   aria-hidden="true"
-                  className="inline-grid place-items-center w-5 h-5 rounded-md mr-2 align-[2px] bg-icon-bg-navy text-primary text-[0.6875rem] font-extrabold"
+                  className="inline-grid place-items-center w-5 h-5 rounded-md mr-2 align-[2px] icon-tile-navy text-[0.6875rem] font-extrabold"
                 >
                   3
                 </span>

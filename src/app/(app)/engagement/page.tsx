@@ -40,9 +40,9 @@ const AVATAR_STYLES = [
 ];
 
 const RANK_STYLES: Record<number, string> = {
-  1: 'bg-icon-bg-gold text-accent-gold-on-tint',
-  2: 'bg-icon-bg-navy text-accent-navy',
-  3: 'bg-icon-bg-teal text-accent-teal',
+  1: 'icon-tile-gold-on-tint',
+  2: 'icon-tile-navy',
+  3: 'icon-tile-teal',
 };
 
 const PROGRESS_COLORS = [
@@ -53,19 +53,19 @@ const PROGRESS_COLORS = [
 ];
 
 const CATEGORY_STYLES: Record<string, string> = {
-  TEAMWORK: 'bg-icon-bg-teal text-accent-teal',
-  LEADERSHIP: 'bg-icon-bg-navy text-accent-navy',
-  INNOVATION: 'bg-icon-bg-gold text-accent-gold-on-tint',
-  SAFETY: 'bg-icon-bg-pink text-accent-pink',
+  TEAMWORK: 'icon-tile-teal',
+  LEADERSHIP: 'icon-tile-navy',
+  INNOVATION: 'icon-tile-gold-on-tint',
+  SAFETY: 'icon-tile-pink',
   SERVICE_EXCELLENCE: 'bg-surface-navy text-accent-navy',
   CUSTOMER_SERVICE: 'bg-surface-navy text-accent-navy',
 };
 
 const WELLNESS_ICON_STYLES = [
-  'bg-icon-bg-teal text-accent-teal',
-  'bg-icon-bg-navy text-accent-navy',
-  'bg-icon-bg-gold text-accent-gold-on-tint',
-  'bg-icon-bg-pink text-accent-pink',
+  'icon-tile-teal',
+  'icon-tile-navy',
+  'icon-tile-gold-on-tint',
+  'icon-tile-pink',
 ];
 
 export default function EngagementDashboardPage() {
@@ -106,7 +106,7 @@ export default function EngagementDashboardPage() {
       value: activeSurveys.length,
       icon: ClipboardDocumentListIcon,
       href: '/engagement/surveys',
-      iconBg: 'bg-icon-bg-navy',
+      iconBg: 'icon-tile-navy',
       iconColor: 'text-accent-navy',
     },
     {
@@ -114,7 +114,7 @@ export default function EngagementDashboardPage() {
       value: recentRecognitions.length,
       icon: StarIcon,
       href: '/engagement/recognition',
-      iconBg: 'bg-icon-bg-teal',
+      iconBg: 'icon-tile-teal',
       iconColor: 'text-accent-teal',
     },
     {
@@ -122,7 +122,7 @@ export default function EngagementDashboardPage() {
       value: activePrograms.length,
       icon: HeartIcon,
       href: '/engagement/wellness',
-      iconBg: 'bg-icon-bg-gold',
+      iconBg: 'icon-tile-gold',
       iconColor: 'text-accent-gold',
     },
     {
@@ -130,7 +130,7 @@ export default function EngagementDashboardPage() {
       value: leaderboard.length,
       icon: TrophyIcon,
       href: '/engagement/recognition',
-      iconBg: 'bg-icon-bg-pink',
+      iconBg: 'icon-tile-pink',
       iconColor: 'text-accent-pink',
     },
   ];
@@ -289,8 +289,8 @@ export default function EngagementDashboardPage() {
               {/* Card Header */}
               <div className="flex items-center justify-between px-5 pt-5 mb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-control bg-icon-bg-navy flex items-center justify-center shrink-0">
-                    <ClipboardDocumentListIcon className="w-[18px] h-[18px] text-accent-navy" />
+                  <div className="w-9 h-9 rounded-control icon-tile-navy flex items-center justify-center shrink-0">
+                    <ClipboardDocumentListIcon className="w-[18px] h-[18px]" />
                   </div>
                   <h2 className="text-xl font-bold text-foreground">Active Surveys</h2>
                 </div>
@@ -350,8 +350,8 @@ export default function EngagementDashboardPage() {
               {/* Card Header */}
               <div className="flex items-center justify-between px-5 pt-5 mb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-control bg-icon-bg-gold flex items-center justify-center shrink-0">
-                    <TrophyIcon className="w-[18px] h-[18px] text-accent-gold" />
+                  <div className="w-9 h-9 rounded-control icon-tile-gold flex items-center justify-center shrink-0">
+                    <TrophyIcon className="w-[18px] h-[18px]" />
                   </div>
                   <h2 className="text-xl font-bold text-foreground">Recognition Leaderboard</h2>
                 </div>
@@ -409,8 +409,8 @@ export default function EngagementDashboardPage() {
             {/* Card Header */}
             <div className="flex items-center justify-between px-5 pt-5 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-control bg-icon-bg-teal flex items-center justify-center shrink-0">
-                  <StarIcon className="w-[18px] h-[18px] text-accent-teal" />
+                <div className="w-9 h-9 rounded-control icon-tile-teal flex items-center justify-center shrink-0">
+                  <StarIcon className="w-[18px] h-[18px]" />
                 </div>
                 <h2 className="text-xl font-bold text-foreground">Recent Recognitions</h2>
               </div>
@@ -433,7 +433,7 @@ export default function EngagementDashboardPage() {
                     const fromAvatar = AVATAR_STYLES[idx % AVATAR_STYLES.length];
                     const toAvatar = AVATAR_STYLES[(idx + 2) % AVATAR_STYLES.length];
                     const categoryKey = rec.category?.toUpperCase().replace(/\s+/g, '_') || '';
-                    const categoryStyle = CATEGORY_STYLES[categoryKey] || 'bg-icon-bg-navy text-accent-navy';
+                    const categoryStyle = CATEGORY_STYLES[categoryKey] || 'icon-tile-navy';
 
                     return (
                       <div key={rec.id} className="flex items-start gap-3 py-3.5 first:pt-0 last:pb-0">
@@ -488,8 +488,8 @@ export default function EngagementDashboardPage() {
             {/* Card Header */}
             <div className="flex items-center justify-between px-5 pt-5 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-control bg-icon-bg-pink flex items-center justify-center shrink-0">
-                  <HeartIcon className="w-[18px] h-[18px] text-accent-pink" />
+                <div className="w-9 h-9 rounded-control icon-tile-pink flex items-center justify-center shrink-0">
+                  <HeartIcon className="w-[18px] h-[18px]" />
                 </div>
                 <h2 className="text-xl font-bold text-foreground">Wellness Programs</h2>
               </div>
