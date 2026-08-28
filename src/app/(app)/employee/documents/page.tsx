@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { TableSkeleton } from '@/components/LoadingComponents';
 import { apiFetch } from '@/lib/api-fetch';
@@ -439,10 +440,12 @@ export default function EmployeeDocumentsPage() {
 
   return (
     <FeatureGate feature="EMPLOYEE_DOCUMENTS">
-      <PageWrapper
-        title="Documents"
-        subtitle="Manage employee documents, certificates, and compliance records"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Documents"
+          subtitle="Manage employee documents, certificates, and compliance records"
+          actions={
           <button
             onClick={() => setShowUploadModal(true)}
             className="btn-cta inline-flex items-center gap-2"
@@ -450,7 +453,7 @@ export default function EmployeeDocumentsPage() {
             <ArrowUpTrayIcon className="w-4 h-4" /> Upload Document
           </button>
         }
-      >
+        />
         <div className="space-y-6">
           {/* ===== Upload Document Modal ===== */}
           {showUploadModal && (

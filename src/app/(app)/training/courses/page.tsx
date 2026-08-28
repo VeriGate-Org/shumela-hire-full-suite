@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { trainingService, TrainingCourse } from '@/services/trainingService';
 import Link from 'next/link';
@@ -53,10 +54,12 @@ export default function TrainingCoursesPage() {
 
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">
-      <PageWrapper
-        title="Training Course Catalog"
-        subtitle="Browse available training courses and programs"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Training Course Catalog"
+          subtitle="Browse available training courses and programs"
+          actions={
           <Link
             href="/training/admin"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
@@ -64,7 +67,7 @@ export default function TrainingCoursesPage() {
             <AcademicCapIcon className="w-4 h-4" /> Manage Courses
           </Link>
         }
-      >
+        />
         <div className="space-y-6">
           {/* Search and Filter */}
           <div className="flex flex-col sm:flex-row gap-3">

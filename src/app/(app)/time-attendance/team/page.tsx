@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { AttendanceRecord, attendanceService } from '@/services/attendanceService';
 import StatusPill from '@/components/StatusPill';
@@ -23,7 +24,12 @@ export default function TeamAttendancePage() {
 
   return (
     <FeatureGate feature="TIME_ATTENDANCE">
-      <PageWrapper title="Team Attendance" subtitle="View attendance for your department">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Team Attendance"
+          subtitle="View attendance for your department"
+        />
         <div className="space-y-6">
           {/* Filters */}
           <div className="enterprise-card p-4">

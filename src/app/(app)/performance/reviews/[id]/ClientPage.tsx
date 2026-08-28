@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { performanceEnhancementService } from '@/services/performanceEnhancementService';
 import StatusPill from '@/components/StatusPill';
 import { useToast } from '@/components/Toast';
@@ -108,7 +109,12 @@ export default function ReviewDetailPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Performance Review" subtitle="Loading...">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Performance Review"
+          subtitle="Loading..."
+        />
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
         </div>
@@ -118,7 +124,12 @@ export default function ReviewDetailPage() {
 
   if (!review) {
     return (
-      <PageWrapper title="Review Not Found" subtitle="">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Review Not Found"
+          subtitle=""
+        />
         <p className="text-muted-foreground">The requested review could not be found.</p>
       </PageWrapper>
     );
@@ -131,15 +142,17 @@ export default function ReviewDetailPage() {
   const goalScores = review.goalScores || [];
 
   return (
-    <PageWrapper
-      title="Performance Review"
-      subtitle={`${review.contract?.employeeName || 'Employee'} — ${review.type === 'MID_YEAR' ? 'Mid-Year' : 'Final'} Review`}
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Talent"
+        title="Performance Review"
+        subtitle={`${review.contract?.employeeName || 'Employee'} — ${review.type === 'MID_YEAR' ? 'Mid-Year' : 'Final'} Review`}
+        actions={
         <Link href="/performance/reviews" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeftIcon className="w-4 h-4" /> Back to Reviews
         </Link>
       }
-    >
+      />
       <div className="space-y-6">
         {/* Review Header */}
         <div className="enterprise-card p-6">

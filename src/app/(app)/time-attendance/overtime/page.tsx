@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { OvertimeRecord, attendanceService, PageResponse } from '@/services/attendanceService';
 import { PlusIcon, CheckIcon, XMarkIcon, ClockIcon, ChevronLeftIcon, ChevronRightIcon, CurrencyDollarIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
@@ -209,10 +210,12 @@ export default function OvertimePage() {
 
   return (
     <FeatureGate feature="TIME_ATTENDANCE">
-      <PageWrapper
-        title="Overtime Log"
-        subtitle="Log, track, and manage overtime hours"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Overtime Log"
+          subtitle="Log, track, and manage overtime hours"
+          actions={
           <button
             onClick={() => setShowForm(!showForm)}
             disabled={!profileResolved}
@@ -221,7 +224,7 @@ export default function OvertimePage() {
             <PlusIcon className="w-4 h-4" /> Log Overtime
           </button>
         }
-      >
+        />
         <div className="space-y-6">
           {/* BUG-001 fix: show error banner when profile unresolved or fetch failed */}
           {error && (

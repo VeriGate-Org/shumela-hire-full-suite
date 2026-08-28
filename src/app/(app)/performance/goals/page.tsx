@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { apiFetch } from '@/lib/api-fetch';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -155,10 +156,12 @@ export default function GoalCascadePage() {
   }, []);
 
   return (
-    <PageWrapper
-      title="Goal Cascade"
-      subtitle="View organizational goal hierarchy and alignment"
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Talent"
+        title="Goal Cascade"
+        subtitle="View organizational goal hierarchy and alignment"
+        actions={
         <div className="flex items-center gap-2">
           <button
             onClick={() => setViewMode('list')}
@@ -178,7 +181,7 @@ export default function GoalCascadePage() {
           </button>
         </div>
       }
-    >
+      />
       {loading ? (
         <div className="text-center py-12 text-muted-foreground">Loading goals...</div>
       ) : goals.length === 0 ? (

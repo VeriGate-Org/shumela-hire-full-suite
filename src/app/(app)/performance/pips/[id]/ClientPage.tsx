@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { performanceEnhancementService, Pip, PipMilestone } from '@/services/performanceEnhancementService';
 import { useToast } from '@/components/Toast';
@@ -139,7 +140,11 @@ export default function PipDetailPage() {
   if (loading) {
     return (
       <FeatureGate feature="PERFORMANCE_PIP">
-        <PageWrapper title="PIP Details">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="PIP Details"
+          />
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500" />
           </div>
@@ -151,7 +156,11 @@ export default function PipDetailPage() {
   if (error || !pip) {
     return (
       <FeatureGate feature="PERFORMANCE_PIP">
-        <PageWrapper title="PIP Details">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="PIP Details"
+          />
           <div className="bg-white rounded-[10px] border border-gray-200 p-6 text-center">
             <p className="text-red-600 mb-4">{error || 'PIP not found'}</p>
             <div className="flex justify-center gap-4">
@@ -175,7 +184,12 @@ export default function PipDetailPage() {
 
   return (
     <FeatureGate feature="PERFORMANCE_PIP">
-      <PageWrapper title="PIP Details" subtitle={`Performance Improvement Plan for ${pip.employeeName}`}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="PIP Details"
+          subtitle={`Performance Improvement Plan for ${pip.employeeName}`}
+        />
         {/* Back Link */}
         <Link
           href="/performance/pips"

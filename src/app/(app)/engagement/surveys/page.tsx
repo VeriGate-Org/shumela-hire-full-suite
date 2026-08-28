@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { engagementService, Survey } from '@/services/engagementService';
 import { PlusIcon, ChartBarIcon, PlayIcon, StopIcon, TrashIcon, ClipboardDocumentListIcon, SparklesIcon } from '@heroicons/react/24/outline';
@@ -110,15 +111,19 @@ export default function SurveysPage() {
 
   return (
     <FeatureGate feature="PULSE_SURVEYS">
-      <PageWrapper title="Pulse Surveys" subtitle="Create surveys, track engagement, and analyse employee sentiment"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Engagement"
+          title="Pulse Surveys"
+          subtitle="Create surveys, track engagement, and analyse employee sentiment"
+          actions={
           <button onClick={() => setShowCreateModal(true)}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button bg-cta text-cta-foreground font-semibold text-xs uppercase tracking-wider hover:bg-cta-hover transition-colors">
             <PlusIcon className="h-4 w-4" />
             Create Survey
           </button>
         }
-      >
+        />
         {/* ====== STAT CARDS ====== */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Active Surveys */}

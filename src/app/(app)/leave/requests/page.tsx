@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { LeaveRequest, leaveService } from '@/services/leaveService';
 import Link from 'next/link';
@@ -58,15 +59,17 @@ export default function LeaveRequestsPage() {
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">
-      <PageWrapper
-        title="My Leave Requests"
-        subtitle="View and manage your leave requests"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="My Leave Requests"
+          subtitle="View and manage your leave requests"
+          actions={
           <Link href="/leave/request" className="btn-cta inline-flex items-center gap-2">
             <PlusIcon className="w-4 h-4" /> New Request
           </Link>
         }
-      >
+        />
         <div className="space-y-4">
           <div className="flex gap-2">
             {['', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'].map((s) => (

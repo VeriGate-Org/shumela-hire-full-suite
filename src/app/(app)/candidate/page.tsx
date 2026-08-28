@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import { getApplicantId, getApplicant, getApplications as fetchApplications, getDocuments as fetchDocuments } from '@/services/candidateService';
@@ -433,10 +434,12 @@ export default function CandidatePortalPage() {
   // ---------------------------------------------------------------------------
 
   return (
-    <PageWrapper
-      title="Candidate Portal"
-      subtitle="Browse job openings, track your applications, and manage your profile"
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Candidate Portal"
+        title="Candidate Portal"
+        subtitle="Browse job openings, track your applications, and manage your profile"
+      />
       {loading ? (
         <div className="space-y-6">
           {/* Skeleton stats */}

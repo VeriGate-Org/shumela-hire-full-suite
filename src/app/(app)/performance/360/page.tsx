@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { performanceEnhancementService, FeedbackRequest } from '@/services/performanceEnhancementService';
 import { ChatBubbleLeftRightIcon, ClockIcon, CheckCircleIcon, XCircleIcon, SparklesIcon } from '@heroicons/react/24/outline';
@@ -97,8 +98,12 @@ export default function FeedbackPage() {
 
   return (
     <FeatureGate feature="PERFORMANCE_360_FEEDBACK">
-      <PageWrapper title="360 Feedback" subtitle="Multi-source performance feedback management"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="360 Feedback"
+          subtitle="Multi-source performance feedback management"
+          actions={
           <div className="flex gap-2">
             <button onClick={generateAiSummary}
               disabled={aiLoading || requests.length === 0}
@@ -111,7 +116,8 @@ export default function FeedbackPage() {
               Request Feedback
             </button>
           </div>
-        }>
+        }
+        />
         {aiSummary && (
           <div className="mb-6 bg-purple-50 border border-purple-200 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">

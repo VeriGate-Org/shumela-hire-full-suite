@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import {
   onboardingService,
@@ -144,10 +145,12 @@ export default function OnboardingTemplatesPage() {
 
   return (
     <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
-      <PageWrapper
-        title="Onboarding Templates"
-        subtitle="Create and manage onboarding checklist templates"
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Onboarding Templates"
+          subtitle="Create and manage onboarding checklist templates"
+        />
         <div className="space-y-6">
           {/* Header Actions */}
           <div className="flex justify-end">

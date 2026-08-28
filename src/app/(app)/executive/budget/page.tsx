@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import StatusPill from '@/components/StatusPill';
 import { formatCurrency } from '@/utils/currency';
 import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline';
@@ -241,7 +242,13 @@ export default function BudgetApprovalsPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Budget & Approvals" subtitle="Loading financial data..." actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Executive"
+          title="Budget & Approvals"
+          subtitle="Loading financial data..."
+          actions={actions}
+        />
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
         </div>
@@ -250,11 +257,13 @@ export default function BudgetApprovalsPage() {
   }
 
   return (
-    <PageWrapper
-      title="Budget & Approvals"
-      subtitle="Executive oversight of budget allocation and approval workflows"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Executive"
+        title="Budget & Approvals"
+        subtitle="Executive oversight of budget allocation and approval workflows"
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* View Navigation */}
         <div className="bg-card rounded-control shadow p-4">

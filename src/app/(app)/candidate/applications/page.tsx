@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import EmptyState from '@/components/EmptyState';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
@@ -279,7 +280,13 @@ export default function MyApplicationsPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="My Applications" subtitle="Loading your applications..." actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Personal"
+          title="My Applications"
+          subtitle="Loading your applications..."
+          actions={actions}
+        />
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
         </div>
@@ -288,11 +295,13 @@ export default function MyApplicationsPage() {
   }
 
   return (
-    <PageWrapper
-      title="My Applications"
-      subtitle="Track and manage your job applications"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Personal"
+        title="My Applications"
+        subtitle="Track and manage your job applications"
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

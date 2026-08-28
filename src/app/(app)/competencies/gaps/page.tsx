@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import {
   performanceEnhancementService,
@@ -100,7 +101,12 @@ export default function SkillGapsPage() {
 
   return (
     <FeatureGate feature="COMPETENCY_MAPPING">
-      <PageWrapper title="Skill Gap Analysis" subtitle="Identify and address competency gaps">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Skill Gap Analysis"
+          subtitle="Identify and address competency gaps"
+        />
         {/* Search Section */}
         <div className="bg-white rounded-[10px] border border-gray-200 p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

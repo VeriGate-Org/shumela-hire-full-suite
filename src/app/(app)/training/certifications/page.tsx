@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { trainingService, Certification } from '@/services/trainingService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -80,10 +81,12 @@ export default function CertificationsPage() {
 
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">
-      <PageWrapper
-        title="Certifications"
-        subtitle="Manage your professional certifications"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Certifications"
+          subtitle="Manage your professional certifications"
+          actions={
           <button
             onClick={() => setShowForm(!showForm)}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
@@ -91,7 +94,7 @@ export default function CertificationsPage() {
             <PlusIcon className="w-4 h-4" /> Add Certification
           </button>
         }
-      >
+        />
         <div className="space-y-6">
           {/* Filter */}
           <div className="flex gap-2">

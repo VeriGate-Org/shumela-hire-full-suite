@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { feedService, FeedPost } from '@/services/feedService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -402,7 +403,12 @@ export default function FeedPage() {
   /* ========== Loading State ========== */
   if (loading) {
     return (
-      <PageWrapper title="Social Feed" subtitle="Stay connected with your organisation">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Engagement"
+          title="Social Feed"
+          subtitle="Stay connected with your organisation"
+        />
         {/* Skeleton Stats Bar */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {[1, 2, 3].map((i) => (
@@ -444,10 +450,12 @@ export default function FeedPage() {
 
   /* ========== Main Render ========== */
   return (
-    <PageWrapper
-      title="Social Feed"
-      subtitle="Stay connected with your organisation"
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Engagement"
+        title="Social Feed"
+        subtitle="Stay connected with your organisation"
+        actions={
         <Link
           href="/feed/compose"
           className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-full border-2 border-cta bg-transparent text-primary uppercase tracking-wide hover:bg-cta hover:text-cta-foreground transition-colors"
@@ -456,7 +464,7 @@ export default function FeedPage() {
           New Post
         </Link>
       }
-    >
+      />
       <FeatureGate feature="SOCIAL_FEED" fallback={
         <div className="enterprise-card p-16 text-center">
           <div className="w-20 h-20 rounded-full bg-surface-navy inline-flex items-center justify-center mb-5">

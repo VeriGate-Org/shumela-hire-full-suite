@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { performanceEnhancementService, EmployeeCompetency } from '@/services/performanceEnhancementService';
 import { AcademicCapIcon } from '@heroicons/react/24/outline';
@@ -40,7 +41,12 @@ export default function CompetencyProfilePage() {
 
   return (
     <FeatureGate feature="COMPETENCY_MAPPING">
-      <PageWrapper title="Competency Profile" subtitle="View employee competency assessments and gaps">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Competency Profile"
+          subtitle="View employee competency assessments and gaps"
+        />
         <div className="space-y-6">
           {/* Search */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">

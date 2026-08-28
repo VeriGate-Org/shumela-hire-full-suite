@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { TenantCompanyInfo } from '@/types/tenantBranding';
 import {
@@ -232,7 +233,11 @@ export default function TenantDetailPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Loading...">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Platform"
+          title="Loading..."
+        />
         <div className="flex items-center justify-center py-20 text-gray-500">Loading tenant details...</div>
       </PageWrapper>
     );
@@ -240,23 +245,29 @@ export default function TenantDetailPage() {
 
   if (!tenant) {
     return (
-      <PageWrapper title="Tenant Not Found">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Platform"
+          title="Tenant Not Found"
+        />
         <div className="text-center py-20 text-gray-500">Tenant not found</div>
       </PageWrapper>
     );
   }
 
   return (
-    <PageWrapper
-      title={tenant.name}
-      subtitle={`${tenant.subdomain} \u00B7 ${tenant.plan} plan \u00B7 ${tenant.status}`}
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Platform"
+        title={tenant.name}
+        subtitle={`${tenant.subdomain} \u00B7 ${tenant.plan} plan \u00B7 ${tenant.status}`}
+        actions={
         <Link href="/platform/tenants" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors">
           <ArrowLeftIcon className="h-4 w-4" />
           Back to tenants
         </Link>
       }
-    >
+      />
       <div className="space-y-8">
         {/* Organization Info */}
         <div>

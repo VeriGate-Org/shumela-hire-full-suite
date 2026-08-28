@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import LeavePolicyForm from '@/components/leave/LeavePolicyForm';
 import { LeavePolicy, LeaveType, leaveService } from '@/services/leaveService';
@@ -29,10 +30,12 @@ export default function LeavePoliciesPage() {
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">
-      <PageWrapper
-        title="Leave Policies"
-        subtitle="Configure leave policies and types"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Leave Policies"
+          subtitle="Configure leave policies and types"
+          actions={
           <button
             onClick={() => setShowForm(true)}
             className="btn-cta inline-flex items-center gap-2"
@@ -40,7 +43,7 @@ export default function LeavePoliciesPage() {
             <PlusIcon className="w-4 h-4" /> New Policy
           </button>
         }
-      >
+        />
         <div className="space-y-6">
           {showForm && (
             <LeavePolicyForm

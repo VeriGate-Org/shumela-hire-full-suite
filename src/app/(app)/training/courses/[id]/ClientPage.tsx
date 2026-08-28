@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import {
   trainingService,
@@ -122,7 +123,12 @@ export default function CourseDetailPage() {
   if (loading) {
     return (
       <FeatureGate feature="TRAINING_MANAGEMENT">
-        <PageWrapper title="Course Details" subtitle="Loading course...">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="Course Details"
+            subtitle="Loading course..."
+          />
           <div className="flex items-center justify-center h-96">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500"></div>
           </div>
@@ -134,7 +140,12 @@ export default function CourseDetailPage() {
   if (error) {
     return (
       <FeatureGate feature="TRAINING_MANAGEMENT">
-        <PageWrapper title="Course Details" subtitle="An error occurred">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="Course Details"
+            subtitle="An error occurred"
+          />
           <div className="bg-white rounded-[10px] border border-gray-200 p-8">
             <div className="text-center">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -168,7 +179,12 @@ export default function CourseDetailPage() {
   if (!course) {
     return (
       <FeatureGate feature="TRAINING_MANAGEMENT">
-        <PageWrapper title="Course Details" subtitle="Course not found">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Talent"
+            title="Course Details"
+            subtitle="Course not found"
+          />
           <div className="bg-white rounded-[10px] border border-gray-200 p-12 text-center">
             <AcademicCapIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-1">Course not found</h3>
@@ -189,7 +205,12 @@ export default function CourseDetailPage() {
 
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">
-      <PageWrapper title={course.title} subtitle={`Course ${course.code}`}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title={course.title}
+          subtitle={`Course ${course.code}`}
+        />
         <div className="space-y-6">
           {/* Back link */}
           <Link

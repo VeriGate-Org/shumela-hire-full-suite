@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { performanceEnhancementService, CompetencyFramework } from '@/services/performanceEnhancementService';
 import {
@@ -165,10 +166,12 @@ export default function CompetenciesPage() {
 
   return (
     <FeatureGate feature="COMPETENCY_MAPPING">
-      <PageWrapper
-        title="Competency Framework"
-        subtitle="Define, assess, and track workforce competencies"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Talent"
+          title="Competency Framework"
+          subtitle="Define, assess, and track workforce competencies"
+          actions={
           <Link
             href="/competencies/profile"
             className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm"
@@ -176,7 +179,7 @@ export default function CompetenciesPage() {
             My Competency Profile
           </Link>
         }
-      >
+        />
         <div className="space-y-0">
           {loading ? (
             <>

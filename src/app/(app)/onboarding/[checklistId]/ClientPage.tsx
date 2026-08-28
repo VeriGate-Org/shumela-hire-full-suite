@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import {
   onboardingService,
@@ -122,10 +123,12 @@ export default function ChecklistDetailPage() {
 
   return (
     <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
-      <PageWrapper
-        title="Checklist Detail"
-        subtitle="View and manage individual onboarding checklist items"
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Checklist Detail"
+          subtitle="View and manage individual onboarding checklist items"
+        />
         {/* Back Link */}
         <Link
           href="/onboarding"

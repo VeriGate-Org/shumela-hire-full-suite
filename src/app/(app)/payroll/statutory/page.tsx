@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import {
   payrollService,
@@ -101,7 +102,12 @@ export default function StatutoryCompliancePage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Tax & Statutory Compliance" subtitle="Loading...">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Payroll"
+          title="Tax & Statutory Compliance"
+          subtitle="Loading..."
+        />
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
         </div>
@@ -111,10 +117,12 @@ export default function StatutoryCompliancePage() {
 
   return (
     <FeatureGate feature="SAGE_EVOLUTION">
-      <PageWrapper
-        title="Tax & Statutory Compliance"
-        subtitle={`South African statutory deductions and SARS reporting \u2014 Tax Year ${taxYear}`}
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Payroll"
+          title="Tax & Statutory Compliance"
+          subtitle={`South African statutory deductions and SARS reporting \u2014 Tax Year ${taxYear}`}
+        />
         <div className="space-y-6">
           {/* Registration Numbers */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

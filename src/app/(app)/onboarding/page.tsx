@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -213,10 +214,12 @@ export default function OnboardingChecklistsPage() {
   if (!isAdmin) {
     return (
       <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
-        <PageWrapper
-          title="My Onboarding"
-          subtitle="Track your onboarding progress"
-        >
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="HR"
+            title="My Onboarding"
+            subtitle="Track your onboarding progress"
+          />
           <EmployeeOnboardingPage />
         </PageWrapper>
       </FeatureGate>
@@ -225,10 +228,12 @@ export default function OnboardingChecklistsPage() {
 
   return (
     <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
-      <PageWrapper
-        title="Onboarding Checklists"
-        subtitle="Track and manage new hire onboarding progress"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Onboarding Checklists"
+          subtitle="Track and manage new hire onboarding progress"
+          actions={
           <div className="flex items-center gap-3">
             <Link
               href="/onboarding/templates"
@@ -247,7 +252,7 @@ export default function OnboardingChecklistsPage() {
             )}
           </div>
         }
-      >
+        />
         <div className="space-y-6">
           {/* ====== STAT CARDS ====== */}
           {loading ? (

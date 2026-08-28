@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import { useAuth } from '@/contexts/AuthContext';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { ConnectorScreen, Panel, DeploymentSetting, OperatorNote } from '../ConnectorScreen';
 
 /**
@@ -50,7 +51,12 @@ export default function DocuSignPage() {
 
   if (!hasAccess) {
     return (
-      <PageWrapper title="DocuSign" subtitle="You do not have permission to view integrations">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="DocuSign"
+          subtitle="You do not have permission to view integrations"
+        />
         <div className="enterprise-card p-8 text-center">
           <p className="text-sm text-muted-foreground">
             Integrations are managed by administrators and HR managers.

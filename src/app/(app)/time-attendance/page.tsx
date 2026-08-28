@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { AttendanceRecord, OvertimeRecord, attendanceService } from '@/services/attendanceService';
 import Link from 'next/link';
@@ -254,10 +255,12 @@ export default function TimeAttendancePage() {
 
   return (
     <FeatureGate feature="TIME_ATTENDANCE">
-      <PageWrapper
-        title="Time & Attendance"
-        subtitle="Track your working hours, clock in/out, and manage overtime"
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Time & Attendance"
+          subtitle="Track your working hours, clock in/out, and manage overtime"
+        />
         <div className="space-y-6">
           {error && (
             <div className="flex items-center gap-2 p-3 bg-error-bg border border-error/20 rounded-control text-sm text-error-on-tint dark:bg-red-950/30 dark:border-red-800 dark:text-red-400">

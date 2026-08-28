@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import StatusPill from '@/components/StatusPill';
 import { apiFetch } from '@/lib/api-fetch';
 import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline';
@@ -308,7 +309,13 @@ export default function OrganizationalOverviewPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Organizational Overview" subtitle="Loading organizational data..." actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Executive"
+          title="Organizational Overview"
+          subtitle="Loading organizational data..."
+          actions={actions}
+        />
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
         </div>
@@ -317,11 +324,13 @@ export default function OrganizationalOverviewPage() {
   }
 
   return (
-    <PageWrapper
-      title="Organizational Overview"
-      subtitle="Comprehensive view of organizational structure, metrics, and strategic insights"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Executive"
+        title="Organizational Overview"
+        subtitle="Comprehensive view of organizational structure, metrics, and strategic insights"
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* View Navigation */}
         <div className="bg-white rounded-control shadow p-4">

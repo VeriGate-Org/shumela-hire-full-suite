@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import ErrorState from '@/components/ErrorState';
 import { useToast } from '@/components/Toast';
 import {
@@ -584,7 +585,13 @@ export default function SupportPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="IT Support" subtitle="Submit tickets, track issues, and get help" actions={headerAction}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Communication"
+          title="IT Support"
+          subtitle="Submit tickets, track issues, and get help"
+          actions={headerAction}
+        />
         <div className="space-y-6">
           {/* Stats skeleton */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -621,7 +628,12 @@ export default function SupportPage() {
 
   if (error) {
     return (
-      <PageWrapper title="IT Support" subtitle="Submit tickets, track issues, and get help">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Communication"
+          title="IT Support"
+          subtitle="Submit tickets, track issues, and get help"
+        />
         <ErrorState
           title="Unable to Load Support Data"
           message="Something went wrong while loading your support information. Please try again."
@@ -637,7 +649,13 @@ export default function SupportPage() {
   /* ======================================================================== */
 
   return (
-    <PageWrapper title="IT Support" subtitle="Submit tickets, track issues, and get help" actions={headerAction}>
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Communication"
+        title="IT Support"
+        subtitle="Submit tickets, track issues, and get help"
+        actions={headerAction}
+      />
       <div className="space-y-6">
 
         {/* ================================================================ */}

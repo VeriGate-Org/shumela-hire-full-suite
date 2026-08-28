@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import {
   sageIntegrationService,
@@ -165,7 +166,12 @@ export default function SageFieldMappingsPage() {
 
   return (
     <FeatureGate feature="SAGE_300_PEOPLE">
-      <PageWrapper title="Sage Field Mappings" subtitle="Configure field mappings between Sage and your system">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="Sage Field Mappings"
+          subtitle="Configure field mappings between Sage and your system"
+        />
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500" />

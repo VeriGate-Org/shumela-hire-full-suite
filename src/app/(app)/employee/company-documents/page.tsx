@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { TableSkeleton } from '@/components/LoadingComponents';
 import { apiFetch } from '@/lib/api-fetch';
@@ -99,10 +100,12 @@ export default function EmployeeCompanyDocumentsPage() {
 
   return (
     <FeatureGate feature="COMPANY_DOCUMENTS">
-      <PageWrapper
-        title="Company Documents"
-        subtitle="Access company policies, handbooks, and shared documents"
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Company Documents"
+          subtitle="Access company policies, handbooks, and shared documents"
+        />
         {/* Category filter */}
         <div className="flex gap-2 mb-6 flex-wrap">
           <button

@@ -18,6 +18,7 @@ import {
   CheckIcon,
 } from '@heroicons/react/24/outline';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 
 // ----------------------------------------------------------------
 // Types
@@ -777,11 +778,13 @@ export default function MessagesPage() {
   // ----------------------------------------------------------------
 
   return (
-    <PageWrapper
-      title="Messages"
-      subtitle="Communicate with colleagues, departments, and hiring teams"
-      actions={composeButton}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Communication"
+        title="Messages"
+        subtitle="Communicate with colleagues, departments, and hiring teams"
+        actions={composeButton}
+      />
       {/* Messaging container */}
       <div className="enterprise-card overflow-hidden flex" style={{ height: 'calc(100vh - 220px)', minHeight: '500px' }}>
 

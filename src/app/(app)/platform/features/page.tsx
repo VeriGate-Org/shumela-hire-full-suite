@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import {
   PlusIcon,
@@ -170,10 +171,12 @@ export default function FeaturesPage() {
   };
 
   return (
-    <PageWrapper
-      title="Feature Registry"
-      subtitle="Manage platform features and their plan defaults"
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Platform"
+        title="Feature Registry"
+        subtitle="Manage platform features and their plan defaults"
+        actions={
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
           className="flex items-center gap-1.5 px-4 py-2 bg-cta text-deep-navy text-sm font-medium rounded-full hover:bg-cta/90 transition-colors"
@@ -182,7 +185,7 @@ export default function FeaturesPage() {
           Add Feature
         </button>
       }
-    >
+      />
       <div className="space-y-6">
         {/* Create/Edit Form */}
         {showForm && (

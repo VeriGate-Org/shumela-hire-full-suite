@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { useAuth } from '@/contexts/AuthContext';
 import { customFieldService, CustomField } from '@/services/customFieldService';
@@ -236,10 +237,12 @@ export default function CustomFieldsPage() {
   const EntityIcon = ENTITY_ICONS[activeTab];
 
   return (
-    <PageWrapper
-      title="Custom Fields"
-      subtitle="Configure custom data fields for employees, jobs, applications, and interviews"
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Settings"
+        title="Custom Fields"
+        subtitle="Configure custom data fields for employees, jobs, applications, and interviews"
+        actions={
         <button
           onClick={handleAdd}
           className="btn-cta inline-flex items-center gap-2"
@@ -247,7 +250,7 @@ export default function CustomFieldsPage() {
           <PlusIcon className="w-4 h-4" /> Add Field
         </button>
       }
-    >
+      />
       <div className="space-y-6">
         {/* ===== Stats Bar ===== */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

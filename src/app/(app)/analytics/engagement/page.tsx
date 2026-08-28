@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { hrAnalyticsService } from '@/services/hrAnalyticsService';
 import { useToast } from '@/components/Toast';
@@ -122,8 +123,12 @@ export default function EngagementAnalyticsPage() {
 
   return (
     <FeatureGate feature="ADVANCED_ANALYTICS">
-      <PageWrapper title="Engagement Analytics" subtitle="Employee engagement, survey participation, and recognition metrics"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Analytics"
+          title="Engagement Analytics"
+          subtitle="Employee engagement, survey participation, and recognition metrics"
+          actions={
           <div className="flex gap-2">
             <button onClick={analyzeSentiment} disabled={aiLoading || loading}
               className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm disabled:opacity-50 flex items-center gap-1">
@@ -137,7 +142,7 @@ export default function EngagementAnalyticsPage() {
             </button>
           </div>
         }
-      >
+        />
         {aiSentiment && (
           <div className="mb-6 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">

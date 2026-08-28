@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import LeaveApprovalCard from '@/components/leave/LeaveApprovalCard';
 import { LeaveRequest, leaveService } from '@/services/leaveService';
@@ -34,7 +35,12 @@ export default function LeaveApprovalsPage() {
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">
-      <PageWrapper title="Leave Approvals" subtitle="Review and approve pending leave requests">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Leave Approvals"
+          subtitle="Review and approve pending leave requests"
+        />
         {loading ? (
           <div className="enterprise-card p-6"><InlineLoading /></div>
         ) : requests.length === 0 ? (

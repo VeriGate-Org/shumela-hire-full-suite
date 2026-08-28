@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import StatusPill from '@/components/StatusPill';
 import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline';
 import { getEnumLabel } from '@/utils/enumLabels';
@@ -220,7 +221,13 @@ export default function LeadershipTeamPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Leadership Team" subtitle="Loading leadership data..." actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Executive"
+          title="Leadership Team"
+          subtitle="Loading leadership data..."
+          actions={actions}
+        />
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
         </div>
@@ -229,11 +236,13 @@ export default function LeadershipTeamPage() {
   }
 
   return (
-    <PageWrapper
-      title="Leadership Team"
-      subtitle="Executive team overview, performance metrics, and succession planning"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Executive"
+        title="Leadership Team"
+        subtitle="Executive team overview, performance metrics, and succession planning"
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* View Navigation */}
         <div className="bg-white rounded-control shadow p-4">

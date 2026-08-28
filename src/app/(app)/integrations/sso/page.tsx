@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import SsoConfigForm from '@/components/integrations/SsoConfigForm';
 import { SsoConfig, ssoService } from '@/services/ssoService';
@@ -61,10 +62,12 @@ export default function SsoConfigPage() {
     <FeatureGate
       feature="AD_SSO"
       fallback={
-        <PageWrapper
-          title="Active Directory SSO"
-          subtitle="This feature is not enabled for your organization"
-        >
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Integrations"
+            title="Active Directory SSO"
+            subtitle="This feature is not enabled for your organization"
+          />
           <div className="enterprise-card p-8 text-center">
             <ShieldCheckIcon className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
             <h3 className="text-lg font-bold text-foreground mb-2">Feature Not Available</h3>
@@ -76,11 +79,13 @@ export default function SsoConfigPage() {
         </PageWrapper>
       }
     >
-      <PageWrapper
-        title="Active Directory SSO"
-        subtitle="Staff sign in with their existing directory account instead of a separate password."
-        actions={actions}
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="Active Directory SSO"
+          subtitle="Staff sign in with their existing directory account instead of a separate password."
+          actions={actions}
+        />
         <div className="space-y-6">
           {/* Stat Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

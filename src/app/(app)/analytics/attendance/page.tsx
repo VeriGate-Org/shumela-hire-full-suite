@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { hrAnalyticsService } from '@/services/hrAnalyticsService';
 import { useToast } from '@/components/Toast';
@@ -95,15 +96,19 @@ export default function AttendanceAnalyticsPage() {
 
   return (
     <FeatureGate feature="ADVANCED_ANALYTICS">
-      <PageWrapper title="Attendance Analytics" subtitle="Workforce attendance patterns and trends"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Analytics"
+          title="Attendance Analytics"
+          subtitle="Workforce attendance patterns and trends"
+          actions={
           <button onClick={detectAnomalies} disabled={aiLoading}
             className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm disabled:opacity-50 flex items-center gap-1">
             <SparklesIcon className="h-4 w-4" />
             {aiLoading ? 'Detecting...' : 'AI Anomaly Detection'}
           </button>
         }
-      >
+        />
         {aiAnomalies && (
           <div className="mb-6 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">

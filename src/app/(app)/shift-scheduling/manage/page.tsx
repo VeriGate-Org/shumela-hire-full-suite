@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { TableSkeleton, InlineLoading } from '@/components/LoadingComponents';
 import EmptyState from '@/components/EmptyState';
@@ -84,10 +85,12 @@ export default function ManageShiftsPage() {
 
   return (
     <FeatureGate feature="SHIFT_SCHEDULING">
-      <PageWrapper
-        title="Manage Shifts"
-        subtitle="Create shifts and assign employees to schedules"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="HR"
+          title="Manage Shifts"
+          subtitle="Create shifts and assign employees to schedules"
+          actions={
           <div className="flex gap-2">
             <button onClick={() => { setShowAssignForm(!showAssignForm); setShowForm(false); }}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border rounded-md hover:bg-muted">
@@ -99,7 +102,7 @@ export default function ManageShiftsPage() {
             </button>
           </div>
         }
-      >
+        />
         <div className="space-y-6">
           {/* Create Shift Form */}
           {showForm && (

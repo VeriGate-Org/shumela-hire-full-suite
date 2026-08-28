@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import {
   WorkflowBuilder,
@@ -278,7 +279,12 @@ export default function WorkflowPage() {
 
   if (!user) {
     return (
-      <PageWrapper title="Access Denied" subtitle="Please log in to access the workflow automation system.">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="Access Denied"
+          subtitle="Please log in to access the workflow automation system."
+        />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <h1 className="text-2xl font-semibold text-foreground mb-2">Access Denied</h1>
@@ -292,7 +298,12 @@ export default function WorkflowPage() {
   const canManageWorkflow = user.role === 'ADMIN' || user.role === 'HR_MANAGER';
   if (!canManageWorkflow) {
     return (
-      <PageWrapper title="Access Denied" subtitle="You do not have permission to manage workflows.">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="Access Denied"
+          subtitle="You do not have permission to manage workflows."
+        />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <h1 className="text-2xl font-semibold text-foreground mb-2">Access Denied</h1>
@@ -325,11 +336,13 @@ export default function WorkflowPage() {
   );
 
   return (
-    <PageWrapper
-      title="Workflow Management"
-      subtitle="Automate hiring processes with event-driven rules and actions"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Integrations"
+        title="Workflow Management"
+        subtitle="Automate hiring processes with event-driven rules and actions"
+        actions={actions}
+      />
       {/* Hidden file input for import */}
       <input
         ref={importInputRef}

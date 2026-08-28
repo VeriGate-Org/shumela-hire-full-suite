@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { performanceEnhancementService } from '@/services/performanceEnhancementService';
 import StatusPill from '@/components/StatusPill';
 import { TableSkeleton } from '@/components/LoadingComponents';
@@ -113,10 +114,12 @@ export default function ReviewsListPage() {
   };
 
   return (
-    <PageWrapper
-      title="Performance Reviews"
-      subtitle="Track performance, goals, and development plans"
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Talent"
+        title="Performance Reviews"
+        subtitle="Track performance, goals, and development plans"
+        actions={
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
           className="btn-cta inline-flex items-center gap-2"
@@ -124,7 +127,7 @@ export default function ReviewsListPage() {
           <PlusIcon className="w-4 h-4" /> Create Review
         </button>
       }
-    >
+      />
       <div className="space-y-6">
         {/* ===== CREATE FORM (collapsible) ===== */}
         {showCreateForm && (

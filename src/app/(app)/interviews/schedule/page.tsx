@@ -3,6 +3,7 @@
 import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import InterviewScheduler from '@/components/InterviewScheduler';
 
 /**
@@ -38,14 +39,16 @@ function ScheduleInterviewPage() {
     : '/interviews';
 
   return (
-    <PageWrapper
-      title={interviewId ? 'Reschedule interview' : 'Schedule interview'}
-      subtitle={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Recruitment"
+        title={interviewId ? 'Reschedule interview' : 'Schedule interview'}
+        subtitle={
         interviewId
           ? 'Everyone already invited is notified of the change.'
           : 'Pick the round, the time and who sits on the panel.'
       }
-    >
+      />
       <InterviewScheduler
         interviewId={interviewId}
         applicationId={applicationId}

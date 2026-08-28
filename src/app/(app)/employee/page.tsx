@@ -15,6 +15,7 @@ import {
   ListBulletIcon,
 } from '@heroicons/react/24/outline';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import EmptyState from '@/components/EmptyState';
 import { InlineLoading } from '@/components/LoadingComponents';
 import { useAuth } from '@/contexts/AuthContext';
@@ -238,10 +239,12 @@ function TeamListInner() {
 
   /* ---------- render ---------- */
   return (
-    <PageWrapper
-      title="Employee Directory"
-      subtitle="Manage and view all employees"
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="HR"
+        title="Employee Directory"
+        subtitle="Manage and view all employees"
+        actions={
         <div className="flex items-center gap-3 flex-wrap">
           <button
             type="button"
@@ -253,7 +256,7 @@ function TeamListInner() {
           </button>
         </div>
       }
-    >
+      />
       {/* --- Error / missing / loading states --- */}
       {showMissingEmployee ? (
         <div className="enterprise-card border-t-2 border-t-warning p-6">
@@ -639,7 +642,12 @@ export default function TeamListPage() {
   return (
     <Suspense
       fallback={
-        <PageWrapper title="Employee Directory" subtitle="Loading...">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="HR"
+            title="Employee Directory"
+            subtitle="Loading..."
+          />
           <InlineLoading />
         </PageWrapper>
       }

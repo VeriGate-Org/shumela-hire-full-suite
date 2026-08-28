@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { feedService, FeedPost, FeedComment } from '@/services/feedService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -136,7 +137,12 @@ export default function PostDetailPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Post" subtitle="Loading post details">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Engagement"
+          title="Post"
+          subtitle="Loading post details"
+        />
         <FeatureGate feature="SOCIAL_FEED">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
@@ -148,7 +154,12 @@ export default function PostDetailPage() {
 
   if (error || !post) {
     return (
-      <PageWrapper title="Post" subtitle="Post details">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Engagement"
+          title="Post"
+          subtitle="Post details"
+        />
         <FeatureGate feature="SOCIAL_FEED">
           <div className="enterprise-card p-8 text-center">
             <p className="text-sm text-gray-500">
@@ -168,7 +179,12 @@ export default function PostDetailPage() {
   }
 
   return (
-    <PageWrapper title="Post" subtitle="View post and comments">
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Engagement"
+        title="Post"
+        subtitle="View post and comments"
+      />
       <FeatureGate feature="SOCIAL_FEED">
         <div className="max-w-3xl mx-auto space-y-6">
           {/* Back Link */}

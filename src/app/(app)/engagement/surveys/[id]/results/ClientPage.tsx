@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import {
   engagementService,
@@ -129,7 +130,12 @@ export default function SurveyResultsPage() {
   if (loading) {
     return (
       <FeatureGate feature="PULSE_SURVEYS">
-        <PageWrapper title="Survey Results" subtitle="Loading results...">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Engagement"
+            title="Survey Results"
+            subtitle="Loading results..."
+          />
           <div className="flex items-center justify-center h-96">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500"></div>
           </div>
@@ -141,7 +147,12 @@ export default function SurveyResultsPage() {
   if (error) {
     return (
       <FeatureGate feature="PULSE_SURVEYS">
-        <PageWrapper title="Survey Results" subtitle="An error occurred">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Engagement"
+            title="Survey Results"
+            subtitle="An error occurred"
+          />
           <div className="bg-white rounded-[10px] border border-gray-200 p-8">
             <div className="text-center">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -175,7 +186,12 @@ export default function SurveyResultsPage() {
   if (!results) {
     return (
       <FeatureGate feature="PULSE_SURVEYS">
-        <PageWrapper title="Survey Results" subtitle="No results found">
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Engagement"
+            title="Survey Results"
+            subtitle="No results found"
+          />
           <div className="bg-white rounded-[10px] border border-gray-200 p-12 text-center">
             <ChartBarIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-1">No results available</h3>
@@ -196,7 +212,12 @@ export default function SurveyResultsPage() {
 
   return (
     <FeatureGate feature="PULSE_SURVEYS">
-      <PageWrapper title={`Results: ${results.surveyTitle}`} subtitle="Survey results and analytics">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Engagement"
+          title={`Results: ${results.surveyTitle}`}
+          subtitle="Survey results and analytics"
+        />
         <div className="space-y-6">
           {/* Back link */}
           <Link

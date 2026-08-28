@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { useAuth, ROLE_DISPLAY_NAMES, UserRole } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import {
@@ -226,7 +227,12 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Profile" subtitle="View and manage your personal information">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Profile"
+          title="Profile"
+          subtitle="View and manage your personal information"
+        />
         <div className="space-y-6">
           <div className="enterprise-card p-6 animate-pulse">
             <div className="flex items-center gap-5">
@@ -243,10 +249,12 @@ export default function ProfilePage() {
   }
 
   return (
-    <PageWrapper
-      title="Profile"
-      subtitle="View and manage your personal information"
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Profile"
+        title="Profile"
+        subtitle="View and manage your personal information"
+        actions={
         <button
           onClick={handleEditToggle}
           className={isEditing ? 'btn-secondary' : 'btn-primary'}
@@ -264,7 +272,7 @@ export default function ProfilePage() {
           )}
         </button>
       }
-    >
+      />
       <div className="space-y-6">
         {/* Profile Header */}
         <div className="enterprise-card p-6">

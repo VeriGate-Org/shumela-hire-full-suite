@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import { engagementService, WellnessProgram } from '@/services/engagementService';
 import { HeartIcon, UserGroupIcon, ChartBarIcon } from '@heroicons/react/24/outline';
@@ -190,10 +191,12 @@ export default function WellnessPage() {
 
   return (
     <FeatureGate feature="WELLNESS_PROGRAMS">
-      <PageWrapper
-        title="Wellness Programs"
-        subtitle="Physical, mental, financial, and social wellness initiatives"
-        actions={
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Engagement"
+          title="Wellness Programs"
+          subtitle="Physical, mental, financial, and social wellness initiatives"
+          actions={
           <Link
             href="/engagement/wellness/indicators"
             className="btn-primary inline-flex items-center gap-2"
@@ -202,7 +205,7 @@ export default function WellnessPage() {
             Wellness Indicators
           </Link>
         }
-      >
+        />
         <div className="space-y-6">
 
           {/* ======== Stats Bar ======== */}

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import StatusPill from '@/components/StatusPill';
 import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline';
 import {
@@ -174,7 +175,13 @@ export default function StrategicPlanningPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Strategic Planning" subtitle="Loading strategic insights..." actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Executive"
+          title="Strategic Planning"
+          subtitle="Loading strategic insights..."
+          actions={actions}
+        />
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
         </div>
@@ -183,11 +190,13 @@ export default function StrategicPlanningPage() {
   }
 
   return (
-    <PageWrapper
-      title="Strategic Planning"
-      subtitle="Executive oversight of organizational hiring strategy and long-term planning"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Executive"
+        title="Strategic Planning"
+        subtitle="Executive oversight of organizational hiring strategy and long-term planning"
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* View Navigation */}
         <div className="bg-white rounded-control shadow p-4">

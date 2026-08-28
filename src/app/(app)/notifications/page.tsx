@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import {
   BellIcon,
   MagnifyingGlassIcon,
@@ -287,11 +288,13 @@ export default function NotificationsPage() {
   // RENDER
   // =========================================================================
   return (
-    <PageWrapper
-      title="Notifications & Search"
-      subtitle="Notifications panel, global search, and user menu patterns used across ShumelaHire"
-      actions={stateToggle}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Communication"
+        title="Notifications & Search"
+        subtitle="Notifications panel, global search, and user menu patterns used across ShumelaHire"
+        actions={stateToggle}
+      />
       <div className="space-y-6">
         {/* ── Instructions Card ── */}
         <div className="enterprise-card p-8 text-center">

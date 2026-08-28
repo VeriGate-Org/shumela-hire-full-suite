@@ -2,6 +2,7 @@
 
 import React from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { FeatureGate } from '@/components/FeatureGate';
 import SsoGroupMappingTable from '@/components/integrations/SsoGroupMappingTable';
 import SsoRoleResolutionNotice from '@/components/integrations/SsoRoleResolutionNotice';
@@ -28,10 +29,12 @@ export default function SsoMappingsPage() {
     <FeatureGate
       feature="AD_SSO"
       fallback={
-        <PageWrapper
-          title="SSO Group Mappings"
-          subtitle="This feature is not enabled for your organization"
-        >
+        <PageWrapper>
+          <IdentityBand
+            eyebrow="Integrations"
+            title="SSO Group Mappings"
+            subtitle="This feature is not enabled for your organization"
+          />
           <div className="bg-white rounded-control shadow p-8 text-center border border-gray-200">
             <ShieldCheckIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Feature Not Available</h3>
@@ -43,11 +46,13 @@ export default function SsoMappingsPage() {
         </PageWrapper>
       }
     >
-      <PageWrapper
-        title="Directory group mappings"
-        subtitle="Which directory group gets which role here"
-        actions={actions}
-      >
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Integrations"
+          title="Directory group mappings"
+          subtitle="Which directory group gets which role here"
+          actions={actions}
+        />
         {/* First, because someone arriving to grant access needs to know the mappings below are
             not yet what grants it. */}
         <SsoRoleResolutionNotice />
