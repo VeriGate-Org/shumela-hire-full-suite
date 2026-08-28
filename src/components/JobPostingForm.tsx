@@ -339,7 +339,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
   const experienceLabel = EXPERIENCE_LEVELS.find(l => l.value === formData.experienceLevel)?.label || formData.experienceLevel;
 
   const checkboxClass =
-    'flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-[2px] cursor-pointer hover:bg-off-white dark:hover:bg-gray-800 transition-colors';
+    'flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-[2px] cursor-pointer hover:bg-muted dark:hover:bg-gray-800 transition-colors';
 
   const renderBasicStep = () => (
     <div className="space-y-5">
@@ -709,7 +709,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
         </div>
       </div>
 
-      <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
+      <div className="bg-muted dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
         <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-1">Salary Range Preview</div>
         <p className="text-sm text-gray-700">
           {formData.salaryMin || formData.salaryMax ? (
@@ -840,7 +840,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
         )}
 
         {formData.description && (
-          <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
+          <div className="bg-muted dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
             <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-2">
               Description Preview
             </div>
@@ -895,11 +895,11 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-deep-navy rounded-full hover:bg-cta/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-cta-foreground rounded-full hover:bg-cta/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
-              <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-deep-navy" />
+              <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-cta-foreground" />
               Saving...
             </>
           ) : (
@@ -944,7 +944,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
 
 function ReviewCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-3">
+    <div className="bg-muted dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-3">
       <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-1">
         {label}
       </div>

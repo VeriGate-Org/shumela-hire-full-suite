@@ -62,6 +62,40 @@ describe('theme contrast ratchet', () => {
     expect(bad).toEqual([]);
   });
 
+  it('never colours anything with a class the theme does not define', () => {
+    /*
+     * `text-deep-navy` sat on eleven gold buttons and badges across eight files, and `bg-off-white`
+     * on sixteen panels. Neither is in tailwind.config.ts or globals.css, so neither produced any
+     * colour: the elements inherited, and the gold badges rendered light-on-gold at 1.33:1.
+     *
+     * A phantom class is worse than a wrong one. It reads as deliberate in the source, and the
+     * pair-checking guard above cannot see it — there is no token to resolve, so there is no pair.
+     *
+     * Only hyphenated brand-style names are checked. Tailwind's own scales (gray-400, red-100) and
+     * its non-colour utilities (bg-no-repeat) are not ours to validate, and directional borders
+     * (border-l-error) are stripped to the token they actually carry.
+     */
+    const tokens = fs.readFileSync(path.join(process.cwd(), 'tailwind.config.ts'), 'utf8');
+    const css = fs.readFileSync(CSS, 'utf8');
+    const TAILWIND_OWN = /^(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black|transparent|current|inherit|gradient)(?:-|$)/;
+    const NOT_A_COLOUR = new Set(['no-repeat', 'clip-text', 'clip-padding', 'clip-border']);
+
+    const suspects = new Set<string>();
+    for (const file of sourceFiles(SRC)) {
+      const src = fs.readFileSync(file, 'utf8');
+      for (const m of src.matchAll(/(?<![\w-])(?:text|bg|border)-((?:[a-z]+-)+[a-z]+)(?![\w-])/g)) {
+        const token = m[1].replace(/^[trblxy]-/, ''); // border-l-error -> error
+        if (TAILWIND_OWN.test(token) || NOT_A_COLOUR.has(token)) continue;
+        suspects.add(token);
+      }
+    }
+
+    const undefinedTokens = [...suspects]
+      .filter((t) => !tokens.includes(`'${t}'`) && !tokens.includes(`${t}:`) && !css.includes(`--${t}`))
+      .sort();
+    expect(undefinedTokens).toEqual([]);
+  });
+
   it('keeps the CTA ink tokens distinct and defined in both themes', () => {
     const css = fs.readFileSync(CSS, 'utf8');
     // --cta-on-surface is the ink where there is NO fill; --cta-foreground the ink ON the fill.

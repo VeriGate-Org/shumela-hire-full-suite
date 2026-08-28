@@ -244,10 +244,10 @@ export default function ReportViewer({
   const renderChartView = () => {
     return (
       <div className="text-center py-12">
-        <ChartBarIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+        <ChartBarIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h3 className="text-lg font-medium text-gray-900 mb-2">Chart View</h3>
         <p className="text-gray-500">Chart visualization will be displayed here based on the report configuration.</p>
-        <p className="text-sm text-gray-400 mt-2">
+        <p className="text-sm text-muted-foreground mt-2">
           Chart type: {result.config.visualization.type}
         </p>
       </div>

@@ -409,6 +409,20 @@
   }
 
   /* IDC Button — Gold outline pill CTA */
+  /*
+   * Placeholders had no colour of their own anywhere in the application, so every input fell back
+   * to the browser default — #9CA3AF, which is 2.54:1 on a white field. The audit counted 174
+   * placeholder failures and this single rule is all of them.
+   *
+   * opacity:1 is not redundant. Firefox applies a default opacity to placeholder text, which would
+   * quietly undo the contrast this sets.
+   */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--muted-foreground);
+    opacity: 1;
+  }
+
   .btn-primary {
     background: transparent;
     /* Not --cta-foreground: that is the ink for sitting ON the gold, and it only becomes correct

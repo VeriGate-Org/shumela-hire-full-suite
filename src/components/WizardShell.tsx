@@ -121,7 +121,7 @@ export default function WizardShell({
   }, [variant]);
 
   const stepIndicator = (
-    <div className="flex items-center px-6 py-4 bg-off-white dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+    <div className="flex items-center px-6 py-4 bg-muted dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
       {steps.map((step, index) => {
         const isCompleted = index < currentStep;
         const isCurrent = index === currentStep;
@@ -133,8 +133,8 @@ export default function WizardShell({
                   isCompleted
                     ? 'bg-emerald-500 text-white'
                     : isCurrent
-                      ? 'bg-cta text-deep-navy shadow-[0_0_0_4px_rgba(241,197,75,0.2)]'
-                      : 'border-2 border-gray-300 dark:border-gray-600 text-gray-400'
+                      ? 'bg-cta text-cta-foreground shadow-[0_0_0_4px_rgba(241,197,75,0.2)]'
+                      : 'border-2 border-gray-300 dark:border-gray-600 text-muted-foreground'
                 }`}
               >
                 {isCompleted ? (
@@ -150,13 +150,13 @@ export default function WizardShell({
                       ? 'text-emerald-600 dark:text-emerald-400'
                       : isCurrent
                         ? 'text-gray-900'
-                        : 'text-gray-400'
+                        : 'text-muted-foreground'
                   }`}
                 >
                   {step.label}
                 </div>
                 {step.description && (
-                  <div className="text-[10px] text-gray-400 whitespace-nowrap">
+                  <div className="text-[10px] text-muted-foreground whitespace-nowrap">
                     {step.description}
                   </div>
                 )}
@@ -194,7 +194,7 @@ export default function WizardShell({
         {currentStepConfig?.skippable && onSkip && (
           <button
             onClick={onSkip}
-            className="px-4 py-2 text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            className="px-4 py-2 text-sm text-muted-foreground hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             Skip
           </button>
@@ -203,7 +203,7 @@ export default function WizardShell({
           <button
             onClick={onNext}
             disabled={!canProceed}
-            className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-deep-navy rounded-full hover:bg-cta/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-cta-foreground rounded-full hover:bg-cta/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Next
             <ArrowRightIcon className="w-3.5 h-3.5" />
@@ -231,17 +231,17 @@ export default function WizardShell({
         </div>
         <div className="flex items-center gap-3">
           {statusIndicator && (
-            <span className="italic text-[10px] text-gray-400">
+            <span className="italic text-[10px] text-muted-foreground">
               {statusIndicator}
             </span>
           )}
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-muted-foreground">
             Step {currentStep + 1} of {steps.length}
           </span>
           {isModal && onClose && (
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors text-lg leading-none"
+              className="text-muted-foreground hover:text-gray-600 dark:hover:text-gray-300 transition-colors text-lg leading-none"
             >
               &times;
             </button>

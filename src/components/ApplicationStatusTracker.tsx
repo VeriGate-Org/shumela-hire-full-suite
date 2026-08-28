@@ -132,7 +132,7 @@ export default function ApplicationStatusTracker({
                         isCompleted
                           ? 'bg-emerald-500 text-white'
                           : isCurrent
-                            ? 'bg-cta text-deep-navy shadow-[0_0_0_3px_rgba(241,197,75,0.25)]'
+                            ? 'bg-cta text-cta-foreground shadow-[0_0_0_3px_rgba(241,197,75,0.25)]'
                             : 'border-2 border-gray-200 dark:border-gray-600 text-gray-400'
                       }`}
                     >

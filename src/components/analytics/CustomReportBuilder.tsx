@@ -248,7 +248,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
         return (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-off-white dark:bg-gray-800">
+              <thead className="bg-muted dark:bg-gray-800">
                 <tr>
                   {[...reportConfig.dimensions, ...reportConfig.metrics].map(fieldId => {
                     const field = availableFields.find(f => f.id === fieldId);
@@ -318,7 +318,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
                     key={field.id}
                     draggable
                     onDragStart={() => handleDragStart(field)}
-                    className="p-2 text-sm text-gray-600 bg-off-white dark:bg-gray-800 rounded-[2px] cursor-move hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="p-2 text-sm text-gray-600 bg-muted dark:bg-gray-800 rounded-[2px] cursor-move hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     {field.label}
                   </div>
@@ -334,7 +334,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
                     key={field.id}
                     draggable
                     onDragStart={() => handleDragStart(field)}
-                    className="p-2 text-sm text-gray-600 bg-off-white dark:bg-gray-800 rounded-[2px] cursor-move hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="p-2 text-sm text-gray-600 bg-muted dark:bg-gray-800 rounded-[2px] cursor-move hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     {field.label}
                   </div>
@@ -411,8 +411,8 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
                   onClick={() => setReportConfig(prev => ({ ...prev, visualization: viz.id as any }))}
                   className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm transition-colors ${
                     reportConfig.visualization === viz.id
-                      ? 'bg-cta text-deep-navy font-semibold'
-                      : 'bg-off-white dark:bg-gray-800 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-cta text-cta-foreground font-semibold'
+                      : 'bg-muted dark:bg-gray-800 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <viz.icon className="w-4 h-4" />
@@ -565,7 +565,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
         </button>
         <button
           onClick={() => onSave?.(reportConfig)}
-          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-deep-navy rounded-full hover:bg-cta/90 transition-colors"
+          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-cta-foreground rounded-full hover:bg-cta/90 transition-colors"
         >
           <DocumentArrowDownIcon className="w-4 h-4" />
           Save Report
@@ -595,7 +595,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
 
 function ReviewCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-3">
+    <div className="bg-muted dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-3">
       <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-1">
         {label}
       </div>
