@@ -36,6 +36,10 @@ import {
  */
 
 interface RecruiterDashboardProps {
+  /** The role being viewed, as the switcher names it. */
+  roleLabel?: string;
+  /** Handed down by the page, because this component owns the band. */
+  actions?: React.ReactNode;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
@@ -59,7 +63,7 @@ function relativeDay(iso?: string): string {
   return `${days} days ago`;
 }
 
-export default function RecruiterDashboard(_props: RecruiterDashboardProps) {
+export default function RecruiterDashboard({ actions, roleLabel }: RecruiterDashboardProps) {
   const [overview, setOverview] = useState<RecruiterOverview | null>(null);
   const [recent, setRecent] = useState<RecentApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,7 +109,7 @@ export default function RecruiterDashboard(_props: RecruiterDashboardProps) {
     <div className="space-y-4">
       <IdentityBand
         eyebrow="Your desk"
-        title="Recruiter"
+        title={roleLabel ?? 'Recruiter'}
         subtitle={
           overview
             ? `${overview.applications} ${overview.applications === 1 ? 'application' : 'applications'} · ${overview.openAdverts} ${overview.openAdverts === 1 ? 'advert' : 'adverts'} open`
@@ -141,6 +145,7 @@ export default function RecruiterDashboard(_props: RecruiterDashboardProps) {
               ]
             : []
         }
+       actions={actions}
       />
 
       {owed.length > 0 && (

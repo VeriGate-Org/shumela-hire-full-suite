@@ -19,6 +19,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DashboardWidget } from '../../dashboard';
 
 interface LineManagerDashboardProps {
+  /** The role being viewed, as the switcher names it. */
+  roleLabel?: string;
+  /** Handed down by the page, because this component owns the band. */
+  actions?: React.ReactNode;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
@@ -123,7 +127,7 @@ function KpiTile({ label, value, icon: Icon, tone, href, onClick }: KpiTileProps
   );
 }
 
-export default function LineManagerDashboard({ selectedTimeframe: _selectedTimeframe }: LineManagerDashboardProps) {
+export default function LineManagerDashboard({ selectedTimeframe: _selectedTimeframe, actions, roleLabel }: LineManagerDashboardProps) {
   const { user } = useAuth();
   const router = useRouter();
   const managerId = user?.employeeId || '';
@@ -267,7 +271,7 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
     <div className="space-y-4 max-w-full overflow-hidden">
       <IdentityBand
         eyebrow="Your team"
-        title="Line Manager"
+        title={roleLabel ?? 'Line Manager'}
         subtitle={`${directReports.length} ${directReports.length === 1 ? 'direct report' : 'direct reports'} · ${teamAttendance.length} recorded today`}
         figures={[
           { label: 'Direct reports', value: directReports.length },
@@ -275,6 +279,7 @@ export default function LineManagerDashboard({ selectedTimeframe: _selectedTimef
             ? [{ label: 'Awaiting you', value: awaiting, tone: 'warning' as const }]
             : []),
         ]}
+       actions={actions}
       />
 
       {!loading && (

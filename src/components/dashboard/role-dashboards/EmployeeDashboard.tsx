@@ -10,6 +10,8 @@ import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
 
 interface EmployeeDashboardProps {
+  /** Handed down by the page, because this component owns the band. */
+  actions?: React.ReactNode;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
@@ -95,7 +97,7 @@ function formatRelativeDate(dateString: string): string {
 // self-service functionality for Employees too (see rolePermissions.EMPLOYEE
 // and ApplicantService.resolveOrCreateApplicantIdForEmployee on the backend),
 // plus a Quick Action for Internal Jobs specifically.
-export default function EmployeeDashboard({ selectedTimeframe: _selectedTimeframe, onTimeframeChange: _onTimeframeChange }: EmployeeDashboardProps) {
+export default function EmployeeDashboard({ selectedTimeframe: _selectedTimeframe, onTimeframeChange: _onTimeframeChange, actions }: EmployeeDashboardProps) {
   const router = useRouter();
   const { user } = useAuth();
   const [statusCounts, setStatusCounts] = useState<StatusCount[]>([
@@ -242,6 +244,7 @@ export default function EmployeeDashboard({ selectedTimeframe: _selectedTimefram
             tone: (upcomingInterviews.length > 0 ? 'positive' : undefined) as 'positive' | undefined,
           },
         ]}
+       actions={actions}
       />
 
       {!loading && (

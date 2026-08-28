@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
-import IdentityBand from '@/components/record/IdentityBand';
 import RoleDashboard from '@/components/dashboard/RoleDashboard';
-import { useAuth, ROLE_DISPLAY_NAMES } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 
 export default function DashboardPage() {
@@ -69,22 +68,16 @@ export default function DashboardPage() {
 
   const dashboardContent = (
     <RoleDashboard
+      actions={actions}
       role={userRole}
       selectedTimeframe={selectedTimeframe}
       onTimeframeChange={setSelectedTimeframe}
     />
   );
 
-  const displayName = ROLE_DISPLAY_NAMES[userRole];
 
   return (
     <PageWrapper>
-      <IdentityBand
-        eyebrow="Overview"
-        title={`${displayName} Dashboard`}
-        subtitle={`Welcome back. Here is your ${displayName.toLowerCase()} overview for the selected timeframe.`}
-        actions={actions}
-      />
       {dashboardContent}
     </PageWrapper>
   );

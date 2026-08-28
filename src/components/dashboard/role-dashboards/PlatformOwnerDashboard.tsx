@@ -5,22 +5,26 @@ import React from 'react';
 import IdentityBand from '@/components/record/IdentityBand';
 
 interface PlatformOwnerDashboardProps {
+  /** The role being viewed, as the switcher names it. */
+  roleLabel?: string;
+  /** Handed down by the page, because this component owns the band. */
+  actions?: React.ReactNode;
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
 
 export default function PlatformOwnerDashboard({
   selectedTimeframe,
-  onTimeframeChange,
-}: PlatformOwnerDashboardProps) {
+  onTimeframeChange, actions, roleLabel }: PlatformOwnerDashboardProps) {
   return (
     <div className="space-y-4">
       {/* No figures: this screen fetches nothing and holds no state. A band with invented numbers
           on it would be worse than a band without any. */}
       <IdentityBand
         eyebrow="Platform"
-        title="Platform Owner"
+        title={roleLabel ?? 'Platform Owner'}
         subtitle="Tenants, feature flags and the platform control centre"
+       actions={actions}
       />
       <div className="bg-card rounded-[10px] border border-border p-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
