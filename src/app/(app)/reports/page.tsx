@@ -24,7 +24,7 @@ import {
 } from '@heroicons/react/24/outline';
 import EmptyState from '@/components/EmptyState';
 import { useToast } from '@/components/Toast';
-import { apiFetch } from '@/lib/api-fetch';
+import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiReportNarrative from '@/components/ai/AiReportNarrative';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -303,64 +303,117 @@ export default function ReportsPage() {
   }, [currentResult]);
 
   // Scheduler handlers
-  const handleCreateSchedule = useCallback((reportId: string, config: any) => {
-    const report = savedReports.find(r => r.id === reportId);
-    if (report) {
-      const newSchedule: ReportSchedule = {
-        id: `sched_${Date.now()}`,
-        reportId,
-        reportName: report.name,
-        frequency: config.frequency,
-        recipients: config.recipients,
-        enabled: config.enabled,
-        nextRun: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
-        createdAt: new Date().toISOString(),
-        runCount: 0,
-        lastStatus: 'pending',
-      };
-      setSchedules(prev => [...prev, newSchedule]);
+  /**
+   * Schedules now persist.
+   *
+   * <p>Every handler below used to mutate React state and nothing else — the create form never
+   * called an endpoint, because until now there was none to call. A schedule survived until the
+   * user navigated away. Each one is a real request, and the list is re-read from the server after
+   * a change rather than patched locally, so what is on screen is what was stored.
+   */
+  const reloadSchedules = useCallback(async () => {
+    try {
+      const res = await apiFetch('/api/reports/scheduled');
+      if (res.ok) setSchedules(await res.json());
+    } catch {
+      // Leave the current list alone — a failed refresh should not blank the tab.
     }
-  }, [savedReports]);
-
-  const handleUpdateSchedule = useCallback((scheduleId: string, updates: Partial<ReportSchedule>) => {
-    setSchedules(prev => prev.map(s =>
-      s.id === scheduleId ? { ...s, ...updates } : s
-    ));
   }, []);
+
+  const handleCreateSchedule = useCallback(async (reportId: string, config: {
+    frequency: 'daily' | 'weekly' | 'monthly';
+    recipients: string[];
+    enabled: boolean;
+  }) => {
+    try {
+      const res = await apiFetch('/api/reports/schedule', {
+        method: 'POST',
+        body: JSON.stringify({ reportId, ...config }),
+      });
+      if (!res.ok) {
+        toast(await refusalMessage(res), 'error');
+        return;
+      }
+      await reloadSchedules();
+      toast('Schedule created', 'success');
+    } catch {
+      toast('Could not create the schedule. Try again.', 'error');
+    }
+  }, [reloadSchedules, toast]);
+
+  const handleUpdateSchedule = useCallback(async (scheduleId: string, updates: Partial<ReportSchedule>) => {
+    try {
+      const res = await apiFetch(`/api/reports/schedule/${scheduleId}`, {
+        method: 'PUT',
+        body: JSON.stringify(updates),
+      });
+      if (!res.ok) {
+        toast(await refusalMessage(res), 'error');
+        return;
+      }
+      await reloadSchedules();
+    } catch {
+      toast('Could not update the schedule. Try again.', 'error');
+    }
+  }, [reloadSchedules, toast]);
 
   const handleDeleteSchedule = useCallback((scheduleId: string) => {
     setDeleteScheduleId(scheduleId);
   }, []);
 
-  const confirmDeleteSchedule = useCallback(() => {
+  const confirmDeleteSchedule = useCallback(async () => {
     if (!deleteScheduleId) return;
-    setSchedules(prev => prev.filter(s => s.id !== deleteScheduleId));
+    const id = deleteScheduleId;
     setDeleteScheduleId(null);
-  }, [deleteScheduleId]);
-
-  const handleToggleSchedule = useCallback((scheduleId: string, enabled: boolean) => {
-    setSchedules(prev => prev.map(s =>
-      s.id === scheduleId ? { ...s, enabled } : s
-    ));
-  }, []);
-
-  const handleRunScheduleNow = useCallback((scheduleId: string) => {
-    const schedule = schedules.find(s => s.id === scheduleId);
-    if (schedule) {
-      const report = savedReports.find(r => r.id === schedule.reportId);
-      if (report) {
-        handleRunReport(report);
-        setSchedules(prev => prev.map(s =>
-          s.id === scheduleId ? {
-            ...s,
-            lastRun: new Date().toISOString(),
-            runCount: s.runCount + 1,
-            lastStatus: 'success' as const,
-          } : s
-        ));
+    try {
+      const res = await apiFetch(`/api/reports/schedule/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        toast(await refusalMessage(res), 'error');
+        return;
       }
+      await reloadSchedules();
+      toast('Schedule removed', 'success');
+    } catch {
+      toast('Could not remove the schedule. Try again.', 'error');
     }
-  }, [schedules, savedReports, handleRunReport]);
+  }, [deleteScheduleId, reloadSchedules, toast]);
+
+  const handleToggleSchedule = useCallback(async (scheduleId: string, enabled: boolean) => {
+    try {
+      const res = await apiFetch(`/api/reports/schedule/${scheduleId}/toggle`, {
+        method: 'POST',
+        body: JSON.stringify({ enabled }),
+      });
+      if (!res.ok) {
+        toast(await refusalMessage(res), 'error');
+        return;
+      }
+      await reloadSchedules();
+    } catch {
+      toast('Could not change the schedule. Try again.', 'error');
+    }
+  }, [reloadSchedules, toast]);
+
+  const handleRunScheduleNow = useCallback(async (scheduleId: string) => {
+    try {
+      const res = await apiFetch(`/api/reports/schedule/${scheduleId}/run`, { method: 'POST' });
+      if (!res.ok) {
+        toast(await refusalMessage(res), 'error');
+        return;
+      }
+      // The server records a failure as a stored status rather than an error response, so read the
+      // result and say which happened instead of assuming success.
+      const updated: ReportSchedule = await res.json();
+      await reloadSchedules();
+      if (updated.lastStatus === 'failed') {
+        toast(`${updated.reportName} failed: ${updated.errorMessage ?? 'no reason given'}`, 'error');
+      } else {
+        toast(`${updated.reportName} ran`, 'success');
+      }
+    } catch {
+      toast('Could not run the schedule. Try again.', 'error');
+    }
+  }, [reloadSchedules, toast]);
 
   /**
    * When a schedule last produced something.
