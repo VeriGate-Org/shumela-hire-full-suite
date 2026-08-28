@@ -259,6 +259,11 @@ export default function MyOffersPage() {
     loadOffers();
   }, [loadOffers]);
 
+  // A pending offer is the one thing on this screen that runs out of time, so it carries the
+  // warning tone — the band's rule is at most one emphasised figure.
+  const pendingCount = offers.filter(o => o.status === 'pending').length;
+  const negotiatingCount = offers.filter(o => o.status === 'negotiating').length;
+
   const filteredOffers = offers.filter(offer =>
     filterStatus === 'all' || offer.status === filterStatus
   );
@@ -425,58 +430,14 @@ export default function MyOffersPage() {
         eyebrow="Personal"
         title="My Offers"
         subtitle="Manage and track your job offers"
+        figures={[
+          { label: 'Offers', value: offers.length },
+          { label: 'Awaiting your response', value: pendingCount, tone: pendingCount > 0 ? 'warning' : 'default' },
+          { label: 'Negotiating', value: negotiatingCount },
+        ]}
         actions={actions}
       />
       <div className="space-y-6">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <CurrencyDollarIcon className="w-8 h-8 text-green-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Offers</p>
-                <p className="text-2xl font-semibold text-gray-900">{offers.length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <ClockIcon className="w-8 h-8 text-yellow-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Pending</p>
-                <p className="text-2xl font-semibold text-gray-900">
-                  {offers.filter(o => o.status === 'pending').length}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <ChatBubbleLeftRightIcon className="w-8 h-8 text-violet-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Negotiating</p>
-                <p className="text-2xl font-semibold text-gray-900">
-                  {offers.filter(o => o.status === 'negotiating').length}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <CheckCircleIcon className="w-8 h-8 text-green-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Accepted</p>
-                <p className="text-2xl font-semibold text-gray-900">
-                  {offers.filter(o => o.status === 'accepted').length}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Offers List */}
         <div className="space-y-4">
           {filteredOffers.map((offer) => {
