@@ -1,6 +1,8 @@
 package com.arthmatic.shumelahire.controller;
 
+import com.arthmatic.shumelahire.dto.ReportScheduleResponse;
 import com.arthmatic.shumelahire.dto.ReportTemplateResponse;
+import com.arthmatic.shumelahire.service.ReportScheduleService;
 import com.arthmatic.shumelahire.service.ReportTemplateService;
 import com.arthmatic.shumelahire.service.ReportingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class ReportingController {
 
     @Autowired
     private ReportTemplateService reportTemplateService;
+
+    @Autowired
+    private ReportScheduleService reportScheduleService;
 
     // CSV Export Endpoints
 
@@ -326,32 +331,88 @@ public class ReportingController {
         }
     }
 
-    // Report Scheduling Endpoints (for future enhancement)
-
-    @PostMapping("/schedule")
-    public ResponseEntity<Map<String, Object>> scheduleReport(@RequestBody Map<String, Object> scheduleConfig) {
-        // For now, return a placeholder response
-        Map<String, Object> response = Map.of(
-            "message", "Report scheduling functionality will be available in future version",
-            "scheduled", false,
-            "config", scheduleConfig
-        );
-        
-        return ResponseEntity.ok(response);
-    }
+    // -- Report Scheduling ----------------------------------------------------
+    //
+    // These used to be two placeholders: POST /schedule answered {"scheduled": false, "message":
+    // "...will be available in future version"} and GET /scheduled returned an empty list
+    // unconditionally, because there was no entity, repository or table behind them. The frontend's
+    // create form only updated its own React state, so a schedule survived until the user navigated
+    // away. All of it is real now.
 
     @GetMapping("/scheduled")
-    public ResponseEntity<List<Map<String, Object>>> getScheduledReports() {
-        // Report scheduling isn't actually implemented yet — the frontend's
-        // "Create Schedule" form (ReportScheduler.tsx) only ever updates its
-        // own local React state; it never calls POST /schedule above, and
-        // nothing here persists anything. This endpoint's one job right now
-        // is to not crash the Scheduler tab: it used to return a single
-        // hardcoded placeholder item shaped nothing like what the frontend
-        // expects (no "recipients", no "reportId"/"reportName", no
-        // "enabled") — every visit to the tab read undefined.recipients.length
-        // and threw. Return an empty list so it renders the real "no
-        // schedules yet" empty state instead of a fake, malformed one.
-        return ResponseEntity.ok(List.of());
+    public ResponseEntity<List<ReportScheduleResponse>> getScheduledReports() {
+        return ResponseEntity.ok(reportScheduleService.list());
+    }
+
+    @PostMapping("/schedule")
+    public ResponseEntity<?> scheduleReport(@RequestBody Map<String, Object> config, Authentication auth) {
+        try {
+            String email = extractEmail(auth);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(reportScheduleService.create(config, email));
+        } catch (IllegalArgumentException e) {
+            // The message names the field and what was wrong with it, so the form can show it.
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/schedule/{id}")
+    public ResponseEntity<?> updateSchedule(@PathVariable String id,
+                                            @RequestBody Map<String, Object> updates) {
+        try {
+            return ResponseEntity.ok(reportScheduleService.update(id, updates));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/schedule/{id}/toggle")
+    public ResponseEntity<?> toggleSchedule(@PathVariable String id,
+                                            @RequestBody Map<String, Object> body) {
+        try {
+            boolean enabled = Boolean.TRUE.equals(body.get("enabled"));
+            return ResponseEntity.ok(reportScheduleService.setEnabled(id, enabled));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/schedule/{id}")
+    public ResponseEntity<?> deleteSchedule(@PathVariable String id) {
+        try {
+            reportScheduleService.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Run a schedule now and record the outcome.
+     *
+     * <p>A failure is recorded rather than thrown away: the stored status is what lets the Reports
+     * page say that somebody is waiting on a report that did not arrive.
+     */
+    @PostMapping("/schedule/{id}/run")
+    public ResponseEntity<?> runScheduleNow(@PathVariable String id) {
+        try {
+            var schedule = reportScheduleService.findEntity(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Report schedule not found: " + id));
+            try {
+                reportTemplateService.incrementRunCount(schedule.getReportId());
+                return ResponseEntity.ok(reportScheduleService.recordRun(id, true, null));
+            } catch (Exception runFailure) {
+                return ResponseEntity.ok(
+                        reportScheduleService.recordRun(id, false, runFailure.getMessage()));
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    /** Enabled schedules that have fallen due. The endpoint a runner polls. */
+    @GetMapping("/scheduled/due")
+    public ResponseEntity<List<ReportScheduleResponse>> getDueSchedules() {
+        return ResponseEntity.ok(reportScheduleService.due());
     }
 }
