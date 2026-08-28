@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
+import DistributionStrip from '@/components/record/DistributionStrip';
 import {
   ReportBuilder,
   ReportLibrary,
@@ -19,9 +21,6 @@ import {
   BookOpenIcon,
   PlayIcon,
   ClockIcon,
-  DocumentTextIcon,
-  StarIcon,
-  BoltIcon,
 } from '@heroicons/react/24/outline';
 import EmptyState from '@/components/EmptyState';
 import { useToast } from '@/components/Toast';
@@ -366,12 +365,14 @@ export default function ReportsPage() {
   /**
    * When a schedule last produced something.
    *
-   * <p>Read from the results rather than the schedules: a schedule says when it is <em>meant</em>
-   * to run, and this band figure is about whether it did.
+   * <p>Read from the schedules, not from the session's results. `reportResults` is component state
+   * that starts empty on every page load, so anything derived from it describes this browser tab
+   * rather than the tenant — which is how "Reports Generated · This financial year" came to be a
+   * counter that reset when you refreshed.
    */
   const lastRunLabel = (() => {
-    const stamps = reportResults
-      .map((r) => (r as { generatedAt?: string }).generatedAt)
+    const stamps = schedules
+      .map((s) => s.lastRun)
       .filter((value): value is string => Boolean(value))
       .map((value) => new Date(value).getTime())
       .filter((value) => !Number.isNaN(value));
@@ -384,6 +385,22 @@ export default function ReportsPage() {
       minute: '2-digit',
     });
   })();
+
+  /**
+   * The four states a schedule can be in, and the only ones this page can honestly report.
+   *
+   * <p>`failing` is the one that matters: a schedule with recipients that last ran and failed means
+   * people who expect a report in their inbox did not get one, and nothing on this page said so.
+   */
+  const failing = schedules.filter((s) => s.enabled && s.lastStatus === 'failed');
+  const paused = schedules.filter((s) => !s.enabled);
+  const neverRun = schedules.filter((s) => s.enabled && s.runCount === 0);
+  const healthy = schedules.filter(
+    (s) => s.enabled && s.runCount > 0 && s.lastStatus !== 'failed',
+  );
+
+  // Who is waiting on a report that did not arrive.
+  const affectedRecipients = new Set(failing.flatMap((s) => s.recipients ?? []));
 
   const tabs = [
     { id: 'create' as const, name: 'Create Report', icon: PlusIcon, count: undefined },
@@ -400,85 +417,65 @@ export default function ReportsPage() {
         subtitle="Build a report, or manage what already runs. Ready-made extracts are on Standard extracts."
         figures={[
           { label: 'Saved', value: savedReports.length },
+          { label: 'Scheduled', value: schedules.length === 0 ? 'None' : healthy.length + neverRun.length },
           {
-            label: 'Scheduled',
-            value: schedules.length === 0
-              ? 'None'
-              : `${schedules.filter((s) => s.enabled).length} active`,
+            label: 'Failing',
+            value: failing.length,
+            tone: (failing.length > 0 ? 'critical' : undefined) as 'critical' | undefined,
           },
           // Absent is not zero: a schedule that has never run and one that ran at 06:00 are
           // different states, and "Never" says which this is.
           { label: 'Last run', value: lastRunLabel },
         ]}
       />
+
+      {failing.length > 0 && (
+        <DecisionBar
+          ask={`${failing.length} scheduled ${failing.length === 1 ? 'report' : 'reports'} failed to run.`}
+          why={
+            affectedRecipients.size > 0
+              ? `${affectedRecipients.size} ${affectedRecipients.size === 1 ? 'person is' : 'people are'} expecting ${failing.length === 1 ? 'it' : 'these'} and did not receive ${failing.length === 1 ? 'it' : 'them'}. A report that fails quietly looks the same to them as one nobody asked for. ${failing[0].errorMessage ?? ''}`
+              : `${failing[0].reportName} last failed and has not produced anything since. ${failing[0].errorMessage ?? ''}`
+          }
+          tone="stopped"
+        >
+          <PrimaryAction onClick={() => setActiveTab('scheduler')}>
+            Open scheduler
+          </PrimaryAction>
+          <SecondaryAction onClick={() => handleRunScheduleNow(failing[0].id)}>
+            Run {failing[0].reportName} now
+          </SecondaryAction>
+        </DecisionBar>
+      )}
+
+      {schedules.length > 0 && (
+        <DistributionStrip
+          buckets={[
+            { label: 'Running', count: healthy.length, detail: 'Ran, and last run succeeded', tone: 'positive' },
+            {
+              label: 'Failing',
+              count: failing.length,
+              detail: 'Enabled, last run failed',
+              tone: (failing.length > 0 ? 'critical' : undefined) as 'critical' | undefined,
+            },
+            {
+              label: 'Never run',
+              count: neverRun.length,
+              detail: 'Scheduled, no run yet',
+              tone: (neverRun.length > 0 ? 'warning' : undefined) as 'warning' | undefined,
+            },
+            { label: 'Paused', count: paused.length, detail: 'Switched off deliberately' },
+          ]}
+          footnote={
+            <>
+              <b className="font-bold text-foreground">A paused schedule is a decision; a failing one is not.</b>{' '}
+              Only the schedules are counted here — running a report in this tab does not change them.
+            </>
+          }
+        />
+      )}
+
       <div className="space-y-6">
-
-        {/* Stat Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Reports Generated */}
-          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center icon-tile-navy">
-              <DocumentTextIcon className="h-6 w-6" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
-                Reports Generated
-              </div>
-              <div className="text-2xl font-extrabold text-foreground leading-tight">
-                {reportResults.length || 0}
-              </div>
-              <div className="text-xs text-muted-foreground mt-0.5">This financial year</div>
-            </div>
-          </div>
-
-          {/* Scheduled */}
-          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center icon-tile-teal">
-              <ClockIcon className="h-6 w-6" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
-                Scheduled
-              </div>
-              <div className="text-2xl font-extrabold text-foreground leading-tight">
-                {schedules.filter(s => s.enabled).length}
-              </div>
-              <div className="text-xs text-muted-foreground mt-0.5">Active schedules</div>
-            </div>
-          </div>
-
-          {/* Most Popular */}
-          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center icon-tile-gold">
-              <StarIcon className="h-6 w-6" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
-                Most Popular
-              </div>
-              <div className="text-2xl font-extrabold text-foreground leading-tight">
-                Recruitment
-              </div>
-              <div className="text-xs text-muted-foreground mt-0.5">Most requested report type</div>
-            </div>
-          </div>
-
-          {/* Avg Generation */}
-          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center icon-tile-pink">
-              <BoltIcon className="h-6 w-6" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
-                Avg Generation
-              </div>
-              <div className="text-2xl font-extrabold text-foreground leading-tight">
-                &lt; 30s
-              </div>
-              <div className="text-xs text-muted-foreground mt-0.5">Average report build time</div>
-            </div>
-          </div>
-        </div>
 
         {/* Pill-shaped Tab Toggle */}
         <div className="flex gap-1 bg-surface-navy rounded-full p-1 w-fit">
@@ -488,7 +485,7 @@ export default function ReportsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 rounded-full text-[0.8125rem] font-semibold transition-all duration-200 flex items-center gap-2 ${
                 activeTab === tab.id
-                  ? 'bg-card text-shumelahire-500 shadow-sm'
+                  ? 'bg-card text-primary shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -497,7 +494,7 @@ export default function ReportsPage() {
               {tab.count !== undefined && tab.count > 0 && (
                 <span className={`ml-0.5 py-0.5 px-2 rounded-full text-xs font-bold ${
                   activeTab === tab.id
-                    ? 'bg-surface-navy text-shumelahire-500'
+                    ? 'bg-surface-navy text-primary'
                     : 'bg-surface-navy text-muted-foreground'
                 }`}>
                   {tab.count}

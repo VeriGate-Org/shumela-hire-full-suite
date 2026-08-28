@@ -255,7 +255,7 @@ export default function ReportLibrary({
         <div className="flex-1">
           {filteredReports.length === 0 ? (
             <div className="p-12 text-center">
-              <ChartBarIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <ChartBarIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No reports found</h3>
               <p className="text-gray-500 mb-4">
                 {searchQuery 
@@ -277,7 +277,7 @@ export default function ReportLibrary({
                       {/* Report Header */}
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center">
-                          <VisualizationIcon className="h-5 w-5 text-gray-400 mr-2" />
+                          <VisualizationIcon className="h-5 w-5 text-muted-foreground mr-2" />
                           <div className="min-w-0 flex-1">
                             <h4 className="text-sm font-medium text-gray-900 truncate">
                               {report.name}
@@ -339,35 +339,35 @@ export default function ReportLibrary({
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => onView(report)}
-                            className="p-1.5 text-gray-400 hover:text-gray-600 rounded"
+                            className="p-1.5 text-muted-foreground hover:text-gray-600 rounded"
                             title="View"
                           >
                             <EyeIcon className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onEdit(report)}
-                            className="p-1.5 text-gray-400 hover:text-gold-600 rounded"
+                            className="p-1.5 text-muted-foreground hover:text-gold-600 rounded"
                             title="Edit"
                           >
                             <PencilIcon className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onDuplicate(report)}
-                            className="p-1.5 text-gray-400 hover:text-green-600 rounded"
+                            className="p-1.5 text-muted-foreground hover:text-green-600 rounded"
                             title="Duplicate"
                           >
                             <DocumentDuplicateIcon className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onShare(report.id)}
-                            className="p-1.5 text-gray-400 hover:text-gold-600 rounded"
+                            className="p-1.5 text-muted-foreground hover:text-gold-600 rounded"
                             title="Share"
                           >
                             <ShareIcon className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onDelete(report.id)}
-                            className="p-1.5 text-gray-400 hover:text-red-600 rounded"
+                            className="p-1.5 text-muted-foreground hover:text-red-600 rounded"
                             title="Delete"
                           >
                             <TrashIcon className="h-4 w-4" />

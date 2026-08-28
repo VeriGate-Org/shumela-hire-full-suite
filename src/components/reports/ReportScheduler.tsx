@@ -240,7 +240,7 @@ export default function ReportScheduler({
       <div className="divide-y divide-gray-200">
         {!schedules || schedules.length === 0 ? (
           <div className="p-12 text-center">
-            <ClockIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <ClockIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No scheduled reports</h3>
             <p className="text-gray-500 mb-4">
               Create automated schedules to deliver reports regularly to your team
@@ -328,7 +328,7 @@ export default function ReportScheduler({
                   <button
                     onClick={() => onRunNow(schedule.id)}
                     disabled={schedule.lastStatus === 'running'}
-                    className="p-2 text-gray-400 hover:text-gold-600 rounded disabled:opacity-50"
+                    className="p-2 text-muted-foreground hover:text-gold-600 rounded disabled:opacity-50"
                     title="Run now"
                   >
                     <PlayIcon className="h-4 w-4" />
@@ -338,8 +338,8 @@ export default function ReportScheduler({
                     onClick={() => onToggleSchedule(schedule.id, !schedule.enabled)}
                     className={`p-2 rounded ${
                       schedule.enabled
-                        ? 'text-gray-400 hover:text-yellow-600'
-                        : 'text-gray-400 hover:text-green-600'
+                        ? 'text-muted-foreground hover:text-yellow-600'
+                        : 'text-muted-foreground hover:text-green-600'
                     }`}
                     title={schedule.enabled ? 'Pause' : 'Resume'}
                   >
@@ -348,7 +348,7 @@ export default function ReportScheduler({
                   
                   <button
                     onClick={() => setEditingSchedule(schedule.id)}
-                    className="p-2 text-gray-400 hover:text-gold-600 rounded"
+                    className="p-2 text-muted-foreground hover:text-gold-600 rounded"
                     title="Edit"
                   >
                     <Cog6ToothIcon className="h-4 w-4" />
@@ -356,7 +356,7 @@ export default function ReportScheduler({
                   
                   <button
                     onClick={() => onDeleteSchedule(schedule.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 rounded"
+                    className="p-2 text-muted-foreground hover:text-red-600 rounded"
                     title="Delete"
                   >
                     <TrashIcon className="h-4 w-4" />

@@ -179,7 +179,7 @@ export default function FeaturesPage() {
         actions={
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="flex items-center gap-1.5 px-4 py-2 bg-cta text-deep-navy text-sm font-medium rounded-full hover:bg-cta/90 transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 bg-cta text-cta-foreground text-sm font-medium rounded-full hover:bg-cta/90 transition-colors"
         >
           <PlusIcon className="h-4 w-4" />
           Add Feature

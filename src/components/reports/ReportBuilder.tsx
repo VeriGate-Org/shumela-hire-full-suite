@@ -298,7 +298,7 @@ export default function ReportBuilder({
                 className={`flex items-center p-3 border rounded-[2px] cursor-pointer transition-colors ${
                   config.fields.includes(field.id)
                     ? 'border-primary bg-primary/5'
-                    : 'border-gray-200 dark:border-gray-700 hover:bg-off-white dark:hover:bg-gray-800'
+                    : 'border-gray-200 dark:border-gray-700 hover:bg-muted dark:hover:bg-gray-800'
                 }`}
               >
                 <input
@@ -309,7 +309,7 @@ export default function ReportBuilder({
                 />
                 <div className="ml-3">
                   <div className="text-sm font-medium text-gray-900">{field.name}</div>
-                  <div className="text-[10px] text-gray-400 uppercase tracking-[0.05em]">{field.type}</div>
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-[0.05em]">{field.type}</div>
                 </div>
               </label>
             ))}
@@ -337,7 +337,7 @@ export default function ReportBuilder({
       </div>
 
       {config.filters.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-muted-foreground">
           <FunnelIcon className="w-10 h-10 mx-auto mb-3 opacity-40" />
           <p className="text-sm">No filters added yet</p>
           <p className="text-xs mt-1">Filters are optional — click &quot;Add Filter&quot; or proceed to the next step</p>
@@ -420,7 +420,7 @@ export default function ReportBuilder({
               }`}
             >
               <viz.icon className={`h-6 w-6 mb-2 ${
-                config.visualization.type === viz.type ? 'text-cta' : 'text-gray-400'
+                config.visualization.type === viz.type ? 'text-cta' : 'text-muted-foreground'
               }`} />
               <div className="font-medium text-gray-900">{viz.name}</div>
               <div className="text-xs text-gray-500 mt-1">{viz.description}</div>
@@ -586,7 +586,7 @@ export default function ReportBuilder({
         <button
           onClick={handleRun}
           disabled={isRunning || !config.name.trim()}
-          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-deep-navy rounded-full hover:bg-cta/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-cta-foreground rounded-full hover:bg-cta/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {isRunning ? (
             <PauseIcon className="h-4 w-4" />

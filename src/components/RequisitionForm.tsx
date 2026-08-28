@@ -487,7 +487,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
       </div>
 
       {formData.description && (
-        <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
+        <div className="bg-muted dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
           <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-2">
             Description Preview
           </div>
@@ -543,7 +543,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
         <button
           onClick={handleSubmitForApproval}
           disabled={isSubmitting}
-          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-deep-navy rounded-full hover:bg-cta/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-cta-foreground rounded-full hover:bg-cta/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <DocumentTextIcon className="w-4 h-4" />
           {isSubmitting ? 'Submitting...' : 'Submit for Approval'}
@@ -574,7 +574,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
 
 function ReviewCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-3">
+    <div className="bg-muted dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-3">
       <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-1">
         {label}
       </div>

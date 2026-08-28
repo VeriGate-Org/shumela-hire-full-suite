@@ -421,7 +421,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
                 <div className="space-y-4">
                   {pipeline.length > 0 ? (
                     pipeline.map((dept) => (
-                      <div key={dept.department} className="flex items-center justify-between p-3 bg-off-white/50 rounded-[2px]">
+                      <div key={dept.department} className="flex items-center justify-between p-3 bg-muted/50 rounded-[2px]">
                         <span className="font-medium text-foreground">{dept.department}</span>
                         <div className="flex items-center gap-4 text-sm">
                           <span className="text-orange-600">{dept.open} open</span>
@@ -449,7 +449,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
                 <div className="space-y-4">
                   {lifecycle.length > 0 ? (
                     lifecycle.map((item) => (
-                      <div key={item.stage} className="flex items-center justify-between p-3 bg-off-white/50 rounded-[2px]">
+                      <div key={item.stage} className="flex items-center justify-between p-3 bg-muted/50 rounded-[2px]">
                         <span className="font-medium text-foreground">{item.stage}</span>
                         <span className={`px-2 py-1 rounded-[2px] text-sm font-medium ${item.color}`}>
                           {item.count}
@@ -480,7 +480,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {activities.length > 0 ? (
                   activities.map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-off-white dark:hover:bg-card/50 rounded-[2px]">
+                    <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-muted dark:hover:bg-card/50 rounded-[2px]">
                       <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${activity.color.replace('text-', 'bg-')}`} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-foreground truncate">{activity.message}</p>
@@ -514,7 +514,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
                   <a
                     key={action.label}
                     href={action.href}
-                    className="bg-cta text-deep-navy p-3 rounded-full hover:bg-cta/90 transition-colors text-sm font-semibold text-center w-full block"
+                    className="bg-cta text-cta-foreground p-3 rounded-full hover:bg-cta/90 transition-colors text-sm font-semibold text-center w-full block"
                   >
                     {action.label}
                   </a>
