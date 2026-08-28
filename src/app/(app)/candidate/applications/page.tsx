@@ -174,6 +174,12 @@ export default function MyApplicationsPage() {
     }
   };
 
+  // The three figures the band carries. Counted from the applications already in hand — this
+  // screen holds the whole collection rather than a page of it, so these are totals, not a sample.
+  const IN_PROGRESS = ['applied', 'under_review', 'phone_screening', 'technical_interview', 'final_interview'];
+  const inProgressCount = applications.filter(app => IN_PROGRESS.includes(app.status)).length;
+  const offerCount = applications.filter(app => ['offer_extended', 'hired'].includes(app.status)).length;
+
   const filteredApplications = applications.filter(app => {
     const matchesStatus = filterStatus === 'all' || app.status === filterStatus;
     const matchesSearch = searchTerm === '' || 
@@ -300,60 +306,14 @@ export default function MyApplicationsPage() {
         eyebrow="Personal"
         title="My Applications"
         subtitle="Track and manage your job applications"
+        figures={[
+          { label: 'Applications', value: applications.length },
+          { label: 'In progress', value: inProgressCount },
+          { label: 'Offers', value: offerCount, tone: 'positive' },
+        ]}
         actions={actions}
       />
       <div className="space-y-6">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <BriefcaseIcon className="w-8 h-8 text-violet-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Applications</p>
-                <p className="text-2xl font-semibold text-gray-900">{applications.length}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <ClockIcon className="w-8 h-8 text-yellow-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">In Progress</p>
-                <p className="text-2xl font-semibold text-gray-900">
-                  {applications.filter(app => 
-                    ['applied', 'under_review', 'phone_screening', 'technical_interview', 'final_interview'].includes(app.status)
-                  ).length}
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <CheckCircleIcon className="w-8 h-8 text-green-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Offers</p>
-                <p className="text-2xl font-semibold text-gray-900">
-                  {applications.filter(app => ['offer_extended', 'hired'].includes(app.status)).length}
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <XCircleIcon className="w-8 h-8 text-red-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Rejected</p>
-                <p className="text-2xl font-semibold text-gray-900">
-                  {applications.filter(app => app.status === 'rejected').length}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Applications List */}
         <div className="space-y-4">
           {filteredApplications.map((application) => (
