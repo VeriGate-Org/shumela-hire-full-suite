@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { useAuth } from '@/contexts/AuthContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import {
@@ -565,7 +566,12 @@ export default function HelpPage() {
   // -------------------------------------------------------------------------
 
   return (
-    <PageWrapper title="Help Center" subtitle="Find answers, explore features, and get support">
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="System"
+        title="Help Center"
+        subtitle="Find answers, explore features, and get support"
+      />
       {/* Search */}
       <div className="mb-6">
         <div className="relative">

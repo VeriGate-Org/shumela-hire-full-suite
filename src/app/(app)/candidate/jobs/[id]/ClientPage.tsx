@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import EmptyState from '@/components/EmptyState';
 import Link from 'next/link';
 import {
@@ -191,7 +192,13 @@ export default function CandidateJobDetailPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Job Details" subtitle="Loading..." actions={headerActions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Personal"
+          title="Job Details"
+          subtitle="Loading..."
+          actions={headerActions}
+        />
         <div className="flex items-center justify-center py-16">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
         </div>
@@ -201,7 +208,12 @@ export default function CandidateJobDetailPage() {
 
   if (error || !job) {
     return (
-      <PageWrapper title="Job Not Found" actions={headerActions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Personal"
+          title="Job Not Found"
+          actions={headerActions}
+        />
         <EmptyState
           icon={ExclamationTriangleIcon}
           title="Job Not Found"
@@ -240,11 +252,13 @@ export default function CandidateJobDetailPage() {
   };
 
   return (
-    <PageWrapper
-      title={job.title}
-      subtitle={[job.department, job.location, job.employmentType].filter(Boolean).join(' · ')}
-      actions={headerActions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Personal"
+        title={job.title}
+        subtitle={[job.department, job.location, job.employmentType].filter(Boolean).join(' · ')}
+        actions={headerActions}
+      />
       <div className="space-y-6">
         {/* Job Header Card */}
         <div className="bg-white rounded-control shadow border border-gray-200 p-6">

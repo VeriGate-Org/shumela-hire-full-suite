@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { getEnumLabel } from '@/utils/enumLabels';
 import { useAuth } from '@/contexts/AuthContext';
 import { getApplicantId, getApplicant, getDocuments as fetchDocuments, getApplications as fetchApplications, updateMyDemographics, requestOwnErasure } from '@/services/candidateService';
@@ -405,7 +406,13 @@ export default function CandidateProfilePage() {
 
   if (loading) {
     return (
-      <PageWrapper title="My Profile" subtitle="Loading your profile..." actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Personal"
+          title="My Profile"
+          subtitle="Loading your profile..."
+          actions={actions}
+        />
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
         </div>
@@ -415,7 +422,13 @@ export default function CandidateProfilePage() {
 
   if (!profile) {
     return (
-      <PageWrapper title="My Profile" subtitle="Manage your professional profile" actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Personal"
+          title="My Profile"
+          subtitle="Manage your professional profile"
+          actions={actions}
+        />
         <div className="bg-card rounded-control shadow p-12 text-center">
           <UserIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">No profile data</h3>
@@ -426,11 +439,13 @@ export default function CandidateProfilePage() {
   }
 
   return (
-    <PageWrapper
-      title="My Profile"
-      subtitle="Manage your professional profile and application materials"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Personal"
+        title="My Profile"
+        subtitle="Manage your professional profile and application materials"
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* Profile Header Card */}
         <div className="bg-card rounded-control shadow p-6">

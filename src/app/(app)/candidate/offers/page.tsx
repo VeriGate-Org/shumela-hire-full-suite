@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import EmptyState from '@/components/EmptyState';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
@@ -404,7 +405,13 @@ export default function MyOffersPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="My Offers" subtitle="Loading your job offers..." actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Personal"
+          title="My Offers"
+          subtitle="Loading your job offers..."
+          actions={actions}
+        />
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
         </div>
@@ -413,11 +420,13 @@ export default function MyOffersPage() {
   }
 
   return (
-    <PageWrapper
-      title="My Offers"
-      subtitle="Manage and track your job offers"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Personal"
+        title="My Offers"
+        subtitle="Manage and track your job offers"
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import { CardSkeleton } from '@/components/LoadingComponents';
@@ -359,7 +360,13 @@ export default function BrowseJobsPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Browse Jobs" subtitle="Browse open positions and apply directly" actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Personal"
+          title="Browse Jobs"
+          subtitle="Browse open positions and apply directly"
+          actions={actions}
+        />
         <CardSkeleton count={6} />
       </PageWrapper>
     );
@@ -367,14 +374,26 @@ export default function BrowseJobsPage() {
 
   if (error && allJobs.length === 0) {
     return (
-      <PageWrapper title="Browse Jobs" subtitle="Browse open positions and apply directly" actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Personal"
+          title="Browse Jobs"
+          subtitle="Browse open positions and apply directly"
+          actions={actions}
+        />
         <ErrorState title="Error Loading Jobs" message={error} onRetry={fetchJobs} />
       </PageWrapper>
     );
   }
 
   return (
-    <PageWrapper title="Browse Jobs" subtitle="Browse open positions and apply directly" actions={actions}>
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Personal"
+        title="Browse Jobs"
+        subtitle="Browse open positions and apply directly"
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* Search and Filters */}
         <div className="enterprise-card p-6">

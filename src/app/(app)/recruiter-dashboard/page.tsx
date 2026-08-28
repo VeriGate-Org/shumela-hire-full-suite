@@ -3,6 +3,7 @@
 import React from 'react';
 import RecruiterDashboard from '@/components/RecruiterDashboard';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function RecruiterDashboardPage() {
@@ -17,7 +18,11 @@ export default function RecruiterDashboardPage() {
 
   if (!hasAccess) {
     return (
-      <PageWrapper title="Access Denied">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Analytics"
+          title="Access Denied"
+        />
         <div className="flex items-center justify-center py-16">
           <div className="enterprise-card p-8 max-w-md w-full text-center">
             <h2 className="text-xl font-bold text-foreground mb-4">Insufficient Permissions</h2>

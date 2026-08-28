@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import {
   ArrowLeftIcon,
   CheckCircleIcon,
@@ -97,7 +98,11 @@ export default function FeatureDetailPage() {
 
   if (loading) {
     return (
-      <PageWrapper title="Loading...">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Platform"
+          title="Loading..."
+        />
         <div className="flex items-center justify-center py-20 text-gray-500">Loading feature details...</div>
       </PageWrapper>
     );
@@ -105,7 +110,11 @@ export default function FeatureDetailPage() {
 
   if (!feature) {
     return (
-      <PageWrapper title="Feature Not Found">
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Platform"
+          title="Feature Not Found"
+        />
         <div className="text-center py-20 text-gray-500">Feature not found</div>
       </PageWrapper>
     );
@@ -116,16 +125,18 @@ export default function FeatureDetailPage() {
   const plans = feature.includedPlans?.split(',') || [];
 
   return (
-    <PageWrapper
-      title={feature.name}
-      subtitle={feature.code}
-      actions={
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Platform"
+        title={feature.name}
+        subtitle={feature.code}
+        actions={
         <Link href="/platform/features" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors">
           <ArrowLeftIcon className="h-4 w-4" />
           Back to features
         </Link>
       }
-    >
+      />
       <div className="space-y-8">
         {/* Feature Info */}
         <div className="bg-white dark:bg-charcoal border border-gray-200 dark:border-gray-700 rounded-[2px] p-6">

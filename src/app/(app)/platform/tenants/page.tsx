@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import {
   BuildingOfficeIcon,
   MagnifyingGlassIcon,
@@ -86,7 +87,12 @@ export default function TenantsPage() {
     : tenants;
 
   return (
-    <PageWrapper title="Tenants" subtitle="Manage platform tenants and their subscriptions">
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Platform"
+        title="Tenants"
+        subtitle="Manage platform tenants and their subscriptions"
+      />
       <div className="space-y-6">
         {/* Search */}
         <div className="relative max-w-md">

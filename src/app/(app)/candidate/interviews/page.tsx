@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import EmptyState from '@/components/EmptyState';
 import { getEnumLabel } from '@/utils/enumLabels';
 import { useAuth } from '@/contexts/AuthContext';
@@ -352,7 +353,13 @@ export default function InterviewSchedulePage() {
 
   if (loading) {
     return (
-      <PageWrapper title="My Interviews & Offers" subtitle="Track your interview schedule and review employment offers" actions={actions}>
+      <PageWrapper>
+        <IdentityBand
+          eyebrow="Personal"
+          title="My Interviews & Offers"
+          subtitle="Track your interview schedule and review employment offers"
+          actions={actions}
+        />
         <div className="space-y-6">
           {/* Skeleton Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -391,11 +398,13 @@ export default function InterviewSchedulePage() {
   }
 
   return (
-    <PageWrapper
-      title="My Interviews & Offers"
-      subtitle="Track your interview schedule and review employment offers"
-      actions={actions}
-    >
+    <PageWrapper>
+      <IdentityBand
+        eyebrow="Personal"
+        title="My Interviews & Offers"
+        subtitle="Track your interview schedule and review employment offers"
+        actions={actions}
+      />
       <div className="space-y-6">
         {/* ========== SECTION: MY INTERVIEWS ========== */}
         <div className="flex items-center gap-2 mb-1">
