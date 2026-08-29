@@ -21,7 +21,6 @@ import {
   PlayIcon,
   ClockIcon,
 } from '@heroicons/react/24/outline';
-import EmptyState from '@/components/EmptyState';
 import { useToast } from '@/components/Toast';
 import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import { parseReportCsv } from '@/components/reports/subjects';
@@ -42,7 +41,10 @@ export default function ReportsPage() {
   // an old link still lands on the thing it named.
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get('tab');
-    if (requested && (TABS as readonly string[]).includes(requested)) {
+    // `results` is excluded deliberately. Results are session state that starts empty on every
+    // load, so a link asking for that tab would always arrive at an empty one — the builder is
+    // where the person landing on it can actually get a result.
+    if (requested && requested !== 'results' && (TABS as readonly string[]).includes(requested)) {
       setActiveTab(requested as ReportTab);
     }
   }, []);
@@ -438,11 +440,36 @@ export default function ReportsPage() {
   // Who is waiting on a report that did not arrive.
   const affectedRecipients = new Set(failing.flatMap((s) => s.recipients ?? []));
 
+  /**
+   * A result is something that happened, not a place you go.
+   *
+   * <p>`reportResults` is session state — it starts empty on every page load and is never fetched —
+   * so a permanent Results tab read "No results yet" on arrival, every time, for every user. It is
+   * now a fourth tab that appears once a run has produced something, carrying the row count so a
+   * run that matched nothing still reads as an answer rather than as an empty tab.
+   */
+  const hasResult = reportResults.length > 0;
+
   const tabs = [
-    { id: 'create' as const, name: 'Create Report', icon: PlusIcon, count: undefined },
-    { id: 'library' as const, name: 'Library', icon: BookOpenIcon, count: savedReports.length },
-    { id: 'results' as const, name: 'Results', icon: PlayIcon, count: reportResults.length },
-    { id: 'scheduler' as const, name: 'Scheduler', icon: ClockIcon, count: schedules.filter(s => s.enabled).length },
+    { id: 'create' as const, name: 'Build', icon: PlusIcon, count: undefined, showZero: false },
+    { id: 'library' as const, name: 'Saved', icon: BookOpenIcon, count: savedReports.length, showZero: false },
+    {
+      id: 'scheduler' as const,
+      name: 'Scheduled',
+      icon: ClockIcon,
+      count: schedules.filter((s) => s.enabled).length,
+      showZero: false,
+    },
+    // Zero rows is a finding. It is shown, where an absent count elsewhere just means "nothing yet".
+    ...(hasResult
+      ? [{
+          id: 'results' as const,
+          name: 'Result',
+          icon: PlayIcon,
+          count: currentResult?.rowCount ?? 0,
+          showZero: true,
+        }]
+      : []),
   ];
 
   return (
@@ -450,7 +477,10 @@ export default function ReportsPage() {
       <IdentityBand
         eyebrow="Reporting"
         title="Reports"
-        subtitle="Build a report, or manage what already runs. Ready-made extracts are on Standard extracts."
+        subtitle={`Build a report, or manage what already runs. Last scheduled run: ${lastRunLabel}. Ready-made extracts are on Standard extracts.`}
+        // Three, not four. Last run was the fourth, and it is a timestamp rather than a count —
+        // it reads as prose beside three tallies, and past three figures none of them registers.
+        // It is now in the sentence above, where a timestamp belongs.
         figures={[
           { label: 'Saved', value: savedReports.length },
           { label: 'Scheduled', value: schedules.length === 0 ? 'None' : healthy.length + neverRun.length },
@@ -459,9 +489,6 @@ export default function ReportsPage() {
             value: failing.length,
             tone: (failing.length > 0 ? 'critical' : undefined) as 'critical' | undefined,
           },
-          // Absent is not zero: a schedule that has never run and one that ran at 06:00 are
-          // different states, and "Never" says which this is.
-          { label: 'Last run', value: lastRunLabel },
         ]}
       />
 
@@ -527,7 +554,7 @@ export default function ReportsPage() {
             >
               <tab.icon className="h-4 w-4" />
               {tab.name}
-              {tab.count !== undefined && tab.count > 0 && (
+              {tab.count !== undefined && (tab.count > 0 || tab.showZero) && (
                 <span className={`ml-0.5 py-0.5 px-2 rounded-full text-xs font-bold ${
                   activeTab === tab.id
                     ? 'bg-surface-navy text-primary'
@@ -563,42 +590,39 @@ export default function ReportsPage() {
             />
           )}
 
-          {activeTab === 'results' && (
+          {activeTab === 'results' && currentResult && (
             <div className="space-y-6">
-              {currentResult ? (
-                <>
-                  <ReportViewer
-                    result={currentResult}
-                    onExport={handleExportResult}
-                    onShare={handleShareResult}
-                    onEdit={handleEditFromViewer}
-                  />
+              <ReportViewer
+                result={currentResult}
+                onExport={handleExportResult}
+                onShare={handleShareResult}
+                onEdit={handleEditFromViewer}
+              />
 
-                  <AiAssistPanel title="AI Report Narrative" feature="AI_REPORT_NARRATIVE" description="Generate a written summary and key insights from your report data">
-                    <AiReportNarrative
-                      reportType={currentResult.config.name}
-                      reportData={currentResult.data ? { rows: currentResult.data, rowCount: currentResult.rowCount } : undefined}
-                    />
-                  </AiAssistPanel>
-                </>
-              ) : (
-                <EmptyState
-                  icon={PlayIcon}
-                  title="No results yet"
-                  description="Run a report from the builder or library to see results here"
+              <AiAssistPanel title="AI Report Narrative" feature="AI_REPORT_NARRATIVE" description="Generate a written summary and key insights from your report data">
+                <AiReportNarrative
+                  reportType={currentResult.config.name}
+                  reportData={currentResult.data ? { rows: currentResult.data, rowCount: currentResult.rowCount } : undefined}
                 />
-              )}
+              </AiAssistPanel>
 
               {reportResults.length > 1 && (
                 <div className="bg-card border border-border rounded-card shadow-sm p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h3 className="text-[1.0625rem] font-bold text-foreground">Recent Results</h3>
-                      <p className="text-[0.8125rem] text-muted-foreground mt-0.5">Previously generated report results</p>
+                      {/* Named for what it is. These are not stored anywhere; closing the tab
+                          loses them, and "Recent results" implied otherwise. */}
+                      <h3 className="text-[1.0625rem] font-bold text-foreground">Earlier runs in this session</h3>
+                      <p className="text-[0.8125rem] text-muted-foreground mt-0.5">
+                        Not saved. Save the report to keep it, or export the rows.
+                      </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {reportResults.slice(1).map((result) => (
+                    {/* Everything except the one on screen. `slice(1)` assumed the newest was
+                        always the one being viewed, so opening an earlier run hid the newest
+                        and listed the open one back at you. */}
+                    {reportResults.filter((result) => result.id !== currentResult.id).map((result) => (
                       <button
                         key={result.id}
                         onClick={() => setCurrentResult(result)}
@@ -606,7 +630,8 @@ export default function ReportsPage() {
                       >
                         <h4 className="font-semibold text-foreground text-sm">{result.config.name}</h4>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {result.rowCount} rows &middot; {new Date(result.generatedAt).toLocaleDateString()}
+                          {result.rowCount} {result.rowCount === 1 ? 'row' : 'rows'} &middot;{' '}
+                          {new Date(result.generatedAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </button>
                     ))}

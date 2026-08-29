@@ -12,6 +12,7 @@ import {
   EyeIcon,
 } from '@heroicons/react/24/outline';
 import { ReportConfig } from './ReportBuilder';
+import EmptyState from '@/components/EmptyState';
 
 export interface SavedReport extends ReportConfig {
   id: string;
@@ -182,7 +183,7 @@ export default function ReportLibrary({
   };
 
   return (
-    <div className={`bg-white rounded-control shadow-sm border border-gray-200 ${className}`}>
+    <div className={`bg-card rounded-control shadow-sm border border-gray-200 ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -242,7 +243,7 @@ export default function ReportLibrary({
                   }`}
                 >
                   <span>{category.name}</span>
-                  <span className="text-xs bg-white rounded-full px-2 py-0.5">
+                  <span className="text-xs bg-card rounded-full px-2 py-0.5">
                     {categoryCounts[category.id] || 0}
                   </span>
                 </button>
@@ -254,15 +255,21 @@ export default function ReportLibrary({
         {/* Main Content */}
         <div className="flex-1">
           {filteredReports.length === 0 ? (
-            <div className="p-12 text-center">
-              <ChartBarIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No reports found</h3>
-              <p className="text-gray-500 mb-4">
-                {searchQuery 
-                  ? "Try adjusting your search terms or filters" 
-                  : "Create your first report to get started"}
-              </p>
-            </div>
+            // A search that matched nothing and a library that is empty are different states,
+            // and the same "No reports found" was shown for both.
+            searchQuery ? (
+              <EmptyState
+                icon={ChartBarIcon}
+                title={`Nothing saved matches "${searchQuery}"`}
+                description="Search looks at the report name and description. Clear it to see everything saved."
+              />
+            ) : (
+              <EmptyState
+                icon={ChartBarIcon}
+                title="No saved reports"
+                description="Build a report and save it here to run it again later, or to put it on a schedule."
+              />
+            )
           ) : (
             <div className="p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -272,7 +279,7 @@ export default function ReportLibrary({
                   return (
                     <div
                       key={report.id}
-                      className="bg-white border border-gray-200 rounded-control p-4 hover:shadow-md transition-shadow"
+                      className="bg-card border border-gray-200 rounded-control p-4 hover:shadow-md transition-shadow"
                     >
                       {/* Report Header */}
                       <div className="flex items-start justify-between mb-3">
@@ -293,7 +300,7 @@ export default function ReportLibrary({
                         {/* Status Indicators */}
                         <div className="flex items-center gap-1 ml-2">
                           {report.schedule?.enabled && (
-                            <ClockIcon className="h-4 w-4 text-green-500" title="Scheduled" />
+                            <ClockIcon className="h-4 w-4 text-success" title="Scheduled" />
                           )}
                           {report.isShared && (
                             <ShareIcon className="h-4 w-4 text-violet-500" title="Shared" />
@@ -353,7 +360,7 @@ export default function ReportLibrary({
                           </button>
                           <button
                             onClick={() => onDuplicate(report)}
-                            className="p-1.5 text-muted-foreground hover:text-green-600 rounded"
+                            className="p-1.5 text-muted-foreground hover:text-success-on-tint rounded"
                             title="Duplicate"
                           >
                             <DocumentDuplicateIcon className="h-4 w-4" />
@@ -367,7 +374,7 @@ export default function ReportLibrary({
                           </button>
                           <button
                             onClick={() => onDelete(report.id)}
-                            className="p-1.5 text-muted-foreground hover:text-red-600 rounded"
+                            className="p-1.5 text-muted-foreground hover:text-error-on-tint rounded"
                             title="Delete"
                           >
                             <TrashIcon className="h-4 w-4" />

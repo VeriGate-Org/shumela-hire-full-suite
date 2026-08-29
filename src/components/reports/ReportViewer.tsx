@@ -3,7 +3,6 @@
 import React, { useState, useCallback } from 'react';
 import {
   DocumentTextIcon,
-  ChartBarIcon,
   ArrowDownTrayIcon,
   PrinterIcon,
   ShareIcon,
@@ -143,7 +142,7 @@ export default function ReportViewer({
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-card divide-y divide-gray-200">
                 {paginatedData.map((row, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     {columns.map((column) => {
@@ -169,7 +168,7 @@ export default function ReportViewer({
             <button
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-card border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
@@ -194,7 +193,7 @@ export default function ReportViewer({
                     className={`px-3 py-2 text-sm font-medium rounded-full ${
                       currentPage === pageNum
                         ? 'bg-gold-500 text-violet-950'
-                        : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                        : 'text-gray-700 bg-card border border-gray-300 hover:bg-gray-50'
                     }`}
                   >
                     {pageNum}
@@ -206,7 +205,7 @@ export default function ReportViewer({
             <button
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-card border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>
@@ -219,33 +218,34 @@ export default function ReportViewer({
 
   if (result.error) {
     return (
-      <div className={`bg-white rounded-control shadow-sm border border-red-200 ${className}`}>
-        <div className="px-6 py-4 border-b border-red-200 bg-red-50">
-          <h2 className="text-lg font-semibold text-red-800">Report Generation Failed</h2>
+      <div className={`bg-card rounded-control shadow-sm border border-error ${className}`}>
+        {/* One statement of what went wrong, not two. The header said "Report Generation Failed"
+            and the body said "Error generating report" directly beneath it, which pushed the only
+            useful line — the reason — down the card. The reason is the heading now. */}
+        <div className="px-6 py-4 border-b border-error bg-error-bg">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-error-on-tint">
+            {result.config.name || 'This report'} did not run
+          </h2>
         </div>
         <div className="p-6">
-          <div className="text-center py-8">
-            <div className="text-red-600 mb-4">
-              <svg className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-red-800 mb-2">Error generating report</h3>
-            <p className="text-red-600 mb-4">{result.error}</p>
-            <button
-              onClick={onEdit}
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-full hover:bg-red-700"
-            >
-              Edit Report Configuration
-            </button>
-          </div>
+          <p className="text-base font-medium text-foreground">{result.error}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Nothing was produced, so there are no rows to show. Change the subject, the columns or
+            the period and run it again.
+          </p>
+          <button
+            onClick={onEdit}
+            className="mt-5 rounded-full bg-cta px-[18px] py-2.5 text-xs font-extrabold uppercase tracking-[0.07em] text-cta-foreground transition-colors hover:bg-cta-hover"
+          >
+            Back to the builder
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`bg-white rounded-control shadow-sm border border-gray-200 ${className}`}>
+    <div className={`bg-card rounded-control shadow-sm border border-gray-200 ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -262,11 +262,11 @@ export default function ReportViewer({
           
           <div className="flex items-center gap-2">
             <div className="relative">
-              <button className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50">
+              <button className="px-3 py-2 text-sm font-medium text-gray-700 bg-card border border-gray-300 rounded-full hover:bg-gray-50">
                 <ArrowDownTrayIcon className="h-4 w-4 inline mr-1" />
                 Export
               </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-control shadow-lg border border-gray-200 hidden group-hover:block">
+              <div className="absolute right-0 mt-2 w-48 bg-card rounded-control shadow-lg border border-gray-200 hidden group-hover:block">
                 <div className="py-1">
                   <button
                     onClick={() => onExport('csv')}
@@ -292,7 +292,7 @@ export default function ReportViewer({
             
             <button
               onClick={() => window.print()}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-card border border-gray-300 rounded-full hover:bg-gray-50"
             >
               <PrinterIcon className="h-4 w-4 inline mr-1" />
               Print
@@ -300,7 +300,7 @@ export default function ReportViewer({
             
             <button
               onClick={onShare}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-card border border-gray-300 rounded-full hover:bg-gray-50"
             >
               <ShareIcon className="h-4 w-4 inline mr-1" />
               Share
