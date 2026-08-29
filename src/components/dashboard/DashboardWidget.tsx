@@ -227,7 +227,7 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
                           setShowMenu(false);
                         }}
                         role="menuitem"
-                        className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                        className="flex items-center gap-2 w-full px-3 py-2 text-sm text-error-on-tint hover:bg-error-bg"
                       >
                         <TrashIcon className="w-4 h-4" />
                         Remove
@@ -251,10 +251,10 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
           ) : error ? (
             <div className="flex items-center justify-center h-32">
               <div className="text-center">
-                <div className="text-red-500 mb-2">
+                <div className="text-error-on-tint mb-2">
                   <EyeSlashIcon className="w-8 h-8 mx-auto" />
                 </div>
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-sm text-error-on-tint">{error}</p>
                 {refreshable && (
                   <button
                     onClick={handleRefresh}
