@@ -399,19 +399,42 @@ public class ShumelaHireServerlessStack : Stack
         // change with its cadence already decided.
         var schedules = new Dictionary<string, (string schedule, string description, bool enabled)>
         {
+            // Each rule replaces exactly one @Scheduled annotation, at the same cadence, and its
+            // name must match an entry in ScheduledJobRegistry — a test pins that set.
+            //
+            // The previous list was written from imagination: ten of its twelve names pointed at
+            // methods that do not exist (computeMetrics for computePeriodically, syncAll for
+            // checkAndExecuteDueSchedules, cleanupExpired on a service with no cleanup method),
+            // and it missed five real scheduled tasks entirely. Reflection turned each miss into a
+            // debug line. The registry is typed now, so these names are checked by the compiler on
+            // the Java side and by a test on this side.
             ["ReportSchedules"] = ("rate(1 hour)", "Send report schedules that have fallen due", true),
+            ["MetricsComputation"] = ("rate(2 hours)", "Recompute dashboard metrics", true),
+            ["JobAdExpiration"] = ("cron(0 2 * * ? *)", "Expire job advertisements past their closing date", true),
+            ["AgencyContractExpiration"] = ("cron(0 3 * * ? *)", "Suspend agencies whose contract has lapsed", true),
+            ["ComplianceReminders"] = ("cron(0 8 * * ? *)", "Send compliance reminders that have fallen due", true),
+            ["ComplianceOverdue"] = ("cron(0 9 * * ? *)", "Mark compliance reminders overdue", true),
+            ["ComplianceExpiries"] = ("cron(0 7 ? * MON *)", "Weekly scan for upcoming compliance expiries", true),
+            ["SageSync"] = ("rate(5 minutes)", "Run Sage sync schedules that have fallen due", true),
+            ["LeaveEscalation"] = ("cron(0 8 ? * MON-FRI *)", "Escalate leave requests waiting on approval", true),
+            ["LeaveCarryForward"] = ("cron(0 1 1 1 ? *)", "Annual leave carry-forward processing", true),
+            ["CertificationRenewal"] = ("cron(0 6 * * ? *)", "Warn on certifications about to expire", true),
 
-            ["MetricsComputation"] = ("rate(2 hours)", "Recompute dashboard metrics", false),
-            ["JobAdExpiration"] = ("cron(0 2 * * ? *)", "Expire stale job advertisements", false),
-            ["SapTransmissionRetry"] = ("rate(15 minutes)", "Retry failed SAP payroll transmissions", false),
-            ["ComplianceReminders"] = ("cron(0 8 * * ? *)", "Send compliance reminder notifications", false),
-            ["LeaveCarryForward"] = ("cron(0 1 1 1 ? *)", "Annual leave carry-forward processing", false),
-            ["SecurityCleanup"] = ("rate(1 hour)", "Clean up expired sessions and tokens", false),
-            ["SageSync"] = ("rate(5 minutes)", "Sync employee data with Sage", false),
-            ["AttendanceReconciliation"] = ("cron(0 3 * * ? *)", "Reconcile attendance records", false),
-            ["PerformanceCycleCheck"] = ("cron(0 6 * * ? *)", "Check performance review cycle deadlines", false),
-            ["TrainingReminders"] = ("cron(0 7 * * ? *)", "Send training enrollment reminders", false),
-            ["ReportCleanup"] = ("cron(0 4 * * ? *)", "Clean up expired report export jobs", false)
+            // Off because the bean behind each is off. The registry answers a request for one of
+            // these by naming the property that would turn it on, rather than reporting an unknown
+            // job — but a rule firing at a switched-off job is just a daily error, so the rule and
+            // the property are enabled together or not at all.
+            //
+            // SAP: sap.payroll.enabled. Retention jobs: both delete things, and both are
+            // deliberately opt-in at the bean level for that reason.
+            ["SapTransmissionRetry"] = ("rate(15 minutes)", "Retry failed SAP payroll transmissions (needs sap.payroll.enabled)", false),
+            ["SapStaleTransmissions"] = ("rate(1 hour)", "Flag SAP transmissions stuck in flight (needs sap.payroll.enabled)", false),
+            ["DocumentRetention"] = ("cron(0 3 * * ? *)", "Apply document retention policies (needs document.retention.scheduler.enabled)", false),
+            ["TalentPoolRetention"] = ("cron(0 4 * * ? *)", "Delete expired talent-pool entries (needs talent-pool.retention.scheduler.enabled)", false)
+
+            // No rule for SecurityMonitoringService.cleanupSecurityEvents. It trims in-memory maps
+            // held by one JVM; handing a fresh Lambda container its own empty maps to clean is not
+            // the job the name promises. It stays an @Scheduled task for long-lived processes.
         };
 
         foreach (var (name, (schedule, description, enabled)) in schedules)

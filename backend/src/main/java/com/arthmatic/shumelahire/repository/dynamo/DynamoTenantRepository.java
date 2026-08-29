@@ -25,6 +25,9 @@ public class DynamoTenantRepository extends DynamoRepository<TenantItem, Tenant>
 
     private static final DateTimeFormatter ISO_FMT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
+    /** The constant GSI2 partition every tenant row belongs to. */
+    static final String ALL_TENANTS = "TENANT";
+
     public DynamoTenantRepository(DynamoDbClient dynamoDbClient,
                                    DynamoDbEnhancedClient enhancedClient,
                                    String dynamoDbTableName) {
@@ -79,6 +82,22 @@ public class DynamoTenantRepository extends DynamoRepository<TenantItem, Tenant>
     }
 
     /**
+     * Every tenant, whatever its status, without needing a tenant context.
+     *
+     * <p>Via GSI2, whose partition is a constant. The alternatives were both wrong: the inherited
+     * findAll() queries PK = TENANT#{whoever is in context} and so returns one tenant's partition
+     * while claiming to list all of them, and a set of per-status queries cannot be complete
+     * because status is a free-form String.
+     *
+     * <p>Rows written before GSI2 existed carry no GSI2PK and are invisible to this query until
+     * they are re-saved — scripts/backfill-tenant-index-dynamodb.py does that.
+     */
+    @Override
+    public java.util.List<Tenant> findAllTenants() {
+        return queryGsiAll("GSI2", ALL_TENANTS);
+    }
+
+    /**
      * Find a tenant directly by its ID (doesn't require TenantContext).
      */
     public Optional<Tenant> findTenantById(String tenantId) {
@@ -124,6 +143,10 @@ public class DynamoTenantRepository extends DynamoRepository<TenantItem, Tenant>
         // GSI1: Status index
         item.setGsi1pk("TENANT_STATUS#" + entity.getStatus());
         item.setGsi1sk("TENANT#" + entity.getId());
+
+        // GSI2: every tenant, whatever its status — see findAllTenants()
+        item.setGsi2pk(ALL_TENANTS);
+        item.setGsi2sk("TENANT#" + entity.getId());
 
         // GSI4: Subdomain unique constraint
         item.setGsi4pk("TENANT_SUBDOMAIN#" + entity.getSubdomain());

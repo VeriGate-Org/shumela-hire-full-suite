@@ -1,9 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
-import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.dto.ReportScheduleResponse;
 import com.arthmatic.shumelahire.entity.Tenant;
-import com.arthmatic.shumelahire.repository.TenantDataRepository;
 import com.arthmatic.shumelahire.service.integration.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,21 +34,18 @@ public class ReportScheduleRunner {
 
     private static final Logger log = LoggerFactory.getLogger(ReportScheduleRunner.class);
 
-    /** The only tenant status a scheduled report should be sent for. */
-    private static final String ACTIVE = "ACTIVE";
-
-    private final TenantDataRepository tenants;
+    private final TenantSweep sweep;
     private final ReportScheduleService schedules;
     private final ReportTemplateService templates;
     private final EmailService email;
     private final String appUrl;
 
-    public ReportScheduleRunner(TenantDataRepository tenants,
+    public ReportScheduleRunner(TenantSweep sweep,
                                 ReportScheduleService schedules,
                                 ReportTemplateService templates,
                                 EmailService email,
                                 @Value("${APP_URL:}") String appUrl) {
-        this.tenants = tenants;
+        this.sweep = sweep;
         this.schedules = schedules;
         this.templates = templates;
         this.email = email;
@@ -71,49 +67,25 @@ public class ReportScheduleRunner {
     }
 
     /**
-     * Sweep every active tenant.
+     * Sweep every live tenant.
      *
-     * <p>Schedules are tenant-scoped, so the sweep sets the tenant context itself. Note what that
-     * means for the other scheduled jobs in this application: several of them call tenant-scoped
-     * repositories with no context set and fail with "Tenant context is not set" — visible in the
-     * production log today, from the {@code @Scheduled} path. Setting it per tenant is the whole
-     * job here, not an incidental detail.
-     *
-     * <p>One tenant's failure does not end the sweep. A single bad tenant must not stop every
-     * other tenant's reports, which is exactly what an uncaught exception would do.
+     * <p>The per-tenant mechanics — setting the context, restoring it afterwards, carrying on past
+     * a tenant that fails — live in {@link TenantSweep}, because every other scheduled job needs
+     * exactly the same thing and the first version of them all shared a bug rather than code.
      */
     public Summary sweep() {
-        Summary total = new Summary(0, 0, 0, 0);
-        String previous = TenantContext.getCurrentTenant();
+        AtomicReference<Summary> perTenant = new AtomicReference<>(new Summary(0, 0, 0, 0));
 
-        try {
-            // findByStatus, not findAll. Tenant rows are their own partition, so the inherited
-            // findAll queries PK = TENANT#{whoever is in context} and throws outright when nothing
-            // is — which is exactly what the first live invocation of this job did:
-            //   "TenantContext is not set. Use findTenantById() or findBySubdomain() instead of
-            //    inherited CRUD methods."
-            for (Tenant tenant : tenants.findByStatus(ACTIVE)) {
-                try {
-                    TenantContext.setCurrentTenant(tenant.getId());
-                    total = total.plus(runDueForCurrentTenant(tenant));
-                } catch (Exception e) {
-                    log.error("Report schedule sweep failed for tenant {}: {}",
-                            tenant.getId(), e.getMessage(), e);
-                    total = total.plus(new Summary(1, 0, 0, 1));
-                }
-            }
-        } finally {
-            // Restore rather than clear: in Lambda this thread is reused by the next request, and
-            // leaving another tenant's id behind would be a cross-tenant data leak.
-            if (previous == null) {
-                TenantContext.clear();
-            } else {
-                TenantContext.setCurrentTenant(previous);
-            }
-        }
+        TenantSweep.Result result = sweep.forEachLiveTenant("Report schedule sweep",
+                tenant -> perTenant.updateAndGet(s -> s.plus(runDueForCurrentTenant(tenant))));
 
-        log.info("Report schedule sweep: {}", total);
-        return total;
+        // Tenant counts come from the sweep rather than the accumulator: a tenant whose work threw
+        // never got to add itself, and reporting it as absent would hide it.
+        Summary delivered = perTenant.get();
+        Summary summary = new Summary(result.tenants(), delivered.delivered(), delivered.failed(),
+                result.failed());
+        log.info("Report schedules: {}", summary);
+        return summary;
     }
 
     /** The due schedules of whichever tenant is in context. Public so a test can call it directly. */
