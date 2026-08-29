@@ -2,11 +2,9 @@
 
 import React, { useState } from 'react';
 import {
-  PlayIcon,
   PencilIcon,
   TrashIcon,
   ShareIcon,
-  ClockIcon,
   ChartBarIcon,
   DocumentDuplicateIcon,
   EyeIcon,
@@ -36,14 +34,41 @@ interface ReportLibraryProps {
   className?: string;
 }
 
-const REPORT_CATEGORIES = [
-  { id: 'all', name: 'All Reports', count: 0 },
-  { id: 'recruitment', name: 'Recruitment', count: 0 },
-  { id: 'performance', name: 'Performance', count: 0 },
-  { id: 'pipeline', name: 'Pipeline', count: 0 },
-  { id: 'shared', name: 'Shared with Me', count: 0 },
-  { id: 'scheduled', name: 'Scheduled', count: 0 },
-];
+/**
+ * A saved report is a row, not a card.
+ *
+ * <p>What the reader wants from this list is: what is it about, does it run by itself, did the last
+ * run work, and can I run it now. That is four facts, and a three-across grid of cards spent a
+ * quarter of the screen on each while pushing the schedule state into a hoverable icon.
+ *
+ * <p>The category sidebar is gone rather than restyled. It assigned reports by scanning
+ * {@code report.fields} for substrings — 'candidate', 'application', 'pipeline', 'stage' — against
+ * the flat field list that predates the subject catalogue. Measured against the columns the wizard
+ * now offers: <b>Pipeline matches nothing at all</b>, so it could only ever read zero on every
+ * tenant, and Recruitment matches only the analytics measure {@code applications} — so a saved
+ * Applications report, whose columns are {@code applicant_name}, {@code job_title}, {@code status}
+ * and {@code submitted_date}, fell into no category but All. Sorting went with it: on a list this
+ * shape, most-recently-updated first is the only order anyone asked for.
+ *
+ * <p>Search stays. It is the one control that still does what it says.
+ */
+
+import { subjectFor } from './subjects';
+
+/** When a report last produced something, or that it never has. */
+function lastRunLabel(report: SavedReport): string {
+  if (!report.lastRun) return 'never run';
+  const when = new Date(report.lastRun);
+  if (Number.isNaN(when.getTime())) return 'never run';
+  return `last run ${when.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })}`;
+}
+
+/** The schedule state, as one of three things a reader can act on. */
+function scheduleState(report: SavedReport): { label: string; tone: 'idle' | 'ok' | 'bad' } {
+  if (!report.schedule?.enabled) return { label: 'Not scheduled', tone: 'idle' };
+  const frequency = report.schedule.frequency;
+  return { label: frequency.charAt(0).toUpperCase() + frequency.slice(1), tone: 'ok' };
+}
 
 export default function ReportLibrary({
   reports,
@@ -55,357 +80,139 @@ export default function ReportLibrary({
   onView,
   className = '',
 }: ReportLibraryProps) {
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'created' | 'updated' | 'runs'>('updated');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  // Calculate category counts
-  const categoryCounts = React.useMemo(() => {
-    const counts: Record<string, number> = REPORT_CATEGORIES.reduce((acc, cat) => ({ ...acc, [cat.id]: 0 }), {});
-    
-    reports.forEach(report => {
-      counts.all++;
-      
-      // Categorize based on report content/fields
-      if (report.fields.some(field => field.includes('candidate') || field.includes('application'))) {
-        counts.recruitment++;
-      }
-      if (report.fields.some(field => field.includes('performance') || field.includes('metric'))) {
-        counts.performance++;
-      }
-      if (report.fields.some(field => field.includes('pipeline') || field.includes('stage'))) {
-        counts.pipeline++;
-      }
-      if (report.isShared) {
-        counts.shared++;
-      }
-      if (report.schedule?.enabled) {
-        counts.scheduled++;
-      }
-    });
-    
-    return counts;
-  }, [reports]);
-
-  // Filter and sort reports
   const filteredReports = React.useMemo(() => {
-    const filtered = reports.filter(report => {
-      // Category filter
-      if (selectedCategory !== 'all') {
-        switch (selectedCategory) {
-          case 'recruitment':
-            if (!report.fields.some(field => field.includes('candidate') || field.includes('application'))) return false;
-            break;
-          case 'performance':
-            if (!report.fields.some(field => field.includes('performance') || field.includes('metric'))) return false;
-            break;
-          case 'pipeline':
-            if (!report.fields.some(field => field.includes('pipeline') || field.includes('stage'))) return false;
-            break;
-          case 'shared':
-            if (!report.isShared) return false;
-            break;
-          case 'scheduled':
-            if (!report.schedule?.enabled) return false;
-            break;
-        }
-      }
+    const query = searchQuery.trim().toLowerCase();
+    const matched = query
+      ? reports.filter(
+          (r) =>
+            r.name.toLowerCase().includes(query) ||
+            r.description?.toLowerCase().includes(query) ||
+            r.tags.some((tag) => tag.toLowerCase().includes(query)),
+        )
+      : [...reports];
 
-      // Search filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          report.name.toLowerCase().includes(query) ||
-          report.description?.toLowerCase().includes(query) ||
-          report.tags.some(tag => tag.toLowerCase().includes(query))
-        );
-      }
-
-      return true;
-    });
-
-    // Sort reports
-    filtered.sort((a, b) => {
-      let aVal: any, bVal: any;
-      
-      switch (sortBy) {
-        case 'name':
-          aVal = a.name.toLowerCase();
-          bVal = b.name.toLowerCase();
-          break;
-        case 'created':
-          aVal = new Date(a.createdAt).getTime();
-          bVal = new Date(b.createdAt).getTime();
-          break;
-        case 'updated':
-          aVal = new Date(a.updatedAt).getTime();
-          bVal = new Date(b.updatedAt).getTime();
-          break;
-        case 'runs':
-          aVal = a.runCount;
-          bVal = b.runCount;
-          break;
-        default:
-          return 0;
-      }
-      
-      if (sortOrder === 'asc') {
-        return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-      } else {
-        return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
-      }
-    });
-
-    return filtered;
-  }, [reports, selectedCategory, searchQuery, sortBy, sortOrder]);
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const getVisualizationIcon = (type: string) => {
-    switch (type) {
-      case 'bar':
-      case 'line':
-      case 'pie':
-      case 'funnel':
-        return ChartBarIcon;
-      default:
-        return ChartBarIcon;
-    }
-  };
+    return matched.sort(
+      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
+  }, [reports, searchQuery]);
 
   return (
-    <div className={`bg-card rounded-control shadow-sm border border-gray-200 ${className}`}>
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">Report Library</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Manage your saved reports and templates
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            {/* Search */}
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search reports..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 pl-4 pr-4 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
-              />
-            </div>
-            
-            {/* Sort */}
-            <select
-              value={`${sortBy}-${sortOrder}`}
-              onChange={(e) => {
-                const [field, order] = e.target.value.split('-');
-                setSortBy(field as any);
-                setSortOrder(order as any);
-              }}
-              className="px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
-            >
-              <option value="updated-desc">Recently Updated</option>
-              <option value="created-desc">Recently Created</option>
-              <option value="name-asc">Name A-Z</option>
-              <option value="name-desc">Name Z-A</option>
-              <option value="runs-desc">Most Used</option>
-            </select>
-          </div>
+    <section className={`bg-card border border-border rounded-card ${className}`}>
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-border">
+        <div>
+          <h2 className="text-[1.0625rem] font-bold text-foreground">Saved reports</h2>
+          <p className="text-[0.8125rem] text-muted-foreground mt-0.5">
+            {reports.length === 0
+              ? 'Nothing saved yet'
+              : `${reports.length} saved · most recently changed first`}
+          </p>
         </div>
+        <input
+          type="search"
+          aria-label="Search saved reports"
+          placeholder="Search reports…"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full sm:w-64 rounded-full border border-border bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-cta"
+        />
       </div>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <div className="w-64 border-r border-gray-200 bg-gray-50">
-          <div className="p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Categories</h3>
-            <nav className="space-y-1">
-              {REPORT_CATEGORIES.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-control ${
-                    selectedCategory === category.id
-                      ? 'bg-gold-100 text-violet-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+      {filteredReports.length === 0 ? (
+        searchQuery ? (
+          <EmptyState
+            icon={ChartBarIcon}
+            title={`Nothing saved matches "${searchQuery}"`}
+            description="Search looks at the report name, its description and its tags. Clear it to see everything saved."
+          />
+        ) : (
+          <EmptyState
+            icon={ChartBarIcon}
+            title="No saved reports"
+            description="Build a report and save it here to run it again later, or to put it on a schedule."
+          />
+        )
+      ) : (
+        <ul className="px-5">
+          {filteredReports.map((report) => {
+            const subject = subjectFor(report.subject);
+            const state = scheduleState(report);
+            const unit = subject.aggregate ? 'measure' : 'column';
+            const count = report.fields.length;
+
+            return (
+              <li
+                key={report.id}
+                className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3.5 border-b border-border last:border-b-0"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-foreground truncate">{report.name}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {subject.noun}s · {count} {count === 1 ? unit : `${unit}s`} · {lastRunLabel(report)}
+                  </p>
+                </div>
+
+                <span
+                  className={`flex-none px-2.5 py-1 rounded-full text-[0.6875rem] font-bold ${
+                    state.tone === 'ok'
+                      ? 'bg-success-bg text-success-on-tint'
+                      : state.tone === 'bad'
+                        ? 'bg-error-bg text-error-on-tint'
+                        : 'bg-muted text-muted-foreground'
                   }`}
                 >
-                  <span>{category.name}</span>
-                  <span className="text-xs bg-card rounded-full px-2 py-0.5">
-                    {categoryCounts[category.id] || 0}
-                  </span>
-                </button>
-              ))}
-            </nav>
-          </div>
-        </div>
+                  {state.label}
+                </span>
 
-        {/* Main Content */}
-        <div className="flex-1">
-          {filteredReports.length === 0 ? (
-            // A search that matched nothing and a library that is empty are different states,
-            // and the same "No reports found" was shown for both.
-            searchQuery ? (
-              <EmptyState
-                icon={ChartBarIcon}
-                title={`Nothing saved matches "${searchQuery}"`}
-                description="Search looks at the report name and description. Clear it to see everything saved."
-              />
-            ) : (
-              <EmptyState
-                icon={ChartBarIcon}
-                title="No saved reports"
-                description="Build a report and save it here to run it again later, or to put it on a schedule."
-              />
-            )
-          ) : (
-            <div className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredReports.map((report) => {
-                  const VisualizationIcon = getVisualizationIcon(report.visualization.type);
-                  
-                  return (
-                    <div
-                      key={report.id}
-                      className="bg-card border border-gray-200 rounded-control p-4 hover:shadow-md transition-shadow"
-                    >
-                      {/* Report Header */}
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center">
-                          <VisualizationIcon className="h-5 w-5 text-muted-foreground mr-2" />
-                          <div className="min-w-0 flex-1">
-                            <h4 className="text-sm font-medium text-gray-900 truncate">
-                              {report.name}
-                            </h4>
-                            {report.description && (
-                              <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                                {report.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* Status Indicators */}
-                        <div className="flex items-center gap-1 ml-2">
-                          {report.schedule?.enabled && (
-                            <ClockIcon className="h-4 w-4 text-success" title="Scheduled" />
-                          )}
-                          {report.isShared && (
-                            <ShareIcon className="h-4 w-4 text-violet-500" title="Shared" />
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Report Stats */}
-                      <div className="grid grid-cols-2 gap-4 mb-4 text-xs text-gray-500">
-                        <div>
-                          <div className="font-medium">Created</div>
-                          <div>{formatDate(report.createdAt)}</div>
-                        </div>
-                        <div>
-                          <div className="font-medium">Runs</div>
-                          <div>{report.runCount}</div>
-                        </div>
-                      </div>
-
-                      {/* Tags */}
-                      {report.tags.length > 0 && (
-                        <div className="mb-4">
-                          <div className="flex flex-wrap gap-1">
-                            {report.tags.slice(0, 3).map((tag, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                            {report.tags.length > 3 && (
-                              <span className="text-xs text-gray-500">
-                                +{report.tags.length - 3} more
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Actions */}
-                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => onView(report)}
-                            className="p-1.5 text-muted-foreground hover:text-gray-600 rounded"
-                            title="View"
-                          >
-                            <EyeIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => onEdit(report)}
-                            className="p-1.5 text-muted-foreground hover:text-gold-600 rounded"
-                            title="Edit"
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => onDuplicate(report)}
-                            className="p-1.5 text-muted-foreground hover:text-success-on-tint rounded"
-                            title="Duplicate"
-                          >
-                            <DocumentDuplicateIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => onShare(report.id)}
-                            className="p-1.5 text-muted-foreground hover:text-gold-600 rounded"
-                            title="Share"
-                          >
-                            <ShareIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => onDelete(report.id)}
-                            className="p-1.5 text-muted-foreground hover:text-error-on-tint rounded"
-                            title="Delete"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                        
-                        <button
-                          onClick={() => onRun(report)}
-                          className="px-3 py-1.5 text-sm font-medium text-white bg-violet-600 rounded-control hover:bg-gold-600"
-                        >
-                          <PlayIcon className="h-3 w-3 inline mr-1" />
-                          Run
-                        </button>
-                      </div>
-
-                      {/* Last Run Info */}
-                      {report.lastRun && (
-                        <div className="mt-2 pt-2 border-t border-gray-100">
-                          <p className="text-xs text-gray-500">
-                            Last run: {formatDate(report.lastRun)}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+                <div className="flex flex-none items-center gap-1">
+                  <button
+                    onClick={() => onRun(report)}
+                    className="rounded-full border border-border px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-foreground transition-colors hover:bg-accent"
+                  >
+                    Run
+                  </button>
+                  <button
+                    onClick={() => onView(report)}
+                    aria-label={`Preview ${report.name}`}
+                    className="p-1.5 text-muted-foreground hover:text-foreground rounded"
+                  >
+                    <EyeIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => onEdit(report)}
+                    aria-label={`Edit ${report.name}`}
+                    className="p-1.5 text-muted-foreground hover:text-foreground rounded"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => onDuplicate(report)}
+                    aria-label={`Duplicate ${report.name}`}
+                    className="p-1.5 text-muted-foreground hover:text-foreground rounded"
+                  >
+                    <DocumentDuplicateIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => onShare(report.id)}
+                    aria-label={`Share ${report.name}`}
+                    className="p-1.5 text-muted-foreground hover:text-success-on-tint rounded"
+                  >
+                    <ShareIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => onDelete(report.id)}
+                    aria-label={`Delete ${report.name}`}
+                    className="p-1.5 text-muted-foreground hover:text-error-on-tint rounded"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }

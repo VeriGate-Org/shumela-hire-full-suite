@@ -138,7 +138,9 @@ export default function ReportsPage() {
 
     setReportResults(prev => [result, ...prev]);
     setCurrentResult(result);
-    setActiveTab('results');
+    // Running from the builder leaves you on the builder — the result opens underneath it. Running
+    // from Saved has nowhere to open, so that one still moves.
+    setActiveTab((tab) => (tab === 'create' ? tab : 'results'));
     if (failure) toast(failure, 'error');
   }, [toast]);
 
@@ -570,12 +572,31 @@ export default function ReportsPage() {
         {/* Tab Content */}
         <div>
           {activeTab === 'create' && (
-            <ReportBuilder
-              onSave={handleSaveReport}
-              onRun={handleRunReport}
-              onExport={handleExportReport}
-              initialConfig={editingReport || undefined}
-            />
+            <div className="space-y-6">
+              <ReportBuilder
+                onSave={handleSaveReport}
+                onRun={handleRunReport}
+                onExport={handleExportReport}
+                initialConfig={editingReport || undefined}
+              />
+
+              {/*
+               * The answer opens where the work happened.
+               *
+               * <p>Running a report moved you to another tab to read it, which is a navigation for
+               * something you just asked for and are still looking at. It opens here as well now,
+               * under the builder that produced it, so changing a column and running again is one
+               * place rather than two. The Result tab still exists for coming back to it.
+               */}
+              {currentResult && (
+                <ReportViewer
+                  result={currentResult}
+                  onExport={handleExportResult}
+                  onShare={handleShareResult}
+                  onEdit={handleEditFromViewer}
+                />
+              )}
+            </div>
           )}
 
           {activeTab === 'library' && (
