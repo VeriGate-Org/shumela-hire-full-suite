@@ -186,3 +186,53 @@ describe('the backend can read the dates it is sent', () => {
     expect(java).toContain('startDate == null ? "not stated"');
   });
 });
+
+/**
+ * The three panels render in dark mode as well as light.
+ *
+ * <p>`gray` and `slate` are var-backed in the Tailwind config and invert with the theme, so they
+ * are fine. `white`, `red`, `green` and `yellow` are literal hexes: a card painted `bg-white`
+ * stayed white on a dark page, and `bg-red-50` behind `text-red-800` is a light tint that vanished
+ * against it. Those are the ones this guards.
+ */
+describe('the report panels are painted in tokens, not fixed hexes', () => {
+  const PANELS = ['ReportLibrary.tsx', 'ReportViewer.tsx', 'ReportScheduler.tsx'];
+
+  it.each(PANELS)('%s uses no light-only surface or tint', (panel) => {
+    const source = strip(src('components', 'reports', panel));
+
+    // text-white is allowed: it sits on fixed navy and fixed error, legible on either ground.
+    const offenders = [
+      ...source.matchAll(/(?<![\w:-])(?:hover:|focus:)?(?:bg|border|divide)-(?:white|red|green|yellow)(?:-\d{2,3})?(?![\w-])/g),
+      ...source.matchAll(/(?<![\w:-])(?:hover:|focus:)?text-(?:red|green|yellow)-\d{2,3}(?![\w-])/g),
+    ].map((m) => m[0]);
+
+    expect(offenders).toEqual([]);
+  });
+
+  it('found real classes rather than matching nothing', () => {
+    // A pattern that matched nothing would make the assertions above vacuous.
+    const source = src('components', 'reports', 'ReportScheduler.tsx');
+    expect(source).toMatch(/bg-(?:card|error-bg|success-bg|warning-bg)/);
+  });
+
+  it('states both empty cases in the library, which used to share one message', () => {
+    // "No reports found" was shown whether nothing was saved or a search matched nothing.
+    const source = strip(src('components', 'reports', 'ReportLibrary.tsx'));
+    expect(source).toContain('No saved reports');
+    expect(source).toContain('matches');
+  });
+});
+
+describe('the reports band carries three figures', () => {
+  const page = strip(src('app', '(app)', 'reports', 'page.tsx'));
+
+  it('does not put a timestamp among the tallies', () => {
+    // Last run is a date beside three counts. Past three figures none of them registers, and the
+    // one that reads as prose is the one to move — it is in the subtitle now.
+    const figures = page.slice(page.indexOf('figures={['), page.indexOf(']}', page.indexOf('figures={[')));
+    expect([...figures.matchAll(/label:/g)]).toHaveLength(3);
+    expect(figures).not.toContain('lastRunLabel');
+    expect(page).toContain('Last scheduled run: ${lastRunLabel}');
+  });
+});

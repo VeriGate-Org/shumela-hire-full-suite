@@ -11,6 +11,7 @@ import {
   TrashIcon,
 } from '@heroicons/react/24/outline';
 import { SavedReport } from './ReportLibrary';
+import EmptyState from '@/components/EmptyState';
 
 export interface ReportSchedule {
   id: string;
@@ -109,13 +110,13 @@ export default function ReportScheduler({
   const getStatusColor = (status: ReportSchedule['lastStatus']) => {
     switch (status) {
       case 'success':
-        return 'text-green-600 bg-green-100';
+        return 'text-success-on-tint bg-success-bg';
       case 'failed':
-        return 'text-red-600 bg-red-100';
+        return 'text-error-on-tint bg-error-bg';
       case 'running':
-        return 'text-gold-600 bg-gold-100';
+        return 'text-accent-gold-on-tint bg-surface-gold';
       case 'pending':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'text-warning-on-tint bg-warning-bg';
       default:
         return 'text-gray-600 bg-gray-100';
     }
@@ -131,7 +132,7 @@ export default function ReportScheduler({
   };
 
   return (
-    <div className={`bg-white rounded-control shadow-sm border border-gray-200 ${className}`}>
+    <div className={`bg-card rounded-control shadow-sm border border-gray-200 ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -227,7 +228,7 @@ export default function ReportScheduler({
               <button
                 type="button"
                 onClick={() => setShowCreateForm(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-control hover:bg-gray-50"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-card border border-gray-300 rounded-control hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -239,19 +240,12 @@ export default function ReportScheduler({
       {/* Schedules List */}
       <div className="divide-y divide-gray-200">
         {!schedules || schedules.length === 0 ? (
-          <div className="p-12 text-center">
-            <ClockIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No scheduled reports</h3>
-            <p className="text-gray-500 mb-4">
-              Create automated schedules to deliver reports regularly to your team
-            </p>
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="px-4 py-2 text-sm font-medium text-gold-600 bg-gold-50 rounded-control hover:bg-gold-100"
-            >
-              Schedule Your First Report
-            </button>
-          </div>
+          <EmptyState
+            icon={ClockIcon}
+            title="Nothing runs on a schedule yet"
+            description="A schedule runs a saved report on a fixed cadence and emails it to the people you name, without anyone opening this page."
+            action={{ label: 'Schedule a report', onClick: () => setShowCreateForm(true) }}
+          />
         ) : (
           schedules.map((schedule) => {
             // schedules is trusted as-is from GET /api/reports/scheduled
@@ -305,7 +299,7 @@ export default function ReportScheduler({
                   )}
                   
                   {schedule.errorMessage && (
-                    <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded">
+                    <div className="mt-2 text-sm text-error-on-tint bg-error-bg p-2 rounded">
                       Error: {schedule.errorMessage}
                     </div>
                   )}
@@ -338,8 +332,8 @@ export default function ReportScheduler({
                     onClick={() => onToggleSchedule(schedule.id, !schedule.enabled)}
                     className={`p-2 rounded ${
                       schedule.enabled
-                        ? 'text-muted-foreground hover:text-yellow-600'
-                        : 'text-muted-foreground hover:text-green-600'
+                        ? 'text-muted-foreground hover:text-warning-on-tint'
+                        : 'text-muted-foreground hover:text-success-on-tint'
                     }`}
                     title={schedule.enabled ? 'Pause' : 'Resume'}
                   >
@@ -356,7 +350,7 @@ export default function ReportScheduler({
                   
                   <button
                     onClick={() => onDeleteSchedule(schedule.id)}
-                    className="p-2 text-muted-foreground hover:text-red-600 rounded"
+                    className="p-2 text-muted-foreground hover:text-error-on-tint rounded"
                     title="Delete"
                   >
                     <TrashIcon className="h-4 w-4" />
