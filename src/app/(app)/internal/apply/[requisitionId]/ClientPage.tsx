@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
+import IdentityBand from '@/components/record/IdentityBand';
 import { getEmploymentTypeLabel } from '@/utils/enumLabels';
 import { formatCurrency } from '@/utils/currency';
 import Link from 'next/link';
@@ -398,13 +399,13 @@ export default function InternalApplicationPage() {
     .filter(Boolean)
     .join(' · ');
 
-  // The way back sits above the identity band rather than in PageWrapper's
-  // header slot: passing `actions` alone renders an otherwise empty header card,
-  // and the band already carries the h1 that card would duplicate.
+  // The way back rides in the band's own action slot. It used to sit above the band because
+  // passing `actions` to PageWrapper alone draws an empty header card — but the band takes actions
+  // itself, so this page can open with the band like every other screen.
   const backLink = (
     <Link
       href={jobsHref}
-      className="inline-flex items-center gap-2 text-[0.8125rem] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+      className="inline-flex items-center gap-2 text-[0.8125rem] font-semibold text-band-muted hover:text-band-strong transition-colors"
     >
       <ArrowLeftIcon className="w-4 h-4" aria-hidden="true" />
       {isExternal ? 'Back to jobs' : 'Back to job board'}
@@ -490,68 +491,61 @@ export default function InternalApplicationPage() {
 
   return (
     <PageWrapper>
-      <div className="max-w-[1020px] mx-auto w-full">
-        <div className="mb-3.5">{backLink}</div>
-
-        {/* 1. The move itself: what the job is, and — internally — where you are coming from. */}
-        <header className="band-glow relative overflow-hidden rounded-card bg-band text-band-foreground px-6 py-6 md:px-7">
-          <div className="relative z-[1]">
-            <p className="text-[0.625rem] font-extrabold uppercase tracking-[0.16em] text-band-accent">
-              {isExternal ? 'Application' : 'Internal move'}
-            </p>
-            <h1 className="mt-1.5 text-[1.6rem] font-extrabold tracking-[-0.035em] leading-[1.14] text-balance">
-              {roleTitle}
-            </h1>
-            {requisitionLine && <p className="mt-1.5 text-[0.8125rem] text-band-muted">{requisitionLine}</p>}
-
-            <div
-              className={`mt-5 grid gap-2.5 ${
-                showCurrentRole ? 'min-[720px]:[grid-template-columns:1fr_44px_1fr] min-[720px]:gap-0' : ''
-              }`}
-            >
-              {showCurrentRole && (
-                <>
-                  <MoveSide
-                    kicker="You are here"
-                    role={employee?.jobTitle ?? ''}
-                    facts={[
-                      employee?.department,
-                      employee?.jobGrade ? (
-                        <>
-                          Grade <b className="font-bold text-band-strong">{employee.jobGrade}</b>
-                        </>
-                      ) : null,
-                      tenure ? (
-                        <>
-                          <b className="font-bold text-band-strong">{tenure}</b> in role
-                        </>
-                      ) : null,
-                      managerName ? (
-                        <>
-                          Reports to <b className="font-bold text-band-strong">{managerName}</b>
-                        </>
-                      ) : null,
-                    ].filter(Boolean)}
-                  />
-                  <div className="grid place-items-center text-band-dim" aria-hidden="true">
-                    <ArrowRightIcon className="w-5 h-5 rotate-90 min-[720px]:rotate-0" />
-                  </div>
-                </>
-              )}
-
+      {/* 1. The move itself: what the job is, and — internally — where you are coming from. */}
+      <IdentityBand
+        eyebrow={isExternal ? 'Application' : 'Internal move'}
+        title={roleTitle}
+        subtitle={requisitionLine || undefined}
+        actions={backLink}
+      >
+        <div
+          className={`mt-5 grid gap-2.5 ${
+            showCurrentRole ? 'min-[720px]:[grid-template-columns:1fr_44px_1fr] min-[720px]:gap-0' : ''
+          }`}
+        >
+          {showCurrentRole && (
+            <>
               <MoveSide
-                highlight
-                kicker="Applying for"
-                role={roleTitle}
+                kicker="You are here"
+                role={employee?.jobTitle ?? ''}
                 facts={[
-                  roleDepartment,
-                  roleLocation,
-                  roleEmploymentType ? getEmploymentTypeLabel(roleEmploymentType) : null,
+                  employee?.department,
+                  employee?.jobGrade ? (
+                    <>
+                      Grade <b className="font-bold text-band-strong">{employee.jobGrade}</b>
+                    </>
+                  ) : null,
+                  tenure ? (
+                    <>
+                      <b className="font-bold text-band-strong">{tenure}</b> in role
+                    </>
+                  ) : null,
+                  managerName ? (
+                    <>
+                      Reports to <b className="font-bold text-band-strong">{managerName}</b>
+                    </>
+                  ) : null,
                 ].filter(Boolean)}
               />
-            </div>
-          </div>
-        </header>
+              <div className="grid place-items-center text-band-dim" aria-hidden="true">
+                <ArrowRightIcon className="w-5 h-5 rotate-90 min-[720px]:rotate-0" />
+              </div>
+            </>
+          )}
+
+          <MoveSide
+            highlight
+            kicker="Applying for"
+            role={roleTitle}
+            facts={[
+              roleDepartment,
+              roleLocation,
+              roleEmploymentType ? getEmploymentTypeLabel(roleEmploymentType) : null,
+            ].filter(Boolean)}
+          />
+        </div>
+      </IdentityBand>
+      <div className="max-w-[1020px] mx-auto w-full">
 
         {/* 2. The facts of the role, off the requisition and the advert. */}
         {factsStrip}
