@@ -345,7 +345,34 @@ public class ShumelaHireFoundationStack : Stack
         new EmailIdentity(this, "SesDomainIdentity", new EmailIdentityProps
         {
             Identity = Identity.PublicHostedZone(mailPublicZone),
-            DkimSigning = true
+            DkimSigning = true,
+            // A custom envelope sender, because DKIM alone was not enough in practice. The first
+            // real message sent from the verified dev identity was accepted with no bounce and
+            // filed straight into the recipient's spam folder. DKIM signed and aligned; SPF did
+            // not align, because the envelope sender defaults to amazonses.com while the From
+            // header says shumelahire.co.za, and a receiver seeing an unfamiliar domain with only
+            // half the alignment story has every reason to be suspicious.
+            //
+            // mail.{domain} gets its own MX and SPF records, written by CDK into this zone. It is
+            // a new subdomain, so the apex SPF that serves the domain's real mailboxes at xneelo
+            // is not touched. BehaviorOnMxFailure defaults to falling back to amazonses.com, so a
+            // DNS problem here degrades to the current behaviour rather than stopping mail.
+            MailFromDomain = $"mail.{MailDomain}"
+        });
+
+        // A DMARC policy, so a receiver has something to check the alignment against.
+        //
+        // p=none is monitoring only: it asks receivers to treat a failure exactly as they would
+        // today. It is here because "this domain has no DMARC record at all" is itself a negative
+        // signal to spam filters, and because the domain genuinely sends from two places now —
+        // xneelo for its mailboxes, SES for the platform. Deleting this record is a one-line
+        // change if that is not wanted; nothing depends on it.
+        new TxtRecord(this, "DmarcRecord", new TxtRecordProps
+        {
+            Zone = mailPublicZone,
+            RecordName = $"_dmarc.{MailDomain}",
+            Values = new[] { "v=DMARC1; p=none;" },
+            Ttl = Duration.Hours(1)
         });
 
         // ── CfnOutputs ──────────────────────────────────────────────────────
