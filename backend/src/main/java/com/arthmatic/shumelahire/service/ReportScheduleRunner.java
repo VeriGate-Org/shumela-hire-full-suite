@@ -35,6 +35,9 @@ public class ReportScheduleRunner {
 
     private static final Logger log = LoggerFactory.getLogger(ReportScheduleRunner.class);
 
+    /** The only tenant status a scheduled report should be sent for. */
+    private static final String ACTIVE = "ACTIVE";
+
     private final TenantDataRepository tenants;
     private final ReportScheduleService schedules;
     private final ReportTemplateService templates;
@@ -84,10 +87,12 @@ public class ReportScheduleRunner {
         String previous = TenantContext.getCurrentTenant();
 
         try {
-            for (Tenant tenant : tenants.findAll()) {
-                if (tenant.getStatus() != null && !"ACTIVE".equalsIgnoreCase(tenant.getStatus())) {
-                    continue;
-                }
+            // findByStatus, not findAll. Tenant rows are their own partition, so the inherited
+            // findAll queries PK = TENANT#{whoever is in context} and throws outright when nothing
+            // is — which is exactly what the first live invocation of this job did:
+            //   "TenantContext is not set. Use findTenantById() or findBySubdomain() instead of
+            //    inherited CRUD methods."
+            for (Tenant tenant : tenants.findByStatus(ACTIVE)) {
                 try {
                     TenantContext.setCurrentTenant(tenant.getId());
                     total = total.plus(runDueForCurrentTenant(tenant));
