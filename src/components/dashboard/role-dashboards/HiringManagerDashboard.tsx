@@ -51,6 +51,13 @@ interface PipelineStage {
   candidates: PipelineCandidate[];
 }
 
+
+/** The KPI endpoint returns { kpis: { key: { value } } }; the strip wants key -> value. */
+function kpiValues(json: unknown): Record<string, number | undefined> {
+  const kpis = (json as { kpis?: Record<string, { value?: number }> })?.kpis ?? {};
+  return Object.fromEntries(Object.entries(kpis).map(([k, v]) => [k, v?.value]));
+}
+
 const defaultMetrics: MetricItem[] = [
   {
     id: 'time-to-fill',
@@ -230,6 +237,7 @@ function transformApplicationsToPipeline(applications: any[]): PipelineStage[] {
 // re-fetched identical data. Making it real is a backend change with its own gate.
 export default function HiringManagerDashboard({ actions, roleLabel }: HiringManagerDashboardProps) {
   const router = useRouter();
+  const [kpis, setKpis] = useState<Record<string, number | undefined>>({});
   const [isMounted, setIsMounted] = useState(false);
   const [metrics, setMetrics] = useState<MetricItem[]>(defaultMetrics);
   const [totalApplications, setTotalApplications] = useState<number | undefined>(undefined);
@@ -245,8 +253,9 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
     setLoading(true);
     setError(null);
 
-    const [dashboardResult, applicationsResult, positionsResult, interviewsResult] = await Promise.allSettled([
+    const [dashboardResult, kpisResult, applicationsResult, positionsResult, interviewsResult] = await Promise.allSettled([
       apiFetch('/api/analytics/dashboard'),
+      apiFetch('/api/analytics/kpis'),
       // size=50 against a tenant with 92 applications meant the widget silently showed just over
       // half of them and labelled the result a total. The endpoint returns totalElements, which
       // is used below to say so honestly when a cap is still in play.
@@ -254,6 +263,13 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
       apiFetch('/api/job-postings/published'),
       apiFetch('/api/interviews/upcoming'),
     ]);
+
+    if (kpisResult.status === 'fulfilled' && kpisResult.value.ok) {
+
+      setKpis(kpiValues(await kpisResult.value.json()));
+
+    }
+
 
     let allFailed = true;
 
@@ -438,7 +454,7 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
         </div>
       ) : (
         <div className="w-full overflow-hidden">
-          <RealTimeMetrics updateInterval={5000} />
+          <RealTimeMetrics kpis={kpis} />
         </div>
       )}
 

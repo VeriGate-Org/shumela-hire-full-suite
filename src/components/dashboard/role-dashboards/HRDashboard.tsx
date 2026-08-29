@@ -50,6 +50,13 @@ interface ActivityItem {
   color: string;
 }
 
+
+/** The KPI endpoint returns { kpis: { key: { value } } }; the strip wants key -> value. */
+function kpiValues(json: unknown): Record<string, number | undefined> {
+  const kpis = (json as { kpis?: Record<string, { value?: number }> })?.kpis ?? {};
+  return Object.fromEntries(Object.entries(kpis).map(([k, v]) => [k, v?.value]));
+}
+
 function mapPerformanceStatus(status: string): 'good' | 'warning' | 'critical' {
   switch (status?.toUpperCase()) {
     case 'ON_TARGET':
@@ -98,6 +105,7 @@ const KPI_CONFIG: Record<string, { label: string; unit: 'number' | 'percentage' 
 };
 
 export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onTimeframeChange, actions, roleLabel }: HRDashboardProps) {
+  const [kpis, setKpis] = useState<Record<string, number | undefined>>({});
   const [metrics, setMetrics] = useState<MetricItem[]>([]);
   const [pipeline, setPipeline] = useState<PipelineDept[]>([]);
   const [lifecycle, setLifecycle] = useState<LifecycleItem[]>([]);
@@ -121,8 +129,13 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
       const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       // Fetch dashboard metrics and job posting data in parallel
-      const [dashboardRes, jobPostingsRes, applicationsRes, postingSummaryRes] = await Promise.allSettled([
+      // The names now match the order. They did not: /job-postings/summary was landing in
+      // applicationsRes and /applications in postingSummaryRes, so the applications figure on this
+      // dashboard was the job-postings total, and the posting summary — checked for a `total` the
+      // applications endpoint does not return — was always null.
+      const [dashboardRes, kpisRes, jobPostingsRes, postingSummaryRes, applicationsRes] = await Promise.allSettled([
         apiFetch(`/api/analytics/dashboard?date=${endDate}`),
+        apiFetch('/api/analytics/kpis'),
         apiFetch('/api/job-postings?size=200'),
         apiFetch('/api/job-postings/summary'),
         apiFetch(`/api/applications?size=1&startDate=${startDate}&endDate=${endDate}`),
@@ -136,6 +149,10 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
         setError('Unable to connect to the server. Please try again later.');
         setLoading(false);
         return;
+      }
+
+      if (kpisRes.status === 'fulfilled' && kpisRes.value.ok) {
+        setKpis(kpiValues(await kpisRes.value.json()));
       }
 
       if (postingSummaryRes.status === 'fulfilled' && postingSummaryRes.value.ok) {
@@ -388,7 +405,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
       )}
       {/* Real-Time HR Metrics */}
       <div className="w-full overflow-hidden">
-        <RealTimeMetrics updateInterval={5000} />
+        <RealTimeMetrics kpis={kpis} />
       </div>
 
       {/* HR Grid Layout */}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
@@ -8,7 +8,6 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
-import { apiFetch } from '@/lib/api-fetch';
 
 interface MetricData {
   id: string;
@@ -22,7 +21,21 @@ interface MetricData {
 
 interface RealTimeMetricsProps {
   className?: string;
-  updateInterval?: number;
+  /**
+   * The KPIs, already fetched by the page.
+   *
+   * <p>This component used to call /api/analytics/kpis itself, every ten seconds, with no filter —
+   * while the band above it and the charts below both narrowed by department. The page said in
+   * writing that "department narrows everything on this page" and this strip was the reason that
+   * was untrue. It now renders what it is given.
+   */
+  kpis: Record<string, number | undefined>;
+  /** What the figures are narrowed to, so the strip can say so. */
+  department?: string;
+  updatedAt?: Date | null;
+  stale?: boolean;
+  /** Which metrics to show. The band carries the headline totals; this shows what moves in a day. */
+  metricIds?: string[];
 }
 
 const formatValue = (value: number, format: MetricData['format']): string => {
@@ -47,18 +60,21 @@ const getChangeIndicator = (current: number, previous: number) => {
   return { direction, percentage: Math.abs(percentage) };
 };
 
-function mapKpisToMetrics(kpis: Record<string, { value?: number }>, prevMetrics: MetricData[]): MetricData[] {
-  const totalApps = Number(kpis['total_applications']?.value ?? 0);
-  const avgResponseHours = Number(kpis['avg_response_time_hours']?.value ?? 0);
-  const conversionRate = Number(kpis['interview_conversion_rate']?.value ?? 0);
-  const interviewsConducted = Number(kpis['interviews_conducted']?.value ?? 0);
+function mapKpisToMetrics(
+  kpis: Record<string, number | undefined>,
+  previous: Record<string, number>,
+): MetricData[] {
+  const totalApps = Number(kpis['total_applications'] ?? 0);
+  const avgResponseHours = Number(kpis['avg_response_time_hours'] ?? 0);
+  const conversionRate = Number(kpis['interview_conversion_rate'] ?? 0);
+  const interviewsConducted = Number(kpis['interviews_conducted'] ?? 0);
 
   return [
     {
       id: 'applications_today',
       label: 'Applications Today',
       value: totalApps,
-      previousValue: prevMetrics[0]?.value ?? 0,
+      previousValue: previous['applications_today'] ?? 0,
       format: 'number',
       icon: UserGroupIcon,
       color: 'text-gold-600 bg-gold-100',
@@ -67,7 +83,7 @@ function mapKpisToMetrics(kpis: Record<string, { value?: number }>, prevMetrics:
       id: 'active_sessions',
       label: 'Interviews Conducted',
       value: interviewsConducted,
-      previousValue: prevMetrics[1]?.value ?? 0,
+      previousValue: previous['active_sessions'] ?? 0,
       format: 'number',
       icon: EyeIcon,
       color: 'text-green-600 bg-green-100',
@@ -76,7 +92,7 @@ function mapKpisToMetrics(kpis: Record<string, { value?: number }>, prevMetrics:
       id: 'avg_response_time',
       label: 'Avg Response Time',
       value: Math.round(avgResponseHours / 24) || 0,
-      previousValue: prevMetrics[2]?.value ?? 0,
+      previousValue: previous['avg_response_time'] ?? 0,
       format: 'duration',
       icon: ClockIcon,
       color: 'text-orange-600 bg-orange-100',
@@ -85,7 +101,7 @@ function mapKpisToMetrics(kpis: Record<string, { value?: number }>, prevMetrics:
       id: 'conversion_rate',
       label: 'Conversion Rate',
       value: conversionRate,
-      previousValue: prevMetrics[3]?.value ?? 0,
+      previousValue: previous['conversion_rate'] ?? 0,
       format: 'percentage',
       icon: CheckCircleIcon,
       color: 'text-purple-600 bg-purple-100',
@@ -95,121 +111,55 @@ function mapKpisToMetrics(kpis: Record<string, { value?: number }>, prevMetrics:
 
 const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
   className = '',
-  updateInterval = 5000,
+  kpis,
+  department,
+  updatedAt = null,
+  stale = false,
+  metricIds = ['applications_today', 'active_sessions'],
 }) => {
-  const [metrics, setMetrics] = useState<MetricData[]>([
-    {
-      id: 'applications_today',
-      label: 'Applications Today',
-      value: 0,
-      previousValue: 0,
-      format: 'number',
-      icon: UserGroupIcon,
-      color: 'text-gold-600 bg-gold-100',
-    },
-    {
-      id: 'active_sessions',
-      label: 'Interviews Conducted',
-      value: 0,
-      previousValue: 0,
-      format: 'number',
-      icon: EyeIcon,
-      color: 'text-green-600 bg-green-100',
-    },
-    {
-      id: 'avg_response_time',
-      label: 'Avg Response Time',
-      value: 0,
-      previousValue: 0,
-      format: 'duration',
-      icon: ClockIcon,
-      color: 'text-orange-600 bg-orange-100',
-    },
-    {
-      id: 'conversion_rate',
-      label: 'Conversion Rate',
-      value: 0,
-      previousValue: 0,
-      format: 'percentage',
-      icon: CheckCircleIcon,
-      color: 'text-purple-600 bg-purple-100',
-    },
-  ]);
-
-  const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
-  const [isLive, setIsLive] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
-  const [fetchError, setFetchError] = useState(false);
-  const metricsRef = useRef(metrics);
-  metricsRef.current = metrics;
+  const previous = useRef<Record<string, number>>({});
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const fetchMetrics = useCallback(async () => {
-    try {
-      const res = await apiFetch('/api/analytics/kpis');
-      if (!res.ok) throw new Error('Failed to fetch');
-      const json = await res.json();
-      const kpis = json.kpis ?? {};
-      setMetrics(mapKpisToMetrics(kpis, metricsRef.current));
-      setLastUpdateTime(new Date());
-      setFetchError(false);
-    } catch {
-      setFetchError(true);
-    }
-  }, []);
+  // Derived from what the page fetched, so this strip cannot disagree with the band above it.
+  const metrics = useMemo(() => {
+    const all = mapKpisToMetrics(kpis, previous.current);
+    return all.filter((m) => metricIds.includes(m.id));
+  }, [kpis, metricIds]);
 
-  // Initial fetch
+  // Remembered after render, so the next set of figures can show which way they moved.
   useEffect(() => {
-    fetchMetrics();
-  }, [fetchMetrics]);
+    previous.current = Object.fromEntries(metrics.map((m) => [m.id, m.value]));
+  }, [metrics]);
 
-  // Polling interval
-  useEffect(() => {
-    if (!isLive) return;
-
-    const interval = setInterval(fetchMetrics, updateInterval);
-    return () => clearInterval(interval);
-  }, [updateInterval, isLive, fetchMetrics]);
-
-  const toggleLiveUpdates = () => {
-    setIsLive(!isLive);
-  };
 
   return (
     <div className={`enterprise-card border border-border rounded-card shadow-sm ${className}`}>
       {/* Header */}
       <div className="p-6 border-b border-border">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-[1.0625rem] font-bold text-foreground">Real-Time Metrics</h3>
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h3 className="text-[1.0625rem] font-bold text-foreground">Moving today</h3>
             <p className="text-[0.8125rem] text-muted-foreground mt-0.5">
-              Live recruitment activity {isMounted ? `\u00B7 Last updated: ${lastUpdateTime.toLocaleTimeString()}` : ''}
-              {fetchError && (
-                <span className="ml-2 text-orange-500">
+              {/* Says what it is narrowed to. It used to describe itself as live while ignoring the
+                  department the rest of the page was filtered by. */}
+              {department || 'Every department'}
+              {isMounted && updatedAt ? ` \u00B7 updated ${updatedAt.toLocaleTimeString()}` : ''}
+              {stale && (
+                <span className="ml-2 text-warning-on-tint">
                   <ExclamationTriangleIcon className="w-3.5 h-3.5 inline -mt-0.5 mr-0.5" />
-                  Stale data
+                  Could not refresh
                 </span>
               )}
             </p>
           </div>
-          <button
-            onClick={toggleLiveUpdates}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-button text-sm font-semibold transition-colors ${
-              isLive
-                ? 'bg-success-bg text-success-on-tint hover:opacity-80'
-                : 'bg-background text-muted-foreground hover:opacity-80'
-            }`}
-          >
-            <div
-              className={`w-2 h-2 rounded-full ${
-                isLive ? 'bg-success animate-pulse' : 'bg-muted-foreground'
-              }`}
-            />
-            {isLive ? 'Live' : 'Paused'}
-          </button>
+          <span className="flex shrink-0 items-center gap-2 rounded-button bg-success-bg px-3 py-1.5 text-sm font-semibold text-success-on-tint">
+            <span className="h-2 w-2 rounded-full bg-success" />
+            Live
+          </span>
         </div>
       </div>
 
@@ -260,10 +210,6 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
                     </div>
                   )}
 
-                  {/* Live indicator */}
-                  {isLive && (
-                    <div className="absolute top-3 right-3 w-2 h-2 bg-success rounded-full animate-pulse opacity-60" />
-                  )}
                 </div>
               </div>
             );

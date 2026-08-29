@@ -89,6 +89,16 @@ function departmentFilter(names: string[]): FilterConfig {
   };
 }
 
+/**
+ * The lines this page draws between healthy and not.
+ *
+ * <p>They are this screen's own rule of thumb — nothing in the backend states them. Naming them in
+ * the text rather than hiding them behind the words "strong" and "competitive" lets a reader
+ * disagree with the threshold instead of with the number.
+ */
+const CONVERSION_HEALTHY = 20;
+const ACCEPTANCE_COMPETITIVE = 80;
+
 const timeRangeOptions = [
   { key: 'week' as const, label: '7 Days' },
   { key: 'month' as const, label: '30 Days' },
@@ -108,6 +118,8 @@ export default function AnalyticsPage() {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
   const [kpiValues, setKpiValues] = useState<Record<string, number | undefined>>({});
+  const [kpisUpdatedAt, setKpisUpdatedAt] = useState<Date | null>(null);
+  const [kpisStale, setKpisStale] = useState(false);
 
   // The department the filter bar is set to, or none. Read out of filterValues rather than kept
   // alongside them, so the two cannot disagree about what is selected.
@@ -151,25 +163,27 @@ export default function AnalyticsPage() {
           Object.entries(kpis).map(([key, kpi]) => [key, (kpi as { value?: number }).value]),
         ),
       );
+      setKpisUpdatedAt(new Date());
+      setKpisStale(false);
       const derived: Insight[] = [];
 
       const interviewConversion = kpis['interview_conversion_rate']?.value;
       if (interviewConversion !== undefined) {
         const rate = Number(interviewConversion);
-        if (rate >= 20) {
-          derived.push({ type: 'positive', text: `Interview conversion rate is strong at ${rate.toFixed(1)}%` });
+        if (rate >= CONVERSION_HEALTHY) {
+          derived.push({ type: 'positive', text: `Interview conversion ${rate.toFixed(1)}% — above the ${CONVERSION_HEALTHY}% this page treats as healthy` });
         } else if (rate > 0) {
-          derived.push({ type: 'warning', text: `Interview conversion rate is ${rate.toFixed(1)}% — consider reviewing screening criteria` });
+          derived.push({ type: 'warning', text: `Interview conversion ${rate.toFixed(1)}% — below the ${CONVERSION_HEALTHY}% this page treats as healthy` });
         }
       }
 
       const acceptanceRate = kpis['acceptance_rate']?.value;
       if (acceptanceRate !== undefined) {
         const rate = Number(acceptanceRate);
-        if (rate >= 80) {
-          derived.push({ type: 'positive', text: `Offer acceptance rate is ${rate.toFixed(1)}% — offers are competitive` });
+        if (rate >= ACCEPTANCE_COMPETITIVE) {
+          derived.push({ type: 'positive', text: `Offer acceptance ${rate.toFixed(1)}% — above the ${ACCEPTANCE_COMPETITIVE}% this page treats as competitive` });
         } else if (rate > 0) {
-          derived.push({ type: 'warning', text: `Offer acceptance rate is ${rate.toFixed(1)}% — review compensation packages` });
+          derived.push({ type: 'warning', text: `Offer acceptance ${rate.toFixed(1)}% — below the ${ACCEPTANCE_COMPETITIVE}% this page treats as competitive` });
         }
       }
 
@@ -206,6 +220,7 @@ export default function AnalyticsPage() {
       setInsights(derived);
     } catch {
       setInsights([]);
+      setKpisStale(true);
     } finally {
       setInsightsLoading(false);
     }
@@ -213,6 +228,30 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     loadInsights();
+
+    // A minute, not ten seconds — and only while the tab is in front. These figures move a few
+    // times a day; the strip used to re-ask the same endpoint 360 times an hour, forever, including
+    // in a tab nobody was looking at.
+    const REFRESH_MS = 60_000;
+    let timer: ReturnType<typeof setInterval> | null = null;
+
+    const start = () => {
+      if (timer === null) timer = setInterval(loadInsights, REFRESH_MS);
+    };
+    const stop = () => {
+      if (timer !== null) { clearInterval(timer); timer = null; }
+    };
+    const onVisibility = () => {
+      if (document.hidden) stop();
+      else { loadInsights(); start(); }
+    };
+
+    if (!document.hidden) start();
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      stop();
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [loadInsights]);
 
   useEffect(() => {
@@ -448,21 +487,16 @@ export default function AnalyticsPage() {
         )}
 
         {/* Real-Time Metrics — reduced polling interval */}
-        <RealTimeMetrics updateInterval={10000} />
+        <RealTimeMetrics
+          kpis={kpiValues}
+          department={selectedDepartment || undefined}
+          updatedAt={kpisUpdatedAt}
+          stale={kpisStale}
+        />
 
         {/* Main Dashboard — no header, no tabs, flat layout */}
         <AdvancedAnalyticsDashboard filters={filterValues} timeRange={selectedTimeRange} />
 
-        {/* Export section — bottom CTA */}
-        <div className="flex justify-end">
-          <button
-            onClick={handleExportCSV}
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-cta text-cta-foreground rounded-button text-sm font-bold uppercase tracking-wider hover:bg-cta-hover border-2 border-cta hover:border-cta-hover transition-colors"
-          >
-            <ArrowDownTrayIcon className="w-4 h-4" />
-            Export Report
-          </button>
-        </div>
       </div>
     </PageWrapper>
   );
