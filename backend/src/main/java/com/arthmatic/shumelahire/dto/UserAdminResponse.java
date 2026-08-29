@@ -25,6 +25,15 @@ public class UserAdminResponse {
     private boolean emailVerified;
     private boolean twoFactorEnabled;
     private LocalDateTime createdAt;
+    /**
+     * How much this user may approve, or null when an administrator has never said.
+     *
+     * <p>Deliberately nullable rather than defaulted to zero. Null and zero behave identically at
+     * the point of approval — neither surfaces an offer — but they are different states to an
+     * administrator: null means the user is running on their role's default, zero means somebody
+     * explicitly held them at none. Collapsing them would make the screen unable to show which.
+     */
+    private Integer approvalLevel;
 
     public UserAdminResponse() {}
 
@@ -48,9 +57,13 @@ public class UserAdminResponse {
         r.setEmailVerified(user.isEmailVerified());
         r.setTwoFactorEnabled(user.isTwoFactorEnabled());
         r.setCreatedAt(user.getCreatedAt());
+        r.setApprovalLevel(user.getApprovalLevel());
         // TODO: encrypt twoFactorSecret at rest (Fix #13)
         return r;
     }
+
+    public Integer getApprovalLevel() { return approvalLevel; }
+    public void setApprovalLevel(Integer approvalLevel) { this.approvalLevel = approvalLevel; }
 
     // Getters and Setters
     public String getId() { return id; }
