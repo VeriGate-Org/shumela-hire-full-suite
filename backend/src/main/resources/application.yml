@@ -245,7 +245,14 @@ shumelahire:
 
 # The retention scheduler's own switch, off by default. Separate from the settings above so notices
 # can run for a full cycle before anything is deleted.
+#
+# The default was `true`, which is the opposite of what this comment, the scheduler's own javadoc
+# ("off unless explicitly switched on... the only scheduled task in the system that destroys
+# personal data") and its matchIfMissing=false condition all say. Nothing had ever executed it —
+# scheduled jobs did not dispatch at all until they were repaired — so the contradiction was
+# invisible until the job ran for the first time in dev and reported "entries deleted: 0", which
+# it would not have reported at all had the bean been absent as intended.
 talent-pool:
   retention:
     scheduler:
-      enabled: ${TALENT_POOL_RETENTION_SCHEDULER_ENABLED:true}
+      enabled: ${TALENT_POOL_RETENTION_SCHEDULER_ENABLED:false}
