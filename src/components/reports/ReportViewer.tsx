@@ -6,7 +6,6 @@ import {
   ArrowDownTrayIcon,
   PrinterIcon,
   ShareIcon,
-  Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 import { ReportConfig } from './ReportBuilder';
 import EmptyState from '@/components/EmptyState';
@@ -251,66 +250,52 @@ export default function ReportViewer({
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">{result.config.name}</h2>
-            <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-              <span>Generated: {new Date(result.generatedAt).toLocaleString()}</span>
-              <span>•</span>
-              <span>{result.rowCount.toLocaleString()} rows</span>
-              <span>•</span>
-              <span>{result.executionTime}ms</span>
-            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {result.config.dateRange.start} to {result.config.dateRange.end}
+              {' · '}
+              {result.rowCount.toLocaleString()} {result.rowCount === 1 ? 'row' : 'rows'}
+              {' · '}
+              {(result.executionTime / 1000).toFixed(1)}s
+            </p>
           </div>
           
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <button className="px-3 py-2 text-sm font-medium text-gray-700 bg-card border border-gray-300 rounded-full hover:bg-gray-50">
-                <ArrowDownTrayIcon className="h-4 w-4 inline mr-1" />
-                Export
-              </button>
-              <div className="absolute right-0 mt-2 w-48 bg-card rounded-control shadow-lg border border-gray-200 hidden group-hover:block">
-                <div className="py-1">
-                  <button
-                    onClick={() => onExport('csv')}
-                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-                  >
-                    Export as CSV
-                  </button>
-                  <button
-                    onClick={() => onExport('xlsx')}
-                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-                  >
-                    Export as Excel
-                  </button>
-                  <button
-                    onClick={() => onExport('pdf')}
-                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-                  >
-                    Export as PDF
-                  </button>
-                </div>
-              </div>
-            </div>
-            
+          {/*
+           * Download CSV, not an Export menu.
+           *
+           * <p>The menu was `hidden group-hover:block` with no `group` on any ancestor, so it could
+           * never open — the Export button did nothing at all. Its other two entries were Excel and
+           * PDF, both of which answer "coming soon" from the handler, so the working menu would
+           * have offered one real option anyway.
+           */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => onExport('csv')}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-foreground transition-colors hover:bg-accent"
+            >
+              <ArrowDownTrayIcon className="h-4 w-4" />
+              Download CSV
+            </button>
+
             <button
               onClick={() => window.print()}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-card border border-gray-300 rounded-full hover:bg-gray-50"
+              aria-label="Print this report"
+              className="p-2 text-muted-foreground hover:text-foreground rounded-full transition-colors"
             >
-              <PrinterIcon className="h-4 w-4 inline mr-1" />
-              Print
+              <PrinterIcon className="h-4 w-4" />
             </button>
-            
+
             <button
               onClick={onShare}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-card border border-gray-300 rounded-full hover:bg-gray-50"
+              aria-label="Share this report"
+              className="p-2 text-muted-foreground hover:text-foreground rounded-full transition-colors"
             >
-              <ShareIcon className="h-4 w-4 inline mr-1" />
-              Share
+              <ShareIcon className="h-4 w-4" />
             </button>
-            
+
             <button
               onClick={onEdit}
-              className="px-3 py-2 text-sm font-medium text-white bg-violet-600 rounded-full hover:bg-gold-600"
+              className="rounded-full bg-cta px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-cta-foreground transition-colors hover:bg-cta-hover"
             >
-              <Cog6ToothIcon className="h-4 w-4 inline mr-1" />
               Edit
             </button>
           </div>

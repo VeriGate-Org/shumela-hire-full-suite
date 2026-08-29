@@ -236,3 +236,75 @@ describe('the reports band carries three figures', () => {
     expect(page).toContain('Last scheduled run: ${lastRunLabel}');
   });
 });
+
+/**
+ * The Reports page is composed the way the design is.
+ *
+ * <p>The first pass carried the sourcing decisions but not the composition: the result opened only
+ * on its own tab, Saved was a card grid behind a category sidebar that could not categorise, and
+ * the viewer's Export menu could not open.
+ */
+describe('the result opens where the work happened', () => {
+  const page = strip(src('app', '(app)', 'reports', 'page.tsx'));
+
+  it('renders the viewer under the builder, not only on its own tab', () => {
+    const build = page.slice(page.indexOf("activeTab === 'create'"), page.indexOf("activeTab === 'library'"));
+    expect(build).toContain('<ReportViewer');
+  });
+
+  it('leaves you on the builder after running from it', () => {
+    // Running a report used to navigate you away from the thing you were still working on.
+    expect(page).toContain("setActiveTab((tab) => (tab === 'create' ? tab : 'results'))");
+  });
+});
+
+describe('saved reports are a list, not a card wall', () => {
+  const library = strip(src('components', 'reports', 'ReportLibrary.tsx'));
+
+  it('drops the category sidebar that could not categorise', () => {
+    // It matched report.fields against substrings from the flat field list that predates the
+    // subject catalogue. Pipeline looked for 'pipeline'/'stage' and matched nothing at all.
+    expect(library).not.toContain('REPORT_CATEGORIES');
+    expect(library).not.toContain('selectedCategory');
+    expect(library).not.toContain('w-64 border-r');
+  });
+
+  it('keeps the one control that still works', () => {
+    expect(library).toContain('setSearchQuery');
+    expect(library).toContain('aria-label="Search saved reports"');
+  });
+
+  it('says what each report is about, from the subject catalogue', () => {
+    // Not from the report's name, which is free text and was never the subject.
+    expect(library).toContain("import { subjectFor } from './subjects'");
+    expect(library).toContain('subjectFor(report.subject)');
+  });
+
+  it('shows the schedule state as text rather than a hoverable icon', () => {
+    expect(library).toContain('Not scheduled');
+    expect(library).toContain('scheduleState');
+  });
+
+  it('offers Run on the row', () => {
+    expect(library).toContain('onRun(report)');
+  });
+});
+
+describe('the viewer offers an export that works', () => {
+  const viewer = strip(src('components', 'reports', 'ReportViewer.tsx'));
+
+  it('has no hover menu without a group to hover', () => {
+    // `hidden group-hover:block` with no `group` on any ancestor: the Export button did nothing.
+    expect(viewer).not.toContain('group-hover:block');
+  });
+
+  it('downloads CSV directly, which is the only format implemented', () => {
+    expect(viewer).toContain("onExport('csv')");
+    expect(viewer).not.toContain("onExport('xlsx')");
+    expect(viewer).not.toContain("onExport('pdf')");
+  });
+
+  it('states the period the rows cover', () => {
+    expect(viewer).toContain('result.config.dateRange.start');
+  });
+});
