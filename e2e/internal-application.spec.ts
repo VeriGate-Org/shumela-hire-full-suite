@@ -144,6 +144,15 @@ const submit = (page: Page) => page.getByRole('button', { name: /submit applicat
 const facts = (page: Page) => page.locator('dl').first();
 /** The form's own error box, as distinct from the transient toast that carries the same words. */
 const formError = (page: Page) => page.locator('[role="alert"]', { hasText: 'Application not submitted' });
+/**
+ * The band's own eyebrow.
+ *
+ * <p>IdentityBand publishes its eyebrow to the top bar, which renders it as the breadcrumb — so on
+ * every one of the 144 band screens that word is on the page twice, by design. An unscoped
+ * getByText for it is a strict-mode violation rather than a missing element, which is what these
+ * two assertions became when this page gained the standard header.
+ */
+const eyebrow = (page: Page, text: string) => page.getByRole('main').getByText(text, { exact: true });
 
 test.describe('Internal application — the page shows the move', () => {
   test('both sides of the move are on the page', async ({ page }) => {
@@ -151,7 +160,7 @@ test.describe('Internal application — the page shows the move', () => {
     await stubApi(page);
     await page.goto(applyUrl());
 
-    await expect(page.getByText('Internal move', { exact: true })).toBeVisible();
+    await expect(eyebrow(page, 'Internal move')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Senior Software Engineer', level: 1 })).toBeVisible();
 
     // Left: where they are now, off the employee record.
@@ -208,7 +217,7 @@ test.describe('Internal application — the external variant', () => {
     await stubApi(page);
     await page.goto(applyUrl('&source=external'));
 
-    await expect(page.getByText('Application', { exact: true })).toBeVisible();
+    await expect(eyebrow(page, 'Application')).toBeVisible();
     await expect(page.getByText('Applying for')).toBeVisible();
     await expect(page.getByText('You are here')).toHaveCount(0);
     await expect(page.getByText(/Your current manager is not notified/i)).toHaveCount(0);
