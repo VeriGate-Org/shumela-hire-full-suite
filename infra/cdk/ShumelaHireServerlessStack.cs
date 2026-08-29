@@ -198,6 +198,25 @@ public class ShumelaHireServerlessStack : Stack
                 ["SQS_NOTIFICATION_QUEUE_URL"] = foundation.NotificationQueue.QueueUrl,
                 ["APP_URL"] = config.UiUrl,
                 ["API_URL"] = config.ApiUrl,
+                // Mail. Without these the bean is NoOpEmailService, which logs, sends nothing and
+                // returns true — so every notification this platform has ever "sent" from a
+                // deployed environment was discarded, and the caller was told it succeeded.
+                ["SES_ENABLED"] = "true",
+                ["SES_REGION"] = config.Region,
+                ["SES_FROM_EMAIL"] = foundation.MailFromAddress,
+                ["SES_FROM_NAME"] = "ShumelaHire",
+                // Domains this environment may send to; empty means everywhere.
+                //
+                // Set, because the tenant data is seeded: IDC carries 58 demo applicants at
+                // invented gmail, outlook and yahoo addresses, and any status change on that data
+                // would email a mailbox that does not exist. Hard bounces at Gmail are the fastest
+                // way to have SES pause sending on a domain verified an hour ago. A blocked
+                // address is logged and reported as a failure, never quietly dropped.
+                //
+                // Empty this (`--context sesAllowedRecipientDomains=`) once the tenant's people
+                // are real.
+                ["SES_ALLOWED_RECIPIENT_DOMAINS"] =
+                    ContextFlag(this, "sesAllowedRecipientDomains", "arthmatic.co.za"),
                 ["JWT_SECRET_ARN"] = foundation.JwtSecret.SecretArn,
                 ["ENCRYPTION_KEY_ARN"] = foundation.EncryptionKeySecret.SecretArn,
                 ["AI_KEYS_SECRET_ARN"] = foundation.AiKeysSecret.SecretArn,

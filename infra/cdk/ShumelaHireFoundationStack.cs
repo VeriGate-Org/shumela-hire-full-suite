@@ -4,6 +4,8 @@ using Amazon.CDK.AWS.S3;
 using Amazon.CDK.AWS.SQS;
 using Amazon.CDK.AWS.SecretsManager;
 using Amazon.CDK.AWS.Cognito;
+using Amazon.CDK.AWS.Route53;
+using Amazon.CDK.AWS.SES;
 using Constructs;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +27,14 @@ public class ShumelaHireFoundationStack : Stack
     public Secret MicrosoftSecret { get; }
     public Secret JobBoardsSecret { get; }
     public Secret SapPayrollSecret { get; }
+
+    /// <summary>
+    /// The address this environment sends from, once its domain is a verified SES identity.
+    /// </summary>
+    public string MailFromAddress { get; }
+
+    /// <summary>The domain that identity covers — prod: shumelahire.co.za, dev: dev.shumelahire.co.za.</summary>
+    public string MailDomain { get; }
 
     public ShumelaHireFoundationStack(Construct scope, string id, EnvironmentConfig config,
         IStackProps? props = null) : base(scope, id, props)
@@ -299,8 +309,48 @@ public class ShumelaHireFoundationStack : Stack
             (AppClient.Node.DefaultChild as CfnUserPoolClient)?.AddDependency(linkedInIdp);
         }
 
+        // ── SES sending identity ───────────────────────────────────────────
+        //
+        // Until this existed nothing in the platform could send mail. SES_ENABLED was unset in
+        // every deployed environment, so the bean was NoOpEmailService — which logs, sends nothing
+        // and returns true. Every applicant notification, interview invitation and offer email in
+        // production was discarded silently, and a report schedule would have recorded a clean
+        // success for a message nobody received.
+        //
+        // The identity is the environment's own hosted zone, so prod verifies shumelahire.co.za
+        // and dev verifies dev.shumelahire.co.za. They are different domains in different zones,
+        // which is what keeps two environments from writing the same DNS records.
+        //
+        // Easy DKIM: CDK writes the three CNAMEs into the zone and SES verifies from them. That is
+        // deliberately DKIM rather than SPF — the apex already carries the SPF record for the
+        // domain's real mailboxes at xneelo (v=spf1 mx a include:spf.host-h.net ?all), and editing
+        // a live SPF record to add a sender is how you break the mail that already works.
+        MailDomain = config.HostedZoneName;
+        MailFromAddress = $"noreply@{MailDomain}";
+
+        var mailZone = HostedZone.FromLookup(this, "MailHostedZone", new HostedZoneProviderProps
+        {
+            DomainName = MailDomain
+        });
+
+        // FromLookup gives an IHostedZone; the SES construct needs an IPublicHostedZone to write
+        // the DKIM records into. Re-wrapping the looked-up zone by its own id is the conversion.
+        var mailPublicZone = PublicHostedZone.FromPublicHostedZoneAttributes(this, "MailPublicZone",
+            new PublicHostedZoneAttributes
+            {
+                HostedZoneId = mailZone.HostedZoneId,
+                ZoneName = mailZone.ZoneName
+            });
+
+        new EmailIdentity(this, "SesDomainIdentity", new EmailIdentityProps
+        {
+            Identity = Identity.PublicHostedZone(mailPublicZone),
+            DkimSigning = true
+        });
+
         // ── CfnOutputs ──────────────────────────────────────────────────────
         new CfnOutput(this, "VpcId", new CfnOutputProps { Value = Vpc.VpcId });
+        new CfnOutput(this, "MailFromAddress", new CfnOutputProps { Value = MailFromAddress });
         new CfnOutput(this, "DocumentsBucketName", new CfnOutputProps { Value = DocumentsBucket.BucketName });
         new CfnOutput(this, "UploadsBucketName", new CfnOutputProps { Value = UploadsBucket.BucketName });
         new CfnOutput(this, "NotificationQueueUrl", new CfnOutputProps { Value = NotificationQueue.QueueUrl });
