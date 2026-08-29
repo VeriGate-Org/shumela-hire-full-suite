@@ -149,7 +149,12 @@ public class ReportScheduleRunner {
                     "Not sent: this environment has no email channel configured (SES_ENABLED is false)");
         }
 
-        String subject = schedule.getReportName() + " — scheduled report";
+        // Plain ASCII, deliberately. The em dash this line used to carry forced the Subject header
+        // to be UTF-8 encoded, and the recipient's SpamAssassin adds 2.5 points for exactly that
+        // (X_UTF8_ENC_H 0.5 + X_BAYES_UTF8 2.0). It scored 6.9 against a threshold of 5 and went
+        // to the spam folder with SPF, DKIM and DMARC all passing. The same message with an ASCII
+        // subject reached the inbox. Punctuation is not worth the delivery.
+        String subject = "Scheduled report: " + schedule.getReportName();
         String body = body(schedule, tenant);
 
         List<String> rejected = new ArrayList<>();
