@@ -8,6 +8,7 @@ import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -304,19 +305,47 @@ public class ReportingService {
         return csv.toString();
     }
 
+
+    /**
+     * A date out of a JSON body.
+     *
+     * <p>This read {@code (LocalDateTime) reportConfig.get("startDate")} against a
+     * {@code Map<String, Object>} deserialised from JSON — where Jackson supplies a String. The cast
+     * threw ClassCastException on every request that carried a date, so the endpoint answered 500
+     * and nothing in the product called it.
+     *
+     * <p>Accepts a full timestamp or a plain date; a plain date is taken as the start of that day.
+     */
+    private LocalDateTime readDate(Object value) {
+        if (value instanceof LocalDateTime dateTime) {
+            return dateTime;
+        }
+        if (value instanceof String text && !text.isBlank()) {
+            try {
+                return LocalDateTime.parse(text);
+            } catch (java.time.format.DateTimeParseException notATimestamp) {
+                return LocalDate.parse(text).atStartOfDay();
+            }
+        }
+        return null;
+    }
+
     // Custom Report Generator
     public String generateCustomReport(Map<String, Object> reportConfig) {
         StringBuilder csv = new StringBuilder();
         
         String reportType = (String) reportConfig.get("reportType");
-        LocalDateTime startDate = (LocalDateTime) reportConfig.get("startDate");
-        LocalDateTime endDate = (LocalDateTime) reportConfig.get("endDate");
+        LocalDateTime startDate = readDate(reportConfig.get("startDate"));
+        LocalDateTime endDate = readDate(reportConfig.get("endDate"));
         List<String> fields = (List<String>) reportConfig.get("fields");
         Map<String, String> filters = (Map<String, String>) reportConfig.get("filters");
         
         csv.append("CUSTOM REPORT: ").append(reportType.toUpperCase()).append("\n");
-        csv.append("Period: ").append(startDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
-           .append(" to ").append(endDate.format(DateTimeFormatter.ISO_LOCAL_DATE)).append("\n");
+        csv.append("Period: ")
+           .append(startDate == null ? "not stated" : startDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+           .append(" to ")
+           .append(endDate == null ? "not stated" : endDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+           .append("\n");
         csv.append("Generated: ").append(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).append("\n\n");
         
         // Build headers based on selected fields

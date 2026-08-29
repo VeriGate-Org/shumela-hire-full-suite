@@ -38,7 +38,6 @@ export default function ReportViewer({
   onEdit,
   className = '',
 }: ReportViewerProps) {
-  const [viewMode, setViewMode] = useState<'table' | 'chart'>('table');
   const [pageSize, setPageSize] = useState(25);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -126,30 +125,6 @@ export default function ReportViewer({
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode('chart')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-full ${
-                viewMode === 'chart'
-                  ? 'bg-gold-100 text-violet-700'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <ChartBarIcon className="h-4 w-4 inline mr-1" />
-              Chart
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-full ${
-                viewMode === 'table'
-                  ? 'bg-gold-100 text-violet-700'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <DocumentTextIcon className="h-4 w-4 inline mr-1" />
-              Table
-            </button>
-          </div>
         </div>
 
         {/* Table */}
@@ -241,18 +216,6 @@ export default function ReportViewer({
     );
   };
 
-  const renderChartView = () => {
-    return (
-      <div className="text-center py-12">
-        <ChartBarIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Chart View</h3>
-        <p className="text-gray-500">Chart visualization will be displayed here based on the report configuration.</p>
-        <p className="text-sm text-muted-foreground mt-2">
-          Chart type: {result.config.visualization.type}
-        </p>
-      </div>
-    );
-  };
 
   if (result.error) {
     return (
@@ -360,7 +323,7 @@ export default function ReportViewer({
 
       {/* Content */}
       <div className="p-6">
-        {viewMode === 'table' ? renderTableView() : renderChartView()}
+        {renderTableView()}
       </div>
     </div>
   );
