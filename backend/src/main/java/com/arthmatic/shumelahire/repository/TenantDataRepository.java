@@ -58,4 +58,12 @@ public interface TenantDataRepository {
      * list. Anything that has to work across tenants, such as a scheduled sweep, needs this.
      */
     List<Tenant> findByStatus(String status);
+
+    /**
+     * Every tenant, whatever its status, without needing a tenant context.
+     *
+     * <p>Distinct from {@link #findAll()}, which despite the name queries a single partition —
+     * the one belonging to whichever tenant is in context.
+     */
+    List<Tenant> findAllTenants();
 }

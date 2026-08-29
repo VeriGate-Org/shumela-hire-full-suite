@@ -17,6 +17,15 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
  *   GSI1PK: TENANT_STATUS#{status}
  *   GSI1SK: TENANT#{tenantId}
  *
+ * GSI2 (every tenant, whatever its status):
+ *   GSI2PK: TENANT (a constant)
+ *   GSI2SK: TENANT#{tenantId}
+ *
+ *   Status is a free-form String — "ACTIVE" by default, "SUSPENDED" from suspend(), and whatever
+ *   a caller passes at creation — so a set of status queries can never be provably complete, and a
+ *   tenant created with an unexpected status would simply not appear in a list that claims to show
+ *   all of them. A constant partition answers "every tenant" with one query and no such gap.
+ *
  * Note: Tenant is a special case — the PK *is* the tenant ID (not nested under another tenant).
  */
 @DynamoDbBean
@@ -26,6 +35,8 @@ public class TenantItem {
     private String sk;
     private String gsi1pk;
     private String gsi1sk;
+    private String gsi2pk;
+    private String gsi2sk;
     private String gsi4pk;
     private String gsi4sk;
 
@@ -62,6 +73,16 @@ public class TenantItem {
     @DynamoDbAttribute("GSI1SK")
     public String getGsi1sk() { return gsi1sk; }
     public void setGsi1sk(String gsi1sk) { this.gsi1sk = gsi1sk; }
+
+    @DynamoDbSecondaryPartitionKey(indexNames = "GSI2")
+    @DynamoDbAttribute("GSI2PK")
+    public String getGsi2pk() { return gsi2pk; }
+    public void setGsi2pk(String gsi2pk) { this.gsi2pk = gsi2pk; }
+
+    @DynamoDbSecondarySortKey(indexNames = "GSI2")
+    @DynamoDbAttribute("GSI2SK")
+    public String getGsi2sk() { return gsi2sk; }
+    public void setGsi2sk(String gsi2sk) { this.gsi2sk = gsi2sk; }
 
     @DynamoDbSecondaryPartitionKey(indexNames = "GSI4")
     @DynamoDbAttribute("GSI4PK")

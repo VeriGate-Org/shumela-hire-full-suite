@@ -47,6 +47,8 @@ class ReportScheduleRunnerTest {
         email = mock(EmailService.class);
         dueByTenant = new java.util.HashMap<>();
 
+        when(tenants.findByStatus("ACTIVE")).thenReturn(List.of());
+        when(tenants.findByStatus("TRIAL")).thenReturn(List.of());
         when(email.isDeliveryConfigured()).thenReturn(true);
         when(email.sendEmail(anyString(), anyString(), anyString())).thenReturn(true);
         // due() is tenant-scoped in production; here it answers from whatever context is set,
@@ -54,7 +56,7 @@ class ReportScheduleRunnerTest {
         when(schedules.due()).thenAnswer(i ->
                 dueByTenant.getOrDefault(TenantContext.getCurrentTenant(), List.of()));
 
-        runner = new ReportScheduleRunner(tenants, schedules, templates, email, "https://shumelahire.co.za");
+        runner = new ReportScheduleRunner(new TenantSweep(tenants), schedules, templates, email, "https://shumelahire.co.za");
     }
 
     @AfterEach
@@ -228,7 +230,7 @@ class ReportScheduleRunnerTest {
     @Test
     @DisplayName("no base URL means no link, rather than a link that goes nowhere")
     void omitsTheLinkWhenTheBaseUrlIsUnset() {
-        runner = new ReportScheduleRunner(tenants, schedules, templates, email, "");
+        runner = new ReportScheduleRunner(new TenantSweep(tenants), schedules, templates, email, "");
         when(tenants.findByStatus("ACTIVE")).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
         dueByTenant.put("idc", List.of(due("s1", "hr@idc.co.za")));
 

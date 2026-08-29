@@ -84,9 +84,26 @@ public class PlatformAdminService {
 
     // --- Tenant Management ---
 
+    /**
+     * Every tenant on the platform, sorted by name.
+     *
+     * <p>This used to call {@code findAll()}, which on tenants queries
+     * {@code PK = TENANT#{whoever is in context}} — one partition, not the platform. It never
+     * threw, because a request always carries a context, so the screen showed a short list that
+     * looked like an answer. {@code findAllTenants()} queries the constant GSI2 partition instead.
+     *
+     * <p>Still paginated in memory. The tenant count is in the tens, the caller is a platform
+     * administrator, and a cursor would have to be threaded through the controller's Pageable to
+     * gain anything. Revisit if this ever needs to page through thousands.
+     *
+     * <p>Sorted here rather than left to the caller: the controller asks for {@code Sort.by("name")}
+     * and was quietly given whatever order DynamoDB returned.
+     */
     public Page<Tenant> listAllTenants(Pageable pageable) {
-        // TenantDataRepository only exposes findAll(); paginate in-memory
-        List<Tenant> all = tenantRepository.findAll();
+        List<Tenant> all = new java.util.ArrayList<>(tenantRepository.findAllTenants());
+        all.sort(java.util.Comparator.comparing(
+                t -> t.getName() == null ? "" : t.getName(), String.CASE_INSENSITIVE_ORDER));
+
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), all.size());
         List<Tenant> pageContent = start >= all.size() ? List.of() : all.subList(start, end);
