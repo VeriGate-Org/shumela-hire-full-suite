@@ -24,4 +24,17 @@ public class NoOpEmailService implements EmailService {
         logger.info("NoOp templated email: to={}, template length={}", to, template.length());
         return true;
     }
+
+    /**
+     * False. Nothing here is sent anywhere.
+     *
+     * <p>The two methods above return {@code true} and have since this class was written; changing
+     * that would make every caller treat a missing SES configuration as a per-message failure and
+     * bury the real ones. This is the honest answer, asked once, by callers that need to know
+     * whether a person will actually receive something — report schedules being the first.
+     */
+    @Override
+    public boolean isDeliveryConfigured() {
+        return false;
+    }
 }

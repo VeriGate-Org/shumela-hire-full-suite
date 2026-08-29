@@ -64,6 +64,17 @@ public class SesEmailService implements EmailService {
         return sendEmail(to, subject, htmlBody);
     }
 
+    /**
+     * True: this bean only exists when {@code ses.enabled} is true, and SES is a real channel.
+     *
+     * <p>It says nothing about whether the from-address is a verified identity — SES answers that
+     * per send, and a rejection surfaces as {@code sendEmail} returning false.
+     */
+    @Override
+    public boolean isDeliveryConfigured() {
+        return true;
+    }
+
     private String stripHtml(String html) {
         return html.replaceAll("<[^>]*>", "").replaceAll("\\s+", " ").trim();
     }

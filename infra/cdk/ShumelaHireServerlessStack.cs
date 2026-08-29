@@ -358,39 +358,62 @@ public class ShumelaHireServerlessStack : Stack
         });
 
         // ── EventBridge Scheduled Rules ────────────────────────────────────────
-        var schedules = new Dictionary<string, (string schedule, string description)>
+        //
+        // None of these rules had ever run a job. Each fired a body shaped like an API Gateway v1
+        // request — {"source":"scheduled","httpMethod":"POST","path":"/api/internal/scheduled/…"} —
+        // at a Lambda whose handler reads HttpApiV2ProxyRequest, and Jackson rejected it on the
+        // first field. From the production log group, repeating on every firing since deployment:
+        //
+        //   UnrecognizedPropertyException: Unrecognized field "source"
+        //       (class com.amazonaws.serverless.proxy.model.HttpApiV2ProxyRequest)
+        //
+        // Even had it parsed, the path it posted to is refused: the Spring Security chain ends
+        // anyRequest().denyAll() and nothing permits /api/internal/scheduled/**. So the payload no
+        // longer pretends to be an HTTP request. It names a job, and ApiLambdaHandler dispatches it
+        // in process — see ScheduledInvocation.
+        //
+        // Enabled is per-job and deliberately not "true" for everything. These eleven jobs have
+        // never once executed against production data; switching them all on in the same change
+        // that repairs the dispatch would turn eleven untested code paths loose at once, on live
+        // records, with no way to attribute the result. They stay off until each is enabled on
+        // purpose. The rules are kept rather than deleted so that turning one on is a one-word
+        // change with its cadence already decided.
+        var schedules = new Dictionary<string, (string schedule, string description, bool enabled)>
         {
-            ["MetricsComputation"] = ("rate(2 hours)", "Recompute dashboard metrics"),
-            ["JobAdExpiration"] = ("cron(0 2 * * ? *)", "Expire stale job advertisements"),
-            ["SapTransmissionRetry"] = ("rate(15 minutes)", "Retry failed SAP payroll transmissions"),
-            ["ComplianceReminders"] = ("cron(0 8 * * ? *)", "Send compliance reminder notifications"),
-            ["LeaveCarryForward"] = ("cron(0 1 1 1 ? *)", "Annual leave carry-forward processing"),
-            ["SecurityCleanup"] = ("rate(1 hour)", "Clean up expired sessions and tokens"),
-            ["SageSync"] = ("rate(5 minutes)", "Sync employee data with Sage"),
-            ["AttendanceReconciliation"] = ("cron(0 3 * * ? *)", "Reconcile attendance records"),
-            ["PerformanceCycleCheck"] = ("cron(0 6 * * ? *)", "Check performance review cycle deadlines"),
-            ["TrainingReminders"] = ("cron(0 7 * * ? *)", "Send training enrollment reminders"),
-            ["ReportCleanup"] = ("cron(0 4 * * ? *)", "Clean up expired report export jobs")
+            ["ReportSchedules"] = ("rate(1 hour)", "Send report schedules that have fallen due", true),
+
+            ["MetricsComputation"] = ("rate(2 hours)", "Recompute dashboard metrics", false),
+            ["JobAdExpiration"] = ("cron(0 2 * * ? *)", "Expire stale job advertisements", false),
+            ["SapTransmissionRetry"] = ("rate(15 minutes)", "Retry failed SAP payroll transmissions", false),
+            ["ComplianceReminders"] = ("cron(0 8 * * ? *)", "Send compliance reminder notifications", false),
+            ["LeaveCarryForward"] = ("cron(0 1 1 1 ? *)", "Annual leave carry-forward processing", false),
+            ["SecurityCleanup"] = ("rate(1 hour)", "Clean up expired sessions and tokens", false),
+            ["SageSync"] = ("rate(5 minutes)", "Sync employee data with Sage", false),
+            ["AttendanceReconciliation"] = ("cron(0 3 * * ? *)", "Reconcile attendance records", false),
+            ["PerformanceCycleCheck"] = ("cron(0 6 * * ? *)", "Check performance review cycle deadlines", false),
+            ["TrainingReminders"] = ("cron(0 7 * * ? *)", "Send training enrollment reminders", false),
+            ["ReportCleanup"] = ("cron(0 4 * * ? *)", "Clean up expired report export jobs", false)
         };
 
-        foreach (var (name, (schedule, description)) in schedules)
+        foreach (var (name, (schedule, description, enabled)) in schedules)
         {
             var rule = new Rule(this, $"{name}Rule", new RuleProps
             {
                 RuleName = $"{prefix}-{name.ToLower()}",
-                Description = description,
+                Description = description + (enabled ? "" : " (never verified in a deployed environment — off until enabled deliberately)"),
                 Schedule = Schedule.Expression(schedule),
-                Enabled = true
+                Enabled = enabled
             });
 
             rule.AddTarget(new LambdaFunction(ApiFunction, new LambdaFunctionProps
             {
                 Event = RuleTargetInput.FromObject(new Dictionary<string, object>
                 {
+                    // "job" is what the dispatcher reads; it must match a name in
+                    // ScheduledJobRegistry, which fails loudly on one it does not know.
                     ["source"] = "scheduled",
-                    ["detail-type"] = name,
-                    ["httpMethod"] = "POST",
-                    ["path"] = $"/api/internal/scheduled/{name.ToLower()}"
+                    ["job"] = name.ToLower(),
+                    ["detail-type"] = name
                 })
             }));
         }
