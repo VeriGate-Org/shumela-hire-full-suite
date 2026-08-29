@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/api-fetch';
 import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
-import { DashboardWidget, CandidatePipeline } from '../../dashboard';
+import { CandidatePipeline } from '../../dashboard';
 import {
   decisionsOwed,
   quietRoles,
@@ -68,25 +68,28 @@ interface PipelineStage {
  */
 const PIPELINE_PAGE_SIZE = 500;
 
+// `color` is a CSS colour because CandidatePipeline feeds it to an inline style. It used to
+// hold Tailwind class names — `bg-gold-100` and friends — which the browser drops as an
+// invalid value, so every stage indicator rendered with no colour at all.
 const stageMapping: Record<string, { name: string; color: string; order: number }> = {
-  SUBMITTED: { name: 'Applied', color: 'bg-surface-gold', order: 0 },
-  APPLIED: { name: 'Applied', color: 'bg-surface-gold', order: 0 },
-  SCREENING: { name: 'Screening', color: 'bg-warning-bg', order: 1 },
-  PHONE_SCREEN: { name: 'Screening', color: 'bg-warning-bg', order: 1 },
-  INTERVIEW: { name: 'Interview', color: 'bg-surface-navy', order: 2 },
-  INTERVIEW_SCHEDULED: { name: 'Interview', color: 'bg-surface-navy', order: 2 },
-  INTERVIEW_COMPLETED: { name: 'Interview', color: 'bg-surface-navy', order: 2 },
+  SUBMITTED: { name: 'Applied', color: 'var(--cta)', order: 0 },
+  APPLIED: { name: 'Applied', color: 'var(--cta)', order: 0 },
+  SCREENING: { name: 'Screening', color: 'var(--warning)', order: 1 },
+  PHONE_SCREEN: { name: 'Screening', color: 'var(--warning)', order: 1 },
+  INTERVIEW: { name: 'Interview', color: 'var(--link)', order: 2 },
+  INTERVIEW_SCHEDULED: { name: 'Interview', color: 'var(--link)', order: 2 },
+  INTERVIEW_COMPLETED: { name: 'Interview', color: 'var(--link)', order: 2 },
   // Verification sits between interview and offer. Its absence here was not a cosmetic gap:
   // unmapped statuses hit `if (!stageInfo) return` and vanished silently, so every candidate at
   // Reference Check — Lerato Dlamini among them — was missing from this widget entirely while
   // the pipeline board showed them.
-  REFERENCE_CHECK: { name: 'Checks', color: 'bg-icon-bg-navy', order: 3 },
-  BACKGROUND_CHECK: { name: 'Checks', color: 'bg-icon-bg-navy', order: 3 },
-  OFFER: { name: 'Offer', color: 'bg-surface-teal', order: 4 },
-  OFFERED: { name: 'Offer', color: 'bg-surface-teal', order: 4 },
-  OFFER_PENDING: { name: 'Offer', color: 'bg-surface-teal', order: 4 },
-  HIRED: { name: 'Hired', color: 'bg-success-bg', order: 5 },
-  OFFER_ACCEPTED: { name: 'Hired', color: 'bg-success-bg', order: 5 },
+  REFERENCE_CHECK: { name: 'Checks', color: 'var(--accent-navy)', order: 3 },
+  BACKGROUND_CHECK: { name: 'Checks', color: 'var(--accent-navy)', order: 3 },
+  OFFER: { name: 'Offer', color: 'var(--accent-teal)', order: 4 },
+  OFFERED: { name: 'Offer', color: 'var(--accent-teal)', order: 4 },
+  OFFER_PENDING: { name: 'Offer', color: 'var(--accent-teal)', order: 4 },
+  HIRED: { name: 'Hired', color: 'var(--success)', order: 5 },
+  OFFER_ACCEPTED: { name: 'Hired', color: 'var(--success)', order: 5 },
 };
 
 function getInitials(name: string): string {
@@ -149,12 +152,12 @@ function transformApplicationsToPipeline(applications: any[]): PipelineStage[] {
   });
 
   return [
-    { id: 'applied', name: 'Applied', color: 'bg-surface-gold', candidates: stageMap.get('applied') || [] },
-    { id: 'screening', name: 'Screening', color: 'bg-warning-bg', candidates: stageMap.get('screening') || [] },
-    { id: 'interview', name: 'Interview', color: 'bg-surface-navy', candidates: stageMap.get('interview') || [] },
-    { id: 'checks', name: 'Checks', color: 'bg-icon-bg-navy', candidates: stageMap.get('checks') || [] },
-    { id: 'offer', name: 'Offer', color: 'bg-surface-teal', candidates: stageMap.get('offer') || [] },
-    { id: 'hired', name: 'Hired', color: 'bg-success-bg', candidates: stageMap.get('hired') || [] },
+    { id: 'applied', name: 'Applied', color: 'var(--cta)', candidates: stageMap.get('applied') || [] },
+    { id: 'screening', name: 'Screening', color: 'var(--warning)', candidates: stageMap.get('screening') || [] },
+    { id: 'interview', name: 'Interview', color: 'var(--link)', candidates: stageMap.get('interview') || [] },
+    { id: 'checks', name: 'Checks', color: 'var(--accent-navy)', candidates: stageMap.get('checks') || [] },
+    { id: 'offer', name: 'Offer', color: 'var(--accent-teal)', candidates: stageMap.get('offer') || [] },
+    { id: 'hired', name: 'Hired', color: 'var(--success)', candidates: stageMap.get('hired') || [] },
   ];
 }
 
@@ -460,141 +463,161 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
         </p>
       </div>
 
-      {/* 3-Column Grid: Open Positions | Upcoming Interviews | Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-full">
-        {/* Open Positions */}
-        <div className="min-w-0 overflow-hidden">
-          <DashboardWidget
-            id="team-positions"
-            title="Open Positions"
-            subtitle="Current job openings"
-            refreshable={true}
-            size="medium"
-          >
-            {openPositions.length > 0 ? (
-              <div className="space-y-4">
-                {openPositions
-                  .slice(positionsPage * POSITIONS_PAGE_SIZE, (positionsPage + 1) * POSITIONS_PAGE_SIZE)
-                  .map((position: any) => (
-                  <div key={position.id || position.title} className="flex items-center justify-between p-3 bg-muted rounded-control">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">{position.title || position.role}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {position.applicationsCount ?? 0}{' '}
-                        {position.applicationsCount === 1 ? 'application' : 'applications'}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        position.status === 'PUBLISHED' || position.status === 'Active'
-                          ? 'bg-success-bg text-success-on-tint'
-                          : 'bg-muted text-foreground'
-                      }`}>
-                        {position.status === 'PUBLISHED' ? 'Active' : (position.status || 'Active')}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-                {openPositions.length > POSITIONS_PAGE_SIZE && (() => {
-                  const totalPages = Math.ceil(openPositions.length / POSITIONS_PAGE_SIZE);
-                  const rangeStart = positionsPage * POSITIONS_PAGE_SIZE + 1;
-                  const rangeEnd = Math.min((positionsPage + 1) * POSITIONS_PAGE_SIZE, openPositions.length);
+      {/*
+       * Three columns, and Quick actions is one of them.
+       *
+       * <p>It used to sit in a full-width row underneath, which left this grid declaring three
+       * columns while holding two — an empty third cell on every wide screen.
+       *
+       * <p>These are plain cards rather than DashboardWidget. The widget adds a 2px accent border,
+       * a refresh control and an overflow menu to each panel; three of those side by side is more
+       * chrome than content, and none of it was asked for.
+       */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 max-w-full items-start">
+
+        <section className="min-w-0 bg-card border border-border rounded-card p-4">
+          <h2 className="text-[1.0625rem] font-bold text-foreground">Open positions</h2>
+          <p className="text-[0.8125rem] text-muted-foreground mt-0.5">
+            {openPositions.length} published {openPositions.length === 1 ? 'role' : 'roles'}
+          </p>
+
+          {openPositions.length > 0 ? (
+            <div className="mt-3">
+              {openPositions
+                .slice(positionsPage * POSITIONS_PAGE_SIZE, (positionsPage + 1) * POSITIONS_PAGE_SIZE)
+                .map((position: any) => {
+                  const count = position.applicationsCount;
+                  const quiet = count === 0;
                   return (
-                    <div className="flex items-center justify-between pt-3 border-t border-border">
-                      <span className="text-xs text-muted-foreground">
-                        {rangeStart}–{rangeEnd} of {openPositions.length}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setPositionsPage(p => p - 1)}
-                          disabled={positionsPage === 0}
-                          className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                          <ChevronLeftIcon className="w-4 h-4 text-muted-foreground" />
-                        </button>
-                        <button
-                          onClick={() => setPositionsPage(p => p + 1)}
-                          disabled={positionsPage >= totalPages - 1}
-                          className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                          <ChevronRightIcon className="w-4 h-4 text-muted-foreground" />
-                        </button>
+                    <div
+                      key={position.id || position.title}
+                      className="flex items-start justify-between gap-3 py-2.5 border-b border-border last:border-b-0"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-[0.8125rem] font-semibold text-foreground truncate">
+                          {position.title || position.role}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {typeof count !== 'number'
+                            ? 'Applications not reported'
+                            : quiet
+                              ? 'No applications yet'
+                              : `${count} ${count === 1 ? 'application' : 'applications'}`}
+                        </p>
                       </div>
+                      {/* A published role attracting nothing is the state worth seeing here — the
+                          status pill said "Active" for it, which is true and useless. */}
+                      <span
+                        className={`flex-none px-2 py-0.5 rounded-full text-[0.6875rem] font-bold ${
+                          quiet
+                            ? 'bg-surface-gold text-accent-gold-on-tint'
+                            : position.status === 'PUBLISHED' || position.status === 'Active'
+                              ? 'bg-success-bg text-success-on-tint'
+                              : 'bg-muted text-foreground'
+                        }`}
+                      >
+                        {quiet ? 'Quiet' : position.status === 'PUBLISHED' ? 'Active' : (position.status || 'Active')}
+                      </span>
                     </div>
                   );
-                })()}
-              </div>
-            ) : (
-              <EmptyState
-                icon={BriefcaseIcon}
-                title="No Open Positions"
-                description="There are no published job postings at the moment."
-                action={{ label: 'Post New Job', href: '/job-postings?action=create' }}
-              />
-            )}
-          </DashboardWidget>
-        </div>
+                })}
 
-        {/* Today's Interviews */}
-        <div className="min-w-0 overflow-hidden">
-          <DashboardWidget
-            id="interview-schedule"
-            // It reads /api/interviews/upcoming and renders all of them, so the heading was the
-            // thing that was wrong, not the data.
-            title="Upcoming interviews"
-            subtitle="Everything scheduled, soonest first"
-            refreshable={true}
-            size="medium"
-          >
-            {upcomingInterviews.length > 0 ? (
-              <div className="space-y-3">
-                {upcomingInterviews.map((interview: any) => (
-                  <div key={interview.id} className="flex items-start gap-3 p-3 hover:bg-muted rounded-control">
-                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0 bg-gold-500"></div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {interview.candidateName || interview.candidate}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {interview.jobTitle || interview.position}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {interview.scheduledAt
-                          ? new Date(interview.scheduledAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })
-                          : interview.time}
-                        {' - '}
-                        {interview.interviewType || interview.type || 'Interview'}
-                      </p>
+              {openPositions.length > POSITIONS_PAGE_SIZE && (() => {
+                const totalPages = Math.ceil(openPositions.length / POSITIONS_PAGE_SIZE);
+                const rangeStart = positionsPage * POSITIONS_PAGE_SIZE + 1;
+                const rangeEnd = Math.min((positionsPage + 1) * POSITIONS_PAGE_SIZE, openPositions.length);
+                return (
+                  <div className="flex items-center justify-between pt-3 mt-1 border-t border-border">
+                    <span className="text-xs tabular-nums text-muted-foreground">
+                      {rangeStart}–{rangeEnd} of {openPositions.length}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        aria-label="Previous positions"
+                        onClick={() => setPositionsPage((n) => n - 1)}
+                        disabled={positionsPage === 0}
+                        className="p-1 rounded hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ChevronLeftIcon className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                      <button
+                        aria-label="More positions"
+                        onClick={() => setPositionsPage((n) => n + 1)}
+                        disabled={positionsPage >= totalPages - 1}
+                        className="p-1 rounded hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ChevronRightIcon className="w-4 h-4 text-muted-foreground" />
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                icon={CalendarIcon}
-                title="No upcoming interviews"
-                description="Nothing is scheduled. Candidates at the interview stage are waiting for a slot."
-                action={{ label: 'Schedule Interview', href: '/interviews' }}
-              />
-            )}
-          </DashboardWidget>
-        </div>
-      </div>
+                );
+              })()}
+            </div>
+          ) : (
+            <EmptyState
+              icon={BriefcaseIcon}
+              title="No open positions"
+              description="Nothing is published, so nothing can be applied to."
+              action={{ label: 'Post a job', href: '/job-postings?action=create' }}
+            />
+          )}
+        </section>
 
-      {/* Quick Actions — Full Width Row */}
-      <div className="w-full overflow-hidden">
-        <DashboardWidget
-          id="hiring-actions"
-          title="Quick Actions"
-          subtitle="Common hiring tasks"
-          size="small"
-        >
-          <div className="flex flex-wrap gap-3">
-            {/* One primary, three quiet. These were gold, gold, green and orange, and the
-                colour carried no meaning — green did not mean safe, orange did not mean caution. */}
+        <section className="min-w-0 bg-card border border-border rounded-card p-4">
+          {/* It reads /api/interviews/upcoming and renders all of them, so the heading was the
+              thing that was wrong, not the data. */}
+          <h2 className="text-[1.0625rem] font-bold text-foreground">Upcoming interviews</h2>
+          <p className="text-[0.8125rem] text-muted-foreground mt-0.5">
+            {upcomingInterviews.length === 0
+              ? 'Nothing scheduled'
+              : `Next ${upcomingInterviews.length}, soonest first`}
+          </p>
+
+          {upcomingInterviews.length > 0 ? (
+            <div className="mt-3">
+              {upcomingInterviews.map((interview: any) => (
+                <div
+                  key={interview.id}
+                  className="flex items-start gap-2.5 py-2.5 border-b border-border last:border-b-0"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-cta mt-2 flex-none" />
+                  <div className="min-w-0">
+                    <p className="text-[0.8125rem] font-semibold text-foreground truncate">
+                      {interview.candidateName || interview.candidate}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {interview.jobTitle || interview.position}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {interview.scheduledAt
+                        ? new Date(interview.scheduledAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })
+                        : interview.time}
+                      {' · '}
+                      {interview.interviewType || interview.type || 'Interview'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={CalendarIcon}
+              title="No upcoming interviews"
+              description="Nothing is scheduled. Candidates at the interview stage are waiting for a slot."
+              action={{ label: 'Schedule an interview', href: '/interviews' }}
+            />
+          )}
+        </section>
+
+        <section className="min-w-0 bg-card border border-border rounded-card p-4">
+          <h2 className="text-[1.0625rem] font-bold text-foreground">Quick actions</h2>
+          <p className="text-[0.8125rem] text-muted-foreground mt-0.5">Common hiring tasks</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {/* One primary, three quiet. These were gold, gold, green and orange, and the colour
+                carried no meaning — green did not mean safe, orange did not mean caution. */}
             <button
               onClick={() => router.push('/job-postings?action=create')}
-              className="rounded-full bg-cta px-5 py-2.5 text-sm font-semibold text-cta-foreground transition-colors hover:bg-cta-hover"
+              className="rounded-full bg-cta px-4 py-2 text-[0.8125rem] font-semibold text-cta-foreground transition-colors hover:bg-cta-hover"
             >
               Post a job
             </button>
@@ -606,13 +629,13 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
               <button
                 key={action.href}
                 onClick={() => router.push(action.href)}
-                className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+                className="rounded-full border border-border px-4 py-2 text-[0.8125rem] font-semibold text-foreground transition-colors hover:bg-accent"
               >
                 {action.label}
               </button>
             ))}
           </div>
-        </DashboardWidget>
+        </section>
       </div>
     </div>
   );

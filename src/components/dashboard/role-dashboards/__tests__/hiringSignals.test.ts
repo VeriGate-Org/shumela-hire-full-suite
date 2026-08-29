@@ -195,3 +195,66 @@ describe('the decision bar asks about what is actually owed', () => {
     expect(source).not.toContain("label: 'Interviews booked'");
   });
 });
+
+/**
+ * The shipped page matches the design it was drawn from.
+ *
+ * <p>The first implementation carried the sourcing decisions — what is shown, what is cut — but
+ * not the composition. Quick actions sat in a full-width row below a grid that declared three
+ * columns and held two, the pipeline was a horizontally-scrolling board of 288px columns beneath a
+ * summary block repeating its own counts, and every panel wore DashboardWidget's accent border,
+ * refresh button and overflow menu. None of that was in the drawing.
+ */
+describe('the page is composed the way the design is', () => {
+  const dash = strip(read(...DASHBOARD));
+  const pipeline = strip(read('components', 'dashboard', 'CandidatePipeline.tsx'));
+
+  it('puts quick actions inside the three-column grid', () => {
+    expect(dash).not.toContain('Quick Actions — Full Width Row');
+    // Three <section> children under one grid, so no column is left empty.
+    const grid = dash.slice(dash.indexOf('lg:grid-cols-3'));
+    expect((grid.match(/<section/g) ?? []).length).toBe(3);
+  });
+
+  it('uses plain cards rather than the widget chrome', () => {
+    expect(dash).not.toContain('<DashboardWidget');
+    expect(dash).not.toContain("import { DashboardWidget");
+    expect(pipeline).not.toContain('<DashboardWidget');
+  });
+
+  it('lays the pipeline out six across instead of scrolling sideways', () => {
+    expect(pipeline).toContain('xl:grid-cols-6');
+    expect(pipeline).not.toContain('w-72');
+    expect(pipeline).not.toContain('overflow-x-auto');
+  });
+
+  it('counts each stage once', () => {
+    // A four-across summary block repeated the same six numbers above the board.
+    expect(pipeline).not.toContain('Pipeline Summary');
+    expect((pipeline.match(/stage\.candidates\.length}/g) ?? []).length).toBe(1);
+  });
+
+  it('marks a role that has attracted nothing', () => {
+    expect(dash).toContain('No applications yet');
+    expect(dash).toContain("'Quiet'");
+  });
+});
+
+describe('the stage colour is a colour', () => {
+  const dash = read(...DASHBOARD);
+  const pipeline = read('components', 'dashboard', 'CandidatePipeline.tsx');
+
+  it('is a CSS value, because an inline style consumes it', () => {
+    // It held Tailwind class names — `bg-gold-100` and friends — which the browser drops as an
+    // invalid style value, so every stage indicator rendered with no colour at all.
+    expect(pipeline).toContain('style={{ backgroundColor: stage.color }}');
+
+    const stageColours = [...dash.matchAll(/name: '(?:Applied|Screening|Interview|Checks|Offer|Hired)', color: '([^']+)'/g)]
+      .map((m) => m[1]);
+
+    expect(stageColours.length).toBeGreaterThanOrEqual(12);
+    for (const value of stageColours) {
+      expect(value).toMatch(/^var\(--[a-z-]+\)$/);
+    }
+  });
+});
