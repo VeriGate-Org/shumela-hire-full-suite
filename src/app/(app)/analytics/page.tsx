@@ -378,15 +378,6 @@ export default function AnalyticsPage() {
           today — so they narrow the charts only. A bar that silently governs half a page is worse
           than one that governs less and says so.
         */}
-        <DecisionBar
-          ask={selectedDepartment ? `Showing ${selectedDepartment}` : 'Showing every department'}
-          why="Department narrows everything on this page. The other filters narrow the charts below; the figures above are today's."
-          tone="settled"
-        >
-          {selectedDepartment && (
-            <SecondaryAction onClick={handleFilterReset}>Show all departments</SecondaryAction>
-          )}
-        </DecisionBar>
 
         {/*
           One bar for everything that narrows this page.
@@ -464,6 +455,16 @@ export default function AnalyticsPage() {
           )}
         </div>
 
+        <DecisionBar
+          ask={selectedDepartment ? `Showing ${selectedDepartment}` : 'Showing every department'}
+          why="Department narrows everything on this page. The other filters narrow the charts below; the figures above are today's."
+          tone="settled"
+        >
+          {selectedDepartment && (
+            <SecondaryAction onClick={handleFilterReset}>Show all departments</SecondaryAction>
+          )}
+        </DecisionBar>
+
         {/* Collapsible filters */}
         {showFilters && (
           <InteractiveFilters
@@ -474,7 +475,22 @@ export default function AnalyticsPage() {
           />
         )}
 
-        {/* AI Insights — two-column card grid matching mock layout */}
+        {/* Real-Time Metrics — reduced polling interval */}
+        <RealTimeMetrics
+          kpis={kpiValues}
+          department={selectedDepartment || undefined}
+          updatedAt={kpisUpdatedAt}
+          stale={kpisStale}
+        />
+
+        {/*
+          Named for what they mean, not for what produced them.
+
+          "Highlights" and "Areas for Improvement" describe a shape; "Working well" and "Worth a
+          look" describe a finding, and the caption says what the judgement rests on. The
+          "AI Insight" badge is gone with them — where a figure came from matters less than what
+          it is being compared against, and the thresholds are this page's own.
+        */}
         {!insightsLoading && insights.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Highlights card */}
@@ -486,10 +502,10 @@ export default function AnalyticsPage() {
                   <div className="w-9 h-9 rounded-full icon-tile-teal flex items-center justify-center flex-shrink-0">
                     <StarIcon className="w-[18px] h-[18px]" />
                   </div>
-                  <h3 className="text-[0.9375rem] font-bold text-foreground">Highlights</h3>
-                  <span className="text-[0.625rem] font-bold text-primary bg-icon-bg-navy px-2 py-0.5 rounded-button uppercase tracking-wider">
-                    AI Insight
-                  </span>
+                  <div>
+                    <h3 className="text-[0.9375rem] font-bold text-foreground">Working well</h3>
+                    <p className="text-xs text-muted-foreground">Above the lines this page draws</p>
+                  </div>
                 </div>
                 <ul className="space-y-0">
                   {positiveInsights.map((insight, i) => (
@@ -518,10 +534,10 @@ export default function AnalyticsPage() {
                   <div className="w-9 h-9 rounded-full icon-tile-gold-on-tint flex items-center justify-center flex-shrink-0">
                     <ExclamationTriangleIcon className="w-[18px] h-[18px]" />
                   </div>
-                  <h3 className="text-[0.9375rem] font-bold text-foreground">Areas for Improvement</h3>
-                  <span className="text-[0.625rem] font-bold text-primary bg-icon-bg-navy px-2 py-0.5 rounded-button uppercase tracking-wider">
-                    AI Insight
-                  </span>
+                  <div>
+                    <h3 className="text-[0.9375rem] font-bold text-foreground">Worth a look</h3>
+                    <p className="text-xs text-muted-foreground">Below them, or not measured</p>
+                  </div>
                 </div>
                 <ul className="space-y-0">
                   {warningInsights.map((insight, i) => (
@@ -549,13 +565,6 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* Real-Time Metrics — reduced polling interval */}
-        <RealTimeMetrics
-          kpis={kpiValues}
-          department={selectedDepartment || undefined}
-          updatedAt={kpisUpdatedAt}
-          stale={kpisStale}
-        />
 
         {/* Main Dashboard — no header, no tabs, flat layout */}
         <AdvancedAnalyticsDashboard filters={filterValues} timeRange={selectedTimeRange} />
