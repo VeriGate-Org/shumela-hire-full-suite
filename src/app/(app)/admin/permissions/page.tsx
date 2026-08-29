@@ -7,8 +7,10 @@ import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import {
   PERMISSION_CATALOGUE,
   PERMISSION_CATEGORIES,
+  canRoleHold,
   effectivePermissions,
   isPermissionLocked,
+  ROLE_GATED_PERMISSIONS,
   type RolePermissionOverride,
 } from '@/config/permissions';
 import type { UserRole } from '@/contexts/AuthContext';
@@ -590,23 +592,36 @@ export default function AdminPermissionsPage() {
                               // matrix was disabled in its entirety — on top of writing to a route
                               // that did not exist. Roles cannot be created (they are an enum), but
                               // what each one may do is now stored and editable.
-                              const locked = isPermissionLocked(role.id.toUpperCase() as UserRole, permission.id);
+                              const roleId = role.id.toUpperCase() as UserRole;
+                              const locked = isPermissionLocked(roleId, permission.id);
+                              // The other direction from `locked`: not "cannot be taken away" but
+                              // "cannot be given", because the endpoint behind it enforces its own
+                              // role list and would answer 403. Granting it would put the item in
+                              // this person's menu and nothing else.
+                              const ungrantable = !hasIt && !canRoleHold(roleId, permission.id);
+                              const frozen = locked || ungrantable;
                               return (
                                 <td key={role.id} className="px-4 py-3 text-center">
                                   <label
-                                    className={`relative inline-block w-9 h-5 ${locked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                                    title={locked ? 'Cannot be removed — nobody would be able to restore it' : undefined}
+                                    className={`relative inline-block w-9 h-5 ${frozen ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                    title={
+                                      locked
+                                        ? 'Cannot be removed — nobody would be able to restore it'
+                                        : ungrantable
+                                          ? `${permission.name} cannot be granted to ${role.name}: the endpoint behind it admits only ${(ROLE_GATED_PERMISSIONS[permission.id] ?? []).join(', ')}. Granting it here would add the menu entry and nothing else.`
+                                          : undefined
+                                    }
                                   >
                                     <input
                                       type="checkbox"
                                       checked={hasIt}
-                                      disabled={locked || isSaving}
+                                      disabled={frozen || isSaving}
                                       onChange={() => handleRolePermissionToggle(role.id, permission.id)}
                                       className="sr-only peer"
                                     />
                                     <span className={`block w-9 h-5 rounded-full transition-colors ${
                                       hasIt ? 'bg-accent-teal' : 'bg-border'
-                                    } ${isSaving ? 'opacity-50' : ''} ${locked ? 'opacity-60 ring-1 ring-inset ring-border' : ''}`} />
+                                    } ${isSaving ? 'opacity-50' : ''} ${frozen ? 'opacity-60 ring-1 ring-inset ring-border' : ''}`} />
                                     <span className={`absolute left-0.5 top-0.5 w-4 h-4 bg-card rounded-full shadow transition-transform ${
                                       hasIt ? 'translate-x-4' : 'translate-x-0'
                                     }`} />

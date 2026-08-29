@@ -107,3 +107,72 @@ describe('only an administrator can change it', () => {
     expect(read(ADMIN)).toContain('approvalLevel cannot be negative');
   });
 });
+
+/**
+ * The second axis: who may hold the permission at all.
+ *
+ * <p>`LOCKED_PERMISSIONS` stops a permission being removed. Nothing stopped one being *granted*:
+ * `effectivePermissions` added any granted override unconditionally, so an administrator could
+ * switch `view_approvals` on for an interviewer, the Approvals entry would appear in their menu,
+ * and GET /api/approvals/pending would answer 403 — it is guarded by its own role list. The menu
+ * said yes and the server said no, with nothing on screen admitting the grant could not take
+ * effect.
+ */
+describe('a permission cannot be granted where the server would refuse it', () => {
+  const CONTROLLER =
+    'backend/src/main/java/com/arthmatic/shumelahire/controller/PendingApprovalsController.java';
+
+  /** The roles the endpoint's own @PreAuthorize admits. */
+  function admittedByEndpoint(): string[] {
+    const java = read(CONTROLLER);
+    const at = java.indexOf('@GetMapping("/pending")');
+    expect(at).toBeGreaterThan(-1);
+    const guard = java.slice(at, java.indexOf(')', java.indexOf('hasAnyRole', at)));
+    return [...guard.matchAll(/'([A-Z_]+)'/g)].map((m) => m[1]).sort();
+  }
+
+  it('gates view_approvals on exactly the roles the endpoint admits', () => {
+    const { ROLE_GATED_PERMISSIONS } = jest.requireActual('@/config/permissions');
+
+    expect(admittedByEndpoint()).toHaveLength(5);
+    expect([...ROLE_GATED_PERMISSIONS.view_approvals].sort()).toEqual(admittedByEndpoint());
+  });
+
+  it('refuses the grant rather than recording one that cannot work', () => {
+    const { effectivePermissions, canRoleHold } = jest.requireActual('@/config/permissions');
+
+    expect(canRoleHold('INTERVIEWER', 'view_approvals')).toBe(false);
+    expect(canRoleHold('HIRING_MANAGER', 'view_approvals')).toBe(true);
+
+    // Including an override already sitting in the database from before the gate existed.
+    const granted = effectivePermissions('INTERVIEWER', [
+      { role: 'INTERVIEWER', permissionId: 'view_approvals', granted: true },
+    ]);
+    expect(granted).not.toContain('view_approvals');
+  });
+
+  it('leaves every permission that is not role-gated alone', () => {
+    // Most endpoints check the permission, not the role. This must not quietly narrow them.
+    const { canRoleHold, effectivePermissions } = jest.requireActual('@/config/permissions');
+
+    expect(canRoleHold('INTERVIEWER', 'view_applications')).toBe(true);
+    expect(
+      effectivePermissions('INTERVIEWER', [
+        { role: 'INTERVIEWER', permissionId: 'view_applications', granted: true },
+      ]),
+    ).toContain('view_applications');
+  });
+
+  it('says on screen why the toggle will not move', () => {
+    const page = strip(src(...PAGE));
+
+    expect(page).toContain('canRoleHold(roleId, permission.id)');
+    expect(page).toContain('cannot be granted to');
+    expect(page).toContain('would add the menu entry and nothing else');
+  });
+
+  it('does not disable a permission the role already holds', () => {
+    // Freezing a granted-and-working toggle would make a real permission look unremovable.
+    expect(strip(src(...PAGE))).toContain('!hasIt && !canRoleHold(roleId, permission.id)');
+  });
+});
