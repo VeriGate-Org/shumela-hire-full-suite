@@ -11,7 +11,6 @@ import {
   ReportViewer,
   ReportScheduler,
   type ReportConfig,
-  type ReportField,
   type SavedReport,
   type ReportResult,
   type ReportSchedule,
@@ -25,42 +24,12 @@ import {
 import EmptyState from '@/components/EmptyState';
 import { useToast } from '@/components/Toast';
 import { apiFetch, refusalMessage } from '@/lib/api-fetch';
+import { parseReportCsv } from '@/components/reports/subjects';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiReportNarrative from '@/components/ai/AiReportNarrative';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 // Mock data for available fields
-const AVAILABLE_FIELDS: ReportField[] = [
-  // Candidate fields
-  { id: 'candidate_name', name: 'Candidate Name', type: 'string', category: 'candidate' },
-  { id: 'candidate_email', name: 'Email Address', type: 'string', category: 'candidate' },
-  { id: 'candidate_phone', name: 'Phone Number', type: 'string', category: 'candidate' },
-  { id: 'candidate_score', name: 'Candidate Score', type: 'number', category: 'candidate', aggregatable: true },
-  { id: 'candidate_source', name: 'Application Source', type: 'string', category: 'candidate' },
-  { id: 'candidate_experience_years', name: 'Years of Experience', type: 'number', category: 'candidate', aggregatable: true },
-
-  // Position fields
-  { id: 'position_title', name: 'Position Title', type: 'string', category: 'position' },
-  { id: 'position_department', name: 'Department', type: 'string', category: 'position' },
-  { id: 'position_level', name: 'Job Level', type: 'string', category: 'position' },
-  { id: 'position_salary_min', name: 'Minimum Salary', type: 'number', category: 'position', aggregatable: true },
-  { id: 'position_salary_max', name: 'Maximum Salary', type: 'number', category: 'position', aggregatable: true },
-
-  // Timeline fields
-  { id: 'application_date', name: 'Application Date', type: 'date', category: 'timeline' },
-  { id: 'interview_date', name: 'Interview Date', type: 'date', category: 'timeline' },
-  { id: 'offer_date', name: 'Offer Date', type: 'date', category: 'timeline' },
-  { id: 'hire_date', name: 'Hire Date', type: 'date', category: 'timeline' },
-  { id: 'time_to_hire', name: 'Time to Hire (days)', type: 'number', category: 'timeline', aggregatable: true },
-
-  // Performance fields
-  { id: 'applications_count', name: 'Total Applications', type: 'number', category: 'performance', aggregatable: true },
-  { id: 'interviews_count', name: 'Interviews Conducted', type: 'number', category: 'performance', aggregatable: true },
-  { id: 'offers_count', name: 'Offers Made', type: 'number', category: 'performance', aggregatable: true },
-  { id: 'hires_count', name: 'Successful Hires', type: 'number', category: 'performance', aggregatable: true },
-  { id: 'conversion_rate', name: 'Conversion Rate (%)', type: 'number', category: 'performance', aggregatable: true },
-  { id: 'cost_per_hire', name: 'Cost per Hire', type: 'number', category: 'performance', aggregatable: true },
-];
 
 const TABS = ['create', 'library', 'results', 'scheduler'] as const;
 type ReportTab = (typeof TABS)[number];
@@ -126,21 +95,31 @@ export default function ReportsPage() {
 
   const handleRunReport = useCallback(async (config: ReportConfig) => {
     const startTime = Date.now();
-    let data: any[] = [];
+    let data: Record<string, string>[] = [];
+    let failure: string | null = null;
 
     try {
-      const reportType = config.name?.toLowerCase().replace(/\s+/g, '-') || 'general';
-      const response = await apiFetch(`/api/analytics/reports/${reportType}`, {
+      // The subject is what the backend switches on. It used to be derived from the report's name
+      // — lowercased and hyphenated — against an endpoint that matches upper snake case, so no run
+      // could ever succeed and the failure was swallowed into an empty table.
+      const res = await apiFetch('/api/reports/custom/csv', {
         method: 'POST',
-        body: JSON.stringify(config),
+        body: JSON.stringify({
+          reportType: config.subject,
+          startDate: config.dateRange.start,
+          endDate: config.dateRange.end,
+          fields: config.fields,
+          filters: Object.fromEntries(config.filters.map((f) => [f.field, f.value])),
+        }),
       });
-      if (response.ok) {
-        const result = await response.json();
-        data = result.data || result.rows || result || [];
-        if (!Array.isArray(data)) data = [];
+
+      if (res.ok) {
+        data = parseReportCsv(await res.text(), config.fields);
+      } else {
+        failure = await refusalMessage(res);
       }
-    } catch (error) {
-      console.error('Failed to generate report:', error);
+    } catch {
+      failure = 'The report could not be generated. Check your connection and try again.';
     }
 
     const result: ReportResult = {
@@ -150,12 +129,16 @@ export default function ReportsPage() {
       generatedAt: new Date().toISOString(),
       executionTime: Date.now() - startTime,
       rowCount: data.length,
+      // Stated rather than swallowed. A refused run used to arrive as zero rows beside an
+      // execution time, which reads as an answer.
+      error: failure ?? undefined,
     };
 
     setReportResults(prev => [result, ...prev]);
     setCurrentResult(result);
     setActiveTab('results');
-  }, []);
+    if (failure) toast(failure, 'error');
+  }, [toast]);
 
   const handleExportReport = useCallback((config: ReportConfig, format: 'csv' | 'pdf' | 'xlsx') => {
     if (format === 'csv' && currentResult?.data && currentResult.data.length > 0) {
@@ -561,7 +544,6 @@ export default function ReportsPage() {
         <div>
           {activeTab === 'create' && (
             <ReportBuilder
-              availableFields={AVAILABLE_FIELDS}
               onSave={handleSaveReport}
               onRun={handleRunReport}
               onExport={handleExportReport}

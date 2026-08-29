@@ -1,48 +1,48 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { useToast } from '@/components/Toast';
-import { formatEnumValue } from '@/utils/enumLabels';
-import {
-  ChartBarIcon,
-  TableCellsIcon,
-  FunnelIcon,
-  DocumentArrowDownIcon,
-  PlayIcon,
-  PauseIcon,
-  BookmarkIcon,
-  ArrowLeftIcon,
-} from '@heroicons/react/24/outline';
+import React, { useCallback, useMemo, useState } from 'react';
+import { CheckIcon } from '@heroicons/react/24/outline';
 import WizardShell, { WizardStep } from '@/components/WizardShell';
+import {
+  REPORT_SUBJECTS,
+  ReportSubject,
+  SubjectId,
+  defaultColumns,
+  subjectFor,
+} from './subjects';
 
+/** Kept for the saved-report and viewer types, which still carry it. Only a table is rendered. */
+export interface ReportVisualization {
+  type: 'table' | 'bar' | 'line' | 'pie' | 'funnel';
+  xAxis?: string;
+  yAxis?: string;
+  groupBy?: string;
+}
+
+export interface ReportFilter {
+  field: string;
+  operator: string;
+  value: string;
+}
+
+/** Retained so existing saved reports still type-check; the wizard no longer offers a field list. */
 export interface ReportField {
   id: string;
   name: string;
   type: 'string' | 'number' | 'date' | 'boolean';
-  category: 'candidate' | 'position' | 'timeline' | 'performance';
+  category: string;
   aggregatable?: boolean;
-}
-
-export interface ReportFilter {
-  id: string;
-  field: string;
-  operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than' | 'between' | 'in' | 'not_in';
-  value: any;
-  label: string;
-}
-
-export interface ReportVisualization {
-  type: 'table' | 'bar' | 'line' | 'pie' | 'funnel' | 'scatter';
-  xAxis?: string;
-  yAxis?: string;
-  groupBy?: string;
-  aggregation?: 'sum' | 'avg' | 'count' | 'min' | 'max';
 }
 
 export interface ReportConfig {
   id?: string;
   name: string;
   description?: string;
+  /**
+   * What each row is. This decides which columns and filters exist, and it is what the backend
+   * switches on — it used to be derived from {@code name}, which could never match.
+   */
+  subject: SubjectId;
   fields: string[];
   filters: ReportFilter[];
   visualization: ReportVisualization;
@@ -58,544 +58,295 @@ export interface ReportConfig {
 }
 
 interface ReportBuilderProps {
-  availableFields: ReportField[];
   onSave: (config: ReportConfig) => void;
   onRun: (config: ReportConfig) => void;
-  onExport: (config: ReportConfig, format: 'csv' | 'pdf' | 'xlsx') => void;
+  onExport: (config: ReportConfig, format: 'csv') => void;
   initialConfig?: ReportConfig;
   className?: string;
 }
 
+/**
+ * Three steps, each answered by the backend.
+ *
+ * <p>The wizard it replaces had four — Fields, Filters, Visualization, Schedule — of which one did
+ * anything. Fields and filters were collected and discarded, four of the five chart types rendered
+ * a placeholder reading "Chart visualization will be displayed here", and the report's endpoint was
+ * assembled from the name the user typed, so no run could succeed.
+ *
+ * <p>Subject comes first because the answer determines the question: applications, interviews and
+ * analytics each expose their own columns and their own filters, and analytics accepts no filters
+ * at all.
+ */
 const WIZARD_STEPS: WizardStep[] = [
-  { id: 'fields', label: 'Fields', description: 'Select data columns' },
-  { id: 'filters', label: 'Filters', description: 'Refine your data' },
-  { id: 'visualization', label: 'Visualization', description: 'Choose chart type' },
-  { id: 'schedule', label: 'Schedule', description: 'Set up delivery', skippable: true },
+  { id: 'subject', label: 'Subject', description: 'What the rows are' },
+  { id: 'columns', label: 'Columns & period', description: 'What each row shows' },
+  { id: 'filters', label: 'Narrow it', description: 'Optional', skippable: true },
 ];
 
-const VISUALIZATION_TYPES = [
-  { type: 'table' as const, name: 'Table', icon: TableCellsIcon, description: 'Detailed data in rows and columns' },
-  { type: 'bar' as const, name: 'Bar Chart', icon: ChartBarIcon, description: 'Compare values across categories' },
-  { type: 'line' as const, name: 'Line Chart', icon: ChartBarIcon, description: 'Show trends over time' },
-  { type: 'pie' as const, name: 'Pie Chart', icon: ChartBarIcon, description: 'Show proportions of a whole' },
-  { type: 'funnel' as const, name: 'Funnel', icon: FunnelIcon, description: 'Visualize process stages' },
-];
+function today(): string {
+  return new Date().toISOString().split('T')[0];
+}
 
-const FILTER_OPERATORS = [
-  { value: 'equals', label: 'Equals' },
-  { value: 'not_equals', label: 'Does not equal' },
-  { value: 'contains', label: 'Contains' },
-  { value: 'greater_than', label: 'Greater than' },
-  { value: 'less_than', label: 'Less than' },
-  { value: 'between', label: 'Between' },
-  { value: 'in', label: 'In' },
-  { value: 'not_in', label: 'Not in' },
-];
-
-const inputClass =
-  'w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 focus:ring-2 focus:ring-primary/30 focus:border-primary';
-
-const labelClass =
-  'block text-xs font-medium text-gray-500 uppercase tracking-[0.05em] mb-1.5';
+function monthsAgo(months: number): string {
+  const d = new Date();
+  d.setMonth(d.getMonth() - months);
+  return d.toISOString().split('T')[0];
+}
 
 export default function ReportBuilder({
-  availableFields,
   onSave,
   onRun,
   onExport,
   initialConfig,
   className = '',
 }: ReportBuilderProps) {
-  const { toast } = useToast();
+  const [currentStep, setCurrentStep] = useState(0);
   const [config, setConfig] = useState<ReportConfig>(
-    initialConfig || {
+    initialConfig ?? {
       name: '',
-      description: '',
-      fields: [],
+      subject: 'applications',
+      fields: defaultColumns(subjectFor('applications')),
       filters: [],
       visualization: { type: 'table' },
-      dateRange: {
-        start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        end: new Date().toISOString().split('T')[0],
-      },
-    }
+      dateRange: { start: monthsAgo(3), end: today() },
+    },
   );
-
-  const [currentStep, setCurrentStep] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
 
-  const handleFieldToggle = useCallback((fieldId: string) => {
-    setConfig(prev => ({
+  const subject = useMemo(() => subjectFor(config.subject), [config.subject]);
+
+  /** Changing subject replaces the columns, because the old ones do not exist on the new one. */
+  const chooseSubject = useCallback((next: ReportSubject) => {
+    setConfig((prev) => ({
       ...prev,
-      fields: prev.fields.includes(fieldId)
-        ? prev.fields.filter(id => id !== fieldId)
-        : [...prev.fields, fieldId]
+      subject: next.id,
+      fields: defaultColumns(next),
+      filters: [],
     }));
   }, []);
 
-  const handleAddFilter = useCallback(() => {
-    const newFilter: ReportFilter = {
-      id: `filter_${Date.now()}`,
-      field: availableFields[0]?.id || '',
-      operator: 'equals',
-      value: '',
-      label: `Filter ${config.filters.length + 1}`,
-    };
-
-    setConfig(prev => ({
+  const toggleColumn = useCallback((id: string) => {
+    setConfig((prev) => ({
       ...prev,
-      filters: [...prev.filters, newFilter]
-    }));
-  }, [availableFields, config.filters.length]);
-
-  const handleUpdateFilter = useCallback((filterId: string, updates: Partial<ReportFilter>) => {
-    setConfig(prev => ({
-      ...prev,
-      filters: prev.filters.map(filter =>
-        filter.id === filterId ? { ...filter, ...updates } : filter
-      )
+      fields: prev.fields.includes(id)
+        ? prev.fields.filter((f) => f !== id)
+        : [...prev.fields, id],
     }));
   }, []);
 
-  const handleRemoveFilter = useCallback((filterId: string) => {
-    setConfig(prev => ({
+  const setFilter = useCallback((field: string, value: string) => {
+    setConfig((prev) => ({
       ...prev,
-      filters: prev.filters.filter(filter => filter.id !== filterId)
+      filters: value
+        ? [...prev.filters.filter((f) => f.field !== field), { field, operator: 'equals', value }]
+        : prev.filters.filter((f) => f.field !== field),
     }));
   }, []);
 
-  const handleVisualizationChange = useCallback((updates: Partial<ReportVisualization>) => {
-    setConfig(prev => ({
-      ...prev,
-      visualization: { ...prev.visualization, ...updates }
-    }));
-  }, []);
+  const filterValue = (field: string) => config.filters.find((f) => f.field === field)?.value ?? '';
 
-  const handleRun = useCallback(async () => {
-    if (!config.name.trim()) {
-      toast('Please provide a report name', 'info');
-      return;
-    }
+  const canProceed = (step: number) => {
+    if (step === 0) return Boolean(config.subject);
+    if (step === 1) return config.fields.length > 0 && Boolean(config.dateRange.start && config.dateRange.end);
+    return true;
+  };
 
+  const run = async () => {
     setIsRunning(true);
     try {
       await onRun(config);
     } finally {
       setIsRunning(false);
     }
-  }, [config, onRun, toast]);
-
-  const fieldsByCategory = availableFields.reduce((acc, field) => {
-    if (!acc[field.category]) acc[field.category] = [];
-    acc[field.category].push(field);
-    return acc;
-  }, {} as Record<string, ReportField[]>);
-
-  const canProceedFromStep = (step: number): boolean => {
-    switch (step) {
-      case 0: // Fields
-        return config.name.trim().length > 0 && config.fields.length > 0;
-      case 1: // Filters
-        return true;
-      case 2: // Visualization
-        return true;
-      case 3: // Schedule
-        return true;
-      default:
-        return false;
-    }
   };
 
-  const handleNext = () => {
-    if (currentStep < WIZARD_STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
+  const labelClass = 'text-sm font-semibold text-foreground';
+  const inputClass =
+    'w-full rounded-control border border-border bg-card px-3 py-2 text-sm text-foreground transition-colors focus:border-primary focus:outline-none';
 
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
+  const stepSubject = (
+    <div className="space-y-3">
+      <div>
+        <h3 className={labelClass}>Each row in this report is one…</h3>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          This decides which columns and filters are available — they differ by subject.
+        </p>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-3">
+        {REPORT_SUBJECTS.map((s) => {
+          const chosen = s.id === config.subject;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => chooseSubject(s)}
+              aria-pressed={chosen}
+              className={`rounded-card border p-3 text-left transition-colors ${
+                chosen ? 'border-cta bg-surface-gold' : 'border-border hover:bg-muted'
+              }`}
+            >
+              <span className="block text-sm font-semibold text-foreground">{s.noun}</span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">{s.description}</span>
+              <span className="mt-2 block text-[11px] font-semibold text-accent-teal">
+                {s.columns.length} columns ·{' '}
+                {s.filters.length === 0 ? 'no filters' : `${s.filters.length} filter${s.filters.length === 1 ? '' : 's'}`}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 
-  const handleSkip = () => {
-    if (currentStep < WIZARD_STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const renderFieldsStep = () => (
-    <div className="space-y-6">
-      {/* Report Name & Description */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Report Name *</label>
-          <input
-            type="text"
-            value={config.name}
-            onChange={(e) => setConfig(prev => ({ ...prev, name: e.target.value }))}
-            placeholder="Enter report name..."
-            className={inputClass}
-          />
+  const stepColumns = (
+    <div className="space-y-5">
+      <div>
+        <h3 className={labelClass}>Columns</h3>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Every one of these is a field this report can fill. The name it is sent under is shown
+          beside it.
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {subject.columns.map((column) => {
+            const chosen = config.fields.includes(column.id);
+            return (
+              <button
+                key={column.id}
+                type="button"
+                onClick={() => toggleColumn(column.id)}
+                aria-pressed={chosen}
+                className={`flex items-center gap-2.5 rounded-control border px-3 py-2 text-left transition-colors ${
+                  chosen ? 'border-accent-teal bg-surface-teal' : 'border-border hover:bg-muted'
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`grid h-4 w-4 flex-none place-items-center rounded border ${
+                    chosen ? 'border-accent-teal bg-accent-teal text-cta-foreground' : 'border-muted-foreground'
+                  }`}
+                >
+                  {chosen && <CheckIcon className="h-3 w-3" />}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-sm text-foreground">{column.label}</span>
+                <span className="font-mono text-[10px] text-muted-foreground">{column.id}</span>
+              </button>
+            );
+          })}
         </div>
-        <div>
-          <label className={labelClass}>Description</label>
-          <input
-            type="text"
-            value={config.description || ''}
-            onChange={(e) => setConfig(prev => ({ ...prev, description: e.target.value }))}
-            placeholder="Brief description..."
-            className={inputClass}
-          />
-        </div>
+        {config.fields.length === 0 && (
+          <p className="mt-2 text-xs text-error-on-tint">Choose at least one column.</p>
+        )}
       </div>
 
-      {/* Date Range */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Start Date</label>
+      <div>
+        <h3 className={labelClass}>Period</h3>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
           <input
             type="date"
             value={config.dateRange.start}
-            onChange={(e) => setConfig(prev => ({
-              ...prev,
-              dateRange: { ...prev.dateRange, start: e.target.value }
-            }))}
-            className={inputClass}
+            onChange={(e) => setConfig({ ...config, dateRange: { ...config.dateRange, start: e.target.value } })}
+            className={`${inputClass} max-w-[190px]`}
+            aria-label="Period start"
           />
-        </div>
-        <div>
-          <label className={labelClass}>End Date</label>
+          <span className="text-xs text-muted-foreground">to</span>
           <input
             type="date"
             value={config.dateRange.end}
-            onChange={(e) => setConfig(prev => ({
-              ...prev,
-              dateRange: { ...prev.dateRange, end: e.target.value }
-            }))}
-            className={inputClass}
+            onChange={(e) => setConfig({ ...config, dateRange: { ...config.dateRange, end: e.target.value } })}
+            className={`${inputClass} max-w-[190px]`}
+            aria-label="Period end"
           />
         </div>
       </div>
 
-      {/* Field Selection */}
-      <div>
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Select Fields to Include</h3>
-        <p className="text-xs text-gray-500 mb-4">
-          Choose the data fields you want to include in your report
-        </p>
-      </div>
-
-      {Object.entries(fieldsByCategory).map(([category, fields]) => (
-        <div key={category} className="space-y-3">
-          <h4 className={labelClass}>
-            {formatEnumValue(category)} Fields
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {fields.map((field) => (
-              <label
-                key={field.id}
-                className={`flex items-center p-3 border rounded-[2px] cursor-pointer transition-colors ${
-                  config.fields.includes(field.id)
-                    ? 'border-primary bg-primary/5'
-                    : 'border-gray-200 dark:border-gray-700 hover:bg-muted dark:hover:bg-gray-800'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={config.fields.includes(field.id)}
-                  onChange={() => handleFieldToggle(field.id)}
-                  className="h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
-                />
-                <div className="ml-3">
-                  <div className="text-sm font-medium text-gray-900">{field.name}</div>
-                  <div className="text-[10px] text-muted-foreground uppercase tracking-[0.05em]">{field.type}</div>
-                </div>
-              </label>
-            ))}
-          </div>
+      <div className="rounded-card border border-border">
+        <div className="border-b border-border px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Your columns, in order
         </div>
-      ))}
+        <div className="overflow-x-auto px-3 py-2">
+          <code className="font-mono text-xs text-foreground">
+            {config.fields.length ? config.fields.join(', ') : 'none chosen'}
+          </code>
+        </div>
+      </div>
     </div>
   );
 
-  const renderFiltersStep = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-gray-900">Report Filters</h3>
-          <p className="text-xs text-gray-500 mt-1">
-            Add filters to refine your report data
-          </p>
-        </div>
-        <button
-          onClick={handleAddFilter}
-          className="px-3 py-2 text-sm font-medium text-primary bg-primary/5 rounded-full hover:bg-primary/10 transition-colors"
-        >
-          Add Filter
-        </button>
+  const stepFilters = (
+    <div className="space-y-3">
+      <div>
+        <h3 className={labelClass}>Narrow it</h3>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Only the filters this report accepts are offered.
+        </p>
       </div>
-
-      {config.filters.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <FunnelIcon className="w-10 h-10 mx-auto mb-3 opacity-40" />
-          <p className="text-sm">No filters added yet</p>
-          <p className="text-xs mt-1">Filters are optional — click &quot;Add Filter&quot; or proceed to the next step</p>
+      {subject.filters.length === 0 ? (
+        <div className="rounded-card border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+          This report takes no filters. Choose a period on the previous step and run it.
         </div>
       ) : (
-        <div className="space-y-4">
-          {config.filters.map((filter) => (
-            <div key={filter.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-[2px]">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <label className={labelClass}>Field</label>
-                  <select
-                    value={filter.field}
-                    onChange={(e) => handleUpdateFilter(filter.id, { field: e.target.value })}
-                    className={inputClass}
-                  >
-                    {availableFields.map((field) => (
-                      <option key={field.id} value={field.id}>
-                        {field.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className={labelClass}>Operator</label>
-                  <select
-                    value={filter.operator}
-                    onChange={(e) => handleUpdateFilter(filter.id, { operator: e.target.value as any })}
-                    className={inputClass}
-                  >
-                    {FILTER_OPERATORS.map((op) => (
-                      <option key={op.value} value={op.value}>
-                        {op.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className={labelClass}>Value</label>
-                  <input
-                    type="text"
-                    value={filter.value}
-                    onChange={(e) => handleUpdateFilter(filter.id, { value: e.target.value })}
-                    placeholder="Filter value..."
-                    className={inputClass}
-                  />
-                </div>
-
-                <div className="flex items-end">
-                  <button
-                    onClick={() => handleRemoveFilter(filter.id)}
-                    className="px-3 py-2 text-sm font-medium text-red-600 bg-red-50 dark:bg-red-500/10 rounded-[2px] hover:bg-red-100 dark:hover:bg-red-500/20 w-full transition-colors"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {subject.filters.map((filter) => (
+            <label key={filter.id} className="block">
+              <span className="mb-1 block text-xs font-semibold text-muted-foreground">{filter.label}</span>
+              {filter.options ? (
+                <select
+                  value={filterValue(filter.id)}
+                  onChange={(e) => setFilter(filter.id, e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">Any</option>
+                  {filter.options.map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={filterValue(filter.id)}
+                  onChange={(e) => setFilter(filter.id, e.target.value)}
+                  placeholder="Any"
+                  className={inputClass}
+                />
+              )}
+            </label>
           ))}
         </div>
       )}
     </div>
   );
 
-  const renderVisualizationStep = () => (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Choose Visualization Type</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {VISUALIZATION_TYPES.map((viz) => (
-            <button
-              key={viz.type}
-              onClick={() => handleVisualizationChange({ type: viz.type })}
-              className={`p-4 border-2 rounded-[2px] text-left transition-all ${
-                config.visualization.type === viz.type
-                  ? 'border-cta bg-cta/10'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
-            >
-              <viz.icon className={`h-6 w-6 mb-2 ${
-                config.visualization.type === viz.type ? 'text-cta' : 'text-muted-foreground'
-              }`} />
-              <div className="font-medium text-gray-900">{viz.name}</div>
-              <div className="text-xs text-gray-500 mt-1">{viz.description}</div>
-            </button>
-          ))}
-        </div>
-      </div>
+  const steps = [stepSubject, stepColumns, stepFilters];
 
-      {config.visualization.type !== 'table' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>X-Axis Field</label>
-            <select
-              value={config.visualization.xAxis || ''}
-              onChange={(e) => handleVisualizationChange({ xAxis: e.target.value })}
-              className={inputClass}
-            >
-              <option value="">Select field...</option>
-              {config.fields.map((fieldId) => {
-                const field = availableFields.find(f => f.id === fieldId);
-                return field ? (
-                  <option key={fieldId} value={fieldId}>
-                    {field.name}
-                  </option>
-                ) : null;
-              })}
-            </select>
-          </div>
-
-          <div>
-            <label className={labelClass}>Y-Axis Field</label>
-            <select
-              value={config.visualization.yAxis || ''}
-              onChange={(e) => handleVisualizationChange({ yAxis: e.target.value })}
-              className={inputClass}
-            >
-              <option value="">Select field...</option>
-              {config.fields.map((fieldId) => {
-                const field = availableFields.find(f => f.id === fieldId);
-                return field && field.type === 'number' ? (
-                  <option key={fieldId} value={fieldId}>
-                    {field.name}
-                  </option>
-                ) : null;
-              })}
-            </select>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  const renderScheduleStep = () => (
-    <div className="space-y-6">
-      <div>
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            checked={config.schedule?.enabled || false}
-            onChange={(e) => setConfig(prev => ({
-              ...prev,
-              schedule: {
-                enabled: e.target.checked,
-                frequency: 'weekly',
-                recipients: [],
-                ...prev.schedule,
-              }
-            }))}
-            className="h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
-          />
-          <span className="ml-2 text-sm font-medium text-gray-900">
-            Enable automated report scheduling
-          </span>
-        </label>
-        <p className="text-xs text-gray-500 mt-1 ml-6">
-          Automatically generate and send this report on a regular schedule
-        </p>
-      </div>
-
-      {config.schedule?.enabled && (
-        <div className="ml-6 space-y-4">
-          <div>
-            <label className={labelClass}>Frequency</label>
-            <select
-              value={config.schedule.frequency}
-              onChange={(e) => setConfig(prev => ({
-                ...prev,
-                schedule: {
-                  ...prev.schedule!,
-                  frequency: e.target.value as any,
-                }
-              }))}
-              className={`${inputClass} max-w-xs`}
-            >
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-            </select>
-          </div>
-
-          <div>
-            <label className={labelClass}>Recipients (comma-separated emails)</label>
-            <textarea
-              value={config.schedule.recipients.join(', ')}
-              onChange={(e) => setConfig(prev => ({
-                ...prev,
-                schedule: {
-                  ...prev.schedule!,
-                  recipients: e.target.value.split(',').map(email => email.trim()).filter(Boolean),
-                }
-              }))}
-              placeholder="user1@company.com, user2@company.com"
-              rows={3}
-              className={inputClass}
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 0:
-        return renderFieldsStep();
-      case 1:
-        return renderFiltersStep();
-      case 2:
-        return renderVisualizationStep();
-      case 3:
-        return renderScheduleStep();
-      default:
-        return null;
-    }
-  };
-
-  const finalFooter = currentStep === WIZARD_STEPS.length - 1 ? (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+  const footer = currentStep === WIZARD_STEPS.length - 1 ? (
+    <div className="flex flex-wrap items-center gap-2">
       <button
-        onClick={handleBack}
-        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        type="button"
+        onClick={run}
+        disabled={isRunning || config.fields.length === 0}
+        className="rounded-button border-2 border-cta bg-cta px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-cta-foreground transition-colors hover:bg-cta-hover disabled:opacity-60"
       >
-        <ArrowLeftIcon className="w-3.5 h-3.5" />
-        Back
+        {isRunning ? 'Running…' : 'Run report'}
       </button>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => onExport(config, 'csv')}
-          disabled={!config.name.trim()}
-          className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <DocumentArrowDownIcon className="h-4 w-4" />
-          Export
-        </button>
-        <button
-          onClick={() => onSave(config)}
-          disabled={!config.name.trim()}
-          className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <BookmarkIcon className="h-4 w-4" />
-          Save
-        </button>
-        <button
-          onClick={handleRun}
-          disabled={isRunning || !config.name.trim()}
-          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-cta-foreground rounded-full hover:bg-cta/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {isRunning ? (
-            <PauseIcon className="h-4 w-4" />
-          ) : (
-            <PlayIcon className="h-4 w-4" />
-          )}
-          {isRunning ? 'Running...' : 'Run Report'}
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => onSave(config)}
+        className="rounded-button border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+      >
+        Save
+      </button>
+      <button
+        type="button"
+        onClick={() => onExport(config, 'csv')}
+        className="rounded-button border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+      >
+        Download CSV
+      </button>
+      <span className="ml-auto text-xs text-muted-foreground">
+        {subject.aggregate
+          ? 'Returns measures for the period'
+          : `${config.fields.length} column${config.fields.length === 1 ? '' : 's'} · ${config.dateRange.start} to ${config.dateRange.end}`}
+      </span>
     </div>
   ) : undefined;
 
@@ -604,15 +355,15 @@ export default function ReportBuilder({
       <WizardShell
         steps={WIZARD_STEPS}
         currentStep={currentStep}
-        onNext={handleNext}
-        onBack={handleBack}
-        onSkip={handleSkip}
-        canProceed={canProceedFromStep(currentStep)}
-        title="Custom Report Builder"
-        subtitle="Create and configure custom recruitment reports"
-        footer={finalFooter}
+        onNext={() => setCurrentStep((s) => Math.min(s + 1, WIZARD_STEPS.length - 1))}
+        onBack={() => setCurrentStep((s) => Math.max(s - 1, 0))}
+        onSkip={() => setCurrentStep((s) => Math.min(s + 1, WIZARD_STEPS.length - 1))}
+        canProceed={canProceed(currentStep)}
+        title="Build a report"
+        subtitle="Pick a subject, choose your columns, run it"
+        footer={footer}
       >
-        {renderStepContent()}
+        {steps[currentStep]}
       </WizardShell>
     </div>
   );
