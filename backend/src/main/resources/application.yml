@@ -157,6 +157,9 @@ ses:
   region: ${SES_REGION:af-south-1}
   from-email: ${SES_FROM_EMAIL:noreply@shumelahire.co.za}
   from-name: ${SES_FROM_NAME:ShumelaHire}
+  # Comma-separated domains this deployment may send to; empty means everywhere. Set where the
+  # tenant data is seeded, so demo applicants at invented gmail addresses cannot be emailed.
+  allowed-recipient-domains: ${SES_ALLOWED_RECIPIENT_DOMAINS:}
 
 # Microsoft Graph (Teams + Outlook)
 microsoft:
