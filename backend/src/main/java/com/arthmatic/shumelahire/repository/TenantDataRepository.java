@@ -48,4 +48,14 @@ public interface TenantDataRepository {
 
     /** Return all tenants. */
     List<Tenant> findAll();
+
+    /**
+     * Every tenant with the given status, without needing a tenant context.
+     *
+     * <p>{@link #findAll()} cannot answer this. Tenant rows are their own partition
+     * (PK = SK = TENANT#{id}), so the inherited findAll queries one partition — whichever tenant
+     * happens to be in context — and a caller with no context gets an exception rather than a
+     * list. Anything that has to work across tenants, such as a scheduled sweep, needs this.
+     */
+    List<Tenant> findByStatus(String status);
 }

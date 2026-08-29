@@ -83,7 +83,7 @@ class ReportScheduleRunnerTest {
     @Test
     @DisplayName("a delivered report is recorded as run, and the report's run count moves with it")
     void recordsDelivery() {
-        when(tenants.findAll()).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
+        when(tenants.findByStatus("ACTIVE")).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
         dueByTenant.put("idc", List.of(due("s1", "hr@idc.co.za")));
 
         var summary = runner.sweep();
@@ -101,7 +101,7 @@ class ReportScheduleRunnerTest {
         // NoOpEmailService returns true from sendEmail while sending nothing. Trusting that is how
         // a report nobody received would be recorded as delivered.
         when(email.isDeliveryConfigured()).thenReturn(false);
-        when(tenants.findAll()).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
+        when(tenants.findByStatus("ACTIVE")).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
         dueByTenant.put("idc", List.of(due("s1", "hr@idc.co.za")));
 
         var summary = runner.sweep();
@@ -119,7 +119,7 @@ class ReportScheduleRunnerTest {
     @DisplayName("a rejected recipient is named in the stored reason")
     void namesTheRecipientThatFailed() {
         when(email.sendEmail(eq("exco@idc.co.za"), anyString(), anyString())).thenReturn(false);
-        when(tenants.findAll()).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
+        when(tenants.findByStatus("ACTIVE")).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
         dueByTenant.put("idc", List.of(due("s1", "hr@idc.co.za", "exco@idc.co.za")));
 
         runner.sweep();
@@ -132,7 +132,7 @@ class ReportScheduleRunnerTest {
     @Test
     @DisplayName("a schedule with nobody on it fails with that reason rather than reporting success")
     void refusesAScheduleWithNoRecipients() {
-        when(tenants.findAll()).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
+        when(tenants.findByStatus("ACTIVE")).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
         dueByTenant.put("idc", List.of(due("s1")));
 
         runner.sweep();
@@ -145,7 +145,7 @@ class ReportScheduleRunnerTest {
     @Test
     @DisplayName("one tenant blowing up does not end the sweep for the others")
     void oneBadTenantDoesNotStopTheRest() {
-        when(tenants.findAll()).thenReturn(List.of(
+        when(tenants.findByStatus("ACTIVE")).thenReturn(List.of(
                 tenant("broken", "broken", "ACTIVE"),
                 tenant("idc", "idc", "ACTIVE")));
         dueByTenant.put("idc", List.of(due("s1", "hr@idc.co.za")));
@@ -165,14 +165,17 @@ class ReportScheduleRunnerTest {
     }
 
     @Test
-    @DisplayName("a paused or closed tenant is skipped")
-    void skipsInactiveTenants() {
-        when(tenants.findAll()).thenReturn(List.of(tenant("old", "old", "SUSPENDED")));
-        dueByTenant.put("old", List.of(due("s1", "hr@old.co.za")));
+    @DisplayName("only active tenants are asked for, rather than filtered afterwards")
+    void sweepsActiveTenantsOnly() {
+        when(tenants.findByStatus("ACTIVE")).thenReturn(List.of());
 
         var summary = runner.sweep();
 
         assertThat(summary.tenants()).isZero();
+        // findAll() cannot answer this question: tenant rows are their own partition, so it queries
+        // whichever tenant is in context and throws when none is. That is how the first live run of
+        // this job failed.
+        verify(tenants, never()).findAll();
         verify(schedules, never()).recordRun(anyString(), any(Boolean.class), any());
     }
 
@@ -180,7 +183,7 @@ class ReportScheduleRunnerTest {
     @DisplayName("the sweep leaves the tenant context as it found it")
     void restoresTheTenantContext() {
         TenantContext.setCurrentTenant("caller");
-        when(tenants.findAll()).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
+        when(tenants.findByStatus("ACTIVE")).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
         dueByTenant.put("idc", List.of(due("s1", "hr@idc.co.za")));
 
         runner.sweep();
@@ -193,7 +196,7 @@ class ReportScheduleRunnerTest {
     @Test
     @DisplayName("the link points at the recipient's own tenant, not the bare domain")
     void linksToTheTenantsOwnHost() {
-        when(tenants.findAll()).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
+        when(tenants.findByStatus("ACTIVE")).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
         dueByTenant.put("idc", List.of(due("s1", "hr@idc.co.za")));
 
         runner.sweep();
@@ -207,7 +210,7 @@ class ReportScheduleRunnerTest {
     @DisplayName("no base URL means no link, rather than a link that goes nowhere")
     void omitsTheLinkWhenTheBaseUrlIsUnset() {
         runner = new ReportScheduleRunner(tenants, schedules, templates, email, "");
-        when(tenants.findAll()).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
+        when(tenants.findByStatus("ACTIVE")).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
         dueByTenant.put("idc", List.of(due("s1", "hr@idc.co.za")));
 
         runner.sweep();

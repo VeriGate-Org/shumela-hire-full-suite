@@ -69,6 +69,16 @@ public class DynamoTenantRepository extends DynamoRepository<TenantItem, Tenant>
     }
 
     /**
+     * Every tenant with the given status, via GSI1 (TENANT_STATUS#{status}).
+     *
+     * <p>A query, not a scan, and context-free — the two properties a cross-tenant job needs.
+     */
+    @Override
+    public java.util.List<Tenant> findByStatus(String status) {
+        return queryGsiAll("GSI1", "TENANT_STATUS#" + status);
+    }
+
+    /**
      * Find a tenant directly by its ID (doesn't require TenantContext).
      */
     public Optional<Tenant> findTenantById(String tenantId) {
