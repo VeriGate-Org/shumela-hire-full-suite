@@ -75,9 +75,14 @@ public class JobPostingSummaryResponse {
             if (posting.getStatus() != JobPostingStatus.PUBLISHED) {
                 continue;
             }
-            if (posting.isDeadlinePassed()) {
+            // Against the caller's clock, not the wall clock. JobPosting.isDeadlinePassed() reads
+            // LocalDateTime.now() internally, so this method took a `now` argument and then ignored
+            // it for the one decision it exists to make. The test that pins the split was written
+            // with a fixed NOW five days ago and started failing the moment real time crossed it —
+            // in a summary that is otherwise deterministic, which is the point of passing a clock.
+            LocalDateTime deadline = posting.getApplicationDeadline();
+            if (deadline != null && deadline.isBefore(now)) {
                 summary.pastDeadline++;
-                LocalDateTime deadline = posting.getApplicationDeadline();
                 if (oldestExpired == null || deadline.isBefore(oldestExpired.getApplicationDeadline())) {
                     oldestExpired = posting;
                 }
