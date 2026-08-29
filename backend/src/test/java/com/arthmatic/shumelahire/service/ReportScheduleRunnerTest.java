@@ -207,6 +207,25 @@ class ReportScheduleRunnerTest {
     }
 
     @Test
+    @DisplayName("the subject is plain ASCII, because a fancy dash sent it to the spam folder")
+    void keepsTheSubjectAscii() {
+        when(tenants.findByStatus("ACTIVE")).thenReturn(List.of(tenant("idc", "idc", "ACTIVE")));
+        dueByTenant.put("idc", List.of(due("s1", "hr@idc.co.za")));
+
+        runner.sweep();
+
+        var subject = ArgumentCaptor.forClass(String.class);
+        verify(email).sendEmail(anyString(), subject.capture(), anyString());
+
+        // An em dash forces a UTF-8 encoded Subject header, and the recipient's SpamAssassin adds
+        // 2.5 points for that alone (X_UTF8_ENC_H + X_BAYES_UTF8). The message scored 6.9 against
+        // a threshold of 5 with SPF, DKIM and DMARC all passing; the ASCII version reached the
+        // inbox. Measured, not guessed.
+        assertThat(subject.getValue()).isEqualTo("Scheduled report: Time to hire");
+        assertThat(subject.getValue()).matches("\\A\\p{ASCII}*\\z");
+    }
+
+    @Test
     @DisplayName("no base URL means no link, rather than a link that goes nowhere")
     void omitsTheLinkWhenTheBaseUrlIsUnset() {
         runner = new ReportScheduleRunner(tenants, schedules, templates, email, "");
