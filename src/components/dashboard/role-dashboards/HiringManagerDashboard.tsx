@@ -1,12 +1,19 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/api-fetch';
 import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
-import { RealTimeMetrics } from '../../analytics';
-import { DashboardWidget, PerformanceMetrics, CandidatePipeline } from '../../dashboard';
+import { DashboardWidget, CandidatePipeline } from '../../dashboard';
+import {
+  decisionsOwed,
+  quietRoles,
+  receivedSince,
+  startOfWeek,
+  type ApplicationLike,
+  type PostingLike,
+} from './hiringSignals';
 import EmptyState from '@/components/EmptyState';
 import { BriefcaseIcon, CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
@@ -19,18 +26,19 @@ interface HiringManagerDashboardProps {
   onTimeframeChange: (timeframe: string) => void;
 }
 
-interface MetricItem {
-  id: string;
-  label: string;
-  value: number;
-  previousValue: number;
-  target: number;
-  unit: 'percentage' | 'number' | 'days';
-  trend: 'up' | 'down' | 'neutral';
-  trendValue: number;
-  description: string;
-  status: 'good' | 'warning' | 'critical';
-}
+/**
+ * The six "hiring performance indicators" that used to live here are gone, and so is the
+ * MetricItem shape behind them.
+ *
+ * <p>They were hardcoded zeros — time to fill, offer acceptance, interview-to-hire, quality of
+ * hire, pipeline velocity, interview satisfaction — each carrying an invented target (30 days,
+ * 85%, 3, 80%, 15, 4.5) that PerformanceMetrics drew a progress bar against. They were meant to be
+ * replaced by /api/analytics/dashboard, which cannot supply them: see hiringSignals.ts for why the
+ * KPI feed is empty by construction. Two of the six have no backend measure under any name.
+ *
+ * <p>PerformanceMetrics and RealTimeMetrics are still used by the Admin and HR dashboards, so the
+ * components stay; only this screen's use of them goes.
+ */
 
 interface PipelineCandidate {
   id: string;
@@ -51,88 +59,6 @@ interface PipelineStage {
   candidates: PipelineCandidate[];
 }
 
-
-/** The KPI endpoint returns { kpis: { key: { value } } }; the strip wants key -> value. */
-function kpiValues(json: unknown): Record<string, number | undefined> {
-  const kpis = (json as { kpis?: Record<string, { value?: number }> })?.kpis ?? {};
-  return Object.fromEntries(Object.entries(kpis).map(([k, v]) => [k, v?.value]));
-}
-
-const defaultMetrics: MetricItem[] = [
-  {
-    id: 'time-to-fill',
-    label: 'Average Time to Fill',
-    value: 0,
-    previousValue: 0,
-    target: 30,
-    unit: 'days',
-    trend: 'neutral',
-    trendValue: 0,
-    description: 'Days from job posting to offer acceptance',
-    status: 'warning',
-  },
-  {
-    id: 'offer-acceptance-rate',
-    label: 'Offer Acceptance Rate',
-    value: 0,
-    previousValue: 0,
-    target: 85,
-    unit: 'percentage',
-    trend: 'neutral',
-    trendValue: 0,
-    description: 'Percentage of offers accepted',
-    status: 'warning',
-  },
-  {
-    id: 'interview-to-hire',
-    label: 'Interview-to-Hire Ratio',
-    value: 0,
-    previousValue: 0,
-    target: 3,
-    unit: 'number',
-    trend: 'neutral',
-    trendValue: 0,
-    description: 'Average interviews needed per hire',
-    status: 'warning',
-  },
-  {
-    id: 'quality-of-hire',
-    label: 'Quality of Hire',
-    value: 0,
-    previousValue: 0,
-    target: 80,
-    unit: 'percentage',
-    trend: 'neutral',
-    trendValue: 0,
-    description: 'New hire performance rating after 90 days',
-    status: 'warning',
-  },
-  {
-    id: 'pipeline-velocity',
-    label: 'Pipeline Velocity',
-    value: 0,
-    previousValue: 0,
-    target: 15,
-    unit: 'number',
-    trend: 'neutral',
-    trendValue: 0,
-    description: 'Average candidates processed per week',
-    status: 'warning',
-  },
-  {
-    id: 'interview-satisfaction',
-    label: 'Interview Satisfaction',
-    value: 0,
-    previousValue: 0,
-    target: 4.5,
-    unit: 'number',
-    trend: 'neutral',
-    trendValue: 0,
-    description: 'Candidate satisfaction score (1-5 scale)',
-    status: 'warning',
-  },
-];
-
 /**
  * How many applications the pipeline widget loads.
  *
@@ -143,24 +69,24 @@ const defaultMetrics: MetricItem[] = [
 const PIPELINE_PAGE_SIZE = 500;
 
 const stageMapping: Record<string, { name: string; color: string; order: number }> = {
-  SUBMITTED: { name: 'Applied', color: 'bg-gold-100', order: 0 },
-  APPLIED: { name: 'Applied', color: 'bg-gold-100', order: 0 },
-  SCREENING: { name: 'Screening', color: 'bg-yellow-100', order: 1 },
-  PHONE_SCREEN: { name: 'Screening', color: 'bg-yellow-100', order: 1 },
-  INTERVIEW: { name: 'Interview', color: 'bg-purple-100', order: 2 },
-  INTERVIEW_SCHEDULED: { name: 'Interview', color: 'bg-purple-100', order: 2 },
-  INTERVIEW_COMPLETED: { name: 'Interview', color: 'bg-purple-100', order: 2 },
+  SUBMITTED: { name: 'Applied', color: 'bg-surface-gold', order: 0 },
+  APPLIED: { name: 'Applied', color: 'bg-surface-gold', order: 0 },
+  SCREENING: { name: 'Screening', color: 'bg-warning-bg', order: 1 },
+  PHONE_SCREEN: { name: 'Screening', color: 'bg-warning-bg', order: 1 },
+  INTERVIEW: { name: 'Interview', color: 'bg-surface-navy', order: 2 },
+  INTERVIEW_SCHEDULED: { name: 'Interview', color: 'bg-surface-navy', order: 2 },
+  INTERVIEW_COMPLETED: { name: 'Interview', color: 'bg-surface-navy', order: 2 },
   // Verification sits between interview and offer. Its absence here was not a cosmetic gap:
   // unmapped statuses hit `if (!stageInfo) return` and vanished silently, so every candidate at
   // Reference Check — Lerato Dlamini among them — was missing from this widget entirely while
   // the pipeline board showed them.
-  REFERENCE_CHECK: { name: 'Checks', color: 'bg-blue-100', order: 3 },
-  BACKGROUND_CHECK: { name: 'Checks', color: 'bg-blue-100', order: 3 },
-  OFFER: { name: 'Offer', color: 'bg-green-100', order: 4 },
-  OFFERED: { name: 'Offer', color: 'bg-green-100', order: 4 },
-  OFFER_PENDING: { name: 'Offer', color: 'bg-green-100', order: 4 },
-  HIRED: { name: 'Hired', color: 'bg-emerald-100', order: 5 },
-  OFFER_ACCEPTED: { name: 'Hired', color: 'bg-emerald-100', order: 5 },
+  REFERENCE_CHECK: { name: 'Checks', color: 'bg-icon-bg-navy', order: 3 },
+  BACKGROUND_CHECK: { name: 'Checks', color: 'bg-icon-bg-navy', order: 3 },
+  OFFER: { name: 'Offer', color: 'bg-surface-teal', order: 4 },
+  OFFERED: { name: 'Offer', color: 'bg-surface-teal', order: 4 },
+  OFFER_PENDING: { name: 'Offer', color: 'bg-surface-teal', order: 4 },
+  HIRED: { name: 'Hired', color: 'bg-success-bg', order: 5 },
+  OFFER_ACCEPTED: { name: 'Hired', color: 'bg-success-bg', order: 5 },
 };
 
 function getInitials(name: string): string {
@@ -223,12 +149,12 @@ function transformApplicationsToPipeline(applications: any[]): PipelineStage[] {
   });
 
   return [
-    { id: 'applied', name: 'Applied', color: 'bg-gold-100', candidates: stageMap.get('applied') || [] },
-    { id: 'screening', name: 'Screening', color: 'bg-yellow-100', candidates: stageMap.get('screening') || [] },
-    { id: 'interview', name: 'Interview', color: 'bg-purple-100', candidates: stageMap.get('interview') || [] },
-    { id: 'checks', name: 'Checks', color: 'bg-blue-100', candidates: stageMap.get('checks') || [] },
-    { id: 'offer', name: 'Offer', color: 'bg-green-100', candidates: stageMap.get('offer') || [] },
-    { id: 'hired', name: 'Hired', color: 'bg-emerald-100', candidates: stageMap.get('hired') || [] },
+    { id: 'applied', name: 'Applied', color: 'bg-surface-gold', candidates: stageMap.get('applied') || [] },
+    { id: 'screening', name: 'Screening', color: 'bg-warning-bg', candidates: stageMap.get('screening') || [] },
+    { id: 'interview', name: 'Interview', color: 'bg-surface-navy', candidates: stageMap.get('interview') || [] },
+    { id: 'checks', name: 'Checks', color: 'bg-icon-bg-navy', candidates: stageMap.get('checks') || [] },
+    { id: 'offer', name: 'Offer', color: 'bg-surface-teal', candidates: stageMap.get('offer') || [] },
+    { id: 'hired', name: 'Hired', color: 'bg-success-bg', candidates: stageMap.get('hired') || [] },
   ];
 }
 
@@ -237,9 +163,10 @@ function transformApplicationsToPipeline(applications: any[]): PipelineStage[] {
 // re-fetched identical data. Making it real is a backend change with its own gate.
 export default function HiringManagerDashboard({ actions, roleLabel }: HiringManagerDashboardProps) {
   const router = useRouter();
-  const [kpis, setKpis] = useState<Record<string, number | undefined>>({});
   const [isMounted, setIsMounted] = useState(false);
-  const [metrics, setMetrics] = useState<MetricItem[]>(defaultMetrics);
+  // The raw rows, kept so the derived signals below can be computed from the same set the pipeline
+  // is drawn from. Deriving them from a second fetch is how two figures on one screen disagree.
+  const [applications, setApplications] = useState<ApplicationLike[]>([]);
   const [totalApplications, setTotalApplications] = useState<number | undefined>(undefined);
   const [pipelineStages, setPipelineStages] = useState<PipelineStage[]>([]);
   const [openPositions, setOpenPositions] = useState<any[]>([]);
@@ -253,9 +180,10 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
     setLoading(true);
     setError(null);
 
-    const [dashboardResult, kpisResult, applicationsResult, positionsResult, interviewsResult] = await Promise.allSettled([
-      apiFetch('/api/analytics/dashboard'),
-      apiFetch('/api/analytics/kpis'),
+    // /api/analytics/dashboard and /api/analytics/kpis are no longer called. Both answer with an
+    // empty kpis map for the reason set out in hiringSignals.ts, and two requests per page load
+    // that can only ever return nothing are worth removing along with what they fed.
+    const [applicationsResult, positionsResult, interviewsResult] = await Promise.allSettled([
       // size=50 against a tenant with 92 applications meant the widget silently showed just over
       // half of them and labelled the result a total. The endpoint returns totalElements, which
       // is used below to say so honestly when a cap is still in play.
@@ -264,43 +192,7 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
       apiFetch('/api/interviews/upcoming'),
     ]);
 
-    if (kpisResult.status === 'fulfilled' && kpisResult.value.ok) {
-
-      setKpis(kpiValues(await kpisResult.value.json()));
-
-    }
-
-
     let allFailed = true;
-
-    // Process dashboard analytics (metrics + volume data)
-    if (dashboardResult.status === 'fulfilled' && dashboardResult.value.ok) {
-      allFailed = false;
-      try {
-        const data = await dashboardResult.value.json();
-
-        if (Array.isArray(data?.metrics) && data.metrics.length > 0) {
-          setMetrics(data.metrics);
-        } else if (data?.kpis && typeof data.kpis === 'object') {
-          const kpiMetrics: MetricItem[] = Object.entries(data.kpis).map(([key, kpi]: [string, any]) => ({
-            id: key,
-            label: key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-            value: Number(kpi?.value) || 0,
-            previousValue: Number(kpi?.previousValue) || 0,
-            target: Number(kpi?.target) || 0,
-            unit: (kpi?.unit || 'number') as 'percentage' | 'number' | 'days',
-            trend: (kpi?.trend?.toLowerCase() === 'up' ? 'up' : kpi?.trend?.toLowerCase() === 'down' ? 'down' : 'neutral') as 'up' | 'down' | 'neutral',
-            trendValue: Number(kpi?.variance) || Number(kpi?.trendValue) || 0,
-            description: kpi?.description || '',
-            status: (kpi?.status || 'warning') as 'good' | 'warning' | 'critical',
-          }));
-          if (kpiMetrics.length > 0) setMetrics(kpiMetrics);
-        }
-
-      } catch {
-        // Keep defaults on parse error
-      }
-    }
 
     // Process applications into pipeline stages
     if (applicationsResult.status === 'fulfilled' && applicationsResult.value.ok) {
@@ -310,6 +202,7 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
         const items = Array.isArray(data?.content) ? data.content : Array.isArray(data) ? data : [];
         const stages = transformApplicationsToPipeline(items);
         setPipelineStages(stages);
+        setApplications(items);
         // The true figure, so the widget can distinguish "everything" from "the first N".
         setTotalApplications(
           typeof data?.totalElements === 'number' ? data.totalElements : items.length,
@@ -380,6 +273,21 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
     router.push(`/applications?search=${encodeURIComponent(candidate.name)}`);
   };
 
+  /**
+   * The three things this screen can honestly say, all derived from rows already fetched.
+   *
+   * <p>Above the loading guard deliberately: a hook after an early return is a rules-of-hooks
+   * violation that the test suite passes straight through and `next lint` fails the build on.
+   */
+  const signals = useMemo(() => {
+    const now = Date.now();
+    return {
+      owed: decisionsOwed(applications, now),
+      thisWeek: receivedSince(applications, startOfWeek(now)),
+      quiet: quietRoles(openPositions as PostingLike[]),
+    };
+  }, [applications, openPositions]);
+
   if (loading) {
     return (
       <div className="space-y-6 max-w-full overflow-hidden">
@@ -397,7 +305,8 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
     );
   }
 
-  const owedToYou = (upcomingInterviews?.length ?? 0) + (openPositions?.length ?? 0);
+  const { owed, thisWeek, quiet } = signals;
+  const counts = `${openPositions.length} ${openPositions.length === 1 ? 'role' : 'roles'} open · ${totalApplications} ${totalApplications === 1 ? 'candidate' : 'candidates'} in play`;
 
   return (
     <div className="space-y-4 max-w-full overflow-hidden">
@@ -406,65 +315,123 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
         title={roleLabel ?? 'Hiring Manager'}
         subtitle={
           typeof totalApplications === 'number'
-            ? `${openPositions.length} ${openPositions.length === 1 ? 'role' : 'roles'} open · ${totalApplications} ${totalApplications === 1 ? 'candidate' : 'candidates'} in play`
-            : loading
-              ? 'Loading your vacancies…'
-              : 'Counts unavailable'
+            ? owed.oldest
+              ? `${counts}. The longest has been waiting on you for ${owed.oldest.days} ${owed.oldest.days === 1 ? 'day' : 'days'}.`
+              : counts
+            : 'Counts unavailable'
         }
+        // Roles and interviews are things that exist; neither is a thing you owe. What a hiring
+        // manager is on the hook for is decisions, and nothing on this page used to say how many
+        // were outstanding. "Interviews booked" also carried tone="warning" — a booked interview
+        // is the system working.
         figures={[
           { label: 'Open roles', value: openPositions.length },
+          { label: 'In play', value: totalApplications ?? openPositions.length },
           {
-            label: 'Interviews booked',
-            value: upcomingInterviews.length,
-            tone: (upcomingInterviews.length > 0 ? 'warning' : undefined) as 'warning' | undefined,
+            label: 'Awaiting you',
+            value: owed.count,
+            tone: (owed.count > 0 ? 'critical' : undefined) as 'critical' | undefined,
           },
         ]}
        actions={actions}
       />
 
-      {!loading && (
-        owedToYou > 0 ? (
-          <DecisionBar
-            ask={`${upcomingInterviews.length} ${upcomingInterviews.length === 1 ? 'interview is' : 'interviews are'} coming up.`}
-            why={`Across ${openPositions.length} open ${openPositions.length === 1 ? 'role' : 'roles'}. Candidates cannot advance until you record a decision.`}
-            tone="owed"
-          >
-            <PrimaryAction onClick={() => (window.location.href = '/pipeline')}>
-              Open pipeline
-            </PrimaryAction>
-            <SecondaryAction onClick={() => (window.location.href = '/interviews')}>
-              My interviews
-            </SecondaryAction>
-          </DecisionBar>
-        ) : (
-          <DecisionBar
-            ask="Nothing is waiting on you."
-            why="No open roles carry an outstanding decision."
-            tone="settled"
-          />
-        )
-      )}
-      {/* Real-Time Hiring Metrics */}
-      {!isMounted ? (
-        <div className="bg-card rounded-control border border-border border-t-2 border-t-gold-500 p-6">
-          <div className="animate-pulse">
-            <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
-            <div className="h-3 bg-muted rounded w-1/2"></div>
-          </div>
-        </div>
+      {/* The ask is keyed on what is actually owed. It used to fire when interviews + open roles
+          was above zero while its sentence named interviews alone, so seven open roles and no
+          interviews produced "0 interviews are coming up." as the headline. */}
+      {owed.count > 0 ? (
+        <DecisionBar
+          ask={`${owed.count} ${owed.count === 1 ? 'candidate is' : 'candidates are'} waiting on a decision from you.`}
+          why={
+            owed.oldest
+              ? `Across ${openPositions.length} open ${openPositions.length === 1 ? 'role' : 'roles'}. The oldest has been at ${owed.oldest.stage} for ${owed.oldest.days} ${owed.oldest.days === 1 ? 'day' : 'days'} — ${owed.oldest.name}, ${owed.oldest.role}. Nothing moves them until you record an outcome.`
+              : `Across ${openPositions.length} open ${openPositions.length === 1 ? 'role' : 'roles'}. Nothing moves them until you record an outcome.`
+          }
+          tone="owed"
+        >
+          <PrimaryAction onClick={() => router.push('/pipeline')}>
+            Open pipeline
+          </PrimaryAction>
+          <SecondaryAction onClick={() => router.push('/interviews')}>
+            My interviews
+          </SecondaryAction>
+        </DecisionBar>
       ) : (
-        <div className="w-full overflow-hidden">
-          <RealTimeMetrics kpis={kpis} />
-        </div>
+        <DecisionBar
+          ask="Nothing is waiting on you."
+          why="No candidate is held at a stage that needs your decision."
+          tone="settled"
+        />
       )}
 
       {/* Error Banner */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-control p-4 flex items-center justify-between">
-          <p className="text-sm text-red-700">{error}</p>
-          <button onClick={fetchData} className="text-sm text-red-600 hover:text-red-800 font-medium">
+        <div className="bg-error-bg border border-error rounded-control p-4 flex items-center justify-between">
+          <p className="text-sm text-error-on-tint">{error}</p>
+          <button onClick={fetchData} className="text-sm font-medium text-error-on-tint underline underline-offset-2">
             Retry
           </button>
+        </div>
+      )}
+
+      {/* The three signals that replace eight figures which could not be sourced. */}
+      {isMounted && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-card border border-border rounded-card p-4">
+            <p className="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+              Applications this week
+            </p>
+            <p className="mt-1 text-2xl font-extrabold tabular-nums text-foreground">{thisWeek}</p>
+            <p className="mt-1 text-[0.8125rem] text-muted-foreground">
+              Received since Monday, across all your roles
+            </p>
+          </div>
+
+          <div className="bg-card border border-border rounded-card p-4">
+            <p className="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+              Roles with no applications
+            </p>
+            {quiet.measurable ? (
+              <>
+                <p className={`mt-1 text-2xl font-extrabold tabular-nums ${quiet.titles.length > 0 ? 'text-error-on-tint' : 'text-foreground'}`}>
+                  {quiet.titles.length}
+                </p>
+                <p className="mt-1 text-[0.8125rem] text-muted-foreground">
+                  {quiet.titles.length > 0
+                    ? `Published, attracting nothing — ${quiet.titles.slice(0, 2).join(', ')}${quiet.titles.length > 2 ? ` and ${quiet.titles.length - 2} more` : ''}`
+                    : 'Every published role has at least one application'}
+                </p>
+              </>
+            ) : (
+              // An absent field and a genuine zero must not look the same.
+              <p className="mt-2 text-[0.8125rem] text-muted-foreground">
+                Not reported — the postings feed did not return application counts.
+              </p>
+            )}
+          </div>
+
+          <div className="bg-card border border-border rounded-card p-4">
+            <p className="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+              Longest wait
+            </p>
+            {owed.oldest ? (
+              <>
+                <p className="mt-1 text-2xl font-extrabold tabular-nums text-foreground">
+                  {owed.oldest.days}
+                  <span className="ml-1 text-sm font-semibold text-muted-foreground">
+                    {owed.oldest.days === 1 ? 'day' : 'days'}
+                  </span>
+                </p>
+                <p className="mt-1 text-[0.8125rem] text-muted-foreground">
+                  {owed.oldest.name} · {owed.oldest.role} · at {owed.oldest.stage}
+                </p>
+              </>
+            ) : (
+              <p className="mt-2 text-[0.8125rem] text-muted-foreground">
+                Nobody is waiting on a decision.
+              </p>
+            )}
+          </div>
         </div>
       )}
 
@@ -478,16 +445,22 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
         totalAvailable={totalApplications}
       />
 
-      {/* Hiring Performance Metrics */}
-      <div className="w-full overflow-hidden">
-        <PerformanceMetrics
-          metrics={metrics}
-          title="Hiring Performance Indicators"
-          subtitle="Track your team's hiring effectiveness"
-        />
+      {/* Where six indicators used to be. Saying nothing would leave the reader assuming this
+          screen has no view on hiring performance; saying why is the difference between a gap and
+          a silence. */}
+      <div className="bg-card border border-dashed border-border rounded-card p-4">
+        <p className="text-[0.8125rem] font-bold text-muted-foreground">
+          Hiring performance indicators are not shown
+        </p>
+        <p className="mt-1 text-[0.8125rem] text-muted-foreground max-w-[76ch]">
+          The backend computes sixteen recruitment measures on every restart but files them under
+          categories the KPI reader does not match, so nothing reaches this page. Six indicators
+          used to be drawn here as zeros against targets nobody set. Rather than estimate them,
+          they are off until the feed is fixed.
+        </p>
       </div>
 
-      {/* 3-Column Grid: Open Positions | Application Volume | Today's Interviews */}
+      {/* 3-Column Grid: Open Positions | Upcoming Interviews | Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-full">
         {/* Open Positions */}
         <div className="min-w-0 overflow-hidden">
@@ -507,13 +480,14 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-foreground truncate">{position.title || position.role}</p>
                       <p className="text-sm text-muted-foreground">
-                        {position.applicationCount ?? position.applications ?? 0} applications
+                        {position.applicationsCount ?? 0}{' '}
+                        {position.applicationsCount === 1 ? 'application' : 'applications'}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         position.status === 'PUBLISHED' || position.status === 'Active'
-                          ? 'bg-green-100 text-green-800'
+                          ? 'bg-success-bg text-success-on-tint'
                           : 'bg-muted text-foreground'
                       }`}>
                         {position.status === 'PUBLISHED' ? 'Active' : (position.status || 'Active')}
@@ -565,8 +539,10 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
         <div className="min-w-0 overflow-hidden">
           <DashboardWidget
             id="interview-schedule"
-            title="Today&apos;s Interviews"
-            subtitle="Upcoming interviews"
+            // It reads /api/interviews/upcoming and renders all of them, so the heading was the
+            // thing that was wrong, not the data.
+            title="Upcoming interviews"
+            subtitle="Everything scheduled, soonest first"
             refreshable={true}
             size="medium"
           >
@@ -596,8 +572,8 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
             ) : (
               <EmptyState
                 icon={CalendarIcon}
-                title="No Upcoming Interviews"
-                description="There are no interviews scheduled for today."
+                title="No upcoming interviews"
+                description="Nothing is scheduled. Candidates at the interview stage are waiting for a slot."
                 action={{ label: 'Schedule Interview', href: '/interviews' }}
               />
             )}
@@ -614,30 +590,27 @@ export default function HiringManagerDashboard({ actions, roleLabel }: HiringMan
           size="small"
         >
           <div className="flex flex-wrap gap-3">
+            {/* One primary, three quiet. These were gold, gold, green and orange, and the
+                colour carried no meaning — green did not mean safe, orange did not mean caution. */}
             <button
               onClick={() => router.push('/job-postings?action=create')}
-              className="bg-gold-500 text-violet-950 px-6 py-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium"
+              className="rounded-full bg-cta px-5 py-2.5 text-sm font-semibold text-cta-foreground transition-colors hover:bg-cta-hover"
             >
-              Post New Job
+              Post a job
             </button>
-            <button
-              onClick={() => router.push('/applications')}
-              className="bg-gold-500 text-violet-950 px-6 py-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium"
-            >
-              Review Applications
-            </button>
-            <button
-              onClick={() => router.push('/interviews')}
-              className="bg-green-600 text-white px-6 py-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium"
-            >
-              Schedule Interview
-            </button>
-            <button
-              onClick={() => router.push('/offers')}
-              className="bg-orange-600 text-white px-6 py-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium"
-            >
-              Send Offer
-            </button>
+            {[
+              { label: 'Review applications', href: '/applications' },
+              { label: 'Schedule an interview', href: '/interviews' },
+              { label: 'Send an offer', href: '/offers' },
+            ].map((action) => (
+              <button
+                key={action.href}
+                onClick={() => router.push(action.href)}
+                className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+              >
+                {action.label}
+              </button>
+            ))}
           </div>
         </DashboardWidget>
       </div>

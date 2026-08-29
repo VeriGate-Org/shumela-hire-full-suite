@@ -144,15 +144,15 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
       case 'new':
         return <UserIcon className="w-4 h-4 text-gold-600" />;
       case 'in_review':
-        return <ClockIcon className="w-4 h-4 text-yellow-600" />;
+        return <ClockIcon className="w-4 h-4 text-warning-on-tint" />;
       case 'interview_scheduled':
-        return <CalendarIcon className="w-4 h-4 text-purple-600" />;
+        return <CalendarIcon className="w-4 h-4 text-link" />;
       case 'offer_made':
-        return <DocumentTextIcon className="w-4 h-4 text-green-600" />;
+        return <DocumentTextIcon className="w-4 h-4 text-success-on-tint" />;
       case 'hired':
-        return <CheckCircleIcon className="w-4 h-4 text-green-600" />;
+        return <CheckCircleIcon className="w-4 h-4 text-success-on-tint" />;
       case 'rejected':
-        return <XCircleIcon className="w-4 h-4 text-red-600" />;
+        return <XCircleIcon className="w-4 h-4 text-error-on-tint" />;
       default:
         return <UserIcon className="w-4 h-4 text-gray-600" />;
     }
@@ -246,7 +246,7 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
                     </span>
                   </div>
                   {stage.capacity && stage.candidates.length >= stage.capacity && (
-                    <span className="text-red-500 text-xs">Full</span>
+                    <span className="text-error-on-tint text-xs">Full</span>
                   )}
                 </div>
 
@@ -266,7 +266,7 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
                       draggable
                       onDragStart={() => handleDragStart(candidate)}
                       onClick={() => onCandidateClick?.(candidate)}
-                      className="bg-white rounded-control p-3 border border-gray-200 cursor-move hover:shadow-md transition-shadow group"
+                      className="bg-card rounded-control p-3 border border-gray-200 cursor-move hover:shadow-md transition-shadow group"
                     >
                       {/* Candidate Header */}
                       <div className="flex items-start justify-between mb-2">
@@ -302,9 +302,9 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
                         <div className="flex items-center gap-1">
                           {candidate.score && (
                             <span className={`text-xs px-2 py-1 rounded-full ${
-                              candidate.score >= 80 ? 'bg-green-100 text-green-800' :
-                              candidate.score >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
+                              candidate.score >= 80 ? 'bg-success-bg text-success-on-tint' :
+                              candidate.score >= 60 ? 'bg-warning-bg text-warning-on-tint' :
+                              'bg-error-bg text-error-on-tint'
                             }`}>
                               {candidate.score}%
                             </span>
@@ -341,14 +341,14 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
 
                         {/* Next Action */}
                         {candidate.nextAction && (
-                          <div className="flex flex-col gap-1 text-xs bg-yellow-50 text-yellow-800 p-2 rounded">
+                          <div className="flex flex-col gap-1 text-xs bg-warning-bg text-warning-on-tint p-2 rounded">
                             <div className="flex items-center gap-1">
                               {getNextActionIcon(candidate.nextAction.type)}
                               <span className="font-medium flex-1 break-words">
                                 {candidate.nextAction.description}
                               </span>
                             </div>
-                            <div className="text-xs text-yellow-700">
+                            <div className="text-xs text-warning-on-tint">
                               {formatDate(candidate.nextAction.date)}
                             </div>
                           </div>

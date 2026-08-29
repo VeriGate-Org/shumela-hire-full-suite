@@ -83,12 +83,29 @@ describe('the thresholds are stated, not asserted', () => {
 });
 
 describe('every caller of the strip supplies the figures', () => {
+  // HiringManagerDashboard is no longer in this list because it no longer renders the strip. The
+  // rule is "whoever shows it, fetches it" — not "everyone fetches it".
   it.each([
     ['HRDashboard', read('components', 'dashboard', 'role-dashboards', 'HRDashboard.tsx')],
-    ['HiringManagerDashboard', read('components', 'dashboard', 'role-dashboards', 'HiringManagerDashboard.tsx')],
   ])('%s reads the KPIs and hands them down', (_name, source) => {
     expect(source).toContain("apiFetch('/api/analytics/kpis')");
     expect(source).toContain('<RealTimeMetrics kpis={kpis}');
+  });
+
+  it('nobody fetches KPIs without rendering something from them', () => {
+    // The other half of the same rule, and the half that was broken: a dashboard can quietly keep
+    // asking an endpoint after the thing it fed has gone.
+    const CALLERS = [
+      'HRDashboard.tsx',
+      'HiringManagerDashboard.tsx',
+      'AdminDashboard.tsx',
+    ];
+    for (const file of CALLERS) {
+      const source = read('components', 'dashboard', 'role-dashboards', file);
+      if (source.includes("apiFetch('/api/analytics/kpis')")) {
+        expect(source).toContain('<RealTimeMetrics');
+      }
+    }
   });
 });
 
