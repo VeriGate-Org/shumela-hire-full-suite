@@ -91,3 +91,41 @@ describe('every caller of the strip supplies the figures', () => {
     expect(source).toContain('<RealTimeMetrics kpis={kpis}');
   });
 });
+
+describe('the controls sit together and say what they narrow', () => {
+  const page = strip(read('app', '(app)', 'analytics', 'page.tsx'));
+
+  it('offers the department in the bar, not only behind a panel', () => {
+    // Department was chosen inside "Advanced Filters" while the period pills sat in their own row,
+    // so nothing on screen said which control reached what — a sentence underneath had to explain.
+    expect(page).toContain('id="analytics-department"');
+    expect(page).toContain('All departments');
+  });
+
+  it('keeps filterValues as the one record of what is selected', () => {
+    // The bar writes into the same list the advanced panel reads, so the two cannot disagree.
+    expect(page).toContain('const setDepartment = (value: string)');
+    expect(page).toContain("prev.filter((f) => f.id !== 'department')");
+  });
+
+  it('does not count the department against the filters button', () => {
+    // It has its own control now; counting it would report a filter that button does not hold.
+    expect(page).toContain('const otherFilterCount');
+    expect(page).toContain('otherFilterCount > 0');
+  });
+});
+
+describe('an absent metric says so', () => {
+  const page = read('app', '(app)', 'analytics', 'page.tsx');
+
+  it('reports the metrics it judges but did not receive', () => {
+    // Each judgement is `if (value !== undefined)`, so an unreported metric produced no line — and
+    // a reader cannot tell healthy from unmeasured.
+    expect(page).toContain('not reported');
+    expect(page).toContain("['time_to_fill_days', 'Time to fill']");
+  });
+
+  it('names the department it is missing for', () => {
+    expect(page).toContain('${selectedDepartment ? ` for ${selectedDepartment}` : \'\'}');
+  });
+});

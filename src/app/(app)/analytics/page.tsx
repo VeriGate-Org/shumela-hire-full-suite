@@ -138,6 +138,15 @@ export default function AnalyticsPage() {
     setCurrentRole('EXECUTIVE');
   }, [setCurrentRole]);
 
+  // Writes into filterValues rather than beside them, so the bar and the advanced panel cannot
+  // disagree about which department is selected.
+  const setDepartment = (value: string) => {
+    setFilterValues((prev) => {
+      const others = prev.filter((f) => f.id !== 'department');
+      return value ? [...others, { id: 'department', value }] : others;
+    });
+  };
+
   const handleFilterChange = (values: FilterValue[]) => {
     setFilterValues(values);
   };
@@ -214,6 +223,26 @@ export default function AnalyticsPage() {
           derived.push({ type: 'positive', text: `Average interview score is ${score.toFixed(1)}/5 — strong candidate quality` });
         } else if (score > 0) {
           derived.push({ type: 'warning', text: `Average interview score is ${score.toFixed(1)}/5 — sourcing may need improvement` });
+        }
+      }
+
+      // A metric the endpoint did not return says so, rather than disappearing.
+      //
+      // Every judgement above is written as `if (value !== undefined)`, so an absent KPI produced
+      // no line at all — and a reader cannot tell a metric that is healthy from one nobody
+      // measured. The band already reports absence this way; the cards now match it.
+      const JUDGED: Array<[string, string]> = [
+        ['interview_conversion_rate', 'Interview conversion'],
+        ['acceptance_rate', 'Offer acceptance'],
+        ['time_to_fill_days', 'Time to fill'],
+        ['avg_interview_score', 'Average interview score'],
+      ];
+      for (const [key, label] of JUDGED) {
+        if (kpis[key]?.value === undefined) {
+          derived.push({
+            type: 'warning',
+            text: `${label} — not reported${selectedDepartment ? ` for ${selectedDepartment}` : ''}`,
+          });
         }
       }
 
@@ -312,6 +341,9 @@ export default function AnalyticsPage() {
   const warningInsights = insights.filter(i => i.type === 'warning');
 
   const activeFilterCount = filterValues.length;
+  // Department has its own control in the bar now, so counting it on the button would report a
+  // filter the button does not hold.
+  const otherFilterCount = filterValues.filter((f) => f.id !== 'department').length;
 
   const actions = (
     <button
@@ -356,49 +388,80 @@ export default function AnalyticsPage() {
           )}
         </DecisionBar>
 
-        {/* Time range bar — pill toggle group + filter button */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex gap-1 bg-card border border-border rounded-button p-1">
-            {timeRangeOptions.map((range) => (
-              <button
-                key={range.key}
-                onClick={() => setSelectedTimeRange(range.key)}
-                className={`px-5 py-2 rounded-button text-sm font-semibold transition-colors ${
-                  selectedTimeRange === range.key
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-background hover:text-foreground'
-                }`}
-              >
-                {range.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`inline-flex items-center gap-2 px-5 py-2 rounded-button text-sm font-semibold border transition-colors ${
-                showFilters
-                  ? 'border-primary icon-tile-navy'
-                  : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary'
-              }`}
+        {/*
+          One bar for everything that narrows this page.
+
+          The period pills sat in one row and the department in a panel behind an "Advanced Filters"
+          button, so nothing said which control reached what — the sentence underneath had to
+          explain it. Together, with the department first, the scope is legible before the
+          explanation is read.
+        */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-card border border-border bg-card px-3.5 py-3">
+          <div className="flex items-center gap-2">
+            <label htmlFor="analytics-department" className="text-[0.625rem] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+              Department
+            </label>
+            <select
+              id="analytics-department"
+              value={selectedDepartment}
+              onChange={(e) => setDepartment(e.target.value)}
+              className="rounded-control border border-border bg-background px-2.5 py-1.5 text-sm text-foreground transition-colors focus:border-primary focus:outline-none"
             >
-              <FunnelIcon className="w-4 h-4" />
-              Advanced Filters
-              {activeFilterCount > 0 && (
-                <span className="bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center font-bold">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
-            {activeFilterCount > 0 && (
-              <button
-                onClick={handleFilterReset}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Reset
-              </button>
-            )}
+              <option value="">All departments</option>
+              {departments.map((name) => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
           </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[0.625rem] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+              Period
+            </span>
+            <div className="flex gap-1 rounded-button border border-border bg-background p-1">
+              {timeRangeOptions.map((range) => (
+                <button
+                  key={range.key}
+                  onClick={() => setSelectedTimeRange(range.key)}
+                  aria-pressed={selectedTimeRange === range.key}
+                  className={`rounded-button px-3 py-1.5 text-sm font-semibold transition-colors ${
+                    selectedTimeRange === range.key
+                      ? 'bg-cta text-cta-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            aria-expanded={showFilters}
+            className={`inline-flex items-center gap-2 rounded-control border px-3 py-1.5 text-sm font-semibold transition-colors ${
+              showFilters
+                ? 'border-primary text-primary'
+                : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
+            }`}
+          >
+            <FunnelIcon className="w-4 h-4" />
+            More filters
+            {otherFilterCount > 0 && (
+              <span className="min-w-[1.25rem] rounded-full bg-primary px-1.5 py-0.5 text-center text-xs font-bold text-primary-foreground">
+                {otherFilterCount}
+              </span>
+            )}
+          </button>
+
+          {activeFilterCount > 0 && (
+            <button
+              onClick={handleFilterReset}
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Reset
+            </button>
+          )}
         </div>
 
         {/* Collapsible filters */}
