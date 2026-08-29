@@ -7,8 +7,10 @@ import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import {
   PERMISSION_CATALOGUE,
   PERMISSION_CATEGORIES,
+  canRoleHold,
   effectivePermissions,
   isPermissionLocked,
+  ROLE_GATED_PERMISSIONS,
   type RolePermissionOverride,
 } from '@/config/permissions';
 import type { UserRole } from '@/contexts/AuthContext';
@@ -57,6 +59,14 @@ interface User {
   status: 'active' | 'inactive' | 'pending';
   lastLogin?: string;
   department: string;
+  /**
+   * How much this user may approve, or null when nobody has said.
+   *
+   * <p>Null and zero behave identically at the point of approval — neither surfaces an offer — but
+   * they are different states here: null means the user runs on their role's default, zero means
+   * an administrator explicitly held them at none. The column shows which.
+   */
+  approvalLevel?: number | null;
 }
 
 export default function AdminPermissionsPage() {
@@ -71,6 +81,7 @@ export default function AdminPermissionsPage() {
   const [savingPermission, setSavingPermission] = useState<string | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editingUserRole, setEditingUserRole] = useState<string>('');
+  const [savingApprovalFor, setSavingApprovalFor] = useState<string | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const { toast } = useToast();
 
@@ -196,6 +207,53 @@ export default function AdminPermissionsPage() {
       toast(err instanceof Error ? err.message : 'Could not update the permission', 'error');
     } finally {
       setSavingPermission(null);
+    }
+  };
+
+  /**
+   * What each role may approve before an administrator says anything.
+   *
+   * <p>Mirrors ApprovalAuthority.ROLE_DEFAULTS on the backend, which is the authority. It is
+   * duplicated here only so the column can say "Level 1 (role default)" instead of leaving a blank
+   * where a real, working level sits — and a test asserts the two lists agree, so this cannot drift
+   * into telling the administrator something the server does not do.
+   */
+  const ROLE_DEFAULT_APPROVAL: Record<string, number> = {
+    admin: 2,
+    executive: 2,
+    hr_manager: 1,
+  };
+
+  /** Levels an administrator can grant. 2 is the highest the offer flow asks for. */
+  const APPROVAL_LEVELS = [0, 1, 2] as const;
+
+  const handleApprovalLevelChange = async (userId: string, raw: string) => {
+    // "" is the revoke option: it clears the explicit grant and returns the user to their role's
+    // default, which is a different outcome from setting zero.
+    const level = raw === '' ? null : Number(raw);
+    setSavingApprovalFor(userId);
+    const previous = users.find((u) => u.id === userId)?.approvalLevel ?? null;
+
+    // Optimistic, then reverted on refusal — the same shape as the permission toggles above.
+    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, approvalLevel: level } : u)));
+
+    try {
+      const res = await apiFetch(`/api/admin/users/${userId}/approval-level`, {
+        method: 'PUT',
+        body: JSON.stringify({ approvalLevel: level }),
+      });
+      if (!res.ok) throw new Error(await refusalMessage(res));
+      toast(
+        level === null
+          ? 'Approval level cleared — this user now follows their role default'
+          : `Approval level set to ${level}`,
+        'success',
+      );
+    } catch (err: unknown) {
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, approvalLevel: previous } : u)));
+      toast(err instanceof Error ? err.message : 'Could not change the approval level', 'error');
+    } finally {
+      setSavingApprovalFor(null);
     }
   };
 
@@ -534,23 +592,36 @@ export default function AdminPermissionsPage() {
                               // matrix was disabled in its entirety — on top of writing to a route
                               // that did not exist. Roles cannot be created (they are an enum), but
                               // what each one may do is now stored and editable.
-                              const locked = isPermissionLocked(role.id.toUpperCase() as UserRole, permission.id);
+                              const roleId = role.id.toUpperCase() as UserRole;
+                              const locked = isPermissionLocked(roleId, permission.id);
+                              // The other direction from `locked`: not "cannot be taken away" but
+                              // "cannot be given", because the endpoint behind it enforces its own
+                              // role list and would answer 403. Granting it would put the item in
+                              // this person's menu and nothing else.
+                              const ungrantable = !hasIt && !canRoleHold(roleId, permission.id);
+                              const frozen = locked || ungrantable;
                               return (
                                 <td key={role.id} className="px-4 py-3 text-center">
                                   <label
-                                    className={`relative inline-block w-9 h-5 ${locked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                                    title={locked ? 'Cannot be removed — nobody would be able to restore it' : undefined}
+                                    className={`relative inline-block w-9 h-5 ${frozen ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                    title={
+                                      locked
+                                        ? 'Cannot be removed — nobody would be able to restore it'
+                                        : ungrantable
+                                          ? `${permission.name} cannot be granted to ${role.name}: the endpoint behind it admits only ${(ROLE_GATED_PERMISSIONS[permission.id] ?? []).join(', ')}. Granting it here would add the menu entry and nothing else.`
+                                          : undefined
+                                    }
                                   >
                                     <input
                                       type="checkbox"
                                       checked={hasIt}
-                                      disabled={locked || isSaving}
+                                      disabled={frozen || isSaving}
                                       onChange={() => handleRolePermissionToggle(role.id, permission.id)}
                                       className="sr-only peer"
                                     />
                                     <span className={`block w-9 h-5 rounded-full transition-colors ${
                                       hasIt ? 'bg-accent-teal' : 'bg-border'
-                                    } ${isSaving ? 'opacity-50' : ''} ${locked ? 'opacity-60 ring-1 ring-inset ring-border' : ''}`} />
+                                    } ${isSaving ? 'opacity-50' : ''} ${frozen ? 'opacity-60 ring-1 ring-inset ring-border' : ''}`} />
                                     <span className={`absolute left-0.5 top-0.5 w-4 h-4 bg-card rounded-full shadow transition-transform ${
                                       hasIt ? 'translate-x-4' : 'translate-x-0'
                                     }`} />
@@ -579,6 +650,7 @@ export default function AdminPermissionsPage() {
                     <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">User</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Role</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider" title="How much this person may approve. Offers reach them when the offer's required level is at or below theirs.">May approve</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Department</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Last Active</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider" style={{ width: 50 }}>Actions</th>
@@ -587,7 +659,7 @@ export default function AdminPermissionsPage() {
                 <tbody>
                   {filteredUsers.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center">
+                      <td colSpan={7} className="px-6 py-12 text-center">
                         <UsersIcon className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
                         <p className="text-sm font-semibold text-foreground mb-1">No users loaded</p>
                         <p className="text-sm text-muted-foreground">Users are synchronized from the authentication provider. New users will appear here after their first sign-in.</p>
@@ -657,6 +729,45 @@ export default function AdminPermissionsPage() {
                               </span>
                             )
                           )}
+                        </td>
+                        {/*
+                          Approval authority, which is not a permission.
+
+                          A permission says what somebody may see or do; this says what they may
+                          commit the organisation to, and the two are set in different places for
+                          that reason. The endpoint behind it has existed since the approvals queue
+                          was built and nothing called it, so every user has been running on their
+                          role default with no way to change it from the product.
+                        */}
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <select
+                              aria-label={`Approval level for ${user.name}`}
+                              value={user.approvalLevel ?? ''}
+                              disabled={savingApprovalFor === user.id}
+                              onChange={(e) => handleApprovalLevelChange(user.id, e.target.value)}
+                              className="px-2 py-1 border border-border rounded-control bg-background text-sm text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring disabled:opacity-50"
+                            >
+                              <option value="">Role default</option>
+                              {APPROVAL_LEVELS.map((level) => (
+                                <option key={level} value={level}>
+                                  {level === 0 ? 'Nothing (0)' : `Level ${level}`}
+                                </option>
+                              ))}
+                            </select>
+                            {/*
+                              An unset level is not "none" — it is the role's default, which for an
+                              administrator or executive is 2. Showing a blank here would hide a
+                              live approval right.
+                            */}
+                            {user.approvalLevel == null && (
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                {ROLE_DEFAULT_APPROVAL[user.roleId] > 0
+                                  ? `= level ${ROLE_DEFAULT_APPROVAL[user.roleId]}`
+                                  : '= nothing'}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3 text-sm text-foreground">
                           {user.department}

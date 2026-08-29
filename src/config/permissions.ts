@@ -205,6 +205,36 @@ export const LOCKED_PERMISSIONS: Partial<Record<UserRole, string[]>> = {
   PLATFORM_OWNER: ['platform_admin'],
 };
 
+/**
+ * Permissions whose endpoint enforces a role list of its own.
+ *
+ * <p>{@code LOCKED_PERMISSIONS} stops a permission being <em>removed</em>. This is the other
+ * direction, and it was missing: `effectivePermissions` added any granted override
+ * unconditionally, so an administrator could switch `view_approvals` on for an interviewer, the
+ * Approvals entry would appear in their menu, and `GET /api/approvals/pending` would answer 403 —
+ * because it is guarded by `hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER',
+ * 'EXECUTIVE')`. The menu said yes and the server said no, with nothing on screen admitting the
+ * grant could not take effect.
+ *
+ * <p>The lists here are the endpoint's own `@PreAuthorize`, and a test reads that annotation out of
+ * the controller and asserts they match — so this cannot drift into permitting something the server
+ * refuses, or forbidding something it would allow.
+ */
+export const ROLE_GATED_PERMISSIONS: Record<string, UserRole[]> = {
+  view_approvals: ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'EXECUTIVE'],
+};
+
+/**
+ * Whether this role could hold this permission at all.
+ *
+ * <p>True for everything not role-gated: most endpoints check the permission, not the role, and
+ * this must not quietly narrow them.
+ */
+export function canRoleHold(role: UserRole, permissionId: string): boolean {
+  const admitted = ROLE_GATED_PERMISSIONS[permissionId];
+  return admitted === undefined || admitted.includes(role);
+}
+
 export function isPermissionLocked(role: UserRole, permissionId: string): boolean {
   return (LOCKED_PERMISSIONS[role] ?? []).includes(permissionId);
 }
@@ -230,7 +260,7 @@ export function effectivePermissions(
   const effective = new Set(rolePermissions[role] ?? []);
   for (const o of overrides) {
     if (o.role !== role) continue;
-    if (o.granted) effective.add(o.permissionId);
+    if (o.granted && canRoleHold(role, o.permissionId)) effective.add(o.permissionId);
     else if (!isPermissionLocked(role, o.permissionId)) effective.delete(o.permissionId);
   }
   return [...effective];
