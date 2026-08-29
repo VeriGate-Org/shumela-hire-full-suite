@@ -146,3 +146,85 @@ describe('an absent metric says so', () => {
     expect(page).toContain('${selectedDepartment ? ` for ${selectedDepartment}` : \'\'}');
   });
 });
+
+/**
+ * Analytics is composed the way the design is.
+ *
+ * <p>Same failure as the dashboard and Reports: the sourcing decisions shipped, the composition
+ * did not. The blocks were in a different order, the charts alternated full-width and two-up in a
+ * way that read as four unrelated rows, and the insight cards were named for what produced them
+ * rather than what they mean.
+ */
+describe('the page is ordered the way the design is', () => {
+  const page = strip(read('app', '(app)', 'analytics', 'page.tsx'));
+  const at = (needle: string) => {
+    const i = page.indexOf(needle);
+    expect(i).toBeGreaterThan(-1);
+    return i;
+  };
+
+  it('sets the scope before explaining it', () => {
+    // The sentence "Department narrows everything on this page" sat above the control that does
+    // the narrowing, so it explained a bar the reader had not seen yet.
+    expect(at('id="analytics-department"')).toBeLessThan(at('<DecisionBar'));
+  });
+
+  it('puts what is moving today above the judgements drawn from it', () => {
+    expect(at('<RealTimeMetrics')).toBeLessThan(at('Working well'));
+  });
+
+  it('names the insight cards for what they mean', () => {
+    expect(page).toContain('Working well');
+    expect(page).toContain('Worth a look');
+    expect(page).toContain('Above the lines this page draws');
+    expect(page).not.toContain('Areas for Improvement');
+    // Where a figure came from matters less than what it is compared against.
+    expect(page).not.toContain('AI Insight');
+  });
+});
+
+describe('the charts are laid out in the design’s order', () => {
+  const charts = strip(read('components', 'analytics', 'AdvancedAnalyticsDashboard.tsx'));
+  const at = (needle: string) => {
+    const i = charts.indexOf(needle);
+    expect(i).toBeGreaterThan(-1);
+    return i;
+  };
+
+  it('runs volume, then the four comparisons, then the twelve-month trend', () => {
+    expect(at('<ApplicationVolumeChart')).toBeLessThan(at('<PipelineFunnelChart'));
+    expect(at('<PipelineFunnelChart')).toBeLessThan(at('<SourceEffectivenessChart'));
+    expect(at('<SourceEffectivenessChart')).toBeLessThan(at('<TimeToHireChart'));
+    expect(at('<TimeToHireChart')).toBeLessThan(at('<PerformanceGaugeChart'));
+    expect(at('<PerformanceGaugeChart')).toBeLessThan(at('<MonthlyTrendsChart'));
+  });
+
+  it('keeps the two time series full width and the four comparisons two-up', () => {
+    // Counted in the render body only: the loading skeleton has a grid of its own, deliberately
+    // the same shape, and counting both made this assertion fail on correct code.
+    const body = charts.slice(charts.lastIndexOf('  return ('));
+    expect((body.match(/lg:grid-cols-2/g) ?? []).length).toBe(1);
+
+    const grid = body.slice(body.indexOf('lg:grid-cols-2'));
+    const inGrid = grid.slice(0, grid.indexOf('</div>'));
+    expect((inGrid.match(/<[A-Z]\w+Chart/g) ?? []).length).toBe(4);
+  });
+
+  it('carries no summary stat row, which the design does not have', () => {
+    expect(charts).not.toContain('statCards');
+    expect(charts).not.toContain('lg:grid-cols-4');
+  });
+
+  it('still refuses to draw charts over a failed or pending fetch', () => {
+    // Removing the stat row took the loading skeleton and the whole error branch with it on the
+    // first attempt, which would have rendered empty charts for a failed request and said nothing.
+    expect(charts).toContain('if (loading)');
+    expect(charts).toContain('if (error)');
+    expect(charts).toContain('Failed to load analytics');
+    expect(charts).toContain('onClick={fetchData}');
+  });
+
+  it('is painted in tokens', () => {
+    expect(charts).not.toMatch(/(?<![\w:-])(?:bg|text|border)-(?:white|red|green|orange|yellow)(?:-\d{2,3})?(?![\w-])/);
+  });
+});

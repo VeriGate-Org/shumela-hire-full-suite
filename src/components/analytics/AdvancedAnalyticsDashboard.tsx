@@ -1,10 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
-  ChartBarIcon,
-  UsersIcon,
-  ClockIcon,
-  ArrowTrendingUpIcon,
-  DocumentChartBarIcon,
   ArrowPathIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
@@ -247,33 +242,25 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
     return data.applicationVolume.slice(-days);
   }, [data, timeRange]);
 
-  const summaryStats = data?.summary ?? {
-    totalApplications: 0,
-    totalHires: 0,
-    conversionRate: 0,
-    avgTimeToHire: 0,
-    applicationsTrend: '',
-    hiresTrend: '',
-    conversionTrend: '',
-    timeToHireTrend: '',
-  };
+  /*
+   * The four summary stat cards are gone, and with them the summaryStats fallback that only they
+   * read. They were honestly sourced — real figures off data.summary, with '--' rather than a zero
+   * when time to hire had nothing — but they were not in the design, and they sat above six charts
+   * that answer the same questions with their shape. Restoring them is this block plus the grid
+   * that rendered it; nothing else changed to accommodate their removal.
+   */
 
   if (loading) {
     return (
       <div className={`space-y-6 ${className}`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-card rounded-card border border-border p-6 shadow-sm animate-pulse">
-              <div className="h-10 bg-muted rounded mb-4"></div>
-              <div className="h-6 bg-muted rounded w-2/3"></div>
-            </div>
-          ))}
-        </div>
+        {/* Shaped like what is coming: one wide chart, four two-up, one wide. */}
+        <div className="bg-card rounded-card border border-border p-6 shadow-sm animate-pulse h-64" />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-card rounded-card border border-border p-6 shadow-sm animate-pulse h-64"></div>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-card rounded-card border border-border p-6 shadow-sm animate-pulse h-64" />
           ))}
         </div>
+        <div className="bg-card rounded-card border border-border p-6 shadow-sm animate-pulse h-64" />
       </div>
     );
   }
@@ -281,13 +268,13 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
   if (error) {
     return (
       <div className={`${className}`}>
-        <div className="bg-card rounded-card border border-border border-t-2 border-t-red-500 p-8 shadow-sm text-center">
-          <ExclamationTriangleIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
+        <div className="bg-card rounded-card border border-border border-t-2 border-t-error p-8 shadow-sm text-center">
+          <ExclamationTriangleIcon className="w-12 h-12 text-error-on-tint mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load analytics</h3>
           <p className="text-muted-foreground mb-4">{error}</p>
           <button
             onClick={fetchData}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
           >
             <ArrowPathIcon className="w-4 h-4" />
             Retry
@@ -297,89 +284,32 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
     );
   }
 
-  const statCards: Array<{ title: string; value: string; icon: typeof ChartBarIcon; color: string; change: string | null; changeType: 'positive' | 'negative' }> = [
-    {
-      title: 'Total Applications',
-      value: summaryStats.totalApplications.toLocaleString(),
-      icon: DocumentChartBarIcon,
-      color: 'text-gold-600 bg-gold-100',
-      change: summaryStats.applicationsTrend || null,
-      changeType: summaryStats.applicationsTrend?.startsWith('-') ? 'negative' : 'positive',
-    },
-    {
-      title: 'Total Hires',
-      value: summaryStats.totalHires.toString(),
-      icon: UsersIcon,
-      color: 'text-green-600 bg-green-100',
-      change: summaryStats.hiresTrend || null,
-      changeType: summaryStats.hiresTrend?.startsWith('-') ? 'negative' : 'positive',
-    },
-    {
-      title: 'Conversion Rate',
-      value: `${summaryStats.conversionRate.toFixed(1)}%`,
-      icon: ArrowTrendingUpIcon,
-      color: 'text-primary bg-primary/10',
-      change: summaryStats.conversionTrend || null,
-      changeType: summaryStats.conversionTrend?.startsWith('-') ? 'negative' : 'positive',
-    },
-    {
-      title: 'Avg Time to Hire',
-      value: summaryStats.avgTimeToHire > 0 ? `${summaryStats.avgTimeToHire.toFixed(0)} days` : '--',
-      icon: ClockIcon,
-      color: 'text-orange-600 bg-orange-100',
-      change: summaryStats.timeToHireTrend || null,
-      changeType: summaryStats.timeToHireTrend?.startsWith('-') ? 'positive' : 'negative',
-    },
-  ];
-
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* 4 Summary stat cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat) => (
-          <div key={stat.title} className="bg-card rounded-card border border-border border-t-2 border-t-cta p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div className={`p-2 rounded-control ${stat.color}`}>
-                <stat.icon className="w-5 h-5" />
-              </div>
-              {stat.change && (
-                <span
-                  className={`text-sm font-medium ${
-                    stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                  }`}
-                >
-                  {stat.change}
-                </span>
-              )}
-            </div>
-            <div className="mt-4">
-              <h3 className="text-2xl font-bold text-foreground">{stat.value}</h3>
-              <p className="text-sm text-muted-foreground mt-1">{stat.title}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Application Volume — full width */}
+      {/*
+       * The design's order, with the two time-series charts kept full width.
+       *
+       * <p>It ran Volume full width, then Pipeline beside Performance, then Monthly full width,
+       * then Source beside Time to Hire — which put the two comparison charts on either side of a
+       * full-width band and read as four unrelated rows. The order is now the design's: volume,
+       * then the four comparisons two-up, then the twelve-month trend. Volume and Monthly stay
+       * full width because they are the time series, and a squeezed x-axis is where a trend chart
+       * stops being readable.
+       */}
       <ApplicationVolumeChart
         data={filteredVolumeData}
         timeframe={timeRange === 'week' ? 'week' : timeRange === 'month' ? 'month' : 'quarter'}
       />
 
-      {/* Pipeline Funnel + Performance Gauges — 2 col */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <PipelineFunnelChart data={data?.pipeline ?? []} />
+        <SourceEffectivenessChart data={data?.source ?? []} />
+        <TimeToHireChart data={data?.timeToHire ?? []} />
         <PerformanceGaugeChart data={data?.performance ?? []} />
       </div>
 
-      {/* Monthly Trends — full width */}
       <MonthlyTrendsChart data={data?.monthly ?? []} />
 
-      {/* Source Effectiveness + Time to Hire — 2 col */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SourceEffectivenessChart data={data?.source ?? []} />
-        <TimeToHireChart data={data?.timeToHire ?? []} />
-      </div>
     </div>
   );
 };
