@@ -104,7 +104,7 @@ beforeEach(() => {
 });
 
 describe('Offer creation — role gate', () => {
-  it.each(['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'])('offers a create entry point to %s', async (role) => {
+  it.each(['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER'])('offers a create entry point to %s', async (role) => {
     mockRole = role;
     routeHappyPath();
     render(<OfferManagement />);
@@ -112,7 +112,7 @@ describe('Offer creation — role gate', () => {
     expect(await screen.findByRole('button', { name: /new offer/i })).toBeInTheDocument();
   });
 
-  it.each(['RECRUITER', 'INTERVIEWER', 'APPLICANT'])('denies offer management to %s', async (role) => {
+  it.each(['INTERVIEWER', 'APPLICANT', 'EXECUTIVE'])('denies offer management to %s', async (role) => {
     mockRole = role;
     routeHappyPath();
     render(<OfferManagement />);
@@ -122,7 +122,7 @@ describe('Offer creation — role gate', () => {
   });
 
   it('does not load offers for a role that cannot manage them', async () => {
-    mockRole = 'RECRUITER';
+    mockRole = 'INTERVIEWER';
     routeHappyPath();
     render(<OfferManagement />);
 
@@ -347,7 +347,7 @@ describe('Offer creation — deep link from the pipeline', () => {
   });
 
   it('does nothing when the role cannot manage offers', async () => {
-    mockRole = 'RECRUITER';
+    mockRole = 'INTERVIEWER';
     routeHappyPath();
     window.history.replaceState({}, '', `/offers?create=true&applicationId=${APPLICATION.id}`);
     render(<OfferManagement />);

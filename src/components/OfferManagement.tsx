@@ -246,7 +246,7 @@ export default function OfferManagement() {
   const { user } = useAuth();
   const { toast } = useToast();
   const currentRole = user?.role || 'RECRUITER';
-  const canManageOffers = ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'].includes(currentRole);
+  const canManageOffers = ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER'].includes(currentRole);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
@@ -677,7 +677,7 @@ export default function OfferManagement() {
                ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'].includes(userRole);
       case 'send':
         return offer.status === 'APPROVED' &&
-               ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'].includes(userRole);
+               ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER'].includes(userRole);
       case 'withdraw':
         // An offer awaiting signature or already signed can still be withdrawn; the narrower set
         // hid the control on exactly the offers most likely to need it.

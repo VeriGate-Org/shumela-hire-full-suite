@@ -162,7 +162,7 @@ public class CognitoSecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/api/integrations/**")).hasAnyRole("ADMIN", "HR_MANAGER")
 
                 // Offer endpoints
-                .requestMatchers(new AntPathRequestMatcher("/api/offers/**")).hasAnyRole("ADMIN", "HR_MANAGER", "HIRING_MANAGER", "APPLICANT", "EMPLOYEE")
+                .requestMatchers(new AntPathRequestMatcher("/api/offers/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT", "EMPLOYEE")
 
                 // Agency endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/agencies/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
