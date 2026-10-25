@@ -109,8 +109,7 @@ public class ApplicationService {
      */
     @Transactional(readOnly = true)
     public ApplicationResponse getApplication(String id) {
-        Application application = findApplicationById(id);
-        return ApplicationResponse.fromEntity(application);
+        return toResponse(findApplicationById(id));
     }
 
     /**
@@ -286,7 +285,7 @@ public class ApplicationService {
 
         logger.info("Application {} status updated to {}", id, newStatus);
 
-        return ApplicationResponse.fromEntity(updatedApplication);
+        return toResponse(updatedApplication);
     }
 
     /**
@@ -377,7 +376,7 @@ public class ApplicationService {
 
         logger.info("Application {} withdrawn", id);
 
-        return ApplicationResponse.fromEntity(withdrawnApplication);
+        return toResponse(withdrawnApplication);
     }
 
     /**
@@ -411,7 +410,7 @@ public class ApplicationService {
 
         logger.info("Application {} rated with {} stars", id, rating);
 
-        return ApplicationResponse.fromEntity(ratedApplication);
+        return toResponse(ratedApplication);
     }
 
     /**
@@ -486,6 +485,18 @@ public class ApplicationService {
     }
 
     // ── Applicant hydration ─────────────────────────────────────────────────
+
+    /**
+     * Map one application with its applicant hydrated.
+     *
+     * <p>The repository returns the applicant as an id-only stub. The list paths hydrate it; the
+     * single-record paths did not, so the application record page titled every candidate
+     * "Unknown candidate".
+     */
+    private ApplicationResponse toResponse(Application application) {
+        hydrateApplicants(List.of(application));
+        return ApplicationResponse.fromEntity(application);
+    }
 
     /**
      * Populate full Applicant data on applications that only have a stub (ID-only) applicant.
