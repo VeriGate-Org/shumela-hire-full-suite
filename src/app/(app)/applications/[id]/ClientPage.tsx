@@ -234,7 +234,7 @@ export default function ApplicationDetailPage() {
       <Link href="/applications">
         <button className="inline-flex items-center px-3 py-2 border border-border rounded-full text-sm text-muted-foreground hover:bg-accent transition-colors">
           <ArrowLeftIcon className="w-4 h-4 mr-1.5" />
-          Back
+          Back to Applications
         </button>
       </Link>
     </div>
@@ -292,6 +292,7 @@ export default function ApplicationDetailPage() {
         <IdentityBand
           eyebrow="Application record"
           title={application.applicantName || 'Unknown candidate'}
+          actions={headerActions}
           subtitle={
             <>
               {[application.jobTitle, application.department].filter(Boolean).join(' · ')}
