@@ -7,7 +7,7 @@ import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { SecondaryAction } from '@/components/record/DecisionBar';
 import StatusPill from '@/components/StatusPill';
 import { getEnumLabel } from '@/utils/enumLabels';
-import { DocumentTextIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon, ArrowDownTrayIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 
 interface Education {
   institution?: string;
@@ -205,12 +205,24 @@ export default function ApplicantRecord({ applicantId, onEdit, onBack }: Applica
             : []
         }
         actions={
-          <button
-            onClick={onEdit}
-            className="rounded-full bg-band-accent px-4 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-band"
-          >
-            Edit details
-          </button>
+          // Back lives here now. It used to sit on the page-level band above this one, which was
+          // removed as a duplicate header — without moving it, selecting an applicant became a
+          // one-way trip with no route back to the list.
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onBack}
+              className="inline-flex items-center gap-1.5 rounded-full border border-band-accent/40 px-4 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-band-accent"
+            >
+              <ChevronLeftIcon className="h-4 w-4" />
+              Back to Applicants
+            </button>
+            <button
+              onClick={onEdit}
+              className="rounded-full bg-band-accent px-4 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-band"
+            >
+              Edit details
+            </button>
+          </div>
         }
       />
 

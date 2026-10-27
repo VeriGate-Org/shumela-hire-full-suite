@@ -216,7 +216,11 @@ export default function WizardShell({
   const isModal = variant === 'modal';
 
   const shell = (
-    <div className={`bg-white dark:bg-charcoal border border-gray-200 dark:border-gray-700 overflow-hidden ${
+    // No overflow-hidden. It was clipping every absolutely-positioned menu opened inside a step
+    // — the interviewer picker on the attendees step has its own max-h-60 scroller, but only the
+    // sliver of it that fell inside the card was drawn, so it looked like a one-row list that had
+    // lost its scrollbar. The corners are rounded by the children that touch them.
+    <div className={`bg-white dark:bg-charcoal border border-gray-200 dark:border-gray-700 ${
       isModal ? 'rounded-card shadow-xl' : 'rounded-[2px] shadow-sm'
     }`}>
       {/* Header */}

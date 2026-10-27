@@ -212,6 +212,7 @@ export default function InternalJobDetailPage() {
       <PageWrapper>
         <IdentityBand
           eyebrow="Internal opportunity"
+          parent={{ label: 'Internal jobs', href: '/internal/jobs' }}
           title="Job details"
           subtitle="Loading…"
           actions={headerActions}
@@ -228,6 +229,7 @@ export default function InternalJobDetailPage() {
       <PageWrapper>
         <IdentityBand
           eyebrow="Internal opportunity"
+          parent={{ label: 'Internal jobs', href: '/internal/jobs' }}
           title="Job not found"
           subtitle="This advert may have been closed or removed."
           actions={headerActions}
@@ -290,6 +292,7 @@ export default function InternalJobDetailPage() {
           the same title, department, location and employment type the header already carried. */}
       <IdentityBand
         eyebrow={job.channelExternal ? 'Open role' : 'Internal opportunity'}
+        parent={{ label: 'Internal jobs', href: '/internal/jobs' }}
         title={job.title}
         subtitle={[job.department, job.location, job.employmentType].filter(Boolean).join(' · ') || 'Details not recorded'}
         figures={[

@@ -134,6 +134,9 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   const skipCandidateStep = !!prefilledApplicationId;
   const [currentStep, setCurrentStep] = useState(interviewId || skipCandidateStep ? 1 : 0);
   const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
+  // Whether the Teams integration preview on the Details step has been demonstrated. Presentation
+  // only — nothing is connected to Microsoft Graph, and the panel says so on screen.
+  const [teamsPreviewUsed, setTeamsPreviewUsed] = useState(false);
   const [formData, setFormData] = useState<InterviewData>({
     ...DEFAULT_INTERVIEW_DATA,
     applicationId: prefilledApplicationId || '',
@@ -653,6 +656,43 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
             placeholder="https://meet.google.com/..."
           />
           {errors.meetingLink && <p className="text-red-500 text-xs mt-1">{errors.meetingLink}</p>}
+
+          {/* Shows what scheduling looks like once a calendar is connected: the organiser stops
+              pasting a link and the meeting is created here instead. Deliberately inert — it
+              fills the field above with an example address and nothing is sent anywhere. The
+              panel states that it is not connected so a walkthrough cannot be read as a working
+              integration; replacing it with real Microsoft Graph calls is a separate piece of
+              work, and until then the honest version of this is a labelled preview. */}
+          <div className="mt-3 rounded-control border border-dashed border-border bg-muted/50 p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground">Microsoft Teams</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Not connected — preview of how scheduling would work once it is.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  handleInputChange(
+                    'meetingLink',
+                    'https://teams.microsoft.com/l/meetup-join/19%3ameeting_EXAMPLE',
+                  );
+                  setTeamsPreviewUsed(true);
+                }}
+                className="shrink-0 rounded-full border border-border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-foreground hover:bg-accent"
+              >
+                Create Teams meeting
+              </button>
+            </div>
+            {teamsPreviewUsed && (
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                With Teams connected, the link above is generated when the interview is saved, and
+                the candidate and every interviewer receive the invitation on their calendars. This
+                example link is not a real meeting.
+              </p>
+            )}
+          </div>
         </div>
       )}
 

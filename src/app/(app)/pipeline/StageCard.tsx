@@ -89,17 +89,20 @@ export default function StageCard({
         {department && <> &middot; {department}</>}
       </p>
 
-      {/* The signal. One line, or none — Hired says nothing, because nothing is owed. */}
-      {(state.line || checkDots) && (
-        <div className="mt-1.5 flex items-center gap-1.5">
-          {checkDots && <CheckDots {...checkDots} />}
-          {state.line && (
-            <span className={`truncate text-[0.6875rem] font-bold ${TONE_TEXT[state.tone]}`}>
-              {state.line}
-            </span>
-          )}
-        </div>
-      )}
+      {/* The signal. One line, or none — Hired says nothing, because nothing is owed.
+          The row is laid out either way. Collapsing it when a stage has nothing to say made
+          Applied cards roughly 20px shorter than every other column's, because an application
+          that has only just arrived is owed nothing yet — so the busiest column on the board
+          rendered the smallest, tightest cards and its names were the hardest to pick out. The
+          space is reserved instead, and the columns scan as one board. */}
+      <div className="mt-1.5 flex min-h-[0.9375rem] items-center gap-1.5">
+        {checkDots && <CheckDots {...checkDots} />}
+        {state.line && (
+          <span className={`truncate text-[0.6875rem] font-bold ${TONE_TEXT[state.tone]}`}>
+            {state.line}
+          </span>
+        )}
+      </div>
 
       <div className="mt-1.5 flex items-center justify-between gap-2">
         <span className="truncate text-[0.625rem] font-medium tabular-nums text-muted-foreground">

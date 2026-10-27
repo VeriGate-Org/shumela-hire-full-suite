@@ -18,13 +18,32 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
  * make the precedence a stated rule instead of an accident of the tree.
  */
 
+/** The list a record came from, shown in the chrome as a link before the heading. */
+export interface HeadingParent {
+  label: string;
+  href: string;
+}
+
 interface PageHeadingValue {
   /** What the chrome should display: the page's own title, else the section label. */
   heading?: string;
+  /**
+   * The listing this page sits under, if it sits under one.
+   *
+   * <p>The breadcrumb was a single label, so a record page read as "/ Application record" with
+   * no statement of what it belonged to and nothing to click. Record screens carry their own
+   * Back button, but it is the only route back — and it sits in a different place on each
+   * screen, which is what made navigation feel inconsistent from page to page. This gives every
+   * record the same second way back, in the same place, on every page.
+   */
+  parent?: HeadingParent;
   /** Set by PageWrapper. Wins, because it is the page's own declaration. */
   setPageTitle: (title?: string) => void;
   /** Set by IdentityBand's eyebrow. Used when the page states no title of its own. */
   setSectionLabel: (label?: string) => void;
+  /** Set by IdentityBand's `parent` prop. */
+  setParent: (parent?: HeadingParent) => void;
+  clearParent: (expectedHref?: string) => void;
   /**
    * Clear a slot only if it still holds the caller's value.
    *
@@ -40,15 +59,19 @@ const noop = () => {};
 
 const PageHeadingContext = createContext<PageHeadingValue>({
   heading: undefined,
+  parent: undefined,
   setPageTitle: noop,
   setSectionLabel: noop,
+  setParent: noop,
   clearPageTitle: noop,
   clearSectionLabel: noop,
+  clearParent: noop,
 });
 
 export function PageHeadingProvider({ children }: { children: React.ReactNode }) {
   const [pageTitle, setPageTitleState] = useState<string | undefined>(undefined);
   const [sectionLabel, setSectionLabelState] = useState<string | undefined>(undefined);
+  const [parent, setParentState] = useState<HeadingParent | undefined>(undefined);
 
   // Stable identities, so the effects that publish do not re-run on every render above them.
   const setPageTitle = useCallback((next?: string) => {
@@ -63,16 +86,29 @@ export function PageHeadingProvider({ children }: { children: React.ReactNode })
   const clearSectionLabel = useCallback((expected?: string) => {
     setSectionLabelState((current) => (current === expected ? undefined : current));
   }, []);
+  const setParent = useCallback((next?: HeadingParent) => {
+    setParentState((current) =>
+      current?.href === next?.href && current?.label === next?.label ? current : next,
+    );
+  }, []);
+  // Compared on href for the same reason the two label slots compare on value: during a route
+  // change the outgoing page's cleanup can run after the incoming page's effect.
+  const clearParent = useCallback((expectedHref?: string) => {
+    setParentState((current) => (current?.href === expectedHref ? undefined : current));
+  }, []);
 
   const value = useMemo(
     () => ({
       heading: pageTitle ?? sectionLabel,
+      parent,
       setPageTitle,
       setSectionLabel,
+      setParent,
       clearPageTitle,
       clearSectionLabel,
+      clearParent,
     }),
-    [pageTitle, sectionLabel, setPageTitle, setSectionLabel, clearPageTitle, clearSectionLabel],
+    [pageTitle, sectionLabel, parent, setPageTitle, setSectionLabel, setParent, clearPageTitle, clearSectionLabel, clearParent],
   );
 
   return <PageHeadingContext.Provider value={value}>{children}</PageHeadingContext.Provider>;

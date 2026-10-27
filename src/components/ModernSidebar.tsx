@@ -271,8 +271,13 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                 title={pinned ? 'Unpin menu' : 'Keep menu open'}
                 aria-label={pinned ? 'Unpin menu' : 'Keep menu open'}
                 aria-pressed={pinned}
-                className="rounded-control p-1.5 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-                style={{ color: pinned ? 'var(--cta)' : 'rgba(255,255,255,0.45)' }}
+                // Unpinned used a hard-coded white at 45%, and the panel behind it is #FFFFFF in
+                // light mode — so the one control that tells you the menu can be kept open was
+                // invisible on exactly the theme where you go looking for it. Still clickable,
+                // which is worse than missing. --nav-fg is the token the menu rows already use
+                // and carries its own value per theme.
+                className="rounded-control p-1.5 transition-colors hover:bg-[var(--nav-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nav-active-rail)]"
+                style={{ color: pinned ? 'var(--cta)' : 'var(--nav-fg)' }}
               >
                 <MapPinIcon className="h-4 w-4" />
               </button>

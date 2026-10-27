@@ -293,16 +293,6 @@ export default function InterviewsPage() {
     <PageWrapper>
       <div className="space-y-6">
 
-        {/* Interview question generation belongs where interviews are arranged. The component
-            was written, tested and mounted nowhere — reachable only by knowing it existed. */}
-        <AiAssistPanel
-          title="AI Interview Questions"
-          feature="AI_INTERVIEW_QUESTIONS"
-          description="Generate role-specific interview questions from the vacancy's requirements"
-        >
-          <AiInterviewQuestionGenerator />
-        </AiAssistPanel>
-
         <IdentityBand
           actions={scheduleButton}
           eyebrow="Interview schedule"
@@ -650,6 +640,22 @@ export default function InterviewsPage() {
               )}
             </div>
           </section>
+        )}
+
+        {/* Interview question generation belongs where interviews are arranged — but underneath
+            them, not in front of them. This sat above the IdentityBand, so the first thing the
+            interviews page showed was an AI tool rather than the interviews, and the band that
+            names the screen came second. It is a side tool for a scheduled interview, so it reads
+            last, and only on the list view: on the calendar and feedback screens it is unrelated
+            to what is being looked at. The panel is collapsed until opened, so it costs one line. */}
+        {view === 'list' && (
+          <AiAssistPanel
+            title="AI Interview Questions"
+            feature="AI_INTERVIEW_QUESTIONS"
+            description="Generate role-specific interview questions from the vacancy's requirements"
+          >
+            <AiInterviewQuestionGenerator />
+          </AiAssistPanel>
         )}
       </div>
 

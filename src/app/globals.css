@@ -463,6 +463,36 @@
     color: var(--cta-foreground);
   }
 
+  /* The same correction, for the buttons that are plain utilities rather than .btn-primary.
+     --foreground, --border and --accent are all defined against the page surface, which flips
+     with the theme; the plate does not flip, it is navy in both. So in light mode --foreground
+     is near-black ink on navy and the control disappears, while dark mode looks fine — which is
+     why these read as "only broken in light mode". Scoped to .band-actions, so it applies where
+     the plate is and nowhere else.
+
+     Reported on the applications queue (Refresh) and internal jobs (Table/Card view); written
+     against the utilities rather than those two call sites so the next button dropped on a band
+     inherits the correction instead of the bug. */
+  .band-actions .text-foreground {
+    color: var(--band-foreground);
+  }
+
+  .band-actions .text-muted-foreground {
+    color: var(--band-muted);
+  }
+
+  .band-actions .border-border {
+    border-color: var(--band-line);
+  }
+
+  .band-actions .hover\:bg-accent:hover {
+    background-color: var(--band-fill);
+  }
+
+  .band-actions .hover\:text-foreground:hover {
+    color: var(--band-foreground);
+  }
+
   .btn-secondary {
     background-color: var(--secondary);
     color: var(--secondary-foreground);
