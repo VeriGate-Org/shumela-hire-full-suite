@@ -82,7 +82,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'view_approvals',
     'view_dashboard', 'manage_jobs', 'view_applications', 'view_applicants',
     'manage_pipeline', 'view_interviews', 'view_internal_jobs',
-    'manage_applications', 'view_salary_data',
+    'manage_applications', 'view_salary_data', 'manage_offers',
     'view_analytics', 'view_recruiter_analytics',
   ],
   INTERVIEWER: [

@@ -27,7 +27,8 @@ const PERMISSIONS_BY_ROLE: Record<string, string[]> = {
   ADMIN: ['view_dashboard', 'manage_offers', 'view_applications', 'manage_pipeline'],
   HR_MANAGER: ['view_dashboard', 'manage_offers', 'view_applications', 'manage_pipeline'],
   HIRING_MANAGER: ['view_dashboard', 'manage_offers', 'view_applications', 'manage_pipeline'],
-  RECRUITER: ['view_dashboard', 'view_applications', 'manage_pipeline'],
+  RECRUITER: ['view_dashboard', 'manage_offers', 'view_applications', 'manage_pipeline'],
+  INTERVIEWER: ['view_dashboard', 'view_interviews'],
 };
 
 /**
@@ -118,7 +119,7 @@ async function fillRequiredFields(page: Page) {
 }
 
 test.describe('Offers — the create entry point exists', () => {
-  for (const role of ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER']) {
+  for (const role of ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER']) {
     test(`${role} is offered a way to create an offer`, async ({ page }) => {
       await signInAs(page, role);
       await stubApi(page);
@@ -128,8 +129,8 @@ test.describe('Offers — the create entry point exists', () => {
     });
   }
 
-  test('RECRUITER is refused offer management', async ({ page }) => {
-    await signInAs(page, 'RECRUITER');
+  test('INTERVIEWER is refused offer management', async ({ page }) => {
+    await signInAs(page, 'INTERVIEWER');
     await stubApi(page);
     await page.goto('/offers');
 

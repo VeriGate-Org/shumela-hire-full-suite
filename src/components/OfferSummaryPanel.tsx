@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
+import { useAuth } from '@/contexts/AuthContext';
 import { formatEnumValue } from '@/utils/enumLabels';
 import { eSignatureService } from '@/services/eSignatureService';
 import ApprovalTimeline, { ApprovalStep } from '@/components/ApprovalTimeline';
@@ -29,6 +30,10 @@ export default function OfferSummaryPanel({
   readOnly = false,
   onAction,
 }: OfferSummaryPanelProps) {
+  const { user } = useAuth();
+  // A recruiter prepares and sends offers but does not decide them: approve, reject and the
+  // response to a counter-offer stay with the roles OfferController admits for those actions.
+  const mayDecide = ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'].includes(user?.role ?? '');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [negotiationResponse, setNegotiationResponse] = useState('');
@@ -203,7 +208,7 @@ export default function OfferSummaryPanel({
               {actionLoading === 'submit-approval' ? 'Submitting...' : 'Submit for Approval'}
             </button>
           )}
-          {!readOnly && status === 'PENDING_APPROVAL' && (
+          {!readOnly && mayDecide && status === 'PENDING_APPROVAL' && (
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => doAction('approve', `/api/offers/${offer.id}/approve`, 'POST', { approvalNotes: 'Approved' })}
@@ -292,7 +297,7 @@ export default function OfferSummaryPanel({
                 <p className="text-foreground mt-1">{offer.companyResponse}</p>
               </div>
             )}
-            {!readOnly && (
+            {!readOnly && mayDecide && (
               <>
                 {!showNegotiateForm ? (
                   <button

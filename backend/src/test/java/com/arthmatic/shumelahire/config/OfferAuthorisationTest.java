@@ -36,15 +36,26 @@ class OfferAuthorisationTest {
 
     /** Roles that may reach any offer endpoint. Per-endpoint narrowing is the annotation's job. */
     private static final Set<String> EXPECTED_URL_RULE =
-            Set.of("ADMIN", "HR_MANAGER", "HIRING_MANAGER", "APPLICANT", "EMPLOYEE");
+            Set.of("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT", "EMPLOYEE");
 
-    /** Everyone who manages an offer: create, edit, approve, send, withdraw, search, analytics. */
-    private static final Set<String> MANAGE =
+    /** Who decides an offer: approve, reject, withdraw, answer a counter-offer, escalate. */
+    private static final Set<String> DECIDE =
             Set.of("ADMIN", "HR_MANAGER", "HIRING_MANAGER");
 
-    /** Managers plus the candidate's own view-and-respond endpoints. */
-    private static final Set<String> MANAGE_AND_CANDIDATE =
+    /** Who prepares an offer: create, edit, submit, send once approved, revise, search. */
+    private static final Set<String> PREPARE =
+            Set.of("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER");
+
+    /** Deciders plus the candidate's own respond endpoints (viewed, accept, decline, negotiate). */
+    private static final Set<String> DECIDE_AND_CANDIDATE =
             Set.of("ADMIN", "HR_MANAGER", "HIRING_MANAGER", "APPLICANT", "EMPLOYEE");
+
+    /** Preparers plus the candidate: reading an offer and its option lists. */
+    private static final Set<String> PREPARE_AND_CANDIDATE =
+            Set.of("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT", "EMPLOYEE");
+
+    private static final List<Set<String>> VOCABULARIES =
+            List.of(DECIDE, PREPARE, DECIDE_AND_CANDIDATE, PREPARE_AND_CANDIDATE);
 
     private static final Path CONTROLLER =
             Path.of("src/main/java/com/arthmatic/shumelahire/controller/OfferController.java");
@@ -114,22 +125,38 @@ class OfferAuthorisationTest {
     }
 
     @Test
-    @DisplayName("Every endpoint grants either the manage set or the manage-and-candidate set")
-    void everyEndpointUsesOneOfTheTwoVocabularies() throws IOException {
+    @DisplayName("Every endpoint grants one of the four named role sets")
+    void everyEndpointUsesOneOfTheVocabularies() throws IOException {
         List<Set<String>> annotations = annotationRoles(read(CONTROLLER));
 
         for (int i = 0; i < annotations.size(); i++) {
             Set<String> roles = annotations.get(i);
-            assertTrue(roles.equals(MANAGE) || roles.equals(MANAGE_AND_CANDIDATE),
-                    "endpoint " + i + " grants " + new TreeSet<>(roles) + ", which is neither the "
-                            + "manage set " + new TreeSet<>(MANAGE) + " nor the manage-and-candidate "
-                            + "set " + new TreeSet<>(MANAGE_AND_CANDIDATE) + "; a one-off role list "
-                            + "on a single endpoint is how these drift apart");
+            assertTrue(VOCABULARIES.contains(roles),
+                    "endpoint " + i + " grants " + new TreeSet<>(roles) + ", which is none of the "
+                            + "decide, prepare, decide-and-candidate or prepare-and-candidate sets; "
+                            + "a one-off role list on a single endpoint is how these drift apart");
         }
     }
 
     @Test
-    @DisplayName("Creating an offer is a manage action, not a candidate one")
+    @DisplayName("A recruiter prepares offers but never decides them")
+    void aRecruiterNeverDecidesAnOffer() throws IOException {
+        String source = read(CONTROLLER);
+        for (String path : List.of("/{id}/approve", "/{id}/reject", "/{id}/withdraw",
+                "/{id}/negotiate/respond", "/{id}/negotiate/escalate", "/process-expired")) {
+            Matcher m = Pattern.compile(
+                    "@PostMapping\\(\"" + Pattern.quote(path) + "\"\\)\\s*"
+                            + "@PreAuthorize\\(\"hasAnyRole\\(([^)]*)\\)")
+                    .matcher(source);
+            assertTrue(m.find(), "no guarded POST " + path + " — did it move?");
+            assertTrue(!m.group(1).contains("'RECRUITER'"),
+                    path + " admits RECRUITER; the service does not check approval authority, so "
+                            + "the role list is the only thing stopping self-approval");
+        }
+    }
+
+    @Test
+    @DisplayName("Creating an offer is a prepare action, not a candidate one")
     void creatingAnOfferIsAManageAction() throws IOException {
         String source = read(CONTROLLER);
 
@@ -142,7 +169,7 @@ class OfferAuthorisationTest {
         Set<String> roles = Pattern.compile("'([A-Z_]+)'").matcher(m.group(1)).results()
                 .map(r -> r.group(1)).collect(Collectors.toCollection(TreeSet::new));
 
-        assertEquals(new TreeSet<>(MANAGE), roles,
+        assertEquals(new TreeSet<>(PREPARE), roles,
                 "a candidate must never be able to create their own offer");
     }
 

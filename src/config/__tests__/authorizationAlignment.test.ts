@@ -51,7 +51,7 @@ describe('Authorization alignment', () => {
   it('keeps high-risk navigation routes aligned with backend role policies', () => {
     expectNavRoles('agencies', ['ADMIN', 'HR_MANAGER', 'RECRUITER']);
     expectNavRoles('talent-pools', ['ADMIN', 'HR_MANAGER', 'RECRUITER']);
-    expectNavRoles('offers', ['ADMIN', 'HIRING_MANAGER', 'HR_MANAGER']);
+    expectNavRoles('offers', ['ADMIN', 'HIRING_MANAGER', 'HR_MANAGER', 'RECRUITER']);
     expectNavRoles('workflow', ['ADMIN', 'HR_MANAGER']);
     // 'application-management' was retired: its bulk actions and export moved onto the
     // applications queue, so the queue is what now needs to stay aligned. It carries the wider

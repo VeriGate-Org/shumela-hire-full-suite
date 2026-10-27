@@ -104,7 +104,7 @@ export default function ApplicationDetailPage() {
    * link. OfferSummaryPanel given a null offer says "no offer has been prepared", which would be a
    * false statement to someone simply not allowed to know. The section is withheld instead.
    */
-  const OFFER_ROLES = ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'];
+  const OFFER_ROLES = ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER'];
   const maySeeOffers = user?.role != null && OFFER_ROLES.includes(user.role);
   const [timeline, setTimeline] = useState<Array<{
     fromStage?: string; toStage?: string; createdAt?: string; performedBy?: string; reason?: string;
