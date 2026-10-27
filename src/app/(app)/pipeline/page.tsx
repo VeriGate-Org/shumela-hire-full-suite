@@ -938,8 +938,12 @@ export default function PipelinePage() {
         <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
         Export
       </button>
+      {/* This said "Add Application feature coming soon" — wrong on both counts. The feature is
+          not missing (a recruiter capturing a CV that arrived outside the portal does it on the
+          applicants screen) and the button does not say "application", it says candidate. It now
+          opens the capture form it was always describing. */}
       <button
-        onClick={() => toast('Add Application feature coming soon', 'info')}
+        onClick={() => router.push('/applicants?new=1')}
         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button bg-cta border-2 border-cta text-cta-foreground font-semibold text-sm uppercase tracking-wider transition-all hover:bg-cta-hover hover:border-cta-hover"
       >
         <PlusIcon className="w-4 h-4" />
@@ -1122,7 +1126,7 @@ export default function PipelinePage() {
             icon={FunnelIcon}
             title="Your pipeline is empty"
             description="Start by creating a job posting to receive applications, or add a candidate manually."
-            action={{ label: 'Add Application', onClick: () => toast('Add Application feature coming soon', 'info') }}
+            action={{ label: 'Add Candidate', onClick: () => router.push('/applicants?new=1') }}
           />
         )}
 

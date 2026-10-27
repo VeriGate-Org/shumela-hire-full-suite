@@ -170,7 +170,7 @@ export default function JobPostingWorkflowPage() {
   if (loading) {
     return (
       <PageWrapper>
-        <IdentityBand eyebrow="Approval & publishing record" title="Loading…" />
+        <IdentityBand eyebrow="Approval & publishing record" parent={{ label: 'Job postings', href: '/job-postings' }} title="Loading…" />
       </PageWrapper>
     );
   }
@@ -181,6 +181,7 @@ export default function JobPostingWorkflowPage() {
         <div className="space-y-4">
           <IdentityBand
             eyebrow="Approval & publishing record"
+          parent={{ label: 'Job postings', href: '/job-postings' }}
             title="This posting could not be found"
             subtitle="It may have been deleted, or the link may be wrong."
           />
@@ -206,6 +207,7 @@ export default function JobPostingWorkflowPage() {
       <div className="space-y-4">
         <IdentityBand
           eyebrow="Approval & publishing record"
+          parent={{ label: 'Job postings', href: '/job-postings' }}
           title={posting.title || 'Untitled posting'}
           subtitle={
             [

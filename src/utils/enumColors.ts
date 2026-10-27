@@ -144,6 +144,11 @@ export const ENUM_COLORS: Record<string, Record<string, string>> = {
   postingStatus: {
     DRAFT: 'gray',
     ACTIVE: 'green',
+    // The two states JobBoardManager actually filters on were missing, so a board that had been
+    // published showed the unmapped-value fallback — a gray pill, the one variant that had no
+    // dark-mode ink. Live distribution now reads as live, and a queued one as waiting.
+    POSTED: 'green',
+    PENDING: 'amber',
     PAUSED: 'yellow',
     CLOSED: 'red',
     EXPIRED: 'gray',

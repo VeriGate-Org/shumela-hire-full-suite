@@ -139,7 +139,10 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
     setErrors({});
   };
   const originalIdRef = useRef('');
-  const isMaskedId = formData.idPassportNumber.includes('*');
+  // Read defensively as well as normalised on load: this runs on every render, before any
+  // loading or error state is consulted, so a non-string here is an error page rather than a
+  // broken field.
+  const isMaskedId = (formData.idPassportNumber ?? '').includes('*');
   const [showSuccess, setShowSuccess] = useState(false);
   const [deleteDocId, setDeleteDocId] = useState<number | null>(null);
   
@@ -159,8 +162,21 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
           }
         };
         originalIdRef.current = data.idPassportNumber ?? '';
+        // ApplicantData types these as required strings, but the response is `any` and the column
+        // is nullable, so a null arrived here untouched and became the field's value. Anything
+        // reading it as a string then threw during render — isMaskedId calls .includes() on
+        // idPassportNumber unconditionally, which took the whole Edit screen to the error page for
+        // any applicant with no ID captured. They also have to be strings for the inputs bound to
+        // them to stay controlled.
+        const text = (value: unknown) => (typeof value === 'string' ? value : '');
         const loaded = {
           ...data,
+          name: text(data.name),
+          surname: text(data.surname),
+          email: text(data.email),
+          phone: text(data.phone),
+          idPassportNumber: text(data.idPassportNumber),
+          address: text(data.address),
           education: parseJsonField(data.education),
           experience: parseJsonField(data.experience),
           skills: parseJsonField(data.skills),

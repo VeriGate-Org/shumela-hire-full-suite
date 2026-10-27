@@ -15,9 +15,19 @@ import {
 
 interface JobBoardManagerProps {
   jobId: string;
+  /**
+   * How many boards this job is not yet on, published whenever it changes.
+   *
+   * <p>The "Publish to All Channels" button lives on the page above this panel and had no way to
+   * know the answer, so it stayed enabled after every channel was covered and opened a wizard
+   * with an empty list. This panel already derives the number to decide whether to show its own
+   * Post control; reporting it costs nothing and avoids the page fetching the same two endpoints
+   * a second time to find out. Removing a posting puts the board back, and the count rises again.
+   */
+  onRemainingBoardsChange?: (count: number) => void;
 }
 
-export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
+export default function JobBoardManager({ jobId, onRemainingBoardsChange }: JobBoardManagerProps) {
   const { toast } = useToast();
   const [postings, setPostings] = useState<JobBoardPosting[]>([]);
   const [availableBoards, setAvailableBoards] = useState<AvailableBoard[]>([]);
@@ -107,6 +117,14 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
     .map(p => p.boardType);
   const unpostedBoards = availableBoards.filter(b => !postedBoardTypes.includes(b.type as JobBoardType));
 
+  // Reported after render rather than during, so the parent's state update is not queued while
+  // this component is still rendering. Gated on `loading` because the first pass runs with empty
+  // arrays, which would otherwise announce "nothing left to post to" before anything had loaded.
+  const remainingBoards = unpostedBoards.length;
+  useEffect(() => {
+    if (!loading) onRemainingBoardsChange?.(remainingBoards);
+  }, [loading, remainingBoards, onRemainingBoardsChange]);
+
   if (loading) {
     return <div className="py-4"><div className="animate-spin h-6 w-6 border-2 border-gold-500 border-t-transparent rounded-full" /></div>;
   }
@@ -114,7 +132,7 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Job Board Postings</h4>
+        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Job Board Postings</h4>
       </div>
 
       {/* Post to new board */}
@@ -123,7 +141,7 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
           <select
             value={selectedBoard}
             onChange={e => setSelectedBoard(e.target.value)}
-            className="text-sm p-2 border border-gray-300 rounded-control flex-1"
+            className="text-sm p-2 border border-border bg-card text-foreground rounded-control flex-1"
           >
             <option value="">Select a board...</option>
             {unpostedBoards.map(board => (
@@ -144,14 +162,16 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
 
       {/* Posting list */}
       {postings.length === 0 ? (
-        <p className="text-sm text-gray-500">No board postings yet. Select a board above to post this job.</p>
+        <p className="text-sm text-muted-foreground">No board postings yet. Select a board above to post this job.</p>
       ) : (
         <div className="space-y-2">
+          {/* Theme tokens, not fixed grays: these rows were bg-gray-50 with gray-900 text in both
+              themes, so in dark mode a stack of bright cards sat on the dark page. */}
           {postings.map(posting => (
-            <div key={posting.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-control border border-gray-200">
+            <div key={posting.id} className="flex items-center justify-between p-3 bg-muted rounded-control border border-border">
               <div className="flex items-center gap-3">
                 <BoardLogo boardType={posting.boardType} size="md" />
-                <span className="font-medium text-sm text-gray-900">
+                <span className="font-medium text-sm text-foreground">
                   {getBoardDisplayName(posting.boardType)}
                 </span>
                 <StatusPill value={posting.status} domain="postingStatus" size="sm" />
@@ -159,7 +179,7 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
 
               <div className="flex items-center gap-4">
                 {posting.status === 'POSTED' && (
-                  <div className="flex gap-3 text-xs text-gray-500">
+                  <div className="flex gap-3 text-xs text-muted-foreground">
                     <span>{posting.viewCount} views</span>
                     <span>{posting.clickCount} clicks</span>
                     <span>{posting.applicationCount} apps</span>

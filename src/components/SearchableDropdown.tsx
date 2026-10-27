@@ -149,16 +149,16 @@ export default function SearchableDropdown({
 
       {/* Dropdown panel */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-control shadow-lg">
+        <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-control shadow-lg">
           {/* Search input */}
-          <div className="p-2 border-b border-gray-100">
+          <div className="p-2 border-b border-border">
             <input
               ref={searchRef}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={searchPlaceholder}
-              className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
+              className="w-full px-3 py-1.5 text-sm bg-background text-foreground border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
             />
           </div>
 
@@ -169,7 +169,7 @@ export default function SearchableDropdown({
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gold-500" />
               </div>
             ) : filtered.length === 0 ? (
-              <div className="px-3 py-4 text-center text-sm text-gray-400">
+              <div className="px-3 py-4 text-center text-sm text-muted-foreground">
                 {search ? 'No results found' : 'No options available'}
               </div>
             ) : (

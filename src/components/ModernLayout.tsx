@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState, ReactNode } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import ModernSidebar from './ModernSidebar';
 import NotificationCenter from './NotificationCenter';
 import UserProfile from './UserProfile';
@@ -12,6 +13,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import RoleSwitcher from './RoleSwitcher';
 import { usePageHeading } from '@/contexts/PageHeadingContext';
+import { isChromelessRoute } from '@/config/chromeless-routes';
 
 /**
  * The application chrome: top bar, sidebar, footer and the shortcuts overlay.
@@ -45,7 +47,7 @@ function ProductMark({ logoText }: { logoText?: string }) {
 }
 
 const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
-  const { heading: title } = usePageHeading();
+  const { heading: title, parent } = usePageHeading();
   // Rail is always there; the panel beside it is what pins. Persisted, because whether the menu
   // stays open is a working preference, not a per-page one.
   const [panelPinned, setPanelPinned] = useState(true);
@@ -67,6 +69,15 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
   const { showOverlay, setShowOverlay, shortcutList } = useKeyboardShortcuts();
   const { colorMode, setColorMode } = useTheme();
   const ThemeIcon = colorMode === 'light' ? SunIcon : colorMode === 'dark' ? MoonIcon : ComputerDesktopIcon;
+  const pathname = usePathname();
+
+  // The public careers page and the auth screens sit inside this route group for the tenant and
+  // theme providers, not for the chrome. They were getting the signed-in sidebar on top of their
+  // own header — on /jobs that meant an anonymous visitor browsing vacancies was shown the full
+  // staff menu. Every hook above still runs, so the order is stable across both branches.
+  if (isChromelessRoute(pathname)) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -101,6 +112,21 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
             {title && (
               <div className="hidden md:flex items-center gap-1 pl-4 border-l border-border text-xs">
                 <span className="text-muted-foreground">/</span>
+                {/* The listing a record came from, when it has one. A record screen used to show
+                    only its own label here, so the breadcrumb named where you were without
+                    naming what you were inside, and the sole route back was a button that sits
+                    in a different place on each screen. */}
+                {parent && (
+                  <>
+                    <Link
+                      href={parent.href}
+                      className="text-muted-foreground hover:text-foreground hover:underline"
+                    >
+                      {parent.label}
+                    </Link>
+                    <span className="text-muted-foreground">/</span>
+                  </>
+                )}
                 <span className="text-foreground font-medium">{title}</span>
               </div>
             )}

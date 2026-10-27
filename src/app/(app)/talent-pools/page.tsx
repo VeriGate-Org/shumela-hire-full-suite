@@ -366,7 +366,10 @@ export default function TalentPoolsPage() {
       toast('Entry added successfully', 'success');
       setModal(null);
       setEntryForm({ applicantId: '', sourceType: 'MANUAL', notes: '' });
-      await loadPoolDetail(selectedPool);
+      // Both, not just the detail. loadPoolDetail refreshes the entries table; the pool sizes in
+      // the list beside it come from loadPools, so adding someone updated the table immediately
+      // while the count next to the pool sat at its old value until the page was reloaded.
+      await Promise.all([loadPoolDetail(selectedPool), loadPools()]);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       toast(`Failed to add entry (${message})`, 'error');
@@ -392,7 +395,8 @@ export default function TalentPoolsPage() {
       toast('Entry removed', 'success');
       setModal(null);
       setRemovingEntry(null);
-      await loadPoolDetail(selectedPool);
+      // Same pairing as adding — a removal has to come off the count as well as the table.
+      await Promise.all([loadPoolDetail(selectedPool), loadPools()]);
     } catch {
       toast('Failed to remove entry', 'error');
     } finally {

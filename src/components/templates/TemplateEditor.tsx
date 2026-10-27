@@ -216,7 +216,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
-                    Template Name *
+                    Template Name<span className="text-error font-bold" aria-hidden="true"> *</span>
+                    <span className="sr-only">(required)</span>
                   </label>
                   <input
                     type="text"
@@ -258,7 +259,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
 
                 <div>
                   <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
-                    Contact Email *
+                    Contact Email<span className="text-error font-bold" aria-hidden="true"> *</span>
+                    <span className="sr-only">(required)</span>
                   </label>
                   <input
                     type="email"
@@ -281,7 +283,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
-                    Job Title Template *
+                    Job Title Template<span className="text-error font-bold" aria-hidden="true"> *</span>
+                    <span className="sr-only">(required)</span>
                   </label>
                   <input
                     type="text"

@@ -338,8 +338,11 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
   const employmentLabel = EMPLOYMENT_TYPES.find(t => t.value === formData.employmentType)?.label || formData.employmentType;
   const experienceLabel = EXPERIENCE_LEVELS.find(l => l.value === formData.experienceLevel)?.label || formData.experienceLevel;
 
+  // The label text inside these was a fixed gray-700 with no dark variant, over a hover that
+  // darkens to gray-800 in dark mode — so hovering a checkbox dropped the text to near-invisible
+  // and it reappeared when the pointer left. Theme tokens on both the ink and the hover fill.
   const checkboxClass =
-    'flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-[2px] cursor-pointer hover:bg-muted dark:hover:bg-gray-800 transition-colors';
+    'flex items-center p-3 border border-border rounded-[2px] cursor-pointer hover:bg-accent transition-colors';
 
   const renderBasicStep = () => (
     <div className="space-y-5">
@@ -459,7 +462,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
             onChange={(e) => handleInputChange('remoteWorkAllowed', e.target.checked)}
             className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
           />
-          <span className="text-sm text-gray-700">Remote work allowed</span>
+          <span className="text-sm text-foreground">Remote work allowed</span>
         </label>
 
         <label className={checkboxClass}>
@@ -469,7 +472,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
             onChange={(e) => handleInputChange('travelRequired', e.target.checked)}
             className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
           />
-          <span className="text-sm text-gray-700">Travel required</span>
+          <span className="text-sm text-foreground">Travel required</span>
         </label>
 
         <label className={checkboxClass}>
@@ -479,7 +482,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
             onChange={(e) => handleInputChange('featured', e.target.checked)}
             className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
           />
-          <span className="text-sm text-gray-700">Featured position</span>
+          <span className="text-sm text-foreground">Featured position</span>
         </label>
 
         <label className={checkboxClass}>
@@ -489,7 +492,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
             onChange={(e) => handleInputChange('urgent', e.target.checked)}
             className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
           />
-          <span className="text-sm text-gray-700">Urgent hiring</span>
+          <span className="text-sm text-foreground">Urgent hiring</span>
         </label>
       </div>
     </div>
@@ -711,7 +714,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
 
       <div className="bg-muted dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
         <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-1">Salary Range Preview</div>
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-foreground">
           {formData.salaryMin || formData.salaryMax ? (
             <>
               {formData.salaryMin && formData.salaryMax
@@ -844,7 +847,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
             <div className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.05em] mb-2">
               Description Preview
             </div>
-            <div className="text-sm text-gray-700 whitespace-pre-wrap line-clamp-6">
+            <div className="text-sm text-foreground whitespace-pre-wrap line-clamp-6">
               {formData.description}
             </div>
           </div>

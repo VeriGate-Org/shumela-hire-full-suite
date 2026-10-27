@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { usePageHeading } from '@/contexts/PageHeadingContext';
+import { usePageHeading, type HeadingParent } from '@/contexts/PageHeadingContext';
 
 export interface IdentityFigure {
   /** Short label, e.g. "In workflow". */
@@ -35,6 +35,14 @@ export interface IdentityBandProps {
    * a screen with nothing outstanding would otherwise offer no way to start work at all.
    */
   actions?: React.ReactNode;
+  /**
+   * The listing this record belongs to, e.g. `{ label: 'Applications', href: '/applications' }`.
+   *
+   * <p>Published to the chrome, which renders it as a clickable breadcrumb ahead of the eyebrow —
+   * "Applications / Application record". Record screens should set it; queue screens, which are
+   * the listing, should not.
+   */
+  parent?: HeadingParent;
 }
 
 // Band-scoped state colours. The page palette's --critical and --teal are chosen against a light
@@ -61,6 +69,7 @@ export default function IdentityBand({
   figures = [],
   children,
   actions,
+  parent,
 }: IdentityBandProps) {
   /*
    * The top bar's breadcrumb is fed by PageWrapper's `title`, and the 39 pages built around this
@@ -68,11 +77,21 @@ export default function IdentityBand({
    * the right thing to publish rather than the title: it names the section ("Application triage"),
    * where the title names the specific record and can be a whole sentence.
    */
-  const { setSectionLabel, clearSectionLabel } = usePageHeading();
+  const { setSectionLabel, clearSectionLabel, setParent, clearParent } = usePageHeading();
   useEffect(() => {
     setSectionLabel(eyebrow);
     return () => clearSectionLabel(eyebrow);
   }, [eyebrow, setSectionLabel, clearSectionLabel]);
+
+  // Split out, and keyed on the two primitives rather than the object, so a caller passing an
+  // inline `parent={{...}}` does not republish on every render.
+  const parentLabel = parent?.label;
+  const parentHref = parent?.href;
+  useEffect(() => {
+    if (!parentLabel || !parentHref) return;
+    setParent({ label: parentLabel, href: parentHref });
+    return () => clearParent(parentHref);
+  }, [parentLabel, parentHref, setParent, clearParent]);
 
   return (
     <header className="band-glow relative overflow-hidden rounded-card bg-band px-6 py-6 text-band-foreground">

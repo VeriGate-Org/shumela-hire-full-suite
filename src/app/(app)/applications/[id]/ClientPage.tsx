@@ -109,7 +109,6 @@ export default function ApplicationDetailPage() {
   const [timeline, setTimeline] = useState<Array<{
     fromStage?: string; toStage?: string; createdAt?: string; performedBy?: string; reason?: string;
   }>>([]);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -183,22 +182,6 @@ export default function ApplicationDetailPage() {
   }, [isAuthenticated, applicationId]);
 
   /**
-   * Copy this record's address.
-   *
-   * <p>The reason this page exists rather than a modal: a hiring manager has to be able to send a
-   * candidate to a panel or an approver, and a modal cannot be sent.
-   */
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast('Could not copy the link — your browser refused clipboard access', 'error');
-    }
-  };
-
-  /**
    * Move the application to another status.
    *
    * <p>The page could previously only reject. The endpoint has always been generic; nothing but
@@ -245,6 +228,7 @@ export default function ApplicationDetailPage() {
       <PageWrapper>
       <IdentityBand
         eyebrow="Application record"
+          parent={{ label: 'Applications', href: '/applications' }}
         title="Application"
         subtitle="Loading..."
         actions={headerActions}
@@ -262,6 +246,7 @@ export default function ApplicationDetailPage() {
       <PageWrapper>
       <IdentityBand
         eyebrow="Application record"
+          parent={{ label: 'Applications', href: '/applications' }}
         title="Application Not Found"
         actions={headerActions}
       />
@@ -291,6 +276,7 @@ export default function ApplicationDetailPage() {
 <div className="space-y-4">
         <IdentityBand
           eyebrow="Application record"
+          parent={{ label: 'Applications', href: '/applications' }}
           title={application.applicantName || 'Unknown candidate'}
           actions={headerActions}
           subtitle={
@@ -330,20 +316,10 @@ export default function ApplicationDetailPage() {
             >
               {initialsOf(application.applicantName)}
             </div>
-            {/* The address is shown, not just copyable. A hiring manager sending this to a panel
-                should be able to see what they are about to send. */}
-            <div className="flex min-w-0 items-center gap-2 rounded-control border border-band-line bg-band-fill px-3 py-2">
-              <span className="truncate font-mono text-xs text-band-strong">
-                {typeof window === 'undefined' ? '' : window.location.host}/applications/{application.id.slice(0, 8)}…
-              </span>
-              <button
-                type="button"
-                onClick={copyLink}
-                className="whitespace-nowrap text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] text-band-accent hover:underline"
-              >
-                {copied ? 'Copied' : 'Copy link'}
-              </button>
-            </div>
+            {/* The raw record address used to be displayed here with a Copy link button beside it.
+                It put a truncated UUID on the most prominent band on the page to serve a sharing
+                case nobody was using, so it was dropped — the browser's own address bar is the
+                link. */}
           </div>
         </IdentityBand>
 

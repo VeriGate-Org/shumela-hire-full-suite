@@ -209,6 +209,16 @@ export default function ApplicantsPage() {
     window.scrollTo(0, 0);
   };
 
+  // Lets other screens hand straight to capture — the pipeline's Add Candidate button is the
+  // caller. Read off window rather than useSearchParams so this page does not need a Suspense
+  // boundary to stay statically renderable. Runs once: it seeds the initial view, and must not
+  // drag someone back to the form after they have navigated on within the page.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('new') === '1') {
+      setView('create');
+    }
+  }, []);
+
   /**
    * Opening a person shows the person.
    *
@@ -293,7 +303,14 @@ export default function ApplicantsPage() {
     <PageWrapper>
       {/* Page header, not a record component under one — see #285. Reads getPageTitle() rather
           than a hardcoded string, or the create and edit screens would both announce themselves
-          as "Candidate Database". */}
+          as "Candidate Database".
+
+          Suppressed for the record view only. ApplicantRecord carries its own band, so a selected
+          applicant was sitting under two stacked navy headers — "Candidate base / Applicant" above
+          "Applicant · the person, not an application / <name>". The record's band is the one that
+          names the person, so it is the one that stays; it takes onBack so Back to Applicants
+          survives the header this removes. */}
+      {view !== 'record' && (
       <IdentityBand
         eyebrow="Candidate base"
         title={getPageTitle()}
@@ -325,6 +342,7 @@ export default function ApplicantsPage() {
         }
         actions={actions}
       />
+      )}
 
       <div className="space-y-6">
         {view === 'list' && (

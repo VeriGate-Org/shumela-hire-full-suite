@@ -105,6 +105,10 @@ export default function JobPostingsPage() {
   const [deletingJobPosting, setDeletingJobPosting] = useState<JobPosting | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showPublishWizard, setShowPublishWizard] = useState(false);
+  // Boards this advert is not yet on. Reported by JobBoardManager below, which already works it
+  // out. Starts at -1 — "not counted yet" — so the button is not disabled during the first load.
+  const [remainingBoards, setRemainingBoards] = useState(-1);
+  const [boardRefreshKey, setBoardRefreshKey] = useState(0);
   // Bulk actions
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
   const [bulkStatusAction, setBulkStatusAction] = useState('');
@@ -968,16 +972,35 @@ export default function JobPostingsPage() {
 
             {selectedJobPosting.status === 'PUBLISHED' && (
               <>
-                <div className="mt-6 flex justify-end">
+                <div className="mt-6 flex items-center justify-end gap-3">
+                  {remainingBoards === 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      Live on every available channel.
+                    </span>
+                  )}
+                  {/* Disabled once every channel carries the advert. It used to stay live and open
+                      a wizard with nothing in it, which read as a broken dialog rather than as
+                      "there is nothing left to do". Removing a posting frees its board and the
+                      button comes back. */}
                   <button
                     onClick={() => setShowPublishWizard(true)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-cta-foreground font-semibold text-sm uppercase tracking-wider rounded-full transition-all hover:bg-cta-hover hover:border-cta-hover"
+                    disabled={remainingBoards === 0}
+                    title={
+                      remainingBoards === 0
+                        ? 'This advert is already on every available channel'
+                        : `Publish to ${remainingBoards} remaining channel${remainingBoards === 1 ? '' : 's'}`
+                    }
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-cta-foreground font-semibold text-sm uppercase tracking-wider rounded-full transition-all hover:bg-cta-hover hover:border-cta-hover disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-cta disabled:hover:border-cta"
                   >
                     Publish to All Channels
                   </button>
                 </div>
                 <div className="mt-3 enterprise-card p-6">
-                  <JobBoardManager jobId={String(selectedJobPosting.id)} />
+                  <JobBoardManager
+                    key={boardRefreshKey}
+                    jobId={String(selectedJobPosting.id)}
+                    onRemainingBoardsChange={setRemainingBoards}
+                  />
                 </div>
               </>
             )}
@@ -1027,6 +1050,10 @@ export default function JobPostingsPage() {
           onComplete={() => {
             if (selectedJobPosting) {
               loadJobPostings();
+              // Remount the board panel. loadJobPostings refreshes the postings list, but the
+              // panel holds its own copy of the board data fetched on mount — without this the
+              // channels just published still showed as available and the count stayed stale.
+              setBoardRefreshKey(k => k + 1);
             }
           }}
         />
