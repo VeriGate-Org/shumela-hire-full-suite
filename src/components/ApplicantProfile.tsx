@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext';
 import IdentityBand from '@/components/record/IdentityBand';
 import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
+import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import {
   ApplicantSnapshot,
   changeCount,
@@ -68,9 +69,17 @@ interface ApplicantProfileProps {
    */
   applicantId?: string | number;
   onSave?: (applicant: ApplicantData) => void;
+  /**
+   * Back to the applicants list.
+   *
+   * <p>Lives on this component's own band. The create and edit screens used to sit under a second,
+   * page-level band that carried this button; that band was a duplicate header and has been
+   * removed, so without taking it here the form becomes a one-way trip.
+   */
+  onBack?: () => void;
 }
 
-export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfileProps) {
+export default function ApplicantProfile({ applicantId, onSave, onBack }: ApplicantProfileProps) {
   const { user: _user } = useAuth();
   const { toast } = useToast();
   const [formData, setFormData] = useState<ApplicantData>({
@@ -411,6 +420,17 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
           applicantId
             ? 'Changes are not saved until you say so. Documents are the exception — they save on upload.'
             : 'Nothing is saved until you say so.'
+        }
+        actions={
+          onBack ? (
+            <button
+              onClick={onBack}
+              className="inline-flex items-center gap-1.5 rounded-full border border-band-accent/40 px-4 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-band-accent"
+            >
+              <ChevronLeftIcon className="h-4 w-4" />
+              Back to Applicants
+            </button>
+          ) : undefined
         }
       />
 

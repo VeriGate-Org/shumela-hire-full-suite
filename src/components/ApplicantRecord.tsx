@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api-fetch';
 import IdentityBand from '@/components/record/IdentityBand';
-import DecisionBar, { SecondaryAction } from '@/components/record/DecisionBar';
+import DecisionBar from '@/components/record/DecisionBar';
 import StatusPill from '@/components/StatusPill';
 import { getEnumLabel } from '@/utils/enumLabels';
 import { DocumentTextIcon, ArrowDownTrayIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
@@ -226,6 +226,9 @@ export default function ApplicantRecord({ applicantId, onEdit, onBack }: Applica
         }
       />
 
+      {/* The duplicate Edit details that used to sit in this bar has gone. The band directly
+          above already offers it, and the two were close enough to read as two different
+          actions. The bar states what is on record; editing the person is not what it is owed. */}
       {summary && summary.total > 0 && (
         <DecisionBar
           ask={
@@ -243,9 +246,7 @@ export default function ApplicantRecord({ applicantId, onEdit, onBack }: Applica
               : undefined
           }
           tone={summary.active > 0 ? 'owed' : 'settled'}
-        >
-          <SecondaryAction onClick={onEdit}>Edit details</SecondaryAction>
-        </DecisionBar>
+        />
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

@@ -178,8 +178,13 @@ export default function SearchableDropdown({
                 return (
                   <label
                     key={option.value}
+                    // bg-blue-50 is a fixed light blue — the blue scale does not invert for dark
+                    // mode the way gray and slate do. Paired with text-gray-900 below, which DOES
+                    // invert and so turns light, every already-selected interviewer became white
+                    // text on a near-white row: the rows you had picked were the ones you could
+                    // not read. An accent tint keeps the selected state legible in both themes.
                     className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${
-                      isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
+                      isSelected ? 'bg-primary/10' : 'hover:bg-accent'
                     }`}
                   >
                     <input
@@ -189,11 +194,11 @@ export default function SearchableDropdown({
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500/60 shrink-0"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className={`text-sm ${isSelected ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
+                      <p className={`text-sm ${isSelected ? 'font-medium text-foreground' : 'text-foreground/80'}`}>
                         {option.label}
                       </p>
                       {option.description && (
-                        <p className="text-xs text-gray-400 truncate">{option.description}</p>
+                        <p className="text-xs text-muted-foreground truncate">{option.description}</p>
                       )}
                     </div>
                   </label>

@@ -144,20 +144,25 @@ export default function AiInterviewQuestionGenerator({ jobTitle: initialTitle, j
       {/* Results */}
       {result && result.questions && result.questions.length > 0 && (
         <div className="space-y-2">
+          {/* bg-gold-50 is a fixed light tint — the gold scale does not invert for dark mode the
+              way gray does. The question itself was text-gray-900, which DOES invert and turns
+              light, so every selected question rendered as white text on a near-white card: the
+              generated questions were there and unreadable. Selection is carried by the accent
+              border and a translucent tint that works on either surface. */}
           {result.questions.map((q, i) => (
-            <div key={i} className={`border rounded-control p-3 cursor-pointer transition-colors ${selected.has(i) ? 'border-violet-300 bg-gold-50' : 'border-gray-200 bg-gray-50'}`}
+            <div key={i} className={`border rounded-control p-3 cursor-pointer transition-colors ${selected.has(i) ? 'border-cta bg-cta/10' : 'border-border bg-muted'}`}
               onClick={() => toggleQuestion(i)}>
               <div className="flex items-start gap-3">
                 <input type="checkbox" checked={selected.has(i)} onChange={() => toggleQuestion(i)}
-                  className="mt-1 rounded border-gray-300 text-gold-600" />
+                  className="mt-1 rounded border-border text-gold-600" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{q.question}</p>
+                  <p className="text-sm font-medium text-foreground">{q.question}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-gray-500">{q.category}</span>
+                    <span className="text-xs text-muted-foreground">{q.category}</span>
                     <span className={`inline-flex px-1.5 py-0.5 text-xs font-medium rounded ${getDifficultyColor(q.difficulty)}`}>{q.difficulty}</span>
                   </div>
                   {q.expectedAnswer && (
-                    <p className="text-xs text-gray-500 mt-1 italic">{q.expectedAnswer}</p>
+                    <p className="text-xs text-muted-foreground mt-1 italic">{q.expectedAnswer}</p>
                   )}
                 </div>
               </div>
