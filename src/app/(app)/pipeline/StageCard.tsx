@@ -54,7 +54,13 @@ export default function StageCard({
     <div
       role="listitem"
       onClick={onOpen}
-      className={`group relative cursor-pointer overflow-hidden rounded-card border bg-card p-2.5 pl-3 shadow-sm transition-all before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:content-[''] hover:-translate-y-px hover:border-primary/30 hover:shadow-md ${
+      // shrink-0 is what actually fixes the Applied column. The cards sit in a `flex flex-col`
+      // with a max height, so flex-shrink let every card compress to fit — the more applications
+      // a column held, the shorter its cards became, and the card's own overflow-hidden then
+      // sliced the name through the middle. Applied holds the most, so it looked the worst, which
+      // is why it read as "Applied cards are too small". Reserving the signal row alone did not
+      // fix it: the row was reserved and then squeezed away again. The column scrolls instead.
+      className={`group relative shrink-0 cursor-pointer overflow-hidden rounded-card border bg-card p-2.5 pl-3 shadow-sm transition-all before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:content-[''] hover:-translate-y-px hover:border-primary/30 hover:shadow-md ${
         TONE_EDGE[state.tone]
       } ${selected ? 'border-primary shadow-[0_0_0_2px_rgba(5,82,126,0.2)]' : 'border-border'}`}
     >

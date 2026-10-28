@@ -310,7 +310,7 @@ export default function ApplicantsPage() {
           "Applicant · the person, not an application / <name>". The record's band is the one that
           names the person, so it is the one that stays; it takes onBack so Back to Applicants
           survives the header this removes. */}
-      {view !== 'record' && (
+      {view === 'list' && (
       <IdentityBand
         eyebrow="Candidate base"
         title={getPageTitle()}
@@ -717,6 +717,7 @@ export default function ApplicantsPage() {
           <ApplicantProfile
             applicantId={selectedApplicantId}
             onSave={handleSave}
+            onBack={handleBackToList}
           />
         )}
       </div>
